@@ -13,18 +13,6 @@
     --zoom-bg: #fff3e0; --zoom-border: #ff9800;
     --hour-height: 60px;
   }
-
-  /* --- グループ選択ボタンのスタイル --- */
-  .group-container {
-    display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 5px;
-  }
-  .group-chip {
-    background: #e0e0e0; border: 1px solid #ccc; border-radius: 15px;
-    padding: 4px 10px; font-size: 0.8rem; cursor: pointer; user-select: none;
-    transition: background 0.2s;
-  }
-  .group-chip:hover { background: #d5d5d5; }
-  .group-chip:active { background: #bbb; }
   
   body { font-family: "Helvetica Neue", Arial, sans-serif; margin: 0; background: #eef1f5; color: #333; height: 100vh; display: flex; flex-direction: column; }
   * { box-sizing: border-box; }
@@ -75,6 +63,12 @@
   .modal-content { background: white; padding: 20px; border-radius: 8px; width: 95%; max-width: 700px; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column;}
   .form-group label { font-weight: bold; font-size: 0.9rem; display: block; margin-top: 10px; }
 
+  /* グループボタン */
+  .group-container { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 5px; }
+  .group-chip { background: #e0e0e0; border: 1px solid #ccc; border-radius: 15px; padding: 4px 10px; font-size: 0.8rem; cursor: pointer; user-select: none; transition: background 0.2s; }
+  .group-chip:hover { background: #d5d5d5; }
+  .group-chip:active { background: #bbb; }
+
   /* シャトルUI */
   .shuttle-container { display: flex; gap: 10px; margin-top: 5px; height: 200px; }
   .shuttle-box { flex: 1; border: 1px solid #ddd; border-radius: 4px; display: flex; flex-direction: column; background: #fafafa; }
@@ -101,7 +95,7 @@
 
 <div id="login-screen">
   <div class="login-box">
-    <h2>予約システム v2.11</h2>
+    <h2>予約システム v2.12</h2>
     <input type="text" id="loginId" placeholder="ユーザーID">
     <input type="password" id="loginPass" placeholder="パスワード">
     <button class="btn-primary" onclick="tryLogin()">ログイン</button>
@@ -186,21 +180,8 @@
     <input type="text" id="input-title" placeholder="定例会議など">
     
     <label>参加者設定</label>
-    <label>用件 (タイトル)</label>
-    <input type="text" id="input-title" placeholder="定例会議など">
-    
-    <label>参加者設定</label>
     <div class="group-container" id="group-buttons-area"></div>
     
-    <div class="shuttle-container">
-        ```
-
-**▼ JavaScript (`<script>`内) の修正・追加**
-
-**① 変数初期化の修正**
-```javascript
-// dataの中に groups: [] を追加
-let masterData = { rooms: [], users: [], reservations: [], logs: [], groups: [] };
     <div class="shuttle-container">
         <div class="shuttle-box">
             <div class="shuttle-header">候補者一覧</div>
@@ -235,7 +216,7 @@ let masterData = { rooms: [], users: [], reservations: [], logs: [], groups: [] 
   const HOUR_HEIGHT = 60; 
 
   let currentUser = null;
-  let masterData = { rooms: [], users: [], reservations: [], logs: [] };
+  let masterData = { rooms: [], users: [], reservations: [], logs: [], groups: [] };
   let selectedParticipantIds = new Set();
 
   window.onload = () => {
@@ -308,7 +289,6 @@ let masterData = { rooms: [], users: [], reservations: [], logs: [], groups: [] 
     renderTimeAxis('time-axis-all');
     renderTimeAxis('time-axis-single');
     renderVerticalTimeline('all');
-    renderGroupButtons();
     renderLogs();
     const roomSelects = [document.getElementById('input-room'), document.getElementById('search-room-select')];
     roomSelects.forEach(sel => {
@@ -320,14 +300,14 @@ let masterData = { rooms: [], users: [], reservations: [], logs: [], groups: [] 
         sel.appendChild(op);
       });
     });
+    renderGroupButtons();
   }
-/* --- グループ機能の追加ロジック --- */
+
+  /* --- グループ機能 --- */
   function renderGroupButtons() {
     const container = document.getElementById('group-buttons-area');
     container.innerHTML = "";
-    
     if (!masterData.groups || masterData.groups.length === 0) return;
-
     masterData.groups.forEach(grp => {
         const btn = document.createElement('div');
         btn.className = 'group-chip';
@@ -339,19 +319,16 @@ let masterData = { rooms: [], users: [], reservations: [], logs: [], groups: [] 
 
   function selectGroupMembers(idsStr) {
     if (!idsStr) return;
-    // カンマ区切りのIDを分解してSetに追加
     const ids = idsStr.split(',');
     ids.forEach(id => {
-        // IDの空白除去と、そのユーザーが存在するかチェック
         const cleanId = id.trim();
         const exists = masterData.users.some(u => u.userId === cleanId);
-        if (exists) {
-            selectedParticipantIds.add(cleanId);
-        }
+        if (exists) selectedParticipantIds.add(cleanId);
     });
-    // 参加者リストを再描画
     renderShuttleLists(document.getElementById('shuttle-search-input').value);
   }
+
+  /* --- 参加者選択 (シャトルUI) --- */
   function renderShuttleLists(filterText = "") {
     const leftList = document.getElementById('list-candidates');
     const rightList = document.getElementById('list-selected');
@@ -456,7 +433,6 @@ let masterData = { rooms: [], users: [], reservations: [], logs: [], groups: [] 
         const offsetMin = startTotalMin - (START_HOUR * 60);
         const durationMin = (end.getTime() - start.getTime()) / 60000;
         
-        // ▼▼▼ 参加者名の取得・表示ロジック ▼▼▼
         let pNames = "";
         if (res.participantIds) {
             const ids = res.participantIds.split(',');
@@ -466,7 +442,6 @@ let masterData = { rooms: [], users: [], reservations: [], logs: [], groups: [] 
             }).filter(n => n);
             pNames = names.join(', ');
         }
-        // ▲▲▲
 
         if (offsetMin >= 0) {
             const bar = document.createElement('div');
@@ -476,7 +451,6 @@ let masterData = { rooms: [], users: [], reservations: [], logs: [], groups: [] 
             bar.style.top = topPx + "px";
             bar.style.height = heightPx + "px";
             
-            // ▼ 表示内容に参加者を追加
             bar.innerHTML = `
               <span style="font-weight:bold;">${pad(start.getHours())}:${pad(start.getMinutes())}</span><br>
               <span style="font-weight:bold;">${res.title || '予約'}</span>
@@ -517,7 +491,6 @@ let masterData = { rooms: [], users: [], reservations: [], logs: [], groups: [] 
       const roomNameDisplay = getRoomName(log.resourceName) || log.resourceName || '-';
       let timeDisplay = log.timeRange || '';
       if (log.action === '更新') {
-          // 詳細ログそのまま
       } else if (timeDisplay.includes(' - ')) {
           const parts = timeDisplay.split(' - ');
           if (parts[0] && parts[1]) {
