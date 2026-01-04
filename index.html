@@ -179,7 +179,7 @@
 </div>
 
 <script>
-  /* --- 設定: ここにGASのURLを貼る --- */
+  /* --- 設定: GASのURL --- */
   const API_URL = "https://script.google.com/macros/s/AKfycbxDJUWIyV50aYSEMTcQ2Eh775x25OOfwqM49KixBU-O3AHgdm1BYzvAjGSGEdz3f99E/exec";
 
   /* --- 状態管理 --- */
@@ -190,74 +190,113 @@
   window.onload = () => {
     document.getElementById('timeline-date').valueAsDate = new Date();
     document.getElementById('search-date').valueAsDate = new Date();
-    // デモ用: ローカルストレージにログイン情報があれば自動ログイン等の処理も可
   };
 
-  /* --- API通信系 --- */
+  /* --- API通信系 (汎用POST) --- */
   async function callAPI(params) {
     if(API_URL.indexOf("http") === -1) { alert("GASのURLを設定してください"); return; }
     document.getElementById('loading').style.display = 'flex';
     
-    // GETとPOSTの使い分け (GASはPOSTでJSONを受けるのが楽)
+    // GASへのPOSTは text/plain で送るのがCORS回避の定石
     const options = {
       method: 'POST',
-      body: JSON.stringify(params)
+      body: JSON.stringify(params),
+      headers: {
+        'Content-Type': 'text/plain;charset=utf-8' 
+      }
     };
     
-    // fetchはデフォルトでCORS対応が必要。GAS側でContentServiceを使用
     try {
       const res = await fetch(API_URL, options);
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
       const json = await res.json();
       document.getElementById('loading').style.display = 'none';
+      
+      if (json.status === 'error') {
+        alert("システムエラー: " + json.message);
+        return { status: 'error' };
+      }
+      
       return json;
     } catch(e) {
       document.getElementById('loading').style.display = 'none';
-      alert("通信エラー: " + e);
+      alert("通信エラーが発生しました: " + e.message);
+      console.error(e);
       return { status: 'error' };
     }
   }
 
+  /* --- ログイン処理 (GET送信) --- */
   async function tryLogin() {
     const id = document.getElementById('loginId').value;
     const pass = document.getElementById('loginPass').value;
     
-    // GETリクエストでログイン (今回はPOSTで統一せず、URLパラメータ例として実装、またはdoPostで統一も可)
-    // ここではdoGetのloginアクションを呼ぶため、fetchの書き方を少し変えます
     document.getElementById('loading').style.display = 'flex';
-    fetch(`${API_URL}?action=login&userId=${id}&password=${pass}`)
-      .then(res => res.json())
-      .then(json => {
+    
+    // GETリクエスト用のURL作成
+    const url = new URL(API_URL);
+    url.searchParams.append('action', 'login');
+    url.searchParams.append('userId', id);
+    url.searchParams.append('password', pass);
+
+    try {
+        const res = await fetch(url.toString(), {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'text/plain;charset=utf-8',
+            }
+        });
+        
+        const json = await res.json();
         document.getElementById('loading').style.display = 'none';
+
         if (json.status === 'success') {
           currentUser = json.user;
           document.getElementById('display-user-name').innerText = currentUser.userName;
           document.getElementById('login-screen').style.display = 'none';
           document.getElementById('app-screen').style.display = 'block';
-          loadAllData(); // データ取得開始
+          loadAllData(); // ログイン成功後にデータ取得
         } else {
-          alert(json.message);
+          alert("ログイン失敗: " + json.message);
         }
-      });
+    } catch (e) {
+        document.getElementById('loading').style.display = 'none';
+        alert("ログイン通信エラー: " + e.message + "\n※シート名(users)が正しいか、デプロイが更新されているか確認してください。");
+    }
   }
 
   function logout() {
     location.reload();
   }
 
+  /* --- データ一括取得 (GET送信) --- */
   async function loadAllData() {
-    // データ一括取得
-    const json = await callAPI({ action: 'getAllData' } /* ここはdoGet呼出の方がRESTfulだが、GASの仕様上doPostに統一すると楽。今回はdoGetを呼ぶ */); 
-    // ※修正: 上記GASコードでは doPostで getAllData を受けていないため、fetchでGETします
     document.getElementById('loading').style.display = 'flex';
-    fetch(`${API_URL}?action=getAllData`)
-      .then(res => res.json())
-      .then(json => {
-        document.getElementById('loading').style.display = 'none';
-        if (json.status === 'success') {
-          masterData = json.data;
-          initUI();
-        }
+
+    // GETリクエスト用のURL作成
+    const url = new URL(API_URL);
+    url.searchParams.append('action', 'getAllData');
+
+    try {
+      const res = await fetch(url.toString(), {
+          method: 'GET', // ここもGETにするのが安全
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' }
       });
+      const json = await res.json();
+      
+      document.getElementById('loading').style.display = 'none';
+      if (json.status === 'success') {
+        masterData = json.data;
+        initUI();
+      } else {
+        alert("データ取得エラー: " + json.message);
+      }
+    } catch (e) {
+      document.getElementById('loading').style.display = 'none';
+      alert("データ取得通信エラー: " + e.message);
+    }
   }
 
   /* --- UI描画系 --- */
@@ -292,13 +331,13 @@
     document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
     document.getElementById('view-' + tabName).classList.add('active');
-    // タブのアクティブ化処理は省略（クリック要素にクラス付与が必要）
     if(tabName === 'room-search') renderRoomSchedule();
   }
 
   // 1. タイムライン描画
   function renderTimelineHeader() {
     const header = document.getElementById('timeline-header');
+    header.innerHTML = '<div class="room-name">部屋 / 時間</div>'; // リセット
     // 9:00 - 19:00 までの目盛り
     for(let i=9; i<19; i++) {
       const div = document.createElement('div');
@@ -476,11 +515,7 @@
     const startTime = `${date} ${start}`;
     const endTime = `${date} ${end}`;
 
-    // 削除 -> 新規作成 (更新の簡易実装) または 新規作成
     if (id) {
-        // 更新の場合は本来Updateロジックだが、今回は「削除して新規」で簡易化も可能。
-        // ここでは新規作成APIのみ実装しているので、本来は updateReservation が必要。
-        // 取り急ぎ新規作成として送ります（実際はID判定が必要）
         alert("プロトタイプのため、更新は一度削除してから再登録してください");
         return;
     }
