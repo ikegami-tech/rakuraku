@@ -13,6 +13,18 @@
     --zoom-bg: #fff3e0; --zoom-border: #ff9800;
     --hour-height: 60px;
   }
+
+  /* --- グループ選択ボタンのスタイル --- */
+  .group-container {
+    display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 5px;
+  }
+  .group-chip {
+    background: #e0e0e0; border: 1px solid #ccc; border-radius: 15px;
+    padding: 4px 10px; font-size: 0.8rem; cursor: pointer; user-select: none;
+    transition: background 0.2s;
+  }
+  .group-chip:hover { background: #d5d5d5; }
+  .group-chip:active { background: #bbb; }
   
   body { font-family: "Helvetica Neue", Arial, sans-serif; margin: 0; background: #eef1f5; color: #333; height: 100vh; display: flex; flex-direction: column; }
   * { box-sizing: border-box; }
@@ -174,6 +186,21 @@
     <input type="text" id="input-title" placeholder="定例会議など">
     
     <label>参加者設定</label>
+    <label>用件 (タイトル)</label>
+    <input type="text" id="input-title" placeholder="定例会議など">
+    
+    <label>参加者設定</label>
+    <div class="group-container" id="group-buttons-area"></div>
+    
+    <div class="shuttle-container">
+        ```
+
+**▼ JavaScript (`<script>`内) の修正・追加**
+
+**① 変数初期化の修正**
+```javascript
+// dataの中に groups: [] を追加
+let masterData = { rooms: [], users: [], reservations: [], logs: [], groups: [] };
     <div class="shuttle-container">
         <div class="shuttle-box">
             <div class="shuttle-header">候補者一覧</div>
@@ -281,6 +308,7 @@
     renderTimeAxis('time-axis-all');
     renderTimeAxis('time-axis-single');
     renderVerticalTimeline('all');
+    renderGroupButtons();
     renderLogs();
     const roomSelects = [document.getElementById('input-room'), document.getElementById('search-room-select')];
     roomSelects.forEach(sel => {
@@ -293,7 +321,37 @@
       });
     });
   }
+/* --- グループ機能の追加ロジック --- */
+  function renderGroupButtons() {
+    const container = document.getElementById('group-buttons-area');
+    container.innerHTML = "";
+    
+    if (!masterData.groups || masterData.groups.length === 0) return;
 
+    masterData.groups.forEach(grp => {
+        const btn = document.createElement('div');
+        btn.className = 'group-chip';
+        btn.innerText = `+ ${grp.groupName}`;
+        btn.onclick = () => selectGroupMembers(grp.memberIds);
+        container.appendChild(btn);
+    });
+  }
+
+  function selectGroupMembers(idsStr) {
+    if (!idsStr) return;
+    // カンマ区切りのIDを分解してSetに追加
+    const ids = idsStr.split(',');
+    ids.forEach(id => {
+        // IDの空白除去と、そのユーザーが存在するかチェック
+        const cleanId = id.trim();
+        const exists = masterData.users.some(u => u.userId === cleanId);
+        if (exists) {
+            selectedParticipantIds.add(cleanId);
+        }
+    });
+    // 参加者リストを再描画
+    renderShuttleLists(document.getElementById('shuttle-search-input').value);
+  }
   function renderShuttleLists(filterText = "") {
     const leftList = document.getElementById('list-candidates');
     const rightList = document.getElementById('list-selected');
