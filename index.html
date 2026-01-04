@@ -494,6 +494,7 @@
     }
   }
 
+  /* --- 修正版：どんな日付形式でも許容する強力なタイムライン描画関数 --- */
   function renderVerticalTimeline(mode) {
     let container, dateInputId, targetRooms;
     
@@ -511,11 +512,10 @@
 
     container.innerHTML = "";
     
-    // ▼▼▼ 日付比較のための準備（文字比較ではなく数値比較にする） ▼▼▼
-    const rawDateVal = document.getElementById(dateInputId).value; // "2026-01-04"
-    const targetDateObj = new Date(rawDateVal);
-    // 比較用文字列を作成 (例: "2026/1/4" 形式に統一)
-    const targetYMD = targetDateObj.getFullYear() + '/' + (targetDateObj.getMonth() + 1) + '/' + targetDateObj.getDate();
+    // ▼▼▼ 日付比較の準備（数字だけを取り出して比較する作戦） ▼▼▼
+    // 例: "2026-01-04" -> "20260104"
+    const rawDateVal = document.getElementById(dateInputId).value;
+    const targetDateNum = formatDateToNum(new Date(rawDateVal)); 
     // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
     targetRooms.forEach(room => {
@@ -543,21 +543,20 @@
          }
       };
 
-      // ▼▼▼ 修正ポイント：あらゆる日付形式に対応するフィルタ処理 ▼▼▼
+      // ▼▼▼ 修正ポイント：予約データの判定ロジック ▼▼▼
       const reservations = masterData.reservations.filter(res => {
         if (!res.startTime) return false;
+        if (res.resourceId !== room.roomId) return false;
+
+        // 予約データの日付も「数字だけ」に変換して比較する
+        // 例: "2026/1/4 9:00" -> "20260104"
+        const resDateNum = formatDateToNum(new Date(res.startTime));
         
-        // 予約データを一度「Date型」に変換してから、年・月・日を取り出す
-        const resDate = new Date(res.startTime);
-        const resYMD = resDate.getFullYear() + '/' + (resDate.getMonth() + 1) + '/' + resDate.getDate();
-        
-        // 部屋IDが一致し、かつ「年月日」が一致するか判定
-        return res.resourceId === room.roomId && resYMD === targetYMD;
+        return resDateNum === targetDateNum;
       });
       // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
       reservations.forEach(res => {
-        // 時刻計算もDate型ベースで行う
         const start = new Date(res.startTime);
         const end = new Date(res.endTime);
         
@@ -574,7 +573,6 @@
             
             bar.style.top = topPx + "px";
             bar.style.height = heightPx + "px";
-            // タイトルがない場合は「予約」と表示
             bar.innerHTML = `<span style="font-weight:bold;">${pad(start.getHours())}:${pad(start.getMinutes())}</span><br>${res.title || '予約'}`;
             
             bar.onclick = (e) => { e.stopPropagation(); openModal(res); };
@@ -586,6 +584,15 @@
       container.appendChild(col);
     });
   }
+
+  // ▼▼▼ 新しいヘルパー関数：日付を8桁の数字文字列にする（例: "20260104"） ▼▼▼
+  function formatDateToNum(d) {
+    if (isNaN(d.getTime())) return ""; // 無効な日付なら空文字
+    return d.getFullYear() + 
+           pad(d.getMonth() + 1) + 
+           pad(d.getDate());
+  }
+  // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
   function renderRoomSearch() {
       renderVerticalTimeline('single');
   }
