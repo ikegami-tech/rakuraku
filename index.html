@@ -170,7 +170,7 @@
   
   .form-group label { font-weight: bold; font-size: 0.9rem; display: block; margin-top: 10px; }
 
-  /* --- 参加者選択リストの改良 --- */
+  /* --- 参加者選択リスト --- */
   .participant-search-box {
     width: 100%; padding: 8px; margin-bottom: 5px; border: 1px solid #ccc; border-radius: 4px;
   }
@@ -204,7 +204,7 @@
 
 <div id="login-screen">
   <div class="login-box">
-    <h2>予約システム v2.6</h2>
+    <h2>予約システム v2.7</h2>
     <input type="text" id="loginId" placeholder="ユーザーID (例: user01)">
     <input type="password" id="loginPass" placeholder="パスワード (例: pass1234)">
     <button class="btn-primary" onclick="tryLogin()">ログイン</button>
@@ -301,8 +301,7 @@
     
     <label>参加者 (検索して選択)</label>
     <input type="text" id="participant-search" class="participant-search-box" placeholder="名前で検索..." oninput="filterParticipants()">
-    <div class="participant-list-container" id="input-participants">
-        </div>
+    <div class="participant-list-container" id="input-participants"></div>
     
     <label>備考</label>
     <textarea id="input-note" rows="2" placeholder="備品要望など"></textarea>
@@ -316,7 +315,7 @@
 </div>
 
 <script>
-  /* --- 設定: GASのURL --- */
+  /* --- 重要: GASのURL --- */
   const API_URL = "https://script.google.com/macros/s/AKfycbxy1aI3bEo3lDqpLM1YkjwuMPGkf82dijKmdBIdrz-iAnJhEo0HElw4xJn1x-qNjLBQ/exec";
 
   const START_HOUR = 9;
@@ -406,7 +405,6 @@
       document.getElementById('loading').style.display = 'none';
       if (json.status === 'success') {
         masterData = json.data;
-        console.log("Data Loaded:", masterData); // デバッグ用
         initUI();
       }
     } catch(e) {
@@ -431,7 +429,6 @@
       });
     });
 
-    // 参加者リスト生成
     renderParticipantList();
   }
 
@@ -487,7 +484,7 @@
     }
   }
 
-  /* --- タイムライン描画ロジック (日付数値比較版) --- */
+  /* --- タイムライン描画 (日付数値比較で確実に表示させる) --- */
   function renderVerticalTimeline(mode) {
     let container, dateInputId, targetRooms;
     
@@ -505,11 +502,9 @@
 
     container.innerHTML = "";
     
-    // ▼▼▼ 日付比較の準備（数字だけを取り出して比較する） ▼▼▼
-    const rawDateVal = document.getElementById(dateInputId).value; // "2026-01-04"
+    // 画面の日付入力値を数値化 (例: "2026-01-04" -> 20260104)
+    const rawDateVal = document.getElementById(dateInputId).value; 
     const targetDateNum = formatDateToNum(new Date(rawDateVal)); 
-    console.log(`Target Date: ${targetDateNum} (raw: ${rawDateVal})`); // デバッグ用
-    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
     targetRooms.forEach(room => {
       const col = document.createElement('div');
@@ -536,21 +531,16 @@
          }
       };
 
-      // ▼▼▼ フィルタリング ▼▼▼
+      // 予約フィルタリング (数値比較で確実にマッチさせる)
       const reservations = masterData.reservations.filter(res => {
         if (!res.startTime) return false;
         if (res.resourceId !== room.roomId) return false;
 
-        // 予約データを日付オブジェクトに変換
-        const resDate = new Date(res.startTime);
-        const resDateNum = formatDateToNum(resDate);
+        // 予約データの日付も数値化
+        const resDateNum = formatDateToNum(new Date(res.startTime));
         
-        // デバッグログ (コンソールで確認可能)
-        // console.log(`Check: ${res.startTime} -> ${resDateNum} vs ${targetDateNum}`);
-
         return resDateNum === targetDateNum;
       });
-      // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
       reservations.forEach(res => {
         const start = new Date(res.startTime);
@@ -581,11 +571,10 @@
     });
   }
 
-  // ▼▼▼ 日付数値化ヘルパー (これが重要) ▼▼▼
+  // --- 重要なヘルパー関数: 日付を数値(yyyymmdd)にする ---
   function formatDateToNum(d) {
     if (isNaN(d.getTime())) return ""; 
-    // yyyymmdd 形式の文字列を返す
-    return d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate());
+    return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
   }
 
   function renderRoomSearch() {
@@ -605,7 +594,6 @@
   function renderLogs() {
     const tbody = document.getElementById('log-tbody');
     tbody.innerHTML = "";
-    
     const logs = [...masterData.logs].reverse().slice(0, 20);
     
     logs.forEach(log => {
@@ -643,7 +631,6 @@
   function openModal(res = null, defaultRoomId = null, clickHour = null) {
     const modal = document.getElementById('bookingModal');
     modal.style.display = 'flex';
-    
     document.getElementById('participant-search').value = "";
     filterParticipants();
 
@@ -697,6 +684,13 @@
     const title = document.getElementById('input-title').value;
     const note = document.getElementById('input-note').value;
     
+    // ▼▼▼ 時間の矛盾チェック (新規追加) ▼▼▼
+    if (start >= end) {
+        alert("開始時間は終了時間より前に設定してください。");
+        return;
+    }
+    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
     // 日付区切り文字の統一
     const dateSlash = date.replace(/-/g, '/');
     const startTime = `${dateSlash} ${start}`;
