@@ -510,9 +510,13 @@
     }
 
     container.innerHTML = "";
-    // 日付取得と区切り文字統一
-    const rawDateVal = document.getElementById(dateInputId).value;
-    const targetDateSlash = rawDateVal.replace(/-/g, '/');
+    
+    // ▼▼▼ 日付比較のための準備（文字比較ではなく数値比較にする） ▼▼▼
+    const rawDateVal = document.getElementById(dateInputId).value; // "2026-01-04"
+    const targetDateObj = new Date(rawDateVal);
+    // 比較用文字列を作成 (例: "2026/1/4" 形式に統一)
+    const targetYMD = targetDateObj.getFullYear() + '/' + (targetDateObj.getMonth() + 1) + '/' + targetDateObj.getDate();
+    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
     targetRooms.forEach(room => {
       const col = document.createElement('div');
@@ -533,24 +537,29 @@
              const clickY = e.clientY - rect.top;
              const hourIndex = Math.floor(clickY / HOUR_HEIGHT);
              let clickHour = START_HOUR + hourIndex;
-             // 範囲外クリックの補正
              if (clickHour < START_HOUR) clickHour = START_HOUR;
              if (clickHour >= END_HOUR) clickHour = END_HOUR - 1;
              openModal(null, room.roomId, clickHour);
          }
       };
 
-      // 予約データフィルタリング（日付形式を統一して比較）
+      // ▼▼▼ 修正ポイント：あらゆる日付形式に対応するフィルタ処理 ▼▼▼
       const reservations = masterData.reservations.filter(res => {
         if (!res.startTime) return false;
-        const resDateStr = res.startTime.replace(/-/g, '/');
-        return res.resourceId === room.roomId && resDateStr.startsWith(targetDateSlash);
+        
+        // 予約データを一度「Date型」に変換してから、年・月・日を取り出す
+        const resDate = new Date(res.startTime);
+        const resYMD = resDate.getFullYear() + '/' + (resDate.getMonth() + 1) + '/' + resDate.getDate();
+        
+        // 部屋IDが一致し、かつ「年月日」が一致するか判定
+        return res.resourceId === room.roomId && resYMD === targetYMD;
       });
+      // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
       reservations.forEach(res => {
-        // Date型への変換も統一
-        const start = new Date(res.startTime.replace(/-/g, '/'));
-        const end = new Date(res.endTime.replace(/-/g, '/'));
+        // 時刻計算もDate型ベースで行う
+        const start = new Date(res.startTime);
+        const end = new Date(res.endTime);
         
         const startTotalMin = (start.getHours() * 60) + start.getMinutes();
         const offsetMin = startTotalMin - (START_HOUR * 60);
@@ -565,7 +574,8 @@
             
             bar.style.top = topPx + "px";
             bar.style.height = heightPx + "px";
-            bar.innerHTML = `<span style="font-weight:bold;">${pad(start.getHours())}:${pad(start.getMinutes())}</span><br>${res.title || ''}`;
+            // タイトルがない場合は「予約」と表示
+            bar.innerHTML = `<span style="font-weight:bold;">${pad(start.getHours())}:${pad(start.getMinutes())}</span><br>${res.title || '予約'}`;
             
             bar.onclick = (e) => { e.stopPropagation(); openModal(res); };
             body.appendChild(bar);
@@ -576,7 +586,6 @@
       container.appendChild(col);
     });
   }
-
   function renderRoomSearch() {
       renderVerticalTimeline('single');
   }
