@@ -164,7 +164,7 @@
   .log-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; background: white; }
   .log-table th, .log-table td { padding: 8px; border: 1px solid #eee; text-align: left; }
   
-  /* --- モーダル (z-indexを高く設定) --- */
+  /* --- モーダル --- */
   .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 3000; }
   .modal-content { background: white; padding: 20px; border-radius: 8px; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column;}
   
@@ -204,7 +204,7 @@
 
 <div id="login-screen">
   <div class="login-box">
-    <h2>予約システム v2.5</h2>
+    <h2>予約システム v2.6</h2>
     <input type="text" id="loginId" placeholder="ユーザーID (例: user01)">
     <input type="password" id="loginPass" placeholder="パスワード (例: pass1234)">
     <button class="btn-primary" onclick="tryLogin()">ログイン</button>
@@ -316,7 +316,7 @@
 </div>
 
 <script>
-  /* --- 修正ポイント: GASのURLを設定してください --- */
+  /* --- 設定: GASのURL --- */
   const API_URL = "https://script.google.com/macros/s/AKfycbxy1aI3bEo3lDqpLM1YkjwuMPGkf82dijKmdBIdrz-iAnJhEo0HElw4xJn1x-qNjLBQ/exec";
 
   const START_HOUR = 9;
@@ -393,11 +393,6 @@
 
   function logout() { location.reload(); }
 
-  function getRoomName(id) {
-    const r = masterData.rooms.find(x => x.roomId === id);
-    return r ? r.roomName : id;
-  }
-
   async function loadAllData() {
     document.getElementById('loading').style.display = 'flex';
     const url = new URL(API_URL);
@@ -411,6 +406,7 @@
       document.getElementById('loading').style.display = 'none';
       if (json.status === 'success') {
         masterData = json.data;
+        console.log("Data Loaded:", masterData); // デバッグ用
         initUI();
       }
     } catch(e) {
@@ -435,25 +431,22 @@
       });
     });
 
-    // 参加者リスト生成 (検索対応)
+    // 参加者リスト生成
     renderParticipantList();
   }
 
-  // 参加者リスト生成関数
   function renderParticipantList() {
     const pContainer = document.getElementById('input-participants');
     pContainer.innerHTML = "";
     masterData.users.forEach(u => {
       const div = document.createElement('div');
       div.className = 'participant-item';
-      div.setAttribute('data-name', u.userName); // 検索用属性
-      // IDをチェックボックスのvalueにする
+      div.setAttribute('data-name', u.userName);
       div.innerHTML = `<input type="checkbox" value="${u.userId}" id="p-${u.userId}"> <label for="p-${u.userId}" style="margin:0; font-weight:normal; width:100%; cursor:pointer;">${u.userName}</label>`;
       pContainer.appendChild(div);
     });
   }
 
-  // 参加者検索フィルタ
   function filterParticipants() {
     const text = document.getElementById('participant-search').value.toLowerCase();
     const items = document.querySelectorAll('.participant-item');
@@ -494,7 +487,7 @@
     }
   }
 
-  /* --- 修正版：どんな日付形式でも許容する強力なタイムライン描画関数 --- */
+  /* --- タイムライン描画ロジック (日付数値比較版) --- */
   function renderVerticalTimeline(mode) {
     let container, dateInputId, targetRooms;
     
@@ -512,10 +505,10 @@
 
     container.innerHTML = "";
     
-    // ▼▼▼ 日付比較の準備（数字だけを取り出して比較する作戦） ▼▼▼
-    // 例: "2026-01-04" -> "20260104"
-    const rawDateVal = document.getElementById(dateInputId).value;
+    // ▼▼▼ 日付比較の準備（数字だけを取り出して比較する） ▼▼▼
+    const rawDateVal = document.getElementById(dateInputId).value; // "2026-01-04"
     const targetDateNum = formatDateToNum(new Date(rawDateVal)); 
+    console.log(`Target Date: ${targetDateNum} (raw: ${rawDateVal})`); // デバッグ用
     // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
     targetRooms.forEach(room => {
@@ -543,15 +536,18 @@
          }
       };
 
-      // ▼▼▼ 修正ポイント：予約データの判定ロジック ▼▼▼
+      // ▼▼▼ フィルタリング ▼▼▼
       const reservations = masterData.reservations.filter(res => {
         if (!res.startTime) return false;
         if (res.resourceId !== room.roomId) return false;
 
-        // 予約データの日付も「数字だけ」に変換して比較する
-        // 例: "2026/1/4 9:00" -> "20260104"
-        const resDateNum = formatDateToNum(new Date(res.startTime));
+        // 予約データを日付オブジェクトに変換
+        const resDate = new Date(res.startTime);
+        const resDateNum = formatDateToNum(resDate);
         
+        // デバッグログ (コンソールで確認可能)
+        // console.log(`Check: ${res.startTime} -> ${resDateNum} vs ${targetDateNum}`);
+
         return resDateNum === targetDateNum;
       });
       // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
@@ -585,14 +581,13 @@
     });
   }
 
-  // ▼▼▼ 新しいヘルパー関数：日付を8桁の数字文字列にする（例: "20260104"） ▼▼▼
+  // ▼▼▼ 日付数値化ヘルパー (これが重要) ▼▼▼
   function formatDateToNum(d) {
-    if (isNaN(d.getTime())) return ""; // 無効な日付なら空文字
-    return d.getFullYear() + 
-           pad(d.getMonth() + 1) + 
-           pad(d.getDate());
+    if (isNaN(d.getTime())) return ""; 
+    // yyyymmdd 形式の文字列を返す
+    return d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate());
   }
-  // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
   function renderRoomSearch() {
       renderVerticalTimeline('single');
   }
@@ -607,35 +602,26 @@
     else renderRoomSearch();
   }
 
-  // 3. ログ描画 (修正版)
   function renderLogs() {
     const tbody = document.getElementById('log-tbody');
     tbody.innerHTML = "";
     
-    // 新しい順に20件
     const logs = [...masterData.logs].reverse().slice(0, 20);
     
     logs.forEach(log => {
       const tr = document.createElement('tr');
-      
-      // ▼▼▼ 表示の整形処理 ▼▼▼
-      
-      // 1. 部屋ID (conf_a) を 日本語名 (会議室A) に変換
-      // もし削除された部屋などで見つからない場合はIDをそのまま出す
       const roomNameDisplay = getRoomName(log.resourceName) || log.resourceName || '-';
 
-      // 2. 時間の整形 (例: 2026/01/04 09:00 - 2026/01/04 10:00 → 01/04 09:00 - 10:00)
       let timeDisplay = log.timeRange || '';
       if (timeDisplay.includes(' - ')) {
           const parts = timeDisplay.split(' - ');
-          const startStr = parts[0]; // 2026/01/04 09:00
-          const endStr   = parts[1]; // 2026/01/04 10:00
+          const startStr = parts[0]; 
+          const endStr   = parts[1]; 
           
           if (startStr && endStr) {
               const startDate = new Date(startStr);
               const endDate   = new Date(endStr);
               
-              // 日付と時刻を見やすくフォーマット
               const sDate = `${startDate.getMonth()+1}/${startDate.getDate()}`;
               const sTime = `${pad(startDate.getHours())}:${pad(startDate.getMinutes())}`;
               const eTime = `${pad(endDate.getHours())}:${pad(endDate.getMinutes())}`;
@@ -643,7 +629,6 @@
               timeDisplay = `${sDate} ${sTime} - ${eTime}`;
           }
       }
-
 
       tr.innerHTML = `
         <td>${formatDate(new Date(log.timestamp))}</td>
@@ -659,7 +644,6 @@
     const modal = document.getElementById('bookingModal');
     modal.style.display = 'flex';
     
-    // 参加者検索をリセット
     document.getElementById('participant-search').value = "";
     filterParticipants();
 
@@ -713,7 +697,7 @@
     const title = document.getElementById('input-title').value;
     const note = document.getElementById('input-note').value;
     
-    // 日付区切り文字の統一 (バグ修正箇所)
+    // 日付区切り文字の統一
     const dateSlash = date.replace(/-/g, '/');
     const startTime = `${dateSlash} ${start}`;
     const endTime = `${dateSlash} ${end}`;
@@ -769,6 +753,11 @@
 
   function pad(n) { return n < 10 ? '0'+n : n; }
   function formatDate(d) { return `${d.getMonth()+1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}`; }
+  
+  function getRoomName(id) {
+    const r = masterData.rooms.find(x => x.roomId === id);
+    return r ? r.roomName : id;
+  }
 </script>
 </body>
 </html>
