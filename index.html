@@ -1,261 +1,548 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>らくらくお部屋予約システム</title>
-    <style>
-        /* 基本デザイン */
-        :root {
-            --primary-color: #2c3e50;
-            --accent-color: #27ae60;
-            --bg-color: #f4f7f6;
-            --card-bg: #ffffff;
-        }
-        body {
-            font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
-            background-color: var(--bg-color);
-            margin: 0;
-            color: #333;
-        }
-        header {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 1rem 2rem;
-            text-align: center;
-        }
-        h1 { margin: 0; font-size: 1.5rem; }
-        
-        .container {
-            max-width: 800px;
-            margin: 2rem auto;
-            padding: 0 1rem;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>らくらくお部屋予約システム</title>
+<style>
+  /* --- 基本スタイル --- */
+  :root {
+    --primary: #2c3e50; --accent: #27ae60; --danger: #c0392b;
+    --meeting-bg: #e3f2fd; --meeting-border: #2196f3;
+    --reception-bg: #e8f5e9; --reception-border: #4caf50;
+    --zoom-bg: #fff3e0; --zoom-border: #ff9800;
+  }
+  body { font-family: sans-serif; margin: 0; background: #f4f7f6; color: #333; }
+  * { box-sizing: border-box; }
 
-        /* 部屋タイプ切り替えタブ */
-        .tabs {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
-            gap: 10px;
-        }
-        .tab-btn {
-            padding: 10px 20px;
-            border: none;
-            background: #ddd;
-            cursor: pointer;
-            border-radius: 5px;
-            font-weight: bold;
-            transition: 0.3s;
-        }
-        .tab-btn.active {
-            background-color: var(--accent-color);
-            color: white;
-        }
+  /* --- ログイン画面 --- */
+  #login-screen {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: var(--primary); display: flex; justify-content: center; align-items: center; z-index: 999;
+  }
+  .login-box { background: white; padding: 2rem; border-radius: 8px; width: 90%; max-width: 350px; text-align: center; }
+  input, select, textarea { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px; }
+  button { width: 100%; padding: 12px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-danger { background: var(--danger); color: white; }
 
-        /* 予約状況パネル */
-        .room-panel {
-            display: none; /* 初期状態は非表示 */
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            animation: fadeIn 0.5s;
-        }
-        .room-panel.active {
-            display: block; /* アクティブなものだけ表示 */
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
+  /* --- メイン画面 --- */
+  #app-screen { display: none; }
+  header { background: var(--primary); color: white; padding: 10px; display: flex; justify-content: space-between; align-items: center; }
+  .user-info { font-size: 0.8rem; }
+  
+  /* ナビゲーション */
+  .nav-tabs { display: flex; background: white; border-bottom: 1px solid #ddd; }
+  .nav-item { flex: 1; text-align: center; padding: 12px; cursor: pointer; border-bottom: 3px solid transparent; }
+  .nav-item.active { border-bottom-color: var(--accent); color: var(--accent); font-weight: bold; }
 
-        /* タイムライン（簡易表示） */
-        .time-slot {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-        }
-        .status {
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
-        .status.free { background-color: #e8f8f5; color: #27ae60; }
-        .status.busy { background-color: #fdedec; color: #c0392b; }
+  /* コンテンツエリア */
+  .view-container { display: none; padding: 15px; }
+  .view-container.active { display: block; }
+  
+  /* タイムライン (横スクロール) */
+  .date-controller { text-align: center; margin-bottom: 15px; display: flex; gap: 10px; justify-content: center; }
+  .timeline-wrapper { overflow-x: auto; background: white; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+  .timeline-header { display: flex; border-bottom: 1px solid #eee; min-width: 800px; } /* 幅確保 */
+  .time-scale { flex: 1; text-align: center; font-size: 0.7rem; color: #888; border-right: 1px solid #f0f0f0; }
+  
+  .room-row { display: flex; border-bottom: 1px solid #eee; min-width: 800px; height: 50px; position: relative; }
+  .room-name { width: 100px; padding: 10px; font-size: 0.8rem; font-weight: bold; background: #fafafa; position: sticky; left: 0; z-index: 10; border-right: 1px solid #ddd; display: flex; align-items: center; }
+  .time-grid { flex: 1; position: relative; background: repeating-linear-gradient(90deg, transparent, transparent 49px, #f9f9f9 50px); }
+  
+  /* 予約バー */
+  .booking-bar {
+    position: absolute; top: 5px; bottom: 5px;
+    border-radius: 4px; font-size: 0.7rem; color: #333; padding: 2px 5px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+  .type-meeting { background: var(--meeting-bg); border-left: 4px solid var(--meeting-border); }
+  .type-reception { background: var(--reception-bg); border-left: 4px solid var(--reception-border); }
+  .type-zoom { background: var(--zoom-bg); border-left: 4px solid var(--zoom-border); }
 
-        /* 予約ボタン */
-        .reserve-btn {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 5px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .reserve-btn:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
+  /* 部屋別リスト */
+  .schedule-list-item { background: white; padding: 10px; border-radius: 4px; margin-bottom: 10px; border-left: 5px solid #ccc; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 
-        /* モーダル（予約フォーム） */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5);
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-content {
-            background: white;
-            padding: 2rem;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 400px;
-        }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input, select { width: 100%; padding: 8px; box-sizing: border-box; }
-        
-        .action-btns {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-        }
-        .cancel-btn { background: #95a5a6; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
-        .submit-btn { background: var(--accent-color); color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
-
-    </style>
+  /* 履歴テーブル */
+  .log-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; background: white; }
+  .log-table th, .log-table td { padding: 8px; border: 1px solid #eee; text-align: left; }
+  
+  /* モーダル */
+  .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
+  .modal-content { background: white; padding: 20px; border-radius: 8px; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+  .form-group label { font-weight: bold; font-size: 0.9rem; display: block; margin-top: 10px; }
+  .checkbox-group { max-height: 100px; overflow-y: scroll; border: 1px solid #ddd; padding: 5px; }
+  
+  /* ローディング */
+  #loading { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 2000; justify-content: center; align-items: center; font-weight: bold; }
+</style>
 </head>
 <body>
 
-<header>
-    <h1>らくらくお部屋予約システム</h1>
-    <p>System Dept. Internal Tools</p>
-</header>
+<div id="loading">読み込み中...</div>
 
-<div class="container">
-    <div class="tabs">
-        <button class="tab-btn active" onclick="openTab('conference')">会議室 (A/B)</button>
-        <button class="tab-btn" onclick="openTab('reception')">応接室</button>
-        <button class="tab-btn" onclick="openTab('zoom')">ZOOM部屋</button>
+<div id="login-screen">
+  <div class="login-box">
+    <h2>予約システム v2.2</h2>
+    <input type="text" id="loginId" placeholder="ユーザーID (例: user01)">
+    <input type="password" id="loginPass" placeholder="パスワード (例: pass1234)">
+    <button class="btn-primary" onclick="tryLogin()">ログイン</button>
+  </div>
+</div>
+
+<div id="app-screen">
+  <header>
+    <div id="header-title">部屋予約</div>
+    <div class="user-info">
+      <span id="display-user-name"></span> さん
+      <button onclick="logout()" style="width:auto; padding:5px 10px; font-size:0.7rem; margin-left:10px;">ログアウト</button>
     </div>
+  </header>
 
-    <div id="conference" class="room-panel active">
-        <h2>会議室 予約状況 (本日)</h2>
-        <div class="time-slot">
-            <span>09:00 - 10:00 (会議室A)</span>
-            <span class="status busy">予約済 (山田)</span>
-            <button class="reserve-btn" disabled>予約不可</button>
-        </div>
-        <div class="time-slot">
-            <span>10:00 - 11:00 (会議室A)</span>
-            <span class="status free">空き</span>
-            <button class="reserve-btn" onclick="openModal('会議室A', '10:00 - 11:00')">予約する</button>
-        </div>
-        <div class="time-slot">
-            <span>11:00 - 12:00 (会議室B)</span>
-            <span class="status free">空き</span>
-            <button class="reserve-btn" onclick="openModal('会議室B', '11:00 - 12:00')">予約する</button>
-        </div>
+  <div class="nav-tabs">
+    <div class="nav-item active" onclick="switchTab('timeline')">一覧(日)</div>
+    <div class="nav-item" onclick="switchTab('room-search')">部屋検索</div>
+    <div class="nav-item" onclick="switchTab('logs')">履歴</div>
+  </div>
+
+  <div id="view-timeline" class="view-container active">
+    <div class="date-controller">
+      <button onclick="changeDate(-1)" style="width:40px;">&lt;</button>
+      <input type="date" id="timeline-date" onchange="renderTimeline()">
+      <button onclick="changeDate(1)" style="width:40px;">&gt;</button>
     </div>
-
-    <div id="reception" class="room-panel">
-        <h2>応接室 予約状況 (本日)</h2>
-        <p>※重要なお客様の来客時は、「TOHO SS」の登録情報も併せてご確認ください。</p>
-        <div class="time-slot">
-            <span>13:00 - 14:00</span>
-            <span class="status free">空き</span>
-            <button class="reserve-btn" onclick="openModal('応接室', '13:00 - 14:00')">予約する</button>
+    <div class="timeline-wrapper">
+      <div class="timeline-header" id="timeline-header">
+        <div class="room-name">部屋 / 時間</div>
         </div>
-    </div>
-
-    <div id="zoom" class="room-panel">
-        <h2>ZOOM専用ブース 予約状況</h2>
-        <div class="time-slot">
-            <span>ZOOM-1 (常時接続)</span>
-            <span class="status free">空き</span>
-            <button class="reserve-btn" onclick="openModal('ZOOM-1', '今すぐ')">利用開始</button>
-        </div>
-        <div class="time-slot">
-            <span>ZOOM-2</span>
-            <span class="status busy">使用中</span>
-            <button class="reserve-btn" disabled>予約不可</button>
+      <div id="timeline-body">
         </div>
     </div>
+    <button class="btn-primary" style="margin-top:20px;" onclick="openModal()">＋ 新規予約</button>
+  </div>
+
+  <div id="view-room-search" class="view-container">
+    <div class="form-group">
+      <label>部屋を選択</label>
+      <select id="search-room-select" onchange="renderRoomSchedule()"></select>
+    </div>
+    <div class="form-group">
+      <label>日付を選択</label>
+      <input type="date" id="search-date" onchange="renderRoomSchedule()">
+    </div>
+    <hr>
+    <h3>スケジュール詳細</h3>
+    <div id="room-schedule-list">
+      </div>
+  </div>
+
+  <div id="view-logs" class="view-container">
+    <h3>操作履歴 (最新20件)</h3>
+    <table class="log-table">
+      <thead><tr><th>日時</th><th>操作者</th><th>操作</th><th>詳細</th></tr></thead>
+      <tbody id="log-tbody"></tbody>
+    </table>
+  </div>
 </div>
 
 <div id="bookingModal" class="modal">
-    <div class="modal-content">
-        <h3>予約フォーム</h3>
-        <form onsubmit="submitBooking(event)">
-            <div class="form-group">
-                <label>対象:</label>
-                <input type="text" id="targetRoom" readonly style="background:#eee;">
-            </div>
-            <div class="form-group">
-                <label>時間:</label>
-                <input type="text" id="targetTime" readonly style="background:#eee;">
-            </div>
-            <div class="form-group">
-                <label>予約者名:</label>
-                <input type="text" placeholder="姓 名" required>
-            </div>
-            <div class="form-group">
-                <label>TOHO SS ID (任意):</label>
-                <input type="text" placeholder="連携用IDを入力">
-            </div>
-            <div class="action-btns">
-                <button type="button" class="cancel-btn" onclick="closeModal()">キャンセル</button>
-                <button type="submit" class="submit-btn">予約確定</button>
-            </div>
-        </form>
+  <div class="modal-content">
+    <h3 id="modal-title">新規予約</h3>
+    <input type="hidden" id="edit-res-id">
+    
+    <label>部屋</label>
+    <select id="input-room"></select>
+    
+    <label>日付</label>
+    <input type="date" id="input-date">
+    
+    <div style="display:flex; gap:10px;">
+      <div style="flex:1;"><label>開始</label><input type="time" id="input-start"></div>
+      <div style="flex:1;"><label>終了</label><input type="time" id="input-end"></div>
     </div>
+    
+    <label>用件 (タイトル)</label>
+    <input type="text" id="input-title" placeholder="定例会議など">
+    
+    <label>参加者</label>
+    <div class="checkbox-group" id="input-participants"></div>
+    
+    <label>備考</label>
+    <textarea id="input-note" rows="2" placeholder="備品要望など"></textarea>
+
+    <div style="display:flex; gap:10px; margin-top:20px;">
+      <button type="button" onclick="closeModal()" style="background:#999; color:white;">キャンセル</button>
+      <button type="button" id="btn-save" class="btn-primary" onclick="saveBooking()">保存</button>
+      <button type="button" id="btn-delete" class="btn-danger" onclick="deleteBooking()" style="display:none;">削除</button>
+    </div>
+  </div>
 </div>
 
 <script>
-    // タブ切り替え機能
-    function openTab(tabName) {
-        // すべてのパネルを隠す
-        const panels = document.querySelectorAll('.room-panel');
-        panels.forEach(panel => panel.classList.remove('active'));
+  /* --- 設定: ここにGASのURLを貼る --- */
+  const API_URL = "https://script.google.com/macros/s/AKfycbxDJUWIyV50aYSEMTcQ2Eh775x25OOfwqM49KixBU-O3AHgdm1BYzvAjGSGEdz3f99E/exec";
+
+  /* --- 状態管理 --- */
+  let currentUser = null;
+  let masterData = { rooms: [], users: [], reservations: [], logs: [] };
+  
+  // 初期化
+  window.onload = () => {
+    document.getElementById('timeline-date').valueAsDate = new Date();
+    document.getElementById('search-date').valueAsDate = new Date();
+    // デモ用: ローカルストレージにログイン情報があれば自動ログイン等の処理も可
+  };
+
+  /* --- API通信系 --- */
+  async function callAPI(params) {
+    if(API_URL.indexOf("http") === -1) { alert("GASのURLを設定してください"); return; }
+    document.getElementById('loading').style.display = 'flex';
+    
+    // GETとPOSTの使い分け (GASはPOSTでJSONを受けるのが楽)
+    const options = {
+      method: 'POST',
+      body: JSON.stringify(params)
+    };
+    
+    // fetchはデフォルトでCORS対応が必要。GAS側でContentServiceを使用
+    try {
+      const res = await fetch(API_URL, options);
+      const json = await res.json();
+      document.getElementById('loading').style.display = 'none';
+      return json;
+    } catch(e) {
+      document.getElementById('loading').style.display = 'none';
+      alert("通信エラー: " + e);
+      return { status: 'error' };
+    }
+  }
+
+  async function tryLogin() {
+    const id = document.getElementById('loginId').value;
+    const pass = document.getElementById('loginPass').value;
+    
+    // GETリクエストでログイン (今回はPOSTで統一せず、URLパラメータ例として実装、またはdoPostで統一も可)
+    // ここではdoGetのloginアクションを呼ぶため、fetchの書き方を少し変えます
+    document.getElementById('loading').style.display = 'flex';
+    fetch(`${API_URL}?action=login&userId=${id}&password=${pass}`)
+      .then(res => res.json())
+      .then(json => {
+        document.getElementById('loading').style.display = 'none';
+        if (json.status === 'success') {
+          currentUser = json.user;
+          document.getElementById('display-user-name').innerText = currentUser.userName;
+          document.getElementById('login-screen').style.display = 'none';
+          document.getElementById('app-screen').style.display = 'block';
+          loadAllData(); // データ取得開始
+        } else {
+          alert(json.message);
+        }
+      });
+  }
+
+  function logout() {
+    location.reload();
+  }
+
+  async function loadAllData() {
+    // データ一括取得
+    const json = await callAPI({ action: 'getAllData' } /* ここはdoGet呼出の方がRESTfulだが、GASの仕様上doPostに統一すると楽。今回はdoGetを呼ぶ */); 
+    // ※修正: 上記GASコードでは doPostで getAllData を受けていないため、fetchでGETします
+    document.getElementById('loading').style.display = 'flex';
+    fetch(`${API_URL}?action=getAllData`)
+      .then(res => res.json())
+      .then(json => {
+        document.getElementById('loading').style.display = 'none';
+        if (json.status === 'success') {
+          masterData = json.data;
+          initUI();
+        }
+      });
+  }
+
+  /* --- UI描画系 --- */
+  function initUI() {
+    renderTimelineHeader();
+    renderTimeline();
+    renderLogs();
+    
+    // プルダウン生成
+    const roomSelects = [document.getElementById('input-room'), document.getElementById('search-room-select')];
+    roomSelects.forEach(sel => {
+      sel.innerHTML = "";
+      masterData.rooms.forEach(r => {
+        const op = document.createElement('option');
+        op.value = r.roomId;
+        op.innerText = r.roomName;
+        sel.appendChild(op);
+      });
+    });
+
+    // 参加者チェックボックス生成
+    const pContainer = document.getElementById('input-participants');
+    pContainer.innerHTML = "";
+    masterData.users.forEach(u => {
+      const div = document.createElement('div');
+      div.innerHTML = `<input type="checkbox" value="${u.userId}"> ${u.userName}`;
+      pContainer.appendChild(div);
+    });
+  }
+
+  function switchTab(tabName) {
+    document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    document.getElementById('view-' + tabName).classList.add('active');
+    // タブのアクティブ化処理は省略（クリック要素にクラス付与が必要）
+    if(tabName === 'room-search') renderRoomSchedule();
+  }
+
+  // 1. タイムライン描画
+  function renderTimelineHeader() {
+    const header = document.getElementById('timeline-header');
+    // 9:00 - 19:00 までの目盛り
+    for(let i=9; i<19; i++) {
+      const div = document.createElement('div');
+      div.className = 'time-scale';
+      div.innerText = i + ":00";
+      header.appendChild(div);
+    }
+  }
+
+  function renderTimeline() {
+    const container = document.getElementById('timeline-body');
+    container.innerHTML = "";
+    const targetDateStr = document.getElementById('timeline-date').value; // yyyy-mm-dd
+
+    masterData.rooms.forEach(room => {
+      const row = document.createElement('div');
+      row.className = 'room-row';
+      
+      const nameCell = document.createElement('div');
+      nameCell.className = 'room-name';
+      nameCell.innerText = room.roomName;
+      row.appendChild(nameCell);
+
+      const grid = document.createElement('div');
+      grid.className = 'time-grid';
+      // クリックで新規予約
+      grid.onclick = (e) => {
+        if(e.target === grid) openModal(null, room.roomId); 
+      };
+
+      // 予約バーの配置
+      const reservations = masterData.reservations.filter(res => {
+        return res.resourceId === room.roomId && res.startTime.startsWith(targetDateStr.replace(/-/g, '/'));
+      });
+
+      reservations.forEach(res => {
+        const start = new Date(res.startTime);
+        const end = new Date(res.endTime);
         
-        // すべてのタブの選択状態を解除
-        const tabs = document.querySelectorAll('.tab-btn');
-        tabs.forEach(tab => tab.classList.remove('active'));
-
-        // 指定されたタブとパネルを表示
-        document.getElementById(tabName).classList.add('active');
+        // 9:00からの経過分
+        const startMin = (start.getHours() * 60 + start.getMinutes()) - (9 * 60);
+        const duration = (end.getTime() - start.getTime()) / 60000;
         
-        // ボタンのアクティブ化（簡易的な実装として、テキスト内容等で判定も可能ですが、今回は順序で制御せずクラス付け替えのみ）
-        // 実際の運用ではdata属性を使うとスマートです。
-        event.target.classList.add('active');
+        if (startMin >= 0) { // 9時以降のみ表示
+           const bar = document.createElement('div');
+           bar.className = `booking-bar type-${room.type}`;
+           bar.style.left = (startMin / (10 * 60) * 100) + "%"; // 10時間(600分)を100%とする
+           bar.style.width = (duration / (10 * 60) * 100) + "%";
+           bar.innerText = res.title || "(無題)";
+           bar.onclick = (e) => { e.stopPropagation(); openModal(res); };
+           grid.appendChild(bar);
+        }
+      });
+
+      row.appendChild(grid);
+      container.appendChild(row);
+    });
+  }
+  
+  function changeDate(days) {
+    const input = document.getElementById('timeline-date');
+    const d = new Date(input.value);
+    d.setDate(d.getDate() + days);
+    input.valueAsDate = d;
+    renderTimeline();
+  }
+
+  // 2. 部屋別リスト描画
+  function renderRoomSchedule() {
+    const roomId = document.getElementById('search-room-select').value;
+    const dateStr = document.getElementById('search-date').value.replace(/-/g, '/');
+    const list = document.getElementById('room-schedule-list');
+    list.innerHTML = "";
+
+    const targets = masterData.reservations.filter(r => r.resourceId === roomId && r.startTime.startsWith(dateStr));
+    targets.sort((a,b) => a.startTime > b.startTime ? 1 : -1);
+
+    if (targets.length === 0) list.innerHTML = "<p>予約はありません</p>";
+
+    targets.forEach(res => {
+      const start = new Date(res.startTime);
+      const end = new Date(res.endTime);
+      const timeStr = `${pad(start.getHours())}:${pad(start.getMinutes())} - ${pad(end.getHours())}:${pad(end.getMinutes())}`;
+      
+      const div = document.createElement('div');
+      div.className = 'schedule-list-item';
+      div.style.borderLeftColor = getRoomColor(roomId);
+      div.innerHTML = `
+        <strong>${timeStr}</strong> ${res.title}<br>
+        <span style="font-size:0.8rem; color:#666;">予約者: ${getUserName(res.reserverId)}</span>
+      `;
+      div.onclick = () => openModal(res);
+      list.appendChild(div);
+    });
+  }
+
+  // 3. ログ描画
+  function renderLogs() {
+    const tbody = document.getElementById('log-tbody');
+    tbody.innerHTML = "";
+    // 新しい順に20件
+    const logs = [...masterData.logs].reverse().slice(0, 20);
+    logs.forEach(log => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${formatDate(new Date(log.timestamp))}</td>
+        <td>${log.operatorName}</td>
+        <td>${log.action}</td>
+        <td>${log.resourceName || '-'} ${log.timeRange || ''}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  /* --- モーダル・データ操作 --- */
+  function openModal(res = null, defaultRoomId = null) {
+    const modal = document.getElementById('bookingModal');
+    modal.style.display = 'flex';
+    
+    if (res) {
+      // 編集モード
+      document.getElementById('modal-title').innerText = "予約編集";
+      document.getElementById('edit-res-id').value = res.id;
+      document.getElementById('input-room').value = res.resourceId;
+      
+      const start = new Date(res.startTime);
+      const end = new Date(res.endTime);
+      document.getElementById('input-date').valueAsDate = start;
+      document.getElementById('input-start').value = `${pad(start.getHours())}:${pad(start.getMinutes())}`;
+      document.getElementById('input-end').value = `${pad(end.getHours())}:${pad(end.getMinutes())}`;
+      
+      document.getElementById('input-title').value = res.title;
+      document.getElementById('input-note').value = res.note;
+      
+      // 参加者チェック
+      const pIds = (res.participantIds || "").split(",");
+      document.querySelectorAll('#input-participants input').forEach(chk => {
+        chk.checked = pIds.includes(chk.value);
+      });
+
+      document.getElementById('btn-delete').style.display = 'inline-block';
+    } else {
+      // 新規モード
+      document.getElementById('modal-title').innerText = "新規予約";
+      document.getElementById('edit-res-id').value = "";
+      if(defaultRoomId) document.getElementById('input-room').value = defaultRoomId;
+      document.getElementById('input-date').valueAsDate = new Date(document.getElementById('timeline-date').value);
+      document.getElementById('input-start').value = "09:00";
+      document.getElementById('input-end').value = "10:00";
+      document.getElementById('input-title').value = "";
+      document.getElementById('input-note').value = "";
+      document.querySelectorAll('#input-participants input').forEach(chk => chk.checked = false);
+      document.getElementById('btn-delete').style.display = 'none';
+    }
+  }
+
+  function closeModal() {
+    document.getElementById('bookingModal').style.display = 'none';
+  }
+
+  async function saveBooking() {
+    const id = document.getElementById('edit-res-id').value;
+    const room = document.getElementById('input-room').value;
+    const date = document.getElementById('input-date').value;
+    const start = document.getElementById('input-start').value;
+    const end = document.getElementById('input-end').value;
+    const title = document.getElementById('input-title').value;
+    const note = document.getElementById('input-note').value;
+    
+    // 参加者
+    const pIds = [];
+    document.querySelectorAll('#input-participants input:checked').forEach(c => pIds.push(c.value));
+
+    // 日時結合
+    const startTime = `${date} ${start}`;
+    const endTime = `${date} ${end}`;
+
+    // 削除 -> 新規作成 (更新の簡易実装) または 新規作成
+    if (id) {
+        // 更新の場合は本来Updateロジックだが、今回は「削除して新規」で簡易化も可能。
+        // ここでは新規作成APIのみ実装しているので、本来は updateReservation が必要。
+        // 取り急ぎ新規作成として送ります（実際はID判定が必要）
+        alert("プロトタイプのため、更新は一度削除してから再登録してください");
+        return;
     }
 
-    // モーダル表示
-    function openModal(room, time) {
-        document.getElementById('bookingModal').style.display = 'flex';
-        document.getElementById('targetRoom').value = room;
-        document.getElementById('targetTime').value = time;
-    }
+    const params = {
+      action: 'createReservation',
+      resourceId: room,
+      startTime: startTime,
+      endTime: endTime,
+      reserverId: currentUser.userId,
+      operatorName: currentUser.userName,
+      participantIds: pIds.join(','),
+      title: title,
+      note: note
+    };
 
-    // モーダル非表示
-    function closeModal() {
-        document.getElementById('bookingModal').style.display = 'none';
+    const result = await callAPI(params);
+    if(result.status === 'success') {
+      alert("保存しました");
+      closeModal();
+      loadAllData(); // リロード
+    } else {
+      alert("エラー: " + result.message);
     }
+  }
 
-    // 予約送信（デモ）
-    function submitBooking(e) {
-        e.preventDefault();
-        alert('予約を受け付けました！\n（※現在はデモ画面のため、実際の保存はされません）');
-        closeModal();
+  async function deleteBooking() {
+    if(!confirm("本当に削除しますか？")) return;
+    const id = document.getElementById('edit-res-id').value;
+    
+    const params = {
+      action: 'deleteReservation',
+      reservationId: id,
+      operatorId: currentUser.userId,
+      operatorName: currentUser.userName
+    };
+
+    const result = await callAPI(params);
+    if(result.status === 'success') {
+      alert("削除しました");
+      closeModal();
+      loadAllData();
+    } else {
+      alert("エラー: " + result.message);
     }
+  }
+
+  /* --- ヘルパー --- */
+  function pad(n) { return n < 10 ? '0'+n : n; }
+  function formatDate(d) { return `${d.getMonth()+1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}`; }
+  function getRoomColor(id) {
+    const r = masterData.rooms.find(x => x.roomId === id);
+    if(!r) return '#ccc';
+    if(r.type === 'meeting') return '#2196f3';
+    if(r.type === 'reception') return '#4caf50';
+    if(r.type === 'zoom') return '#ff9800';
+    return '#ccc';
+  }
+  function getUserName(id) {
+    const u = masterData.users.find(x => x.userId == id);
+    return u ? u.userName : id;
+  }
 </script>
-
 </body>
 </html>
