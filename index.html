@@ -204,7 +204,7 @@
 
 <div id="login-screen">
   <div class="login-box">
-    <h2>予約システム v2.4</h2>
+    <h2>予約システム v2.5</h2>
     <input type="text" id="loginId" placeholder="ユーザーID (例: user01)">
     <input type="password" id="loginPass" placeholder="パスワード (例: pass1234)">
     <button class="btn-primary" onclick="tryLogin()">ログイン</button>
@@ -316,6 +316,7 @@
 </div>
 
 <script>
+  /* --- 修正ポイント: GASのURLを設定してください --- */
   const API_URL = "https://script.google.com/macros/s/AKfycbxy1aI3bEo3lDqpLM1YkjwuMPGkf82dijKmdBIdrz-iAnJhEo0HElw4xJn1x-qNjLBQ/exec";
 
   const START_HOUR = 9;
@@ -504,7 +505,9 @@
     }
 
     container.innerHTML = "";
-    const targetDateStr = document.getElementById(dateInputId).value; 
+    // 日付取得と区切り文字統一
+    const rawDateVal = document.getElementById(dateInputId).value;
+    const targetDateSlash = rawDateVal.replace(/-/g, '/');
 
     targetRooms.forEach(room => {
       const col = document.createElement('div');
@@ -532,13 +535,17 @@
          }
       };
 
+      // 予約データフィルタリング（日付形式を統一して比較）
       const reservations = masterData.reservations.filter(res => {
-        return res.resourceId === room.roomId && res.startTime.startsWith(targetDateStr.replace(/-/g, '/'));
+        if (!res.startTime) return false;
+        const resDateStr = res.startTime.replace(/-/g, '/');
+        return res.resourceId === room.roomId && resDateStr.startsWith(targetDateSlash);
       });
 
       reservations.forEach(res => {
-        const start = new Date(res.startTime);
-        const end = new Date(res.endTime);
+        // Date型への変換も統一
+        const start = new Date(res.startTime.replace(/-/g, '/'));
+        const end = new Date(res.endTime.replace(/-/g, '/'));
         
         const startTotalMin = (start.getHours() * 60) + start.getMinutes();
         const offsetMin = startTotalMin - (START_HOUR * 60);
@@ -553,7 +560,7 @@
             
             bar.style.top = topPx + "px";
             bar.style.height = heightPx + "px";
-            bar.innerHTML = `<span style="font-weight:bold;">${pad(start.getHours())}:${pad(start.getMinutes())}</span><br>${res.title}`;
+            bar.innerHTML = `<span style="font-weight:bold;">${pad(start.getHours())}:${pad(start.getMinutes())}</span><br>${res.title || ''}`;
             
             bar.onclick = (e) => { e.stopPropagation(); openModal(res); };
             body.appendChild(bar);
@@ -608,8 +615,8 @@
       document.getElementById('edit-res-id').value = res.id;
       document.getElementById('input-room').value = res.resourceId;
       
-      const start = new Date(res.startTime);
-      const end = new Date(res.endTime);
+      const start = new Date(res.startTime.replace(/-/g, '/'));
+      const end = new Date(res.endTime.replace(/-/g, '/'));
       document.getElementById('input-date').valueAsDate = start;
       document.getElementById('input-start').value = `${pad(start.getHours())}:${pad(start.getMinutes())}`;
       document.getElementById('input-end').value = `${pad(end.getHours())}:${pad(end.getMinutes())}`;
@@ -653,10 +660,13 @@
     const title = document.getElementById('input-title').value;
     const note = document.getElementById('input-note').value;
     
+    // 日付区切り文字の統一 (バグ修正箇所)
+    const dateSlash = date.replace(/-/g, '/');
+    const startTime = `${dateSlash} ${start}`;
+    const endTime = `${dateSlash} ${end}`;
+    
     const pIds = [];
     document.querySelectorAll('#input-participants input:checked').forEach(c => pIds.push(c.value));
-    const startTime = `${date} ${start}`;
-    const endTime = `${date} ${end}`;
 
     if (id) {
         alert("プロトタイプ: 更新は削除→新規で行ってください");
