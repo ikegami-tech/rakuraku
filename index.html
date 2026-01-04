@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>らくらくお部屋予約システム</title>
+    <style>
+        /* 基本デザイン */
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #27ae60;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+        }
+        body {
+            font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            color: #333;
+        }
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem 2rem;
+            text-align: center;
+        }
+        h1 { margin: 0; font-size: 1.5rem; }
+        
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        /* 部屋タイプ切り替えタブ */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        .tab-btn {
+            padding: 10px 20px;
+            border: none;
+            background: #ddd;
+            cursor: pointer;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .tab-btn.active {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        /* 予約状況パネル */
+        .room-panel {
+            display: none; /* 初期状態は非表示 */
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            animation: fadeIn 0.5s;
+        }
+        .room-panel.active {
+            display: block; /* アクティブなものだけ表示 */
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* タイムライン（簡易表示） */
+        .time-slot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        .status.free { background-color: #e8f8f5; color: #27ae60; }
+        .status.busy { background-color: #fdedec; color: #c0392b; }
+
+        /* 予約ボタン */
+        .reserve-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .reserve-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* モーダル（予約フォーム） */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+        }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select { width: 100%; padding: 8px; box-sizing: border-box; }
+        
+        .action-btns {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .cancel-btn { background: #95a5a6; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
+        .submit-btn { background: var(--accent-color); color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>らくらくお部屋予約システム</h1>
+    <p>System Dept. Internal Tools</p>
+</header>
+
+<div class="container">
+    <div class="tabs">
+        <button class="tab-btn active" onclick="openTab('conference')">会議室 (A/B)</button>
+        <button class="tab-btn" onclick="openTab('reception')">応接室</button>
+        <button class="tab-btn" onclick="openTab('zoom')">ZOOM部屋</button>
+    </div>
+
+    <div id="conference" class="room-panel active">
+        <h2>会議室 予約状況 (本日)</h2>
+        <div class="time-slot">
+            <span>09:00 - 10:00 (会議室A)</span>
+            <span class="status busy">予約済 (山田)</span>
+            <button class="reserve-btn" disabled>予約不可</button>
+        </div>
+        <div class="time-slot">
+            <span>10:00 - 11:00 (会議室A)</span>
+            <span class="status free">空き</span>
+            <button class="reserve-btn" onclick="openModal('会議室A', '10:00 - 11:00')">予約する</button>
+        </div>
+        <div class="time-slot">
+            <span>11:00 - 12:00 (会議室B)</span>
+            <span class="status free">空き</span>
+            <button class="reserve-btn" onclick="openModal('会議室B', '11:00 - 12:00')">予約する</button>
+        </div>
+    </div>
+
+    <div id="reception" class="room-panel">
+        <h2>応接室 予約状況 (本日)</h2>
+        <p>※重要なお客様の来客時は、「TOHO SS」の登録情報も併せてご確認ください。</p>
+        <div class="time-slot">
+            <span>13:00 - 14:00</span>
+            <span class="status free">空き</span>
+            <button class="reserve-btn" onclick="openModal('応接室', '13:00 - 14:00')">予約する</button>
+        </div>
+    </div>
+
+    <div id="zoom" class="room-panel">
+        <h2>ZOOM専用ブース 予約状況</h2>
+        <div class="time-slot">
+            <span>ZOOM-1 (常時接続)</span>
+            <span class="status free">空き</span>
+            <button class="reserve-btn" onclick="openModal('ZOOM-1', '今すぐ')">利用開始</button>
+        </div>
+        <div class="time-slot">
+            <span>ZOOM-2</span>
+            <span class="status busy">使用中</span>
+            <button class="reserve-btn" disabled>予約不可</button>
+        </div>
+    </div>
+</div>
+
+<div id="bookingModal" class="modal">
+    <div class="modal-content">
+        <h3>予約フォーム</h3>
+        <form onsubmit="submitBooking(event)">
+            <div class="form-group">
+                <label>対象:</label>
+                <input type="text" id="targetRoom" readonly style="background:#eee;">
+            </div>
+            <div class="form-group">
+                <label>時間:</label>
+                <input type="text" id="targetTime" readonly style="background:#eee;">
+            </div>
+            <div class="form-group">
+                <label>予約者名:</label>
+                <input type="text" placeholder="姓 名" required>
+            </div>
+            <div class="form-group">
+                <label>TOHO SS ID (任意):</label>
+                <input type="text" placeholder="連携用IDを入力">
+            </div>
+            <div class="action-btns">
+                <button type="button" class="cancel-btn" onclick="closeModal()">キャンセル</button>
+                <button type="submit" class="submit-btn">予約確定</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // タブ切り替え機能
+    function openTab(tabName) {
+        // すべてのパネルを隠す
+        const panels = document.querySelectorAll('.room-panel');
+        panels.forEach(panel => panel.classList.remove('active'));
+        
+        // すべてのタブの選択状態を解除
+        const tabs = document.querySelectorAll('.tab-btn');
+        tabs.forEach(tab => tab.classList.remove('active'));
+
+        // 指定されたタブとパネルを表示
+        document.getElementById(tabName).classList.add('active');
+        
+        // ボタンのアクティブ化（簡易的な実装として、テキスト内容等で判定も可能ですが、今回は順序で制御せずクラス付け替えのみ）
+        // 実際の運用ではdata属性を使うとスマートです。
+        event.target.classList.add('active');
+    }
+
+    // モーダル表示
+    function openModal(room, time) {
+        document.getElementById('bookingModal').style.display = 'flex';
+        document.getElementById('targetRoom').value = room;
+        document.getElementById('targetTime').value = time;
+    }
+
+    // モーダル非表示
+    function closeModal() {
+        document.getElementById('bookingModal').style.display = 'none';
+    }
+
+    // 予約送信（デモ）
+    function submitBooking(e) {
+        e.preventDefault();
+        alert('予約を受け付けました！\n（※現在はデモ画面のため、実際の保存はされません）');
+        closeModal();
+    }
+</script>
+
+</body>
+</html>
