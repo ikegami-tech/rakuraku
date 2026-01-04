@@ -13,7 +13,18 @@
     --zoom-bg: #fff3e0; --zoom-border: #ff9800;
     --hour-height: 60px; /* 1時間の高さ */
   }
-  body { font-family: "Helvetica Neue", Arial, sans-serif; margin: 0; background: #f4f7f6; color: #333; height: 100vh; display: flex; flex-direction: column; }
+  
+  body { 
+    font-family: "Helvetica Neue", Arial, sans-serif; 
+    margin: 0; 
+    /* PCで見やすくするための背景色 */
+    background: #eef1f5; 
+    color: #333; 
+    height: 100vh; 
+    display: flex; 
+    flex-direction: column; 
+  }
+  
   * { box-sizing: border-box; }
 
   /* --- ログイン画面 --- */
@@ -27,8 +38,21 @@
   .btn-primary { background: var(--accent); color: white; }
   .btn-danger { background: var(--danger); color: white; }
 
-  /* --- メイン画面レイアウト --- */
-  #app-screen { display: none; flex-direction: column; height: 100%; }
+  /* --- メイン画面レイアウト (PC対応修正箇所) --- */
+  #app-screen { 
+    display: none; 
+    flex-direction: column; 
+    height: 100%; 
+    
+    /* ▼▼ PCで見やすくするための修正 ▼▼ */
+    max-width: 1280px;  /* 画面が広すぎてもこの幅まで */
+    width: 100%;        /* スマホなら100% */
+    margin: 0 auto;     /* 左右中央寄せ */
+    background: white;  /* アプリ部分は白背景 */
+    box-shadow: 0 0 20px rgba(0,0,0,0.05); /* 影をつけて浮き上がらせる */
+    /* ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
+  }
+  
   header { background: var(--primary); color: white; padding: 10px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
   .user-info { font-size: 0.8rem; }
   
@@ -69,27 +93,32 @@
     color: #888;
     text-align: right;
     padding-right: 5px;
-    padding-top: 5px; /* 数字を線の下に配置 */
+    padding-top: 5px;
   }
-  /* ヘッダーの空きスペース */
   .time-axis-header {
     height: 40px;
     border-bottom: 1px solid #ddd;
     background: #f9f9f9;
     position: sticky;
     top: 0;
-    z-index: 30; /* 部屋名より上 */
+    z-index: 30;
   }
 
   /* 部屋列コンテナ */
   .rooms-container {
     display: flex;
+    /* ▼ 部屋が少ない時に右側に余白を作らず広げる設定 */
+    min-width: fit-content; 
+    flex-grow: 1;
   }
 
   /* 1つの部屋カラム */
   .room-col {
-    width: 120px; /* 部屋の幅 */
-    min-width: 120px;
+    /* ▼ 修正: 固定幅ではなく「最低幅」にして、余白があれば伸びるように変更 */
+    flex: 1 0 120px; /* 伸びる:1, 縮む:0, ベース幅:120px */
+    min-width: 120px; 
+    /* ▲▲▲ */
+    
     border-right: 1px solid #eee;
     position: relative;
     display: flex;
@@ -124,7 +153,7 @@
   /* 予約バー（縦型） */
   .v-booking-bar {
     position: absolute;
-    left: 2px; right: 2px; /* 幅いっぱい */
+    left: 2px; right: 2px;
     border-radius: 4px;
     font-size: 0.7rem;
     color: #333;
@@ -158,11 +187,16 @@
   
   /* フローティングボタン */
   .fab {
-    position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px;
+    position: fixed; bottom: 20px; right: calc(50% - 600px + 20px); /* 画面幅に応じて位置調整 */
+    width: 56px; height: 56px;
     background: var(--accent); color: white; border-radius: 50%;
     display: flex; justify-content: center; align-items: center;
     font-size: 24px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     cursor: pointer; z-index: 100; border: none;
+  }
+  /* スマホの時は右下に固定 */
+  @media (max-width: 1280px) {
+      .fab { right: 20px; }
   }
 </style>
 </head>
