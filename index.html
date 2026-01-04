@@ -430,6 +430,7 @@
     else renderRoomSearch();
   }
 
+  // ▼▼▼ 修正：詳細ログ（テキスト）を表示できるように対応 ▼▼▼
   function renderLogs() {
     const tbody = document.getElementById('log-tbody');
     tbody.innerHTML = "";
@@ -438,7 +439,12 @@
       const tr = document.createElement('tr');
       const roomNameDisplay = getRoomName(log.resourceName) || log.resourceName || '-';
       let timeDisplay = log.timeRange || '';
-      if (timeDisplay.includes(' - ')) {
+      
+      // 更新アクションの場合は、テキストをそのまま表示
+      if (log.action === '更新') {
+          // 何もしない（timeDisplayそのまま）
+      } else if (timeDisplay.includes(' - ')) {
+          // 新規/削除の場合は日付フォーマットを試みる
           const parts = timeDisplay.split(' - ');
           if (parts[0] && parts[1]) {
               const sDate = new Date(parts[0]);
@@ -450,6 +456,7 @@
       tbody.appendChild(tr);
     });
   }
+  // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
   function openModal(res = null, defaultRoomId = null, clickHour = null) {
     const modal = document.getElementById('bookingModal');
@@ -463,7 +470,6 @@
       document.getElementById('input-room').value = res.resourceId;
       const start = new Date(res.startTime);
       const end = new Date(res.endTime);
-      // 日付セット
       document.getElementById('input-date').valueAsDate = start;
       document.getElementById('input-start').value = `${pad(start.getHours())}:${pad(start.getMinutes())}`;
       document.getElementById('input-end').value = `${pad(end.getHours())}:${pad(end.getMinutes())}`;
@@ -492,7 +498,6 @@
 
   function closeModal() { document.getElementById('bookingModal').style.display = 'none'; }
 
-  // ▼▼▼ 修正版: 更新ロジック対応 ▼▼▼
   async function saveBooking() {
     const id = document.getElementById('edit-res-id').value;
     const room = document.getElementById('input-room').value;
@@ -512,12 +517,11 @@
     const endTime = `${dateSlash} ${end}`;
     const pIds = Array.from(selectedParticipantIds).join(',');
 
-    // IDの有無でアクションを切り替え
     const action = id ? 'updateReservation' : 'createReservation';
     
     const params = {
       action: action,
-      reservationId: id, // 新規作成時は空文字だが、update時は必須
+      reservationId: id,
       resourceId: room,
       startTime: startTime,
       endTime: endTime,
