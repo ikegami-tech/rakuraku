@@ -48,7 +48,7 @@
   .room-col { flex: 1 0 120px; min-width: 120px; border-right: 1px solid #eee; position: relative; display: flex; flex-direction: column; }
   .room-header { height: 40px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; background: #fafafa; border-bottom: 1px solid #ddd; position: sticky; top: 0; z-index: 10; padding: 0 5px; text-align: center; word-break: break-all; }
   .room-grid-body { position: relative; height: calc(var(--hour-height) * 10); background: repeating-linear-gradient(to bottom, transparent, transparent calc(var(--hour-height) - 1px), #f5f5f5 var(--hour-height)); }
-  .v-booking-bar { position: absolute; left: 2px; right: 2px; border-radius: 4px; font-size: 0.7rem; color: #333; padding: 2px; overflow: hidden; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.2); display: flex; align-items: flex-start; justify-content: center; text-align: center; line-height: 1.1; }
+  .v-booking-bar { position: absolute; left: 2px; right: 2px; border-radius: 4px; font-size: 0.7rem; color: #333; padding: 2px; overflow: hidden; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.2); display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; line-height: 1.1; }
   .type-meeting { background: var(--meeting-bg); border-top: 4px solid var(--meeting-border); }
   .type-reception { background: var(--reception-bg); border-top: 4px solid var(--reception-border); }
   .type-zoom { background: var(--zoom-bg); border-top: 4px solid var(--zoom-border); }
@@ -89,7 +89,7 @@
 
 <div id="login-screen">
   <div class="login-box">
-    <h2>予約システム v2.10</h2>
+    <h2>予約システム v2.11</h2>
     <input type="text" id="loginId" placeholder="ユーザーID">
     <input type="password" id="loginPass" placeholder="パスワード">
     <button class="btn-primary" onclick="tryLogin()">ログイン</button>
@@ -397,6 +397,19 @@
         const startTotalMin = (start.getHours() * 60) + start.getMinutes();
         const offsetMin = startTotalMin - (START_HOUR * 60);
         const durationMin = (end.getTime() - start.getTime()) / 60000;
+        
+        // ▼▼▼ 参加者名の取得・表示ロジック ▼▼▼
+        let pNames = "";
+        if (res.participantIds) {
+            const ids = res.participantIds.split(',');
+            const names = ids.map(id => {
+                const u = masterData.users.find(user => user.userId === id);
+                return u ? u.userName : "";
+            }).filter(n => n);
+            pNames = names.join(', ');
+        }
+        // ▲▲▲
+
         if (offsetMin >= 0) {
             const bar = document.createElement('div');
             bar.className = `v-booking-bar type-${room.type}`;
@@ -404,7 +417,14 @@
             const heightPx = (durationMin * (HOUR_HEIGHT / 60));
             bar.style.top = topPx + "px";
             bar.style.height = heightPx + "px";
-            bar.innerHTML = `<span style="font-weight:bold;">${pad(start.getHours())}:${pad(start.getMinutes())}</span><br>${res.title || '予約'}`;
+            
+            // ▼ 表示内容に参加者を追加
+            bar.innerHTML = `
+              <span style="font-weight:bold;">${pad(start.getHours())}:${pad(start.getMinutes())}</span><br>
+              <span style="font-weight:bold;">${res.title || '予約'}</span>
+              ${pNames ? `<br><span style="font-size:0.7rem; opacity:0.9;">(${pNames})</span>` : ''}
+            `;
+            
             bar.onclick = (e) => { e.stopPropagation(); openModal(res); };
             body.appendChild(bar);
         }
@@ -430,7 +450,6 @@
     else renderRoomSearch();
   }
 
-  // ▼▼▼ 修正：詳細ログ（テキスト）を表示できるように対応 ▼▼▼
   function renderLogs() {
     const tbody = document.getElementById('log-tbody');
     tbody.innerHTML = "";
@@ -439,12 +458,9 @@
       const tr = document.createElement('tr');
       const roomNameDisplay = getRoomName(log.resourceName) || log.resourceName || '-';
       let timeDisplay = log.timeRange || '';
-      
-      // 更新アクションの場合は、テキストをそのまま表示
       if (log.action === '更新') {
-          // 何もしない（timeDisplayそのまま）
+          // 詳細ログそのまま
       } else if (timeDisplay.includes(' - ')) {
-          // 新規/削除の場合は日付フォーマットを試みる
           const parts = timeDisplay.split(' - ');
           if (parts[0] && parts[1]) {
               const sDate = new Date(parts[0]);
@@ -456,7 +472,6 @@
       tbody.appendChild(tr);
     });
   }
-  // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
   function openModal(res = null, defaultRoomId = null, clickHour = null) {
     const modal = document.getElementById('bookingModal');
