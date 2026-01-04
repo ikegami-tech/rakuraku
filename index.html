@@ -393,6 +393,11 @@
 
   function logout() { location.reload(); }
 
+  function getRoomName(id) {
+    const r = masterData.rooms.find(x => x.roomId === id);
+    return r ? r.roomName : id;
+  }
+
   async function loadAllData() {
     document.getElementById('loading').style.display = 'flex';
     const url = new URL(API_URL);
@@ -586,17 +591,49 @@
     else renderRoomSearch();
   }
 
+  // 3. ログ描画 (修正版)
   function renderLogs() {
     const tbody = document.getElementById('log-tbody');
     tbody.innerHTML = "";
+    
+    // 新しい順に20件
     const logs = [...masterData.logs].reverse().slice(0, 20);
+    
     logs.forEach(log => {
       const tr = document.createElement('tr');
+      
+      // ▼▼▼ 表示の整形処理 ▼▼▼
+      
+      // 1. 部屋ID (conf_a) を 日本語名 (会議室A) に変換
+      // もし削除された部屋などで見つからない場合はIDをそのまま出す
+      const roomNameDisplay = getRoomName(log.resourceName) || log.resourceName || '-';
+
+      // 2. 時間の整形 (例: 2026/01/04 09:00 - 2026/01/04 10:00 → 01/04 09:00 - 10:00)
+      let timeDisplay = log.timeRange || '';
+      if (timeDisplay.includes(' - ')) {
+          const parts = timeDisplay.split(' - ');
+          const startStr = parts[0]; // 2026/01/04 09:00
+          const endStr   = parts[1]; // 2026/01/04 10:00
+          
+          if (startStr && endStr) {
+              const startDate = new Date(startStr);
+              const endDate   = new Date(endStr);
+              
+              // 日付と時刻を見やすくフォーマット
+              const sDate = `${startDate.getMonth()+1}/${startDate.getDate()}`;
+              const sTime = `${pad(startDate.getHours())}:${pad(startDate.getMinutes())}`;
+              const eTime = `${pad(endDate.getHours())}:${pad(endDate.getMinutes())}`;
+              
+              timeDisplay = `${sDate} ${sTime} - ${eTime}`;
+          }
+      }
+
+
       tr.innerHTML = `
         <td>${formatDate(new Date(log.timestamp))}</td>
         <td>${log.operatorName}</td>
         <td>${log.action}</td>
-        <td>${log.resourceName || '-'} ${log.timeRange || ''}</td>
+        <td><strong>${roomNameDisplay}</strong><br><span style="font-size:0.85em; color:#666;">${timeDisplay}</span></td>
       `;
       tbody.appendChild(tr);
     });
