@@ -461,24 +461,78 @@ function changeDate(days, inputId) {
   else renderRoomSearch();
 }
 
+// ▼▼▼ 修正版 renderLogs (script.js) ▼▼▼
 function renderLogs() {
   const tbody = document.getElementById('log-tbody');
   tbody.innerHTML = "";
+  
+  // ログがない場合は処理終了
+  if (!masterData.logs || masterData.logs.length === 0) return;
+
   const logs = [...masterData.logs].reverse().slice(0, 20);
+  
+  // IDから名前を引くためのヘルパー関数
+  const resolveName = (id) => {
+    const u = masterData.users.find(user => String(user.userId) === String(id));
+    return u ? u.userName : id;
+  };
+
   logs.forEach(log => {
     const tr = document.createElement('tr');
-    const roomNameDisplay = getRoomName(log.resourceName) || log.resourceName || '-';
+    
+    // --- 1. 部屋名の解決 ---
+    // 更新ログの場合、resourceNameに「recep_1 \n (+追加:...)」のように詳細が含まれているため分離する
+    let rawResName = log.resourceName || '-';
+    let roomDisplay = rawResName;
+    let detailLines = "";
+
+    // 改行が含まれている場合（詳細情報付き）
+    if (rawResName.includes('\n')) {
+        const parts = rawResName.split('\n');
+        const roomIdPart = parts[0].trim(); // 1行目が部屋ID
+        detailLines = parts.slice(1).join('<br>'); // 2行目以降は詳細
+        
+        // 部屋IDを名前に変換
+        const roomObj = masterData.rooms.find(r => String(r.roomId) === String(roomIdPart));
+        roomDisplay = roomObj ? roomObj.roomName : roomIdPart;
+    } else {
+        // 改行がない場合（削除や新規など）
+        const roomObj = masterData.rooms.find(r => String(r.roomId) === String(rawResName));
+        if (roomObj) roomDisplay = roomObj.roomName;
+    }
+
+    // --- 2. 詳細テキスト内のユーザーID解決 ---
+    // detailLines の中にある数字（ID）を名前に置換する
+    if (detailLines) {
+        // 「: 」や「, 」で区切られた数字を探して置換
+        // 例: "+追加: 3141, 3142" -> "+追加: 池上, 田中"
+        detailLines = detailLines.replace(/(\d+)/g, (match) => {
+            return resolveName(match);
+        });
+    }
+
+    // --- 3. 時間表示の整形 ---
     let timeDisplay = log.timeRange || '';
-    if (log.action === '更新') {
-    } else if (timeDisplay.includes(' - ')) {
+    if (timeDisplay.includes(' - ')) {
         const parts = timeDisplay.split(' - ');
         if (parts[0] && parts[1]) {
             const sDate = new Date(parts[0]);
             const eDate = new Date(parts[1]);
+            // 日付またぎでない場合は終了時刻のみ表示、などの短縮も可能ですが、一旦そのまま整形
             timeDisplay = `${sDate.getMonth()+1}/${sDate.getDate()} ${pad(sDate.getHours())}:${pad(sDate.getMinutes())} - ${pad(eDate.getHours())}:${pad(eDate.getMinutes())}`;
         }
     }
-    tr.innerHTML = `<td>${formatDate(new Date(log.timestamp))}</td><td>${log.operatorName}</td><td>${log.action}</td><td><strong>${roomNameDisplay}</strong><br><span style="font-size:0.85em; color:#666;">${timeDisplay}</span></td>`;
+
+    // HTML組み立て
+    // 部屋名を太字、詳細（変更内容）をその下に小さく表示
+    const detailHtml = `<strong>${roomDisplay}</strong>${detailLines ? `<br><span style="font-size:0.85em; color:#666;">${detailLines}</span>` : ''}<br><span style="font-size:0.8em; color:#999;">${timeDisplay}</span>`;
+
+    tr.innerHTML = `
+      <td>${formatDate(new Date(log.timestamp))}</td>
+      <td>${log.operatorName}</td>
+      <td>${log.action}</td>
+      <td>${detailHtml}</td>
+    `;
     tbody.appendChild(tr);
   });
 }
