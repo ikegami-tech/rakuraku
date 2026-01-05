@@ -461,22 +461,23 @@ function changeDate(days, inputId) {
   else renderRoomSearch();
 }
 
-// ▼▼▼ 修正版 renderLogs (script.js) ▼▼▼
+// ▼▼▼ script.js の renderLogs を修正 ▼▼▼
+
 function renderLogs() {
   const tbody = document.getElementById('log-tbody');
   tbody.innerHTML = "";
   
-  // ログがない場合は処理終了
   if (!masterData.logs || masterData.logs.length === 0) return;
 
   const logs = [...masterData.logs].reverse().slice(0, 20);
   
-  // 【修正箇所】IDから名前を引く関数（ID照合ロジックを強化）
+  // 【修正】ID解決ロジック（型変換とトリムを強化）
   const resolveName = (id) => {
-    // 数値(1)と文字列("001")の違いを吸収して検索
+    const targetIdStr = String(id).trim(); // 検索対象を文字列化してトリム
+    
     const u = masterData.users.find(user => {
-        const uIdStr = String(user.userId);
-        const targetIdStr = String(id);
+        const uIdStr = String(user.userId).trim();
+        // 文字列として一致、または数値として一致を確認
         return uIdStr === targetIdStr || (!isNaN(uIdStr) && !isNaN(targetIdStr) && Number(uIdStr) === Number(targetIdStr));
     });
     return u ? u.userName : id;
@@ -485,7 +486,6 @@ function renderLogs() {
   logs.forEach(log => {
     const tr = document.createElement('tr');
     
-    // --- 1. 部屋名の解決 ---
     let rawResName = log.resourceName || '-';
     let roomDisplay = rawResName;
     let detailLines = "";
@@ -502,15 +502,13 @@ function renderLogs() {
         if (roomObj) roomDisplay = roomObj.roomName;
     }
 
-    // --- 2. 詳細テキスト内のユーザーID解決 ---
     if (detailLines) {
-        // 数字の羅列を見つけて、名前変換を試みる
+        // 数字の羅列を見つけて名前変換（IDの前後に余計な文字があっても対応）
         detailLines = detailLines.replace(/(\d+)/g, (match) => {
             return resolveName(match);
         });
     }
 
-    // --- 3. 時間表示の整形 ---
     let timeDisplay = log.timeRange || '';
     if (timeDisplay.includes(' - ')) {
         const parts = timeDisplay.split(' - ');
