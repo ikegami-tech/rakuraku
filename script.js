@@ -289,7 +289,7 @@ function renderVerticalTimeline(mode) {
       }
 
       // --- 文字数からの行数計算 (修正版: 10文字基準) ---
-      const CHARS_PER_LINE = 10; 
+      const CHARS_PER_LINE = 14; 
       
       const titleLines = Math.ceil(displayText.length / CHARS_PER_LINE) || 1;
       const timeLines = 1; // 時間表示
