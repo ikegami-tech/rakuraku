@@ -546,6 +546,7 @@ function getVal(obj, keys) {
     return ""; 
 }
 
+// ▼▼▼ 修正版 openModal (script.js) ▼▼▼
 function openModal(res = null, defaultRoomId = null, clickHour = null) {
   const modal = document.getElementById('bookingModal');
   modal.style.display = 'flex';
@@ -558,9 +559,11 @@ function openModal(res = null, defaultRoomId = null, clickHour = null) {
     document.getElementById('modal-title').innerText = "予約編集";
     document.getElementById('edit-res-id').value = res.id;
     
+    // 部屋IDの解決（_resourceIdプロパティがあればそれを優先）
     const rId = res._resourceId || res.resourceId || res.roomId; 
     document.getElementById('input-room').value = rId;
 
+    // 日時のセット
     const startObj = new Date(res._startTime || res.startTime);
     const endObj = new Date(res._endTime || res.endTime);
     
@@ -576,12 +579,14 @@ function openModal(res = null, defaultRoomId = null, clickHour = null) {
     document.getElementById('input-start').value = `${sh}:${sm}`;
     document.getElementById('input-end').value = `${eh}:${em}`;
     
+    // タイトル・備考のセット
     const titleVal = getVal(res, ['title', 'subject', '件名', 'タイトル', '用件', 'name']);
     document.getElementById('input-title').value = titleVal;
 
     const noteVal = getVal(res, ['note', 'description', '備考', 'メモ', '詳細', 'body']);
     document.getElementById('input-note').value = noteVal;
     
+    // 【修正箇所】参加者の読み込み（ID照合・変換ロジックを追加）
     const pIds = getVal(res, ['participantIds', 'participant_ids', '参加者', 'メンバー']);
     if (pIds) {
         let idList = [];
@@ -589,17 +594,29 @@ function openModal(res = null, defaultRoomId = null, clickHour = null) {
         else if (typeof pIds === 'string') idList = pIds.split(',');
         else if (typeof pIds === 'number') idList = [pIds];
 
-        idList.forEach(id => { 
-          if(id !== null && id !== undefined && String(id).trim() !== "") {
-              const cleanId = String(id).trim();
-              selectedParticipantIds.add(cleanId); 
-              originalParticipantIds.add(cleanId); 
+        idList.forEach(rawId => { 
+          if(rawId !== null && rawId !== undefined && String(rawId).trim() !== "") {
+              const targetId = String(rawId).trim();
+              
+              // マスタから該当ユーザーを探す（数値・文字列の違いを吸収）
+              const user = masterData.users.find(u => {
+                  const uId = String(u.userId).trim();
+                  return uId === targetId || (!isNaN(uId) && !isNaN(targetId) && Number(uId) === Number(targetId));
+              });
+
+              // マスタにいるなら「マスタ側の正しいID」を使う（これで "1" -> "001" に変換される）
+              // いないならそのまま使う（削除されたユーザーなどのため）
+              const finalId = user ? String(user.userId).trim() : targetId;
+
+              selectedParticipantIds.add(finalId); 
+              originalParticipantIds.add(finalId); 
           }
         });
     }
     document.getElementById('btn-delete').style.display = 'inline-block';
 
   } else {
+    // 新規作成時の処理（変更なし）
     document.getElementById('modal-title').innerText = "新規予約";
     document.getElementById('edit-res-id').value = "";
     if(defaultRoomId) document.getElementById('input-room').value = defaultRoomId;
@@ -631,6 +648,8 @@ function openModal(res = null, defaultRoomId = null, clickHour = null) {
     document.getElementById('input-note').value = "";
     document.getElementById('btn-delete').style.display = 'none';
   }
+  
+  // リストを再描画して反映させる
   renderShuttleLists();
 }
 
