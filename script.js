@@ -246,6 +246,25 @@ function renderVerticalTimeline(mode) {
   // 1. 高さ計算配列を初期化
   for(let h=START_HOUR; h<END_HOUR; h++) hourRowHeights[h] = BASE_HOUR_HEIGHT;
 
+  // ▼▼▼ 【追加修正】画面幅に合わせて1行の文字数を自動計算する ▼▼▼
+  // コンテナの幅を取得（非表示などで0の場合はウィンドウ幅を使う）
+  const totalWidth = container.clientWidth > 0 ? container.clientWidth : window.innerWidth;
+  const colCount = targetRooms.length > 0 ? targetRooms.length : 1;
+  
+  // 1列あたりの幅 (CSSの min-width: 120px を考慮しつつ、平均幅を算出)
+  let colWidth = Math.floor(totalWidth / colCount);
+  if (colWidth < 120) colWidth = 120;
+
+  // 1行に入る文字数の概算
+  // フォントサイズ11px + 余白等を考慮して、1文字あたり約12px幅と仮定
+  // (列幅 - 左右パディング約10px) / 12px
+  let calculatedChars = Math.floor((colWidth - 10) / 12);
+  if (calculatedChars < 12) calculatedChars = 12; // 最低でも12文字基準は維持
+
+  // この値を後続の計算で使用
+  const DYNAMIC_CHARS_PER_LINE = calculatedChars;
+  // ▲▲▲ 追加ここまで ▲▲▲
+
   const allRelevantReservations = masterData.reservations.filter(res => {
       const startTimeVal = getVal(res, ['startTime', 'start_time', '開始日時', '開始', 'Start']);
       if (!startTimeVal) return false;
@@ -281,8 +300,6 @@ function renderVerticalTimeline(mode) {
               namesText = matchedGroup.groupName;
           } else {
               const names = resIds.map(id => {
-                  // 【ここが重要】IDが「1」と「001」で食い違っても一致とみなす
-                  // これにより新規作成時も正しく名前を取得し、行数を確保します
                   const u = masterData.users.find(user => {
                       const uIdStr = String(user.userId);
                       return uIdStr === id || (!isNaN(uIdStr) && !isNaN(id) && Number(uIdStr) === Number(id));
@@ -293,9 +310,9 @@ function renderVerticalTimeline(mode) {
           }
       }
 
-      // --- 文字数見積もり ---
-      // 12文字（オレンジ枠のバランス）
-      const CHARS_PER_LINE = 12; 
+      // --- 【修正】文字数見積もり ---
+      // 自動計算した文字数を使用する（これで幅広のときは行数が減り、余白が消えます）
+      const CHARS_PER_LINE = DYNAMIC_CHARS_PER_LINE; 
       
       const titleLines = Math.ceil(displayText.length / CHARS_PER_LINE) || 1;
       const timeLines = 1; // 時間表示
@@ -305,8 +322,6 @@ function renderVerticalTimeline(mode) {
       const totalLines = titleLines + timeLines + nameLines; 
       
       // --- 高さ計算 ---
-      // +10px（オレンジ枠のタイトな設定）
-      // ID照合が直ったので、このキツめの設定でも名前が消えずに表示されます
       const contentHeightPx = (totalLines * 15) + 10;
 
       // --- 時間比率による拡張 ---
