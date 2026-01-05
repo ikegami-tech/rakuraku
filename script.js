@@ -3,7 +3,7 @@ const API_URL = "https://script.google.com/macros/s/AKfycbztpn1DPulrEtZGhOySfwO9
 
 const START_HOUR = 9;
 const END_HOUR = 19;
-const BASE_HOUR_HEIGHT = 60; 
+const BASE_HOUR_HEIGHT = 40; 
 
 let currentUser = null;
 let masterData = { rooms: [], users: [], reservations: [], logs: [], groups: [] };
