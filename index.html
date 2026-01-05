@@ -455,6 +455,7 @@
   }
 
   // ▼▼▼ この関数を最新版（高さズレ防止入り）に書き換えてください ▼▼▼
+  // ▼▼▼ この関数を「超・頑丈な修正版」に書き換えてください ▼▼▼
   function renderVerticalTimeline(mode) {
     let container, dateInputId, targetRooms;
     let timeAxisId;
@@ -473,30 +474,49 @@
         container.style.width = "100%"; 
     }
     
+    // データ読み込みチェック（もしデータが空なら処理しない）
+    if (!targetRooms || targetRooms.length === 0) {
+        container.innerHTML = "<div style='padding:20px;'>部屋データが見つかりません。スプレッドシートの「部屋」シートを確認してください。</div>";
+        return;
+    }
+
     const rawDateVal = document.getElementById(dateInputId).value; 
     const targetDateNum = formatDateToNum(new Date(rawDateVal)); 
     
     // 高さ計算配列を初期化
     for(let h=START_HOUR; h<END_HOUR; h++) hourRowHeights[h] = BASE_HOUR_HEIGHT;
 
+    // 予約データを抽出（※ここで柔軟に名前を探すように強化）
     const allRelevantReservations = masterData.reservations.filter(res => {
-        if (!res.startTime) return false;
-        const rId = res.resourceId;
+        // 開始時間を探す
+        const startTimeVal = getVal(res, ['startTime', 'start_time', '開始日時', '開始', 'Start']);
+        if (!startTimeVal) return false;
+
+        // 部屋IDを探す
+        const rId = getVal(res, ['resourceId', 'roomId', 'room_id', 'resource_id', '部屋ID', '部屋']);
+        
         const isTargetRoom = targetRooms.some(r => r.roomId === rId);
-        const resDateNum = formatDateToNum(new Date(res.startTime));
+        const resDateNum = formatDateToNum(new Date(startTimeVal));
+        
+        // データを扱いやすいように補正して保存しておく（描画用）
+        res._startTime = startTimeVal;
+        res._endTime = getVal(res, ['endTime', 'end_time', '終了日時', '終了', 'End']);
+        res._resourceId = rId;
+
         return isTargetRoom && (resDateNum === targetDateNum);
     });
 
-    // --- 高さ自動計算（強化版） ---
+    // --- 高さ自動計算 ---
     allRelevantReservations.forEach(res => {
-        const start = new Date(res.startTime);
+        const start = new Date(res._startTime);
         const sHour = start.getHours();
         
-        let displayText = getVal(res, ['title', '件名', 'タイトル']) || '予約';
+        let displayText = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '予約';
         let participantsLineCount = 0;
         
-        if (res.participantIds) {
-            const resIds = res.participantIds.split(',').map(id => id.trim()).sort();
+        const pIdsStr = getVal(res, ['participantIds', 'participant_ids', '参加者', 'メンバー']);
+        if (pIdsStr) {
+            const resIds = String(pIdsStr).split(',').map(id => id.trim()).sort();
             const matchedGroup = masterData.groups.find(grp => {
                 if (!grp.memberIds) return false;
                 const grpIds = grp.memberIds.split(',').map(id => id.trim()).sort();
@@ -572,13 +592,13 @@
          }
       };
 
-      const reservations = allRelevantReservations.filter(res => res.resourceId === room.roomId);
+      const reservations = allRelevantReservations.filter(res => res._resourceId === room.roomId);
       
       reservations.forEach(res => {
-        const start = new Date(res.startTime);
+        const start = new Date(res._startTime);
         const sHour = start.getHours();
         const sMin = start.getMinutes();
-        const end = new Date(res.endTime);
+        const end = new Date(res._endTime);
         const durationMin = (end.getTime() - start.getTime()) / 60000;
         
         if (sHour >= START_HOUR && sHour < END_HOUR) {
@@ -594,10 +614,11 @@
             bar.style.height = "auto"; 
             
             let pNames = "";
-            let displayTitle = getVal(res, ['title', '件名', 'タイトル']) || '予約';
+            let displayTitle = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '予約';
             
-            if (res.participantIds) {
-                const resIds = res.participantIds.split(',').map(id => id.trim()).sort();
+            const pIdsStr = getVal(res, ['participantIds', 'participant_ids', '参加者', 'メンバー']);
+            if (pIdsStr) {
+                const resIds = String(pIdsStr).split(',').map(id => id.trim()).sort();
                 const matchedGroup = masterData.groups.find(grp => {
                     if (!grp.memberIds) return false;
                     const grpIds = grp.memberIds.split(',').map(id => id.trim()).sort();
