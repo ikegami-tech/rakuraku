@@ -306,24 +306,36 @@
   function selectGroupMembers(idsStr) {
     if (!idsStr) return;
     
-    // カンマ区切りの文字列を分解
+    // 1. まず、対象となるユーザーオブジェクトを特定する（IDの型ズレ防止含む）
     const rawIds = idsStr.split(',');
+    const targetUsers = [];
     
     rawIds.forEach(rawId => {
-        const cleanIdStr = rawId.trim(); // 空白除去して文字列にする
-        
-        // ユーザーリストから、IDが一致する人を探す（文字・数字の違いを無視して比較）
-        const targetUser = masterData.users.find(u => String(u.userId) === cleanIdStr);
-        
-        // もし存在したら、その人の「正式なID」をリストに追加する
-        if (targetUser) {
-            selectedParticipantIds.add(targetUser.userId);
+        const cleanIdStr = rawId.trim();
+        const user = masterData.users.find(u => String(u.userId) === cleanIdStr);
+        if (user) {
+            targetUsers.push(user);
         }
     });
+
+    if (targetUsers.length === 0) return;
+
+    // 2. 「全員すでに選択されているか？」を判定
+    const isAllSelected = targetUsers.every(u => selectedParticipantIds.has(u.userId));
+
+    // 3. 分岐処理
+    if (isAllSelected) {
+        // 全員選ばれているなら -> 全員解除 (キャンセル)
+        targetUsers.forEach(u => selectedParticipantIds.delete(u.userId));
+    } else {
+        // 誰か足りないなら -> 全員追加
+        targetUsers.forEach(u => selectedParticipantIds.add(u.userId));
+    }
     
-    // 参加者リストを再描画（検索ボックスの入力値は維持）
+    // 4. リスト再描画
     renderShuttleLists(document.getElementById('shuttle-search-input').value);
   }
+  
   function renderShuttleLists(filterText = "") {
     const leftList = document.getElementById('list-candidates');
     const rightList = document.getElementById('list-selected');
