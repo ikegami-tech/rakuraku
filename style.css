@@ -4,11 +4,12 @@
   --meeting-bg: #e3f2fd; --meeting-border: #2196f3;
   --reception-bg: #e8f5e9; --reception-border: #4caf50;
   --zoom-bg: #fff3e0; --zoom-border: #ff9800;
-  /* 基準の高さを少し広めに設定（最低限の高さ） */
+  /* 最低限の高さ */
   --base-hour-height: 50px;
 }
 
 body { font-family: "Helvetica Neue", Arial, sans-serif; margin: 0; background: #eef1f5; color: #333; height: 100vh; display: flex; flex-direction: column; }
+/* 全要素のサイズ計算を枠線込みにする（ズレ防止の重要設定） */
 * { box-sizing: border-box; }
 
 #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary); display: flex; justify-content: center; align-items: center; z-index: 2000; }
@@ -31,12 +32,12 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
 .date-controller { text-align: center; padding: 10px; background: #f9f9f9; border-bottom: 1px solid #ddd; display: flex; gap: 10px; justify-content: center; flex-shrink: 0; }
 .calendar-scroll-area { flex: 1; overflow: auto; position: relative; background: white; display: flex; }
 
-/* 左軸・グリッド共通設定 */
+/* 時間軸・グリッド共通設定（ズレ防止の要） */
 .time-axis-col { width: 50px; flex-shrink: 0; background: #fff; border-right: 1px solid #ddd; position: sticky; left: 0; z-index: 20; }
 .time-axis-header { height: 40px; border-bottom: 1px solid #ddd; background: #f9f9f9; position: sticky; top: 0; z-index: 30; }
 
 .time-label {
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #eee; /* 線を薄く表示 */
   font-size: 0.7rem; color: #888;
   text-align: right; padding-right: 5px; padding-top: 5px;
   width: 100%;
@@ -48,16 +49,19 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
 
 .room-grid-body { position: relative; background: transparent; }
 .grid-slot { 
-  border-bottom: 1px solid #eee; 
+  border-bottom: 1px solid #eee; /* 時間軸と同じ線にする */
   width: 100%; 
 }
 
-/* 予約バー */
+/* 予約バー（デザイン調整） */
 .v-booking-bar {
   position: absolute; left: 2px; right: 2px; border-radius: 4px;
-  font-size: 11px; /* 文字サイズ固定 */
-  line-height: 1.4; /* 行間固定 */
-  color: #333; padding: 4px 2px;
+  /* ★JSの計算値と一致させる重要設定★ */
+  font-size: 11px; 
+  line-height: 15px; 
+  padding: 4px 2px;
+  /* ------------------------------- */
+  color: #333; 
   overflow: visible; white-space: normal; overflow-wrap: anywhere; word-break: break-all;
   z-index: 100; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
   display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center;
