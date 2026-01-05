@@ -382,29 +382,37 @@
     renderShuttleLists(document.getElementById('shuttle-search-input').value);
   }
 
+  // ▼▼▼ 2. この関数を書き換えてください ▼▼▼
   function renderShuttleLists(filterText = "") {
     const leftList = document.getElementById('list-candidates');
     const rightList = document.getElementById('list-selected');
     leftList.innerHTML = "";
     rightList.innerHTML = "";
+
     masterData.users.forEach(u => {
         if (!u.userId) return;
-        if (selectedParticipantIds.has(u.userId)) {
+        
+        // ★修正点：必ず String(文字) に変換して比較する
+        const uidStr = String(u.userId);
+
+        if (selectedParticipantIds.has(uidStr)) {
+            // 右側（参加予定）
             const div = document.createElement('div');
             div.className = 'shuttle-item icon-remove';
             div.innerText = u.userName;
             div.onclick = () => {
-                selectedParticipantIds.delete(u.userId);
+                selectedParticipantIds.delete(uidStr);
                 renderShuttleLists(document.getElementById('shuttle-search-input').value);
             };
             rightList.appendChild(div);
         } else {
+            // 左側（候補者）
             if (filterText === "" || u.userName.toLowerCase().includes(filterText.toLowerCase())) {
                 const div = document.createElement('div');
                 div.className = 'shuttle-item icon-add';
                 div.innerText = u.userName;
                 div.onclick = () => {
-                    selectedParticipantIds.add(u.userId);
+                    selectedParticipantIds.add(uidStr);
                     renderShuttleLists(document.getElementById('shuttle-search-input').value);
                 };
                 leftList.appendChild(div);
@@ -446,6 +454,7 @@
       // 初期化のみ。描画はrenderVerticalTimelineで行う
   }
 
+  // ▼▼▼ この関数を最新版（高さズレ防止入り）に書き換えてください ▼▼▼
   function renderVerticalTimeline(mode) {
     let container, dateInputId, targetRooms;
     let timeAxisId;
@@ -467,10 +476,9 @@
     const rawDateVal = document.getElementById(dateInputId).value; 
     const targetDateNum = formatDateToNum(new Date(rawDateVal)); 
     
-    // 高さ計算配列を初期化（基本の高さ60pxに戻す）
+    // 高さ計算配列を初期化
     for(let h=START_HOUR; h<END_HOUR; h++) hourRowHeights[h] = BASE_HOUR_HEIGHT;
 
-    // 表示すべき予約データを抽出
     const allRelevantReservations = masterData.reservations.filter(res => {
         if (!res.startTime) return false;
         const rId = res.resourceId;
@@ -479,18 +487,14 @@
         return isTargetRoom && (resDateNum === targetDateNum);
     });
 
-    // ---------------------------------------------------------
-    // ■ 高さの自動計算処理（ここを強化しました）
-    // ---------------------------------------------------------
+    // --- 高さ自動計算（強化版） ---
     allRelevantReservations.forEach(res => {
         const start = new Date(res.startTime);
         const sHour = start.getHours();
         
-        // 表示する文字を作成
         let displayText = getVal(res, ['title', '件名', 'タイトル']) || '予約';
-        
-        // 参加者名の行数も計算に含める
         let participantsLineCount = 0;
+        
         if (res.participantIds) {
             const resIds = res.participantIds.split(',').map(id => id.trim()).sort();
             const matchedGroup = masterData.groups.find(grp => {
@@ -506,22 +510,15 @@
                     const u = masterData.users.find(user => String(user.userId) === id);
                     return u ? u.userName : "";
                 }).filter(n => n);
-                // 名前リストの文字数
                 const namesText = names.join(', ');
                 displayText += "\n" + namesText;
-                // 名前が長くなると折り返されるので、その分を行数として見積もる
                 participantsLineCount = Math.ceil(namesText.length / 10); 
             }
         }
 
-        // 行数計算（タイトル + 時間表示 + 参加者 + 余白）
-        // 1行あたり全角8文字程度で折り返すと仮定し、少し余裕(+3行)を持たせる
         const baseLines = Math.ceil(displayText.length / 10) + participantsLineCount + 3;
-        
-        // 1行あたり20px換算で高さを算出
         const neededHeight = Math.max(BASE_HOUR_HEIGHT, baseLines * 20);
         
-        // もしこの予約がある時間帯(sHour)が、今の高さ設定より大きければ拡張する
         if (sHour >= START_HOUR && sHour < END_HOUR) {
             if (neededHeight > hourRowHeights[sHour]) {
                 hourRowHeights[sHour] = neededHeight;
@@ -529,13 +526,9 @@
         }
     });
 
-    // 左側の時間軸を描画（計算した高さを使う）
     drawTimeAxis(timeAxisId);
-    
-    // 部屋ごとの列を描画
     container.innerHTML = "";
     
-    // 各時間の開始位置(top)を計算
     const hourTops = {};
     let currentTop = 0;
     for(let h=START_HOUR; h<END_HOUR; h++) {
@@ -554,28 +547,22 @@
       
       const body = document.createElement('div');
       body.className = 'room-grid-body';
-      body.style.height = currentTop + "px"; // 全体の高さを設定
+      body.style.height = currentTop + "px"; 
 
-      // グリッド線（背景）を描画
       for(let h=START_HOUR; h<END_HOUR; h++) {
           const slot = document.createElement('div');
           slot.className = 'grid-slot';
-          // ★ここで計算済みの高さ(hourRowHeights)を使うので、左軸と必ず一致します
           slot.style.height = hourRowHeights[h] + "px";
           body.appendChild(slot);
       }
       
-      // クリックイベント
       body.onclick = (e) => {
          if (e.target.closest('.v-booking-bar')) return;
-
          if(e.target.classList.contains('grid-slot') || e.target === body) {
              const rect = body.getBoundingClientRect();
              const clickY = e.clientY - rect.top;
-             
              let clickedHour = -1;
              for(let h=START_HOUR; h<END_HOUR; h++) {
-                 // 計算済みの hourTops を使って判定
                  if (clickY >= hourTops[h] && clickY < hourTops[h] + hourRowHeights[h]) {
                      clickedHour = h;
                      break;
@@ -587,7 +574,6 @@
 
       const reservations = allRelevantReservations.filter(res => res.resourceId === room.roomId);
       
-      // 予約バーの描画
       reservations.forEach(res => {
         const start = new Date(res.startTime);
         const sHour = start.getHours();
@@ -597,16 +583,13 @@
         
         if (sHour >= START_HOUR && sHour < END_HOUR) {
             const baseTop = hourTops[sHour];
-            const heightOfHour = hourRowHeights[sHour]; // 拡張された高さ
-            
-            // 分単位の位置調整も、拡張された高さに基づいて計算
+            const heightOfHour = hourRowHeights[sHour];
             const offsetPx = (sMin / 60) * heightOfHour;
             const heightPx = (durationMin / 60) * heightOfHour;
 
             const bar = document.createElement('div');
             bar.className = `v-booking-bar type-${room.type}`;
             bar.style.top = (baseTop + offsetPx) + "px";
-            // 最低でも計算上の高さを確保しつつ、中身が増えてもはみ出さないようにする
             bar.style.minHeight = heightPx + "px";
             bar.style.height = "auto"; 
             
@@ -687,16 +670,19 @@
     });
   }
 
-  // ▼▼▼ 修正: データ読み取り用ヘルパー関数 ▼▼▼
+  // ▼▼▼ 1. この関数を書き換えてください ▼▼▼
   function getVal(obj, keys) {
       if(!obj) return "";
       for (const k of keys) {
-          if (obj[k] !== undefined) return obj[k];
+          // 値が undefined でも null でもない場合に値を返す
+          if (obj[k] !== undefined && obj[k] !== null) {
+              return obj[k];
+          }
       }
-      return ""; // 見つからなければ空文字
+      return ""; 
   }
 
-  // ▼▼▼ openModal関数をこれに書き換えてください（修正版） ▼▼▼
+  // ▼▼▼ 3. この関数を書き換えてください ▼▼▼
   function openModal(res = null, defaultRoomId = null, clickHour = null) {
     const modal = document.getElementById('bookingModal');
     modal.style.display = 'flex';
@@ -706,27 +692,23 @@
     document.getElementById('shuttle-search-input').value = "";
     
     if (res) {
-      // ------------------------------------------------
-      // 【編集モード】 クリックした予約の情報をセットする
-      // ------------------------------------------------
+      // ---【編集モード】---
       document.getElementById('modal-title').innerText = "予約編集";
       document.getElementById('edit-res-id').value = res.id;
       
-      // 1. 部屋のセット（resourceId または roomId を探す）
+      // 1. 部屋
       const rId = res.resourceId || res.roomId; 
       document.getElementById('input-room').value = rId;
 
-      // 2. 日付・時間のセット（時差ボケ防止のため文字列で処理）
+      // 2. 日付・時間
       const startObj = new Date(res.startTime);
       const endObj = new Date(res.endTime);
       
-      // 日付 (YYYY-MM-DD形式に変換)
       const y = startObj.getFullYear();
       const m = ('0' + (startObj.getMonth() + 1)).slice(-2);
       const d = ('0' + startObj.getDate()).slice(-2);
       document.getElementById('input-date').value = `${y}-${m}-${d}`;
 
-      // 時間 (HH:mm形式に変換)
       const sh = ('0' + startObj.getHours()).slice(-2);
       const sm = ('0' + startObj.getMinutes()).slice(-2);
       const eh = ('0' + endObj.getHours()).slice(-2);
@@ -734,44 +716,53 @@
       document.getElementById('input-start').value = `${sh}:${sm}`;
       document.getElementById('input-end').value = `${eh}:${em}`;
       
-      // 3. タイトル・備考のセット（色々な名前パターンに対応）
-      document.getElementById('input-title').value = getVal(res, ['title', '件名', 'タイトル', '用件', 'subject']);
-      document.getElementById('input-note').value = getVal(res, ['note', '備考', 'メモ', '詳細', 'description']);
+      // 3. タイトル・備考（★修正点：読み取りキーを網羅）
+      const titleVal = getVal(res, ['title', 'subject', '件名', 'タイトル', '用件', 'name']);
+      document.getElementById('input-title').value = titleVal;
+
+      const noteVal = getVal(res, ['note', 'description', '備考', 'メモ', '詳細', 'body']);
+      document.getElementById('input-note').value = noteVal;
       
-      // 4. 参加者のセット
+      // 4. 参加者（★修正点：IDを文字として登録）
       const pIds = getVal(res, ['participantIds', 'participant_ids', '参加者', 'メンバー']);
       if (pIds) {
-          pIds.split(',').forEach(id => { 
-            if(id && id.trim() !== "") selectedParticipantIds.add(id.trim()); 
+          // カンマ区切りか、配列か両対応
+          let idList = [];
+          if (Array.isArray(pIds)) {
+              idList = pIds;
+          } else if (typeof pIds === 'string') {
+              idList = pIds.split(',');
+          } else if (typeof pIds === 'number') {
+              idList = [pIds];
+          }
+
+          idList.forEach(id => { 
+            if(id !== null && id !== undefined && String(id).trim() !== "") {
+                selectedParticipantIds.add(String(id).trim()); 
+            }
           });
       }
       
-      // 削除ボタンを表示
       document.getElementById('btn-delete').style.display = 'inline-block';
 
     } else {
-      // ------------------------------------------------
-      // 【新規作成モード】 空欄をセットする
-      // ------------------------------------------------
+      // ---【新規作成モード】---
       document.getElementById('modal-title').innerText = "新規予約";
       document.getElementById('edit-res-id').value = "";
       
-      // 部屋の初期値
       if(defaultRoomId) document.getElementById('input-room').value = defaultRoomId;
       
-      // 日付の初期値（現在開いているタブの日付を取得）
+      // 日付初期値
       let currentTabDate = "";
       const timelineDateInput = document.getElementById('timeline-date');
       const searchDateInput = document.getElementById('search-date');
       
-      // 表示中のタブに合わせて日付を取得
       if(document.getElementById('view-timeline').classList.contains('active')) {
           currentTabDate = timelineDateInput.value;
       } else {
           currentTabDate = searchDateInput.value;
       }
       
-      // もし取得できなかったら今日の日付にする
       if(!currentTabDate) {
           const now = new Date();
           const y = now.getFullYear();
@@ -781,21 +772,19 @@
       }
       document.getElementById('input-date').value = currentTabDate;
 
-      // 時間の初期値
+      // 時間初期値
       const sHour = clickHour ? clickHour : 9;
       document.getElementById('input-start').value = `${pad(sHour)}:00`;
       document.getElementById('input-end').value = `${pad(sHour+1)}:00`;
       
-      // その他を空にする
       document.getElementById('input-title').value = "";
       document.getElementById('input-note').value = "";
       document.getElementById('btn-delete').style.display = 'none';
     }
     
-    // 参加者リストの表示更新
+    // リスト描画更新
     renderShuttleLists();
   }
-  // ▲▲▲ 修正ここまで ▲▲▲
 
   function closeModal() { document.getElementById('bookingModal').style.display = 'none'; }
 
