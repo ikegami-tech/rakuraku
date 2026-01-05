@@ -288,9 +288,9 @@ function renderVerticalTimeline(mode) {
           }
       }
 
-      // --- 文字数からの行数計算 ---
-      // 1行あたり全角12文字程度と仮定
-      const CHARS_PER_LINE = 12;
+      // --- 文字数からの行数計算 (修正版: 10文字基準) ---
+      const CHARS_PER_LINE = 10; 
+      
       const titleLines = Math.ceil(displayText.length / CHARS_PER_LINE) || 1;
       const timeLines = 1; // 時間表示
       const nameLines = namesText ? Math.ceil(namesText.length / CHARS_PER_LINE) : 0;
@@ -298,8 +298,8 @@ function renderVerticalTimeline(mode) {
       // 合計行数（余白として+1行追加）
       const totalLines = titleLines + timeLines + nameLines + 1;
       
-      // 必要な高さ(px) = 行数 × 15px(CSSのline-height) + 4px(CSSのpadding上下合計) + 2px(ボーダー等の予備)
-      const contentHeightPx = (totalLines * 15) + 6;
+      // 必要な高さ(px) = 行数 × 15px(CSSのline-height) + 8px(余白バッファ)
+      const contentHeightPx = (totalLines * 15) + 8;
 
       // --- 時間比率による拡張 ---
       // 予約が30分(0.5時間)しかないのに中身が大きい場合、1時間の枠を倍に広げる必要がある
