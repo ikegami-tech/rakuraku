@@ -1,12 +1,10 @@
 /* --- ★重要: GASの最新デプロイURLに書き換えてください --- */
-const API_URL = "https://script.google.com/macros/s/AKfycbxpQMo3q9xGK_sGk-_371RndiaM0NcXe6Ydi225yBaK5EwzSc1rH9OtV-h5akIdxCdg/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbz5buwxgeKis1ujWGTqx1DOWWjchej8Cjgf0yFZYUpN84pDQkmEVonoc9PgEBTxW98c/exec";
 
 const START_HOUR = 9;
 const END_HOUR = 19;
-// CSSの設定値と合わせるための定数
-const CSS_LINE_HEIGHT = 15; // 1行の高さ(px)
-const CSS_PADDING_V = 8;    // 上下のパディング合計(px)
-const BASE_HOUR_HEIGHT = 50; // 最低限の高さ(px)
+// CSSの設定と合わせる（基準高さ）
+const BASE_HOUR_HEIGHT = 50; 
 
 let currentUser = null;
 let masterData = { rooms: [], users: [], reservations: [], logs: [], groups: [] };
@@ -218,7 +216,7 @@ function renderTimeAxis(containerId) {
     // 初期化時は何もしない
 }
 
-// ▼▼▼ ズレ防止の決定版：座標計算ロジックを刷新 ▼▼▼
+// ▼▼▼ ズレ防止の決定版：計算ロジックを刷新 ▼▼▼
 function renderVerticalTimeline(mode) {
   let container, dateInputId, targetRooms;
   let timeAxisId;
@@ -263,7 +261,7 @@ function renderVerticalTimeline(mode) {
       return isTargetRoom && (resDateNum === targetDateNum);
   });
 
-  // 2. 高さ自動計算（全ての予約をチェックして、その時間帯の最大高さを決定）
+  // 2. 高さ自動計算（ここが修正の肝です）
   allRelevantReservations.forEach(res => {
       const start = new Date(res._startTime);
       const sHour = start.getHours();
@@ -290,18 +288,30 @@ function renderVerticalTimeline(mode) {
           }
       }
 
-      // 1行あたりの文字数をCSSに合わせて計算
-      const titleLines = Math.ceil(displayText.length / 14) || 1;
+      // 1行あたりの文字数を 11文字 として計算（はみ出し防止）
+      const titleLines = Math.ceil(displayText.length / 11) || 1;
       const timeLines = 1; 
-      const nameLines = namesText ? Math.ceil(namesText.length / 14) : 0;
+      const nameLines = namesText ? Math.ceil(namesText.length / 11) : 0;
       
-      // 合計行数 + パディング等の余裕
+      // 合計行数 + 余白
       const totalLines = titleLines + timeLines + nameLines;
       
-      // CSS定義の高さと合わせる計算式
-      const neededHeight = (totalLines * CSS_LINE_HEIGHT) + CSS_PADDING_V + 10; // +10は予備
+      // 「中身を表示するのに最低限必要な高さ」を計算
+      // 18px = 行間, 12px = パディング等
+      const textContentHeight = (totalLines * 18) + 12; 
+
+      // 予約時間（分）
+      let durationMin = (new Date(res._endTime) - new Date(res._startTime)) / 60000;
+      if (durationMin < 15) durationMin = 15; // 最低15分扱い
+
+      // 時間枠の比率（予約が1時間なら1.0、30分なら0.5）
+      const ratio = durationMin / 60;
+
+      // ★重要★: 「中身の高さ」を「比率」で割ることで、「1時間あたりの必要な高さ」を逆算する
+      // 例: 中身が100px必要で、予約が30分(0.5)なら、1時間の枠は200px必要になる
+      const requiredSlotHeight = textContentHeight / ratio;
       
-      const finalHeight = Math.max(BASE_HOUR_HEIGHT, neededHeight);
+      const finalHeight = Math.max(BASE_HOUR_HEIGHT, requiredSlotHeight);
 
       if (sHour >= START_HOUR && sHour < END_HOUR) {
           if (finalHeight > hourRowHeights[sHour]) {
@@ -313,14 +323,14 @@ function renderVerticalTimeline(mode) {
   drawTimeAxis(timeAxisId);
   container.innerHTML = "";
   
-  // 3. 各時間のY座標（開始位置）を計算してマッピング
+  // 3. 座標計算
   const hourTops = {};
   let currentTop = 0;
   for(let h=START_HOUR; h<END_HOUR; h++) {
       hourTops[h] = currentTop;
-      currentTop += hourRowHeights[h]; // 次の時間の開始位置
+      currentTop += hourRowHeights[h];
   }
-  // 終了時間の座標も入れておく（計算用）
+  // 終了時間のラインも定義
   hourTops[END_HOUR] = currentTop;
 
   // 4. 描画
@@ -337,7 +347,7 @@ function renderVerticalTimeline(mode) {
     body.className = 'room-grid-body';
     body.style.height = currentTop + "px"; 
 
-    // 背景グリッド（時間軸と完全に一致する高さを使用）
+    // 背景グリッド
     for(let h=START_HOUR; h<END_HOUR; h++) {
         const slot = document.createElement('div');
         slot.className = 'grid-slot';
@@ -372,35 +382,31 @@ function renderVerticalTimeline(mode) {
       let eHour = end.getHours();
       let eMin = end.getMinutes();
 
-      // 範囲外の予約を表示しないように制限
       if (sHour < START_HOUR) { sHour = START_HOUR; sMin = 0; }
       if (eHour >= END_HOUR) { eHour = END_HOUR; eMin = 0; }
       
       if (sHour < END_HOUR && (sHour > START_HOUR || (sHour === START_HOUR && sMin >= 0))) {
           
-          // ★座標計算の核心部分★
-          // 開始位置(top) = 開始時間のTop + (その時間の高さ * 分の割合)
+          // 位置計算（ピクセル単位で正確に配置）
           const topPx = hourTops[sHour] + (hourRowHeights[sHour] * (sMin / 60));
           
-          // 終了位置(bottom) = 終了時間のTop + (その時間の高さ * 分の割合)
-          // ※eHourがEND_HOURの場合は hourTops[END_HOUR] がそのまま底辺になる
           let bottomPx = 0;
           if (eHour === END_HOUR) {
-              bottomPx = hourTops[END_HOUR]; // 最後のライン
+              bottomPx = hourTops[END_HOUR];
           } else {
               bottomPx = hourTops[eHour] + (hourRowHeights[eHour] * (eMin / 60));
           }
           
-          // 高さ = 底辺 - 上辺
           const heightPx = bottomPx - topPx;
 
           const bar = document.createElement('div');
           bar.className = `v-booking-bar type-${room.type}`;
           
-          // 罫線と被らないよう 1px マージン
+          // 罫線と重ならないように微調整
           bar.style.top = (topPx + 1) + "px";
-          bar.style.height = (heightPx - 2) + "px"; // はみ出し防止
-          bar.style.minHeight = "0"; // 自動計算を無効化し計算値を優先
+          // はみ出し防止（マージン確保）
+          bar.style.minHeight = (heightPx - 2) + "px";
+          bar.style.height = "auto"; 
           
           let displayTitle = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '予約';
           let pNames = "";
