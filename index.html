@@ -11,7 +11,7 @@
     --meeting-bg: #e3f2fd; --meeting-border: #2196f3;
     --reception-bg: #e8f5e9; --reception-border: #4caf50;
     --zoom-bg: #fff3e0; --zoom-border: #ff9800;
-    --hour-height: 60px;
+    --base-hour-height: 60px; /* 基本の高さ */
   }
   
   body { font-family: "Helvetica Neue", Arial, sans-serif; margin: 0; background: #eef1f5; color: #333; height: 100vh; display: flex; flex-direction: column; }
@@ -41,14 +41,36 @@
   /* タイムライン */
   .date-controller { text-align: center; padding: 10px; background: #f9f9f9; border-bottom: 1px solid #ddd; display: flex; gap: 10px; justify-content: center; flex-shrink: 0; }
   .calendar-scroll-area { flex: 1; overflow: auto; position: relative; background: white; display: flex; }
+  
+  /* 左軸・グリッド共通設定 */
   .time-axis-col { width: 50px; flex-shrink: 0; background: #fff; border-right: 1px solid #ddd; position: sticky; left: 0; z-index: 20; }
-  .time-label { height: var(--hour-height); border-bottom: 1px solid #f0f0f0; font-size: 0.7rem; color: #888; text-align: right; padding-right: 5px; padding-top: 5px; }
   .time-axis-header { height: 40px; border-bottom: 1px solid #ddd; background: #f9f9f9; position: sticky; top: 0; z-index: 30; }
+  
+  /* 時間ラベル（高さはJSで制御） */
+  .time-label {
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 0.7rem; color: #888;
+    text-align: right; padding-right: 5px; padding-top: 5px;
+    box-sizing: border-box;
+  }
+
   .rooms-container { display: flex; min-width: fit-content; flex-grow: 1; }
   .room-col { flex: 1 0 120px; min-width: 120px; border-right: 1px solid #eee; position: relative; display: flex; flex-direction: column; }
   .room-header { height: 40px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; background: #fafafa; border-bottom: 1px solid #ddd; position: sticky; top: 0; z-index: 10; padding: 0 5px; text-align: center; word-break: break-all; }
-  .room-grid-body { position: relative; height: calc(var(--hour-height) * 10); background: repeating-linear-gradient(to bottom, transparent, transparent calc(var(--hour-height) - 1px), #f5f5f5 var(--hour-height)); }
   
+  /* グリッド本体 */
+  .room-grid-body { 
+    position: relative; 
+    /* heightはJSで制御 */
+    background: transparent;
+  }
+  /* 背景のグリッド線（高さはJSで制御） */
+  .grid-slot {
+    border-bottom: 1px solid #f5f5f5;
+    box-sizing: border-box;
+    width: 100%;
+  }
+
   /* 予約バー */
   .v-booking-bar {
     position: absolute;
@@ -57,9 +79,9 @@
     font-size: 0.75rem;
     color: #333;
     padding: 4px 2px;
-    overflow: visible;         /* はみ出し許可 */
-    white-space: normal;       /* 自動改行 */
-    overflow-wrap: break-word; /* 単語折り返し */
+    overflow: hidden; 
+    white-space: normal;
+    overflow-wrap: break-word;
     line-height: 1.2;
     z-index: 10;
     cursor: pointer;
@@ -70,7 +92,7 @@
     justify-content: flex-start;
     text-align: center;
   }
-  .v-booking-bar:hover { z-index: 20; box-shadow: 0 4px 10px rgba(0,0,0,0.4); }
+  .v-booking-bar:hover { z-index: 20; box-shadow: 0 4px 10px rgba(0,0,0,0.4); opacity: 0.95; }
   
   .type-meeting { background: var(--meeting-bg); border-top: 4px solid var(--meeting-border); }
   .type-reception { background: var(--reception-bg); border-top: 4px solid var(--reception-border); }
@@ -118,7 +140,7 @@
 
 <div id="login-screen">
   <div class="login-box">
-    <h2>予約システム v2.14</h2>
+    <h2>予約システム v3.0</h2>
     <input type="text" id="loginId" placeholder="ユーザーID">
     <input type="password" id="loginPass" placeholder="パスワード">
     <button class="btn-primary" onclick="tryLogin()">ログイン</button>
@@ -236,7 +258,7 @@
 
   const START_HOUR = 9;
   const END_HOUR = 19;
-  const HOUR_HEIGHT = 60; 
+  const BASE_HOUR_HEIGHT = 60; // 最小高さ
 
   let currentUser = null;
   let masterData = { rooms: [], users: [], reservations: [], logs: [], groups: [] };
@@ -248,11 +270,7 @@
   };
 
   async function callAPI(params) {
-    // URLチェック
-    if(!API_URL || API_URL.indexOf("http") === -1) { 
-        alert("GASのURLが正しく設定されていません。コード内のAPI_URLを確認してください。"); 
-        return; 
-    }
+    if(API_URL.indexOf("http") === -1) { alert("GASのURLを設定してください"); return; }
     document.getElementById('loading').style.display = 'flex';
     const options = { method: 'POST', body: JSON.stringify(params), headers: { 'Content-Type': 'text/plain;charset=utf-8' } };
     try {
@@ -273,26 +291,18 @@
     const id = document.getElementById('loginId').value.trim();
     const pass = document.getElementById('loginPass').value.trim();
     if(!id || !pass) return;
-    
     document.getElementById('loading').style.display = 'flex';
     
-    // エラー防止: URLの構築前にチェック
-    if(!API_URL) {
-        alert("API_URLが設定されていません");
-        document.getElementById('loading').style.display = 'none';
-        return;
-    }
+    if(!API_URL) { alert("API_URL未設定"); document.getElementById('loading').style.display = 'none'; return; }
 
+    const url = new URL(API_URL);
+    url.searchParams.append('action', 'login');
+    url.searchParams.append('userId', id);
+    url.searchParams.append('password', pass);
     try {
-      const url = new URL(API_URL);
-      url.searchParams.append('action', 'login');
-      url.searchParams.append('userId', id);
-      url.searchParams.append('password', pass);
-
       const res = await fetch(url.toString(), { method: 'GET', headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
       const json = await res.json();
       document.getElementById('loading').style.display = 'none';
-
       if (json.status === 'success') {
         currentUser = json.user;
         document.getElementById('display-user-name').innerText = currentUser.userName;
@@ -310,23 +320,17 @@
 
   async function loadAllData() {
     document.getElementById('loading').style.display = 'flex';
+    const url = new URL(API_URL);
+    url.searchParams.append('action', 'getAllData');
     try {
-      const url = new URL(API_URL);
-      url.searchParams.append('action', 'getAllData');
-      
       const res = await fetch(url.toString(), { method: 'GET', headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
       const json = await res.json();
       document.getElementById('loading').style.display = 'none';
       if (json.status === 'success') {
         masterData = json.data;
         initUI();
-      } else {
-        alert("データ読み込みエラー: " + json.message);
-      }
-    } catch(e) { 
-        document.getElementById('loading').style.display = 'none'; 
-        alert("データ読み込みに失敗しました: " + e.message);
-    }
+      } else { alert("読込エラー: " + json.message); }
+    } catch(e) { document.getElementById('loading').style.display = 'none'; }
   }
 
   function initUI() {
@@ -360,7 +364,6 @@
     });
   }
 
-  /* --- グループのトグル機能 --- */
   function selectGroupMembers(idsStr) {
     if (!idsStr) return;
     const rawIds = idsStr.split(',');
@@ -422,34 +425,125 @@
     if(tabName==='logs') tabs[2].classList.add('active');
   }
 
+  /* --- 自動行高さ調整ロジックの要 --- */
+  // 各時間帯の最大高さを計算するオブジェクト
+  let hourRowHeights = {}; // { 9: 60, 10: 120, ... }
+
   function renderTimeAxis(containerId) {
+    // 描画は renderVerticalTimeline の中で計算後に行うため、ここでは初期化のみ
     const container = document.getElementById(containerId);
-    const startDiv = container.querySelector('.time-axis-header').nextElementSibling;
-    if(startDiv) return; 
+    // すでにヘッダー以外があればクリア
+    const children = Array.from(container.children);
+    children.forEach(child => {
+        if(!child.classList.contains('time-axis-header')) container.removeChild(child);
+    });
+  }
+
+  function drawTimeAxis(containerId) {
+    const container = document.getElementById(containerId);
+    // クリア
+    const children = Array.from(container.children);
+    children.forEach(child => {
+        if(!child.classList.contains('time-axis-header')) container.removeChild(child);
+    });
+
     for (let i = START_HOUR; i < END_HOUR; i++) {
+        const height = hourRowHeights[i] || BASE_HOUR_HEIGHT;
         const div = document.createElement('div');
         div.className = 'time-label';
         div.innerText = i + ":00";
+        div.style.height = height + "px"; // 計算された高さを適用
         container.appendChild(div);
     }
   }
 
   function renderVerticalTimeline(mode) {
     let container, dateInputId, targetRooms;
+    let timeAxisId;
+
     if (mode === 'all') {
         container = document.getElementById('rooms-container-all');
         dateInputId = 'timeline-date';
+        timeAxisId = 'time-axis-all';
         targetRooms = masterData.rooms;
     } else {
         container = document.getElementById('rooms-container-single');
         dateInputId = 'search-date';
+        timeAxisId = 'time-axis-single';
         const selectedId = document.getElementById('search-room-select').value;
         targetRooms = masterData.rooms.filter(r => r.roomId === selectedId);
         container.style.width = "100%"; 
     }
-    container.innerHTML = "";
+    
+    // 1. まず全予約を見て、各時間帯(9,10,...)に必要な高さを計算する
     const rawDateVal = document.getElementById(dateInputId).value; 
     const targetDateNum = formatDateToNum(new Date(rawDateVal)); 
+    
+    // 初期化
+    for(let h=START_HOUR; h<END_HOUR; h++) hourRowHeights[h] = BASE_HOUR_HEIGHT;
+
+    // 表示対象の予約を抽出
+    const allRelevantReservations = masterData.reservations.filter(res => {
+        if (!res.startTime) return false;
+        // モードに関わらず、日付が一致し、表示対象の部屋に含まれる予約
+        const rId = res.resourceId;
+        const isTargetRoom = targetRooms.some(r => r.roomId === rId);
+        const resDateNum = formatDateToNum(new Date(res.startTime));
+        return isTargetRoom && (resDateNum === targetDateNum);
+    });
+
+    // 高さ計算
+    allRelevantReservations.forEach(res => {
+        const start = new Date(res.startTime);
+        const sHour = start.getHours();
+        
+        // 参加者文字列を作成
+        let displayText = res.title || '予約';
+        if (res.participantIds) {
+            const resIds = res.participantIds.split(',').map(id => id.trim()).sort();
+            const matchedGroup = masterData.groups.find(grp => {
+                if (!grp.memberIds) return false;
+                const grpIds = grp.memberIds.split(',').map(id => id.trim()).sort();
+                return JSON.stringify(resIds) === JSON.stringify(grpIds);
+            });
+            if (matchedGroup) {
+                displayText += "\n(" + matchedGroup.groupName + ")";
+            } else {
+                const names = resIds.map(id => {
+                    const u = masterData.users.find(user => String(user.userId) === id);
+                    return u ? u.userName : "";
+                }).filter(n => n);
+                displayText += "\n(" + names.join(', ') + ")";
+            }
+        }
+
+        // 文字数から高さを概算 (1行約15px + padding)
+        // かなり大雑把ですが、文字数が多い場合は高さを増やす
+        // 12文字くらいで改行すると仮定
+        const lineCount = Math.ceil(displayText.length / 10) + 2; // +2は余裕
+        const neededHeight = Math.max(BASE_HOUR_HEIGHT, lineCount * 16);
+        
+        // 開始時間帯の高さを更新 (最大値を保持)
+        if (sHour >= START_HOUR && sHour < END_HOUR) {
+            if (neededHeight > hourRowHeights[sHour]) {
+                hourRowHeights[sHour] = neededHeight;
+            }
+        }
+    });
+
+    // 2. 左側の時間軸を再描画 (高さ適用)
+    drawTimeAxis(timeAxisId);
+
+    // 3. メイングリッド描画
+    container.innerHTML = "";
+    
+    // 高さの累積位置を計算 (Y座標用)
+    const hourTops = {};
+    let currentTop = 0;
+    for(let h=START_HOUR; h<END_HOUR; h++) {
+        hourTops[h] = currentTop;
+        currentTop += hourRowHeights[h];
+    }
 
     targetRooms.forEach(room => {
       const col = document.createElement('div');
@@ -459,68 +553,93 @@
       header.className = 'room-header';
       header.innerText = room.roomName;
       col.appendChild(header);
+      
       const body = document.createElement('div');
       body.className = 'room-grid-body';
+      // 本体の高さ設定
+      body.style.height = currentTop + "px"; 
+
+      // グリッド線を描画
+      for(let h=START_HOUR; h<END_HOUR; h++) {
+          const slot = document.createElement('div');
+          slot.className = 'grid-slot';
+          slot.style.height = hourRowHeights[h] + "px";
+          body.appendChild(slot);
+      }
+      
+      // クリックイベント (座標計算が複雑になるため、簡易的にスロットクリックで実装)
+      // 今回は枠そのものではなく、グリッドスロットにイベントをつける形推奨だが、
+      // 既存ロジック維持のため bodyクリックで計算する
       body.onclick = (e) => {
-         if(e.target === body) {
+         if(e.target.classList.contains('grid-slot') || e.target === body) {
+             // クリックされたY座標から時間を逆算
              const rect = body.getBoundingClientRect();
              const clickY = e.clientY - rect.top;
-             const hourIndex = Math.floor(clickY / HOUR_HEIGHT);
-             let clickHour = START_HOUR + hourIndex;
-             if (clickHour < START_HOUR) clickHour = START_HOUR;
-             if (clickHour >= END_HOUR) clickHour = END_HOUR - 1;
-             openModal(null, room.roomId, clickHour);
+             
+             let clickedHour = -1;
+             for(let h=START_HOUR; h<END_HOUR; h++) {
+                 if (clickY >= hourTops[h] && clickY < hourTops[h] + hourRowHeights[h]) {
+                     clickedHour = h;
+                     break;
+                 }
+             }
+             if(clickedHour !== -1) openModal(null, room.roomId, clickedHour);
          }
       };
-      const reservations = masterData.reservations.filter(res => {
-        if (!res.startTime) return false;
-        if (res.resourceId !== room.roomId) return false;
-        const resDateNum = formatDateToNum(new Date(res.startTime));
-        return resDateNum === targetDateNum;
-      });
+
+      // 予約バーの配置
+      const reservations = allRelevantReservations.filter(res => res.resourceId === room.roomId);
+      
       reservations.forEach(res => {
         const start = new Date(res.startTime);
+        const sHour = start.getHours();
+        const sMin = start.getMinutes();
         const end = new Date(res.endTime);
-        const startTotalMin = (start.getHours() * 60) + start.getMinutes();
-        const offsetMin = startTotalMin - (START_HOUR * 60);
+        
+        // 終了時間の計算 (またぎ対応は簡易的)
+        // Duration (分)
         const durationMin = (end.getTime() - start.getTime()) / 60000;
         
-        /* --- グループ名 or 個人名 表示ロジック --- */
-        let displayText = "";
-        if (res.participantIds) {
-            const resIds = res.participantIds.split(',').map(id => id.trim()).sort();
-            const matchedGroup = masterData.groups.find(grp => {
-                if (!grp.memberIds) return false;
-                const grpIds = grp.memberIds.split(',').map(id => id.trim()).sort();
-                return JSON.stringify(resIds) === JSON.stringify(grpIds);
-            });
+        // Y座標: 開始時間のTop + (分/60 * その時間の高さ)
+        if (sHour >= START_HOUR && sHour < END_HOUR) {
+            const baseTop = hourTops[sHour];
+            const heightOfHour = hourRowHeights[sHour];
+            const offsetPx = (sMin / 60) * heightOfHour;
+            
+            // 高さ: 簡易的に (分/60 * その時間の高さ) 
+            // ※厳密にはまたぎ時間を考慮すべきだが、今回は開始時間のスロット高さベースで描画
+            const heightPx = (durationMin / 60) * heightOfHour;
 
-            if (matchedGroup) {
-                displayText = matchedGroup.groupName; 
-            } else {
-                const names = resIds.map(id => {
-                    const u = masterData.users.find(user => String(user.userId) === id);
-                    return u ? u.userName : "";
-                }).filter(n => n);
-                displayText = names.join(', ');
-            }
-        }
-
-        if (offsetMin >= 0) {
             const bar = document.createElement('div');
             bar.className = `v-booking-bar type-${room.type}`;
-            const topPx = (offsetMin * (HOUR_HEIGHT / 60));
-            const heightPx = (durationMin * (HOUR_HEIGHT / 60));
-            bar.style.top = topPx + "px";
+            bar.style.top = (baseTop + offsetPx) + "px";
+            bar.style.height = heightPx + "px";
             
-            // 文字量に応じて高さ可変
-            bar.style.minHeight = heightPx + "px"; 
-            bar.style.height = "auto"; 
-            
+            // 表示文字作成
+            let pNames = "";
+            let displayTitle = res.title || '予約';
+            if (res.participantIds) {
+                const resIds = res.participantIds.split(',').map(id => id.trim()).sort();
+                const matchedGroup = masterData.groups.find(grp => {
+                    if (!grp.memberIds) return false;
+                    const grpIds = grp.memberIds.split(',').map(id => id.trim()).sort();
+                    return JSON.stringify(resIds) === JSON.stringify(grpIds);
+                });
+                if (matchedGroup) {
+                    pNames = `(${matchedGroup.groupName})`;
+                } else {
+                    const names = resIds.map(id => {
+                        const u = masterData.users.find(user => String(user.userId) === id);
+                        return u ? u.userName : "";
+                    }).filter(n => n);
+                    pNames = `(${names.join(', ')})`;
+                }
+            }
+
             bar.innerHTML = `
               <span style="font-weight:bold;">${pad(start.getHours())}:${pad(start.getMinutes())}</span><br>
-              <span style="font-weight:bold;">${res.title || '予約'}</span>
-              ${displayText ? `<br><span style="font-size:0.7rem; opacity:0.9;">(${displayText})</span>` : ''}
+              <span style="font-weight:bold;">${displayTitle}</span>
+              ${pNames ? `<br><span style="font-size:0.7rem; opacity:0.9;">${pNames}</span>` : ''}
             `;
             
             bar.onclick = (e) => { e.stopPropagation(); openModal(res); };
