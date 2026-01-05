@@ -152,6 +152,7 @@
     <div class="user-info">
       <span id="display-user-name"></span> さん
       <button onclick="logout()" style="width:auto; padding:5px 10px; font-size:0.7rem; margin-left:10px;">ログアウト</button>
+      <button onclick="setEditData('会議室A', '2023-10-27', '定例会議')"> 編集する</button>
     </div>
   </header>
 
@@ -222,7 +223,6 @@
     
     <label>用件 (タイトル)</label>
     <input type="text" id="input-title" placeholder="定例会議など">
-    
     <label>参加者設定</label>
     <div class="group-container" id="group-buttons-area"></div>
     
@@ -782,6 +782,41 @@
   function pad(n) { return n < 10 ? '0'+n : n; }
   function formatDate(d) { return `${d.getMonth()+1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}`; }
   function getRoomName(id) { const r = masterData.rooms.find(x => x.roomId === id); return r ? r.roomName : id; }
+
+  // ▼▼ このコードに書き換えてください（重複なしの完成版） ▼▼
+
+  function setEditData(roomName, date, content) {
+    // 1. モーダルを開く（既存の機能を利用）
+    openModal();
+
+    // 2. タイトル（用件）を入れる
+    var titleInput = document.getElementById('input-title');
+    if (titleInput) {
+      titleInput.value = content;
+    }
+
+    // 3. 日付を入れる
+    var dateInput = document.getElementById('input-date');
+    if (dateInput) {
+      dateInput.value = date;
+    }
+
+    // 4. 部屋名からプルダウンを自動選択する（便利機能）
+    var roomSelect = document.getElementById('input-room');
+    if (roomSelect) {
+      // プルダウンの選択肢を上から順にチェック
+      for (var i = 0; i < roomSelect.options.length; i++) {
+        // もし選択肢の文字と、渡された部屋名が同じなら
+        if (roomSelect.options[i].text === roomName) {
+          roomSelect.selectedIndex = i; // その場所を選択状態にする
+          break; // 見つかったので終了
+        }
+      }
+    }
+    
+    // 5. モーダルのタイトルを変更（見た目用）
+    document.getElementById('modal-title').innerText = "予約編集モード";
+  }
 </script>
 </body>
 </html>
