@@ -3,8 +3,10 @@ const API_URL = "https://script.google.com/macros/s/AKfycbz5buwxgeKis1ujWGTqx1DO
 
 const START_HOUR = 9;
 const END_HOUR = 19;
-// CSSの --base-hour-height と一致させる
-const BASE_HOUR_HEIGHT = 50; 
+// CSSの設定値と合わせるための定数
+const CSS_LINE_HEIGHT = 15; // 1行の高さ(px)
+const CSS_PADDING_V = 8;    // 上下のパディング合計(px)
+const BASE_HOUR_HEIGHT = 50; // 最低限の高さ(px)
 
 let currentUser = null;
 let masterData = { rooms: [], users: [], reservations: [], logs: [], groups: [] };
@@ -216,7 +218,7 @@ function renderTimeAxis(containerId) {
     // 初期化時は何もしない
 }
 
-// ▼▼▼ 余白削除のために計算式を調整した関数 ▼▼▼
+// ▼▼▼ ズレ防止の決定版：座標計算ロジックを刷新 ▼▼▼
 function renderVerticalTimeline(mode) {
   let container, dateInputId, targetRooms;
   let timeAxisId;
@@ -252,7 +254,6 @@ function renderVerticalTimeline(mode) {
 
       const rId = getVal(res, ['resourceId', 'roomId', 'room_id', 'resource_id', '部屋ID', '部屋']);
       const isTargetRoom = targetRooms.some(r => String(r.roomId) === String(rId));
-      
       const resDateNum = formatDateToNum(new Date(startTimeVal));
       
       res._startTime = startTimeVal;
@@ -262,7 +263,7 @@ function renderVerticalTimeline(mode) {
       return isTargetRoom && (resDateNum === targetDateNum);
   });
 
-  // 2. 高さ自動計算（余白削減版）
+  // 2. 高さ自動計算（全ての予約をチェックして、その時間帯の最大高さを決定）
   allRelevantReservations.forEach(res => {
       const start = new Date(res._startTime);
       const sHour = start.getHours();
@@ -289,20 +290,22 @@ function renderVerticalTimeline(mode) {
           }
       }
 
-      // ★修正: 1行あたりの文字数を「12文字」に見積もり直して、行数を減らす
-      const titleLines = Math.ceil(displayText.length / 12) || 1;
+      // 1行あたりの文字数をCSSに合わせて計算
+      const titleLines = Math.ceil(displayText.length / 14) || 1;
       const timeLines = 1; 
-      const nameLines = namesText ? Math.ceil(namesText.length / 12) : 0;
+      const nameLines = namesText ? Math.ceil(namesText.length / 14) : 0;
       
-      // ★修正: 余白(0.5)を足す
-      const totalLines = titleLines + timeLines + nameLines + 0.5;
+      // 合計行数 + パディング等の余裕
+      const totalLines = titleLines + timeLines + nameLines;
       
-      // ★修正: 1行の高さを18pxで計算（少しタイトに）
-      const neededHeight = Math.max(BASE_HOUR_HEIGHT, totalLines * 18);
+      // CSS定義の高さと合わせる計算式
+      const neededHeight = (totalLines * CSS_LINE_HEIGHT) + CSS_PADDING_V + 10; // +10は予備
       
+      const finalHeight = Math.max(BASE_HOUR_HEIGHT, neededHeight);
+
       if (sHour >= START_HOUR && sHour < END_HOUR) {
-          if (neededHeight > hourRowHeights[sHour]) {
-              hourRowHeights[sHour] = neededHeight;
+          if (finalHeight > hourRowHeights[sHour]) {
+              hourRowHeights[sHour] = finalHeight;
           }
       }
   });
@@ -310,13 +313,17 @@ function renderVerticalTimeline(mode) {
   drawTimeAxis(timeAxisId);
   container.innerHTML = "";
   
+  // 3. 各時間のY座標（開始位置）を計算してマッピング
   const hourTops = {};
   let currentTop = 0;
   for(let h=START_HOUR; h<END_HOUR; h++) {
       hourTops[h] = currentTop;
-      currentTop += hourRowHeights[h];
+      currentTop += hourRowHeights[h]; // 次の時間の開始位置
   }
+  // 終了時間の座標も入れておく（計算用）
+  hourTops[END_HOUR] = currentTop;
 
+  // 4. 描画
   targetRooms.forEach(room => {
     const col = document.createElement('div');
     col.className = 'room-col';
@@ -330,6 +337,7 @@ function renderVerticalTimeline(mode) {
     body.className = 'room-grid-body';
     body.style.height = currentTop + "px"; 
 
+    // 背景グリッド（時間軸と完全に一致する高さを使用）
     for(let h=START_HOUR; h<END_HOUR; h++) {
         const slot = document.createElement('div');
         slot.className = 'grid-slot';
@@ -344,7 +352,7 @@ function renderVerticalTimeline(mode) {
            const clickY = e.clientY - rect.top;
            let clickedHour = -1;
            for(let h=START_HOUR; h<END_HOUR; h++) {
-               if (clickY >= hourTops[h] && clickY < hourTops[h] + hourRowHeights[h]) {
+               if (clickY >= hourTops[h] && clickY < hourTops[h+1]) {
                    clickedHour = h;
                    break;
                }
@@ -357,27 +365,42 @@ function renderVerticalTimeline(mode) {
     
     reservations.forEach(res => {
       const start = new Date(res._startTime);
-      const sHour = start.getHours();
-      const sMin = start.getMinutes();
       const end = new Date(res._endTime);
       
-      let durationMin = (end.getTime() - start.getTime()) / 60000;
-      if (durationMin < 15) durationMin = 15; 
+      let sHour = start.getHours();
+      let sMin = start.getMinutes();
+      let eHour = end.getHours();
+      let eMin = end.getMinutes();
 
-      if (sHour >= START_HOUR && sHour < END_HOUR) {
-          const baseTop = hourTops[sHour];
-          const heightOfHour = hourRowHeights[sHour];
+      // 範囲外の予約を表示しないように制限
+      if (sHour < START_HOUR) { sHour = START_HOUR; sMin = 0; }
+      if (eHour >= END_HOUR) { eHour = END_HOUR; eMin = 0; }
+      
+      if (sHour < END_HOUR && (sHour > START_HOUR || (sHour === START_HOUR && sMin >= 0))) {
           
-          const offsetPx = (sMin / 60) * heightOfHour;
-          const heightPx = (durationMin / 60) * heightOfHour;
+          // ★座標計算の核心部分★
+          // 開始位置(top) = 開始時間のTop + (その時間の高さ * 分の割合)
+          const topPx = hourTops[sHour] + (hourRowHeights[sHour] * (sMin / 60));
+          
+          // 終了位置(bottom) = 終了時間のTop + (その時間の高さ * 分の割合)
+          // ※eHourがEND_HOURの場合は hourTops[END_HOUR] がそのまま底辺になる
+          let bottomPx = 0;
+          if (eHour === END_HOUR) {
+              bottomPx = hourTops[END_HOUR]; // 最後のライン
+          } else {
+              bottomPx = hourTops[eHour] + (hourRowHeights[eHour] * (eMin / 60));
+          }
+          
+          // 高さ = 底辺 - 上辺
+          const heightPx = bottomPx - topPx;
 
           const bar = document.createElement('div');
           bar.className = `v-booking-bar type-${room.type}`;
           
-          bar.style.top = (baseTop + offsetPx + 1) + "px";
-          // ★修正: はみ出し防止マージン
-          bar.style.minHeight = (heightPx - 2) + "px";
-          bar.style.height = "auto"; 
+          // 罫線と被らないよう 1px マージン
+          bar.style.top = (topPx + 1) + "px";
+          bar.style.height = (heightPx - 2) + "px"; // はみ出し防止
+          bar.style.minHeight = "0"; // 自動計算を無効化し計算値を優先
           
           let displayTitle = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '予約';
           let pNames = "";
