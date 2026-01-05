@@ -9,6 +9,7 @@
 }
 
 body { font-family: "Helvetica Neue", Arial, sans-serif; margin: 0; background: #eef1f5; color: #333; height: 100vh; display: flex; flex-direction: column; }
+/* 全要素のサイズ計算を枠線込みにする（ズレ防止の重要設定） */
 * { box-sizing: border-box; }
 
 #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary); display: flex; justify-content: center; align-items: center; z-index: 2000; }
@@ -36,11 +37,9 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
 .time-axis-header { height: 40px; border-bottom: 1px solid #ddd; background: #f9f9f9; position: sticky; top: 0; z-index: 30; }
 
 .time-label {
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid #eee; /* 線を薄く表示 */
   font-size: 0.7rem; color: #888;
   text-align: right; padding-right: 5px; padding-top: 5px;
-  /* 高さ計算と合わせるためにボックスサイズを固定 */
-  box-sizing: border-box; 
   width: 100%;
 }
 
@@ -50,8 +49,7 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
 
 .room-grid-body { position: relative; background: transparent; }
 .grid-slot { 
-  border-bottom: 1px solid #f5f5f5; 
-  box-sizing: border-box; 
+  border-bottom: 1px solid #eee; /* 時間軸と同じ線にする */
   width: 100%; 
 }
 
@@ -59,7 +57,7 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
 .v-booking-bar {
   position: absolute; left: 2px; right: 2px; border-radius: 4px;
   font-size: 11px; /* 文字サイズ固定 */
-  line-height: 1.3; /* 行間固定 */
+  line-height: 1.4; /* 行間を少し広めに固定 */
   color: #333; padding: 4px 2px;
   overflow: visible; white-space: normal; overflow-wrap: anywhere; word-break: break-all;
   z-index: 100; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
