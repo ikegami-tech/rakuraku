@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>らくらくお部屋予約システム</title>
 <style>
+  /* --- 基本スタイル --- */
   :root {
     --primary: #2c3e50; --accent: #27ae60; --danger: #c0392b;
     --meeting-bg: #e3f2fd; --meeting-border: #2196f3;
@@ -12,9 +13,11 @@
     --zoom-bg: #fff3e0; --zoom-border: #ff9800;
     --hour-height: 60px;
   }
+  
   body { font-family: "Helvetica Neue", Arial, sans-serif; margin: 0; background: #eef1f5; color: #333; height: 100vh; display: flex; flex-direction: column; }
   * { box-sizing: border-box; }
 
+  /* ログイン画面 */
   #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary); display: flex; justify-content: center; align-items: center; z-index: 2000; }
   .login-box { background: white; padding: 2rem; border-radius: 8px; width: 90%; max-width: 350px; text-align: center; }
   input, select, textarea { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px; }
@@ -22,8 +25,12 @@
   .btn-primary { background: var(--accent); color: white; }
   .btn-danger { background: var(--danger); color: white; }
 
+  /* メイン画面 */
   #app-screen { display: none; flex-direction: column; height: 100%; max-width: 1280px; width: 100%; margin: 0 auto; background: white; box-shadow: 0 0 20px rgba(0,0,0,0.05); }
+  
   header { background: var(--primary); color: white; padding: 10px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+  .user-info { font-size: 0.8rem; }
+  
   .nav-tabs { display: flex; background: white; border-bottom: 1px solid #ddd; flex-shrink: 0; }
   .nav-item { flex: 1; text-align: center; padding: 12px; cursor: pointer; border-bottom: 3px solid transparent; }
   .nav-item.active { border-bottom-color: var(--accent); color: var(--accent); font-weight: bold; }
@@ -31,6 +38,7 @@
   .view-container { display: none; flex: 1; overflow: hidden; position: relative; }
   .view-container.active { display: flex; flex-direction: column; }
   
+  /* タイムライン */
   .date-controller { text-align: center; padding: 10px; background: #f9f9f9; border-bottom: 1px solid #ddd; display: flex; gap: 10px; justify-content: center; flex-shrink: 0; }
   .calendar-scroll-area { flex: 1; overflow: auto; position: relative; background: white; display: flex; }
   .time-axis-col { width: 50px; flex-shrink: 0; background: #fff; border-right: 1px solid #ddd; position: sticky; left: 0; z-index: 20; }
@@ -40,54 +48,51 @@
   .room-col { flex: 1 0 120px; min-width: 120px; border-right: 1px solid #eee; position: relative; display: flex; flex-direction: column; }
   .room-header { height: 40px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; background: #fafafa; border-bottom: 1px solid #ddd; position: sticky; top: 0; z-index: 10; padding: 0 5px; text-align: center; word-break: break-all; }
   .room-grid-body { position: relative; height: calc(var(--hour-height) * 10); background: repeating-linear-gradient(to bottom, transparent, transparent calc(var(--hour-height) - 1px), #f5f5f5 var(--hour-height)); }
-  /* ▼▼▼ .v-booking-bar を上書きしてください ▼▼▼ */
+  
+  /* 予約バー (自動高さ調整版) */
   .v-booking-bar {
     position: absolute;
     left: 2px; right: 2px;
     border-radius: 4px;
-    font-size: 0.75rem; /* 少し文字サイズ調整 */
+    font-size: 0.75rem;
     color: #333;
     padding: 4px 2px;
-    
-    /* 修正: 最初から全文表示する設定 */
-    overflow: visible;         /* はみ出しを許可 */
+    overflow: visible;         /* はみ出し許可 */
     white-space: normal;       /* 自動改行 */
-    overflow-wrap: break-word; /* 長い単語も折り返す */
+    overflow-wrap: break-word; /* 単語折り返し */
     line-height: 1.2;
-    z-index: 10;               /* グリッド線より手前に */
-    
+    z-index: 10;
     cursor: pointer;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* 影を少し濃く */
-    
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start; /* 上詰め */
+    justify-content: flex-start;
     text-align: center;
   }
-
-  /* ホバー時の拡大設定は不要になったので削除、または以下のように控えめに */
-  .v-booking-bar:hover {
-    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-    z-index: 20; /* 重なった時に手前に来るように */
-  }
+  .v-booking-bar:hover { z-index: 20; box-shadow: 0 4px 10px rgba(0,0,0,0.4); }
+  
   .type-meeting { background: var(--meeting-bg); border-top: 4px solid var(--meeting-border); }
   .type-reception { background: var(--reception-bg); border-top: 4px solid var(--reception-border); }
   .type-zoom { background: var(--zoom-bg); border-top: 4px solid var(--zoom-border); }
 
+  /* 履歴 */
   .log-wrapper { overflow: auto; padding: 10px; }
   .log-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; background: white; }
   .log-table th, .log-table td { padding: 8px; border: 1px solid #eee; text-align: left; }
   
+  /* モーダル */
   .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 3000; }
   .modal-content { background: white; padding: 20px; border-radius: 8px; width: 95%; max-width: 700px; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column;}
   .form-group label { font-weight: bold; font-size: 0.9rem; display: block; margin-top: 10px; }
 
+  /* グループボタン */
   .group-container { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 5px; }
   .group-chip { background: #e0e0e0; border: 1px solid #ccc; border-radius: 15px; padding: 4px 10px; font-size: 0.8rem; cursor: pointer; user-select: none; transition: background 0.2s; }
   .group-chip:hover { background: #d5d5d5; }
   .group-chip:active { background: #bbb; }
 
+  /* シャトルUI */
   .shuttle-container { display: flex; gap: 10px; margin-top: 5px; height: 200px; }
   .shuttle-box { flex: 1; border: 1px solid #ddd; border-radius: 4px; display: flex; flex-direction: column; background: #fafafa; }
   .shuttle-header { background: #eee; padding: 5px 10px; font-size: 0.8rem; font-weight: bold; text-align: center; border-bottom: 1px solid #ddd; }
@@ -101,6 +106,7 @@
   .shuttle-search input { width: 100%; margin: 0; padding: 4px; font-size: 0.8rem; }
   @media (max-width: 600px) { .shuttle-container { flex-direction: column; height: 300px; } }
 
+  /* その他 */
   #loading { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 4000; justify-content: center; align-items: center; font-weight: bold; }
   .fab { position: fixed; bottom: 20px; right: calc(50% - 600px + 20px); width: 56px; height: 56px; background: var(--accent); color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 24px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; z-index: 100; border: none; }
   @media (max-width: 1280px) { .fab { right: 20px; } }
@@ -112,7 +118,7 @@
 
 <div id="login-screen">
   <div class="login-box">
-    <h2>予約システム v2.12</h2>
+    <h2>予約システム v2.13</h2>
     <input type="text" id="loginId" placeholder="ユーザーID">
     <input type="password" id="loginPass" placeholder="パスワード">
     <button class="btn-primary" onclick="tryLogin()">ログイン</button>
@@ -226,7 +232,7 @@
 
 <script>
   /* --- 重要: GASのURL --- */
-  const API_URL = "https://script.google.com/macros/s/AKfycbxy1aI3bEo3lDqpLM1YkjwuMPGkf82dijKmdBIdrz-iAnJhEo0HElw4xJn1x-qNjLBQ/exec";
+  const API_URL = "[https://script.google.com/macros/s/AKfycbxy1aI3bEo3lDqpLM1YkjwuMPGkf82dijKmdBIdrz-iAnJhEo0HElw4xJn1x-qNjLBQ/exec](https://script.google.com/macros/s/AKfycbxy1aI3bEo3lDqpLM1YkjwuMPGkf82dijKmdBIdrz-iAnJhEo0HElw4xJn1x-qNjLBQ/exec)";
 
   const START_HOUR = 9;
   const END_HOUR = 19;
@@ -299,7 +305,10 @@
         masterData = json.data;
         initUI();
       }
-    } catch(e) { document.getElementById('loading').style.display = 'none'; }
+    } catch(e) { 
+        document.getElementById('loading').style.display = 'none'; 
+        alert("データ読み込みに失敗しました: " + e.message);
+    }
   }
 
   function initUI() {
@@ -333,39 +342,27 @@
     });
   }
 
+  /* --- グループのトグル機能 --- */
   function selectGroupMembers(idsStr) {
     if (!idsStr) return;
-    
-    // 1. まず、対象となるユーザーオブジェクトを特定する（IDの型ズレ防止含む）
     const rawIds = idsStr.split(',');
     const targetUsers = [];
-    
     rawIds.forEach(rawId => {
         const cleanIdStr = rawId.trim();
         const user = masterData.users.find(u => String(u.userId) === cleanIdStr);
-        if (user) {
-            targetUsers.push(user);
-        }
+        if (user) { targetUsers.push(user); }
     });
-
     if (targetUsers.length === 0) return;
 
-    // 2. 「全員すでに選択されているか？」を判定
     const isAllSelected = targetUsers.every(u => selectedParticipantIds.has(u.userId));
-
-    // 3. 分岐処理
     if (isAllSelected) {
-        // 全員選ばれているなら -> 全員解除 (キャンセル)
         targetUsers.forEach(u => selectedParticipantIds.delete(u.userId));
     } else {
-        // 誰か足りないなら -> 全員追加
         targetUsers.forEach(u => selectedParticipantIds.add(u.userId));
     }
-    
-    // 4. リスト再描画
     renderShuttleLists(document.getElementById('shuttle-search-input').value);
   }
-  
+
   function renderShuttleLists(filterText = "") {
     const leftList = document.getElementById('list-candidates');
     const rightList = document.getElementById('list-selected');
@@ -419,7 +416,6 @@
     }
   }
 
-  // ▼▼▼ この関数を上書きしてください (グループ名表示対応版) ▼▼▼
   function renderVerticalTimeline(mode) {
     let container, dateInputId, targetRooms;
     if (mode === 'all') {
@@ -447,7 +443,6 @@
       col.appendChild(header);
       const body = document.createElement('div');
       body.className = 'room-grid-body';
-      
       body.onclick = (e) => {
          if(e.target === body) {
              const rect = body.getBoundingClientRect();
@@ -459,15 +454,12 @@
              openModal(null, room.roomId, clickHour);
          }
       };
-
       const reservations = masterData.reservations.filter(res => {
         if (!res.startTime) return false;
         if (res.resourceId !== room.roomId) return false;
         const resDateNum = formatDateToNum(new Date(res.startTime));
         return resDateNum === targetDateNum;
       });
-
-      // ▼▼▼ renderVerticalTimeline関数内の、この部分(reservations.forEachの中)を書き換えてください ▼▼▼
       reservations.forEach(res => {
         const start = new Date(res.startTime);
         const end = new Date(res.endTime);
@@ -475,42 +467,53 @@
         const offsetMin = startTotalMin - (START_HOUR * 60);
         const durationMin = (end.getTime() - start.getTime()) / 60000;
         
-        // 参加者名取得
-        let pNames = "";
+        /* --- グループ名 or 個人名 表示ロジック --- */
+        let displayText = "";
         if (res.participantIds) {
-            const ids = res.participantIds.split(',');
-            const names = ids.map(id => {
-                const u = masterData.users.find(user => user.userId === id);
-                return u ? u.userName : "";
-            }).filter(n => n);
-            pNames = names.join(', ');
+            const resIds = res.participantIds.split(',').map(id => id.trim()).sort();
+            const matchedGroup = masterData.groups.find(grp => {
+                if (!grp.memberIds) return false;
+                const grpIds = grp.memberIds.split(',').map(id => id.trim()).sort();
+                return JSON.stringify(resIds) === JSON.stringify(grpIds);
+            });
+
+            if (matchedGroup) {
+                displayText = matchedGroup.groupName; 
+            } else {
+                const names = resIds.map(id => {
+                    const u = masterData.users.find(user => String(user.userId) === id);
+                    return u ? u.userName : "";
+                }).filter(n => n);
+                displayText = names.join(', ');
+            }
         }
 
         if (offsetMin >= 0) {
             const bar = document.createElement('div');
             bar.className = `v-booking-bar type-${room.type}`;
-            
             const topPx = (offsetMin * (HOUR_HEIGHT / 60));
             const heightPx = (durationMin * (HOUR_HEIGHT / 60));
-            
             bar.style.top = topPx + "px";
             
-            // ★修正ポイント: height ではなく minHeight にする
-            // これにより、文字が多い時は自動的に枠が伸びます
+            // 文字量に応じて高さ可変
             bar.style.minHeight = heightPx + "px"; 
             bar.style.height = "auto"; 
             
             bar.innerHTML = `
               <span style="font-weight:bold;">${pad(start.getHours())}:${pad(start.getMinutes())}</span><br>
               <span style="font-weight:bold;">${res.title || '予約'}</span>
-              ${pNames ? `<br><span style="font-size:0.7rem; opacity:0.9;">(${pNames})</span>` : ''}
+              ${displayText ? `<br><span style="font-size:0.7rem; opacity:0.9;">(${displayText})</span>` : ''}
             `;
             
             bar.onclick = (e) => { e.stopPropagation(); openModal(res); };
             body.appendChild(bar);
         }
       });
-  // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+      col.appendChild(body);
+      container.appendChild(col);
+    });
+  }
+
   function formatDateToNum(d) {
     if (isNaN(d.getTime())) return ""; 
     return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
