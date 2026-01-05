@@ -671,47 +671,106 @@
       return ""; // 見つからなければ空文字
   }
 
+  // ▼▼▼ openModal関数をこれに書き換えてください（修正版） ▼▼▼
   function openModal(res = null, defaultRoomId = null, clickHour = null) {
     const modal = document.getElementById('bookingModal');
     modal.style.display = 'flex';
+    
+    // 参加者リストなどをリセット
     selectedParticipantIds.clear();
     document.getElementById('shuttle-search-input').value = "";
     
     if (res) {
+      // ------------------------------------------------
+      // 【編集モード】 クリックした予約の情報をセットする
+      // ------------------------------------------------
       document.getElementById('modal-title').innerText = "予約編集";
       document.getElementById('edit-res-id').value = res.id;
-      document.getElementById('input-room').value = res.resourceId;
-      const start = new Date(res.startTime);
-      const end = new Date(res.endTime);
-      document.getElementById('input-date').valueAsDate = start;
-      document.getElementById('input-start').value = `${pad(start.getHours())}:${pad(start.getMinutes())}`;
-      document.getElementById('input-end').value = `${pad(end.getHours())}:${pad(end.getMinutes())}`;
       
-      // ▼▼▼ 修正: 日本語ヘッダーなどに対応して値を取得 ▼▼▼
-      document.getElementById('input-title').value = getVal(res, ['title', '件名', 'タイトル', '用件']);
-      document.getElementById('input-note').value = getVal(res, ['note', '備考', 'メモ', '詳細']);
+      // 1. 部屋のセット（resourceId または roomId を探す）
+      const rId = res.resourceId || res.roomId; 
+      document.getElementById('input-room').value = rId;
+
+      // 2. 日付・時間のセット（時差ボケ防止のため文字列で処理）
+      const startObj = new Date(res.startTime);
+      const endObj = new Date(res.endTime);
       
-      const pIds = getVal(res, ['participantIds', '参加者', 'メンバー']);
+      // 日付 (YYYY-MM-DD形式に変換)
+      const y = startObj.getFullYear();
+      const m = ('0' + (startObj.getMonth() + 1)).slice(-2);
+      const d = ('0' + startObj.getDate()).slice(-2);
+      document.getElementById('input-date').value = `${y}-${m}-${d}`;
+
+      // 時間 (HH:mm形式に変換)
+      const sh = ('0' + startObj.getHours()).slice(-2);
+      const sm = ('0' + startObj.getMinutes()).slice(-2);
+      const eh = ('0' + endObj.getHours()).slice(-2);
+      const em = ('0' + endObj.getMinutes()).slice(-2);
+      document.getElementById('input-start').value = `${sh}:${sm}`;
+      document.getElementById('input-end').value = `${eh}:${em}`;
+      
+      // 3. タイトル・備考のセット（色々な名前パターンに対応）
+      document.getElementById('input-title').value = getVal(res, ['title', '件名', 'タイトル', '用件', 'subject']);
+      document.getElementById('input-note').value = getVal(res, ['note', '備考', 'メモ', '詳細', 'description']);
+      
+      // 4. 参加者のセット
+      const pIds = getVal(res, ['participantIds', 'participant_ids', '参加者', 'メンバー']);
       if (pIds) {
-          pIds.split(',').forEach(id => { if(id) selectedParticipantIds.add(id); });
+          pIds.split(',').forEach(id => { 
+            if(id && id.trim() !== "") selectedParticipantIds.add(id.trim()); 
+          });
       }
+      
+      // 削除ボタンを表示
       document.getElementById('btn-delete').style.display = 'inline-block';
+
     } else {
-      // 新規作成モード
+      // ------------------------------------------------
+      // 【新規作成モード】 空欄をセットする
+      // ------------------------------------------------
       document.getElementById('modal-title').innerText = "新規予約";
       document.getElementById('edit-res-id').value = "";
+      
+      // 部屋の初期値
       if(defaultRoomId) document.getElementById('input-room').value = defaultRoomId;
-      const currentTabDate = document.querySelector('#view-timeline.active') ? document.getElementById('timeline-date').value : document.getElementById('search-date').value;
-      document.getElementById('input-date').valueAsDate = new Date(currentTabDate);
+      
+      // 日付の初期値（現在開いているタブの日付を取得）
+      let currentTabDate = "";
+      const timelineDateInput = document.getElementById('timeline-date');
+      const searchDateInput = document.getElementById('search-date');
+      
+      // 表示中のタブに合わせて日付を取得
+      if(document.getElementById('view-timeline').classList.contains('active')) {
+          currentTabDate = timelineDateInput.value;
+      } else {
+          currentTabDate = searchDateInput.value;
+      }
+      
+      // もし取得できなかったら今日の日付にする
+      if(!currentTabDate) {
+          const now = new Date();
+          const y = now.getFullYear();
+          const mm = ('0' + (now.getMonth() + 1)).slice(-2);
+          const dd = ('0' + now.getDate()).slice(-2);
+          currentTabDate = `${y}-${mm}-${dd}`;
+      }
+      document.getElementById('input-date').value = currentTabDate;
+
+      // 時間の初期値
       const sHour = clickHour ? clickHour : 9;
       document.getElementById('input-start').value = `${pad(sHour)}:00`;
       document.getElementById('input-end').value = `${pad(sHour+1)}:00`;
+      
+      // その他を空にする
       document.getElementById('input-title').value = "";
       document.getElementById('input-note').value = "";
       document.getElementById('btn-delete').style.display = 'none';
     }
+    
+    // 参加者リストの表示更新
     renderShuttleLists();
   }
+  // ▲▲▲ 修正ここまで ▲▲▲
 
   function closeModal() { document.getElementById('bookingModal').style.display = 'none'; }
 
@@ -782,40 +841,7 @@
   function formatDate(d) { return `${d.getMonth()+1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}`; }
   function getRoomName(id) { const r = masterData.rooms.find(x => x.roomId === id); return r ? r.roomName : id; }
 
-  // ▼▼ このコードに書き換えてください（重複なしの完成版） ▼▼
-
-  function setEditData(roomName, date, content) {
-    // 1. モーダルを開く（既存の機能を利用）
-    openModal();
-
-    // 2. タイトル（用件）を入れる
-    var titleInput = document.getElementById('input-title');
-    if (titleInput) {
-      titleInput.value = content;
-    }
-
-    // 3. 日付を入れる
-    var dateInput = document.getElementById('input-date');
-    if (dateInput) {
-      dateInput.value = date;
-    }
-
-    // 4. 部屋名からプルダウンを自動選択する（便利機能）
-    var roomSelect = document.getElementById('input-room');
-    if (roomSelect) {
-      // プルダウンの選択肢を上から順にチェック
-      for (var i = 0; i < roomSelect.options.length; i++) {
-        // もし選択肢の文字と、渡された部屋名が同じなら
-        if (roomSelect.options[i].text === roomName) {
-          roomSelect.selectedIndex = i; // その場所を選択状態にする
-          break; // 見つかったので終了
-        }
-      }
-    }
-    
-    // 5. モーダルのタイトルを変更（見た目用）
-    document.getElementById('modal-title').innerText = "予約編集モード";
-  }
+  
 </script>
 </body>
 </html>
