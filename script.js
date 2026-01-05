@@ -216,7 +216,7 @@ function renderTimeAxis(containerId) {
     // 初期化時は何もしない
 }
 
-// ▼▼▼ ズレ防止・高さ計算 修正版 renderVerticalTimeline ▼▼▼
+// ▼▼▼ 修正版 renderVerticalTimeline (script.js) ▼▼▼
 function renderVerticalTimeline(mode) {
   let container, dateInputId, targetRooms;
   let timeAxisId;
@@ -261,7 +261,7 @@ function renderVerticalTimeline(mode) {
       return isTargetRoom && (resDateNum === targetDateNum);
   });
 
-  // 2. 高さ自動計算（CSSと数値を完全一致させる）
+  // 2. 高さ自動計算
   allRelevantReservations.forEach(res => {
       const start = new Date(res._startTime);
       const sHour = start.getHours();
@@ -281,35 +281,39 @@ function renderVerticalTimeline(mode) {
               namesText = matchedGroup.groupName;
           } else {
               const names = resIds.map(id => {
-                  const u = masterData.users.find(user => String(user.userId) === id);
+                  // 【ここが重要】IDが「1」と「001」で食い違っても一致とみなす
+                  // これにより新規作成時も正しく名前を取得し、行数を確保します
+                  const u = masterData.users.find(user => {
+                      const uIdStr = String(user.userId);
+                      return uIdStr === id || (!isNaN(uIdStr) && !isNaN(id) && Number(uIdStr) === Number(id));
+                  });
                   return u ? u.userName : "";
               }).filter(n => n);
               namesText = names.join(', ');
           }
       }
 
-      // --- 文字数からの行数計算 (修正版: 10文字基準) ---
-      const CHARS_PER_LINE = 10; 
+      // --- 文字数見積もり ---
+      // 12文字（オレンジ枠のバランス）
+      const CHARS_PER_LINE = 12; 
       
       const titleLines = Math.ceil(displayText.length / CHARS_PER_LINE) || 1;
       const timeLines = 1; // 時間表示
       const nameLines = namesText ? Math.ceil(namesText.length / CHARS_PER_LINE) : 0;
       
-      // 合計行数（余白として+1行追加）
-      const totalLines = titleLines + timeLines + nameLines + 1;
+      // 合計行数
+      const totalLines = titleLines + timeLines + nameLines; 
       
-      // 必要な高さ(px) = 行数 × 15px(CSSのline-height) + 8px(余白バッファ)
+      // --- 高さ計算 ---
+      // +10px（オレンジ枠のタイトな設定）
+      // ID照合が直ったので、このキツめの設定でも名前が消えずに表示されます
       const contentHeightPx = (totalLines * 15) + 10;
 
       // --- 時間比率による拡張 ---
-      // 予約が30分(0.5時間)しかないのに中身が大きい場合、1時間の枠を倍に広げる必要がある
       let durationMin = (new Date(res._endTime) - new Date(res._startTime)) / 60000;
       if (durationMin < 15) durationMin = 15;
       
-      // この予約が占める割合 (60分=1.0, 30分=0.5)
       const ratio = durationMin / 60;
-      
-      // 1時間枠として必要な高さ = 中身の高さ / 割合
       const requiredHourHeight = contentHeightPx / ratio;
       
       if (sHour >= START_HOUR && sHour < END_HOUR) {
@@ -345,7 +349,7 @@ function renderVerticalTimeline(mode) {
     body.className = 'room-grid-body';
     body.style.height = currentTop + "px"; 
 
-    // グリッド線（JS計算の高さを使用）
+    // グリッド線
     for(let h=START_HOUR; h<END_HOUR; h++) {
         const slot = document.createElement('div');
         slot.className = 'grid-slot';
@@ -385,10 +389,8 @@ function renderVerticalTimeline(mode) {
       
       if (sHour < END_HOUR && (sHour > START_HOUR || (sHour === START_HOUR && sMin >= 0))) {
           
-          // 開始位置(px)
           const topPx = hourTops[sHour] + (hourRowHeights[sHour] * (sMin / 60));
           
-          // 終了位置(px)
           let bottomPx = 0;
           if (eHour === END_HOUR) {
               bottomPx = hourTops[END_HOUR];
@@ -401,7 +403,6 @@ function renderVerticalTimeline(mode) {
           const bar = document.createElement('div');
           bar.className = `v-booking-bar type-${room.type}`;
           
-          // グリッド線と重ならないように位置微調整
           bar.style.top = (topPx + 1) + "px";
           // 枠からはみ出さないように高さを微調整 (-2px)
           bar.style.height = (heightPx - 2) + "px"; 
@@ -421,7 +422,11 @@ function renderVerticalTimeline(mode) {
                   pNames = `(${matchedGroup.groupName})`;
               } else {
                   const names = resIds.map(id => {
-                      const u = masterData.users.find(user => String(user.userId) === id);
+                      // 【描画時もID照合を強化】
+                      const u = masterData.users.find(user => {
+                          const uIdStr = String(user.userId);
+                          return uIdStr === id || (!isNaN(uIdStr) && !isNaN(id) && Number(uIdStr) === Number(id));
+                      });
                       return u ? u.userName : "";
                   }).filter(n => n);
                   pNames = `(${names.join(', ')})`;
