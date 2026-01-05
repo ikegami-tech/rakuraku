@@ -681,14 +681,17 @@
       }
       return ""; 
   }
-
-  // ▼▼▼ 3. この関数を書き換えてください ▼▼▼
+　
+  let originalParticipantIds = new Set(); // 変更前の参加者を覚えておく変数
+  
+  // ▼▼▼ openModal関数を最新版に書き換えてください ▼▼▼
   function openModal(res = null, defaultRoomId = null, clickHour = null) {
     const modal = document.getElementById('bookingModal');
     modal.style.display = 'flex';
     
-    // 参加者リストなどをリセット
+    // リセット
     selectedParticipantIds.clear();
+    originalParticipantIds.clear(); // ★追加: 比較用もリセット
     document.getElementById('shuttle-search-input').value = "";
     
     if (res) {
@@ -696,11 +699,9 @@
       document.getElementById('modal-title').innerText = "予約編集";
       document.getElementById('edit-res-id').value = res.id;
       
-      // 1. 部屋
       const rId = res.resourceId || res.roomId; 
       document.getElementById('input-room').value = rId;
 
-      // 2. 日付・時間
       const startObj = new Date(res.startTime);
       const endObj = new Date(res.endTime);
       
@@ -716,43 +717,35 @@
       document.getElementById('input-start').value = `${sh}:${sm}`;
       document.getElementById('input-end').value = `${eh}:${em}`;
       
-      // 3. タイトル・備考（★修正点：読み取りキーを網羅）
       const titleVal = getVal(res, ['title', 'subject', '件名', 'タイトル', '用件', 'name']);
       document.getElementById('input-title').value = titleVal;
 
       const noteVal = getVal(res, ['note', 'description', '備考', 'メモ', '詳細', 'body']);
       document.getElementById('input-note').value = noteVal;
       
-      // 4. 参加者（★修正点：IDを文字として登録）
       const pIds = getVal(res, ['participantIds', 'participant_ids', '参加者', 'メンバー']);
       if (pIds) {
-          // カンマ区切りか、配列か両対応
           let idList = [];
-          if (Array.isArray(pIds)) {
-              idList = pIds;
-          } else if (typeof pIds === 'string') {
-              idList = pIds.split(',');
-          } else if (typeof pIds === 'number') {
-              idList = [pIds];
-          }
+          if (Array.isArray(pIds)) idList = pIds;
+          else if (typeof pIds === 'string') idList = pIds.split(',');
+          else if (typeof pIds === 'number') idList = [pIds];
 
           idList.forEach(id => { 
             if(id !== null && id !== undefined && String(id).trim() !== "") {
-                selectedParticipantIds.add(String(id).trim()); 
+                const cleanId = String(id).trim();
+                selectedParticipantIds.add(cleanId); 
+                originalParticipantIds.add(cleanId); // ★追加: 元の状態を記憶
             }
           });
       }
-      
       document.getElementById('btn-delete').style.display = 'inline-block';
 
     } else {
       // ---【新規作成モード】---
       document.getElementById('modal-title').innerText = "新規予約";
       document.getElementById('edit-res-id').value = "";
-      
       if(defaultRoomId) document.getElementById('input-room').value = defaultRoomId;
       
-      // 日付初期値
       let currentTabDate = "";
       const timelineDateInput = document.getElementById('timeline-date');
       const searchDateInput = document.getElementById('search-date');
@@ -772,7 +765,6 @@
       }
       document.getElementById('input-date').value = currentTabDate;
 
-      // 時間初期値
       const sHour = clickHour ? clickHour : 9;
       document.getElementById('input-start').value = `${pad(sHour)}:00`;
       document.getElementById('input-end').value = `${pad(sHour+1)}:00`;
@@ -781,13 +773,11 @@
       document.getElementById('input-note').value = "";
       document.getElementById('btn-delete').style.display = 'none';
     }
-    
-    // リスト描画更新
     renderShuttleLists();
   }
-
   function closeModal() { document.getElementById('bookingModal').style.display = 'none'; }
 
+  // ▼▼▼ saveBooking関数を最新版に書き換えてください ▼▼▼
   async function saveBooking() {
     const id = document.getElementById('edit-res-id').value;
     const room = document.getElementById('input-room').value;
@@ -795,12 +785,55 @@
     const start = document.getElementById('input-start').value;
     const end = document.getElementById('input-end').value;
     const title = document.getElementById('input-title').value;
-    const note = document.getElementById('input-note').value;
+    
+    // 備考の内容を取得
+    let note = document.getElementById('input-note').value;
     
     if (start >= end) {
         alert("開始時間は終了時間より前に設定してください。");
         return;
     }
+
+    // --- ★ここから追加機能：変更履歴の自動生成 ---
+    // 編集モード（idがある場合）のみ計算する
+    if (id) {
+        let addedNames = [];
+        let removedNames = [];
+
+        // 増えた人を探す
+        selectedParticipantIds.forEach(newId => {
+            if (!originalParticipantIds.has(newId)) {
+                const u = masterData.users.find(user => String(user.userId) === newId);
+                if (u) addedNames.push(u.userName);
+            }
+        });
+
+        // 減った人を探す
+        originalParticipantIds.forEach(oldId => {
+            if (!selectedParticipantIds.has(oldId)) {
+                const u = masterData.users.find(user => String(user.userId) === oldId);
+                if (u) removedNames.push(u.userName);
+            }
+        });
+
+        // 変更があった場合、テキストを作成
+        if (addedNames.length > 0 || removedNames.length > 0) {
+            let changeLog = "【変更履歴】";
+            if (addedNames.length > 0) changeLog += " 追加: " + addedNames.join(", ");
+            if (removedNames.length > 0) changeLog += " 削除: " + removedNames.join(", ");
+            
+            // 現在の日時を追加
+            const now = new Date();
+            const timeStr = `${now.getHours()}:${pad(now.getMinutes())}`;
+            changeLog += ` (${timeStr})`;
+
+            // 既存の備考に追記する（重複防止のため、同じログがなければ）
+            if (!note.includes(changeLog)) {
+                note = note ? note + "\n" + changeLog : changeLog;
+            }
+        }
+    }
+    // --- ★追加機能ここまで ---
 
     const dateSlash = date.replace(/-/g, '/');
     const startTime = `${dateSlash} ${start}`;
@@ -819,7 +852,7 @@
       operatorName: currentUser.userName,
       participantIds: pIds, 
       title: title,
-      note: note
+      note: note // 更新された備考を送る
     };
 
     const result = await callAPI(params);
