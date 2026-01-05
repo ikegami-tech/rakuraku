@@ -1,4 +1,4 @@
-/* --- 重要: GASのURL --- */
+/* --- ★重要: GASの最新デプロイURLに書き換えてください --- */
 const API_URL = "https://script.google.com/macros/s/AKfycbzCtthi90wFd8RwqIdGIODUmKAZ841HNpueP5-Ks6Qxd29Qa-H3rSaSyjl7u87nEA6B/exec";
 
 const START_HOUR = 9;
@@ -8,6 +8,7 @@ const BASE_HOUR_HEIGHT = 60;
 let currentUser = null;
 let masterData = { rooms: [], users: [], reservations: [], logs: [], groups: [] };
 let selectedParticipantIds = new Set();
+let originalParticipantIds = new Set(); 
 
 window.onload = () => {
   document.getElementById('timeline-date').valueAsDate = new Date();
@@ -157,7 +158,6 @@ function renderShuttleLists(filterText = "") {
 
   masterData.users.forEach(u => {
       if (!u.userId) return;
-      
       const uidStr = String(u.userId);
 
       if (selectedParticipantIds.has(uidStr)) {
@@ -251,6 +251,7 @@ function renderVerticalTimeline(mode) {
 
       const rId = getVal(res, ['resourceId', 'roomId', 'room_id', 'resource_id', '部屋ID', '部屋']);
       
+      // ★修正点：部屋IDの比較を「文字列」に変換して行う
       const isTargetRoom = targetRooms.some(r => String(r.roomId) === String(rId));
       
       const resDateNum = formatDateToNum(new Date(startTimeVal));
@@ -456,12 +457,11 @@ function getVal(obj, keys) {
     return ""; 
 }
 
-let originalParticipantIds = new Set(); 
-
 function openModal(res = null, defaultRoomId = null, clickHour = null) {
   const modal = document.getElementById('bookingModal');
   modal.style.display = 'flex';
   
+  // リセット
   selectedParticipantIds.clear();
   originalParticipantIds.clear(); 
   document.getElementById('shuttle-search-input').value = "";
@@ -546,6 +546,8 @@ function openModal(res = null, defaultRoomId = null, clickHour = null) {
   renderShuttleLists();
 }
 
+function closeModal() { document.getElementById('bookingModal').style.display = 'none'; }
+
 async function saveBooking() {
   const id = document.getElementById('edit-res-id').value;
   const room = document.getElementById('input-room').value;
@@ -561,6 +563,7 @@ async function saveBooking() {
       return;
   }
 
+  // --- ★ここから追加機能：変更履歴の自動生成 ---
   if (id) {
       let addedNames = [];
       let removedNames = [];
@@ -593,6 +596,7 @@ async function saveBooking() {
           }
       }
   }
+  // --- ★追加機能ここまで ---
 
   const dateSlash = date.replace(/-/g, '/');
   const startTime = `${dateSlash} ${start}`;
@@ -646,7 +650,3 @@ async function deleteBooking() {
 function pad(n) { return n < 10 ? '0'+n : n; }
 function formatDate(d) { return `${d.getMonth()+1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}`; }
 function getRoomName(id) { const r = masterData.rooms.find(x => x.roomId === id); return r ? r.roomName : id; }
-
-</script>
-</body>
-</html>
