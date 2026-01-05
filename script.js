@@ -1,9 +1,9 @@
 /* --- ★重要: GASの最新デプロイURLに書き換えてください --- */
-const API_URL = "https://script.google.com/macros/s/AKfycbztpn1DPulrEtZGhOySfwO93uDgffOD5wQMfZvPhJqj46KTbssgcS5Fl_VVmX8j6oIM/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbz5buwxgeKis1ujWGTqx1DOWWjchej8Cjgf0yFZYUpN84pDQkmEVonoc9PgEBTxW98c/exec";
 
 const START_HOUR = 9;
 const END_HOUR = 19;
-const BASE_HOUR_HEIGHT = 40; 
+const BASE_HOUR_HEIGHT = 50; // CSSと合わせる（最低高さ）
 
 let currentUser = null;
 let masterData = { rooms: [], users: [], reservations: [], logs: [], groups: [] };
@@ -39,8 +39,6 @@ async function tryLogin() {
   if(!id || !pass) return;
   document.getElementById('loading').style.display = 'flex';
   
-  if(!API_URL) { alert("API_URL未設定"); document.getElementById('loading').style.display = 'none'; return; }
-
   const url = new URL(API_URL);
   url.searchParams.append('action', 'login');
   url.searchParams.append('userId', id);
@@ -89,6 +87,7 @@ function initUI() {
   const searchSelect = document.getElementById('search-room-select');
   const currentSearchRoomId = searchSelect.value;
 
+  // 初期化時は仮描画
   renderTimeAxis('time-axis-all');
   renderTimeAxis('time-axis-single');
   
@@ -194,29 +193,35 @@ function switchTab(tabName) {
   if(tabName==='logs') tabs[2].classList.add('active');
 }
 
+// 高さ管理用オブジェクト
 let hourRowHeights = {}; 
 
+// 時間軸を描画する関数
 function drawTimeAxis(containerId) {
   const container = document.getElementById(containerId);
+  // ヘッダー以外の既存のラベルを削除
   const children = Array.from(container.children);
   children.forEach(child => {
       if(!child.classList.contains('time-axis-header')) container.removeChild(child);
   });
 
+  // hourRowHeights に基づいて高さを設定して描画
   for (let i = START_HOUR; i < END_HOUR; i++) {
       const height = hourRowHeights[i] || BASE_HOUR_HEIGHT;
       const div = document.createElement('div');
       div.className = 'time-label';
       div.innerText = i + ":00";
+      // CSSとJavaScriptの計算を一致させるためピクセル指定
       div.style.height = height + "px";
       container.appendChild(div);
   }
 }
 
 function renderTimeAxis(containerId) {
-    // 初期化のみ
+    // 初期化時は何もしない
 }
 
+// メインの描画関数（高さ計算修正版）
 function renderVerticalTimeline(mode) {
   let container, dateInputId, targetRooms;
   let timeAxisId;
@@ -243,6 +248,7 @@ function renderVerticalTimeline(mode) {
   const rawDateVal = document.getElementById(dateInputId).value; 
   const targetDateNum = formatDateToNum(new Date(rawDateVal)); 
   
+  // 1. まず高さをリセット（基本の高さにする）
   for(let h=START_HOUR; h<END_HOUR; h++) hourRowHeights[h] = BASE_HOUR_HEIGHT;
 
   const allRelevantReservations = masterData.reservations.filter(res => {
@@ -250,8 +256,7 @@ function renderVerticalTimeline(mode) {
       if (!startTimeVal) return false;
 
       const rId = getVal(res, ['resourceId', 'roomId', 'room_id', 'resource_id', '部屋ID', '部屋']);
-      
-      // ★修正点：部屋IDの比較を「文字列」に変換して行う
+      // 文字列として比較
       const isTargetRoom = targetRooms.some(r => String(r.roomId) === String(rId));
       
       const resDateNum = formatDateToNum(new Date(startTimeVal));
@@ -263,12 +268,13 @@ function renderVerticalTimeline(mode) {
       return isTargetRoom && (resDateNum === targetDateNum);
   });
 
+  // 2. 予約内容から必要な高さを計算して、hourRowHeights を更新する
   allRelevantReservations.forEach(res => {
       const start = new Date(res._startTime);
       const sHour = start.getHours();
       
       let displayText = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '予約';
-      let participantsLineCount = 0;
+      let namesText = "";
       
       const pIdsStr = getVal(res, ['participantIds', 'participant_ids', '参加者', 'メンバー']);
       if (pIdsStr) {
@@ -279,22 +285,32 @@ function renderVerticalTimeline(mode) {
               return JSON.stringify(resIds) === JSON.stringify(grpIds);
           });
           if (matchedGroup) {
-              displayText += "\n" + matchedGroup.groupName;
-              participantsLineCount = 1;
+              namesText = matchedGroup.groupName;
           } else {
               const names = resIds.map(id => {
                   const u = masterData.users.find(user => String(user.userId) === id);
                   return u ? u.userName : "";
               }).filter(n => n);
-              const namesText = names.join(', ');
-              displayText += "\n" + namesText;
-              participantsLineCount = Math.ceil(namesText.length / 10); 
+              namesText = names.join(', ');
           }
       }
 
-      const baseLines = Math.ceil(displayText.length / 10) + participantsLineCount + 1.5;
-      const neededHeight = Math.max(BASE_HOUR_HEIGHT, baseLines * 18);
+      // 行数計算ロジック（CSSのフォントサイズ等に合わせて調整）
+      // タイトル行数（1行あたり全角10文字程度と仮定）
+      const titleLines = Math.ceil(displayText.length / 10) || 1;
+      // 時間表示で1行分確保
+      const timeLines = 1;
+      // 名前行数（1行あたり全角10文字程度と仮定）
+      const nameLines = namesText ? Math.ceil(namesText.length / 10) : 0;
       
+      // 合計行数 + 上下の余白分(0.5行分)
+      const totalLines = titleLines + timeLines + nameLines + 0.5;
+      
+      // 1行の高さ（CSSのline-height * font-size ≈ 15px）+ 余白
+      // 18px * 行数 で計算
+      const neededHeight = Math.max(BASE_HOUR_HEIGHT, totalLines * 18);
+      
+      // その時間帯の高さを更新（最大値を保持）
       if (sHour >= START_HOUR && sHour < END_HOUR) {
           if (neededHeight > hourRowHeights[sHour]) {
               hourRowHeights[sHour] = neededHeight;
@@ -302,9 +318,12 @@ function renderVerticalTimeline(mode) {
       }
   });
 
+  // 3. 計算した高さを使って、左側の時間軸を再描画（★ここがズレ防止の肝）
   drawTimeAxis(timeAxisId);
+  
   container.innerHTML = "";
   
+  // 各時間の開始位置(top)を計算
   const hourTops = {};
   let currentTop = 0;
   for(let h=START_HOUR; h<END_HOUR; h++) {
@@ -325,6 +344,7 @@ function renderVerticalTimeline(mode) {
     body.className = 'room-grid-body';
     body.style.height = currentTop + "px"; 
 
+    // グリッド線を描画（hourRowHeightsを使うので時間軸と完全に一致する）
     for(let h=START_HOUR; h<END_HOUR; h++) {
         const slot = document.createElement('div');
         slot.className = 'grid-slot';
@@ -332,6 +352,7 @@ function renderVerticalTimeline(mode) {
         body.appendChild(slot);
     }
     
+    // クリックイベント設定
     body.onclick = (e) => {
        if (e.target.closest('.v-booking-bar')) return;
        if(e.target.classList.contains('grid-slot') || e.target === body) {
@@ -348,6 +369,7 @@ function renderVerticalTimeline(mode) {
        }
     };
 
+    // 予約バーを描画
     const reservations = allRelevantReservations.filter(res => String(res._resourceId) === String(room.roomId));
     
     reservations.forEach(res => {
@@ -359,18 +381,19 @@ function renderVerticalTimeline(mode) {
       
       if (sHour >= START_HOUR && sHour < END_HOUR) {
           const baseTop = hourTops[sHour];
-          const heightOfHour = hourRowHeights[sHour];
+          const heightOfHour = hourRowHeights[sHour]; // 拡張された高さを使用
           const offsetPx = (sMin / 60) * heightOfHour;
           const heightPx = (durationMin / 60) * heightOfHour;
 
           const bar = document.createElement('div');
           bar.className = `v-booking-bar type-${room.type}`;
           bar.style.top = (baseTop + offsetPx) + "px";
-          bar.style.minHeight = heightPx + "px";
+          // 枠からはみ出ないように少しだけ小さくする
+          bar.style.minHeight = (heightPx - 2) + "px";
           bar.style.height = "auto"; 
           
-          let pNames = "";
           let displayTitle = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '予約';
+          let pNames = "";
           
           const pIdsStr = getVal(res, ['participantIds', 'participant_ids', '参加者', 'メンバー']);
           if (pIdsStr) {
@@ -461,7 +484,6 @@ function openModal(res = null, defaultRoomId = null, clickHour = null) {
   const modal = document.getElementById('bookingModal');
   modal.style.display = 'flex';
   
-  // リセット
   selectedParticipantIds.clear();
   originalParticipantIds.clear(); 
   document.getElementById('shuttle-search-input').value = "";
@@ -563,7 +585,6 @@ async function saveBooking() {
       return;
   }
 
-  // --- ★ここから追加機能：変更履歴の自動生成 ---
   if (id) {
       let addedNames = [];
       let removedNames = [];
@@ -596,7 +617,6 @@ async function saveBooking() {
           }
       }
   }
-  // --- ★追加機能ここまで ---
 
   const dateSlash = date.replace(/-/g, '/');
   const startTime = `${dateSlash} ${start}`;
