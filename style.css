@@ -92,12 +92,14 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
 
 /* その他UI */
 .log-wrapper { overflow: auto; padding: 10px; }
+/* style.css の .log-table 関連部分を上書き */
+
 .log-table { 
   width: 100%; 
   border-collapse: collapse; 
   font-size: 0.8rem; 
   background: white; 
-  /* テーブルのレイアウトを固定して幅崩れを防ぐ */
+  /* 固定レイアウト（幅崩れ防止）は維持 */
   table-layout: fixed; 
 }
 
@@ -106,25 +108,32 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   border: 1px solid #eee; 
   text-align: left; 
   
-  /* ▼変更点: 基本的に改行させない設定を追加 */
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  /* ▼変更点: 省略記号(...)の設定を削除しました */
+  /* white-space: nowrap;  ← これがあると改行されずに隠れてしまうので削除 */
+  word-wrap: break-word; /* 長すぎる場合は折り返す */
 }
 
-/* 日時列の幅指定（微調整） */
-.log-table th:nth-child(1), .log-table td:nth-child(1) { width: 110px; }
-/* 操作者列の幅指定 */
-.log-table th:nth-child(2), .log-table td:nth-child(2) { width: 80px; }
-/* 操作列の幅指定 */
-.log-table th:nth-child(3), .log-table td:nth-child(3) { width: 60px; }
+/* 日時列（改行させたくないのでここだけnowrap指定） */
+.log-table th:nth-child(1), .log-table td:nth-child(1) { 
+  width: 110px; 
+  white-space: nowrap; 
+}
 
-/* ▼変更点: 「詳細」列（4列目）だけは改行を許可し、幅を確保 */
+/* 操作者列（名前が長い場合は改行してでも全部表示する） */
+/* 幅を80pxから100pxに広げて、なるべく改行しないように配慮 */
+.log-table th:nth-child(2), .log-table td:nth-child(2) { 
+  width: 100px; 
+}
+
+/* 操作列 */
+.log-table th:nth-child(3), .log-table td:nth-child(3) { 
+  width: 60px; 
+  white-space: nowrap;
+}
+
+/* 詳細列（残りの幅すべて） */
 .log-table th:nth-child(4), .log-table td:nth-child(4) { 
-  white-space: normal; /* ここだけ改行OK */
-  overflow: visible;
-  text-overflow: clip;
-  width: auto; /* 残りの幅を全部使う */
+  width: auto; 
 }
 .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 3000; }
 .modal-content { background: white; padding: 20px; border-radius: 8px; width: 95%; max-width: 700px; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column;}
