@@ -389,6 +389,7 @@
     }
   }
 
+  // ▼▼▼ この関数を上書きしてください (グループ名表示対応版) ▼▼▼
   function renderVerticalTimeline(mode) {
     let container, dateInputId, targetRooms;
     if (mode === 'all') {
@@ -416,6 +417,7 @@
       col.appendChild(header);
       const body = document.createElement('div');
       body.className = 'room-grid-body';
+      
       body.onclick = (e) => {
          if(e.target === body) {
              const rect = body.getBoundingClientRect();
@@ -427,12 +429,14 @@
              openModal(null, room.roomId, clickHour);
          }
       };
+
       const reservations = masterData.reservations.filter(res => {
         if (!res.startTime) return false;
         if (res.resourceId !== room.roomId) return false;
         const resDateNum = formatDateToNum(new Date(res.startTime));
         return resDateNum === targetDateNum;
       });
+
       reservations.forEach(res => {
         const start = new Date(res.startTime);
         const end = new Date(res.endTime);
@@ -440,15 +444,36 @@
         const offsetMin = startTotalMin - (START_HOUR * 60);
         const durationMin = (end.getTime() - start.getTime()) / 60000;
         
-        let pNames = "";
+        // ▼▼▼ 修正: グループ一致判定ロジック ▼▼▼
+        let displayText = "";
+        
         if (res.participantIds) {
-            const ids = res.participantIds.split(',');
-            const names = ids.map(id => {
-                const u = masterData.users.find(user => user.userId === id);
-                return u ? u.userName : "";
-            }).filter(n => n);
-            pNames = names.join(', ');
+            // 予約データのIDリストを配列化してソート（順序不同に対応するため）
+            const resIds = res.participantIds.split(',').map(id => id.trim()).sort();
+            
+            // グループ定義と照合
+            const matchedGroup = masterData.groups.find(grp => {
+                if (!grp.memberIds) return false;
+                const grpIds = grp.memberIds.split(',').map(id => id.trim()).sort();
+                
+                // JSON文字列化して比較するのが一番手っ取り早い（完全一致チェック）
+                return JSON.stringify(resIds) === JSON.stringify(grpIds);
+            });
+
+            if (matchedGroup) {
+                // グループと一致したらグループ名を表示
+                displayText = matchedGroup.groupName; // 例: "営業部"
+            } else {
+                // 一致しなければ個人名を列挙
+                const names = resIds.map(id => {
+                    // 型の不一致を防ぐため String() で比較
+                    const u = masterData.users.find(user => String(user.userId) === id);
+                    return u ? u.userName : "";
+                }).filter(n => n);
+                displayText = names.join(', ');
+            }
         }
+
 
         if (offsetMin >= 0) {
             const bar = document.createElement('div');
@@ -461,7 +486,7 @@
             bar.innerHTML = `
               <span style="font-weight:bold;">${pad(start.getHours())}:${pad(start.getMinutes())}</span><br>
               <span style="font-weight:bold;">${res.title || '予約'}</span>
-              ${pNames ? `<br><span style="font-size:0.7rem; opacity:0.9;">(${pNames})</span>` : ''}
+              ${displayText ? `<br><span style="font-size:0.7rem; opacity:0.9;">(${displayText})</span>` : ''}
             `;
             
             bar.onclick = (e) => { e.stopPropagation(); openModal(res); };
