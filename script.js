@@ -1,5 +1,5 @@
 /* --- ★重要: GASの最新デプロイURLに書き換えてください --- */
-const API_URL = "https://script.google.com/macros/s/AKfycbzPjyO8JAhlKKortG8-vxq1Ifs9-Oz54hXiCrJ_F35etfCzxI9VNePxYp91z3dmv01R/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbz5buwxgeKis1ujWGTqx1DOWWjchej8Cjgf0yFZYUpN84pDQkmEVonoc9PgEBTxW98c/exec";
 
 const START_HOUR = 9;
 const END_HOUR = 19;
@@ -216,7 +216,7 @@ function renderTimeAxis(containerId) {
     // 初期化時は何もしない
 }
 
-// ▼▼▼ 修正版: 高さ計算と位置調整を強化した描画関数 ▼▼▼
+// ▼▼▼ 余白削除のために計算式を調整した関数 ▼▼▼
 function renderVerticalTimeline(mode) {
   let container, dateInputId, targetRooms;
   let timeAxisId;
@@ -262,7 +262,7 @@ function renderVerticalTimeline(mode) {
       return isTargetRoom && (resDateNum === targetDateNum);
   });
 
-  // 2. 高さ自動計算（はみ出し防止のため、かなり余裕を持った計算に変更）
+  // 2. 高さ自動計算（余白削減版）
   allRelevantReservations.forEach(res => {
       const start = new Date(res._startTime);
       const sHour = start.getHours();
@@ -289,16 +289,16 @@ function renderVerticalTimeline(mode) {
           }
       }
 
-      // ★修正: 1行あたりの文字数を「8文字」として計算し、高さを確保する
-      const titleLines = Math.ceil(displayText.length / 8) || 1;
-      const timeLines = 1; // 時間表示分
-      const nameLines = namesText ? Math.ceil(namesText.length / 8) : 0;
+      // ★修正: 1行あたりの文字数を「12文字」に見積もり直して、行数を減らす
+      const titleLines = Math.ceil(displayText.length / 12) || 1;
+      const timeLines = 1; 
+      const nameLines = namesText ? Math.ceil(namesText.length / 12) : 0;
       
-      // 合計行数 + 上下の余白(1行分)
-      const totalLines = titleLines + timeLines + nameLines + 1;
+      // ★修正: 余白(0.5)を足す
+      const totalLines = titleLines + timeLines + nameLines + 0.5;
       
-      // 1行あたり22pxで計算（CSSの行間と合わせる）
-      const neededHeight = Math.max(BASE_HOUR_HEIGHT, totalLines * 22);
+      // ★修正: 1行の高さを18pxで計算（少しタイトに）
+      const neededHeight = Math.max(BASE_HOUR_HEIGHT, totalLines * 18);
       
       if (sHour >= START_HOUR && sHour < END_HOUR) {
           if (neededHeight > hourRowHeights[sHour]) {
@@ -310,7 +310,6 @@ function renderVerticalTimeline(mode) {
   drawTimeAxis(timeAxisId);
   container.innerHTML = "";
   
-  // 各時間の開始位置を計算
   const hourTops = {};
   let currentTop = 0;
   for(let h=START_HOUR; h<END_HOUR; h++) {
@@ -334,7 +333,6 @@ function renderVerticalTimeline(mode) {
     for(let h=START_HOUR; h<END_HOUR; h++) {
         const slot = document.createElement('div');
         slot.className = 'grid-slot';
-        // JSの計算高さとCSSの高さをピクセル単位で合わせる
         slot.style.height = hourRowHeights[h] + "px";
         body.appendChild(slot);
     }
@@ -363,24 +361,21 @@ function renderVerticalTimeline(mode) {
       const sMin = start.getMinutes();
       const end = new Date(res._endTime);
       
-      // 分単位の経過時間を安全に計算
       let durationMin = (end.getTime() - start.getTime()) / 60000;
-      if (durationMin < 15) durationMin = 15; // 最低15分は確保
+      if (durationMin < 15) durationMin = 15; 
 
       if (sHour >= START_HOUR && sHour < END_HOUR) {
           const baseTop = hourTops[sHour];
           const heightOfHour = hourRowHeights[sHour];
           
-          // 位置計算
           const offsetPx = (sMin / 60) * heightOfHour;
           const heightPx = (durationMin / 60) * heightOfHour;
 
           const bar = document.createElement('div');
           bar.className = `v-booking-bar type-${room.type}`;
           
-          // ★修正: 線と被らないように top に 1px マージンを加える
           bar.style.top = (baseTop + offsetPx + 1) + "px";
-          // ★修正: はみ出し防止のため、高さ計算値から少し引く
+          // ★修正: はみ出し防止マージン
           bar.style.minHeight = (heightPx - 2) + "px";
           bar.style.height = "auto"; 
           
