@@ -317,10 +317,14 @@
 
   function logout() { location.reload(); }
 
+  // ▼▼▼ 1. loadAllData をこれに書き換えてください（キャッシュ対策入り） ▼▼▼
   async function loadAllData() {
     document.getElementById('loading').style.display = 'flex';
     const url = new URL(API_URL);
     url.searchParams.append('action', 'getAllData');
+    // ★追加: 毎回違う数字(時間)をつけることで、強制的に最新データを取得させる
+    url.searchParams.append('_t', new Date().getTime()); 
+    
     try {
       const res = await fetch(url.toString(), { method: 'GET', headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
       const json = await res.json();
@@ -328,16 +332,25 @@
       if (json.status === 'success') {
         masterData = json.data;
         initUI();
-      } else { alert("読込エラー: " + json.message); }
-    } catch(e) { document.getElementById('loading').style.display = 'none'; }
+      } else { 
+        alert("読込エラー: " + json.message); 
+      }
+    } catch(e) { 
+      document.getElementById('loading').style.display = 'none'; 
+    }
   }
 
+  // ▼▼▼ 2. initUI をこれに書き換えてください（表示更新の強化版） ▼▼▼
   function initUI() {
+    // 現在選択されている部屋IDを記憶しておく（リセット防止）
+    const searchSelect = document.getElementById('search-room-select');
+    const currentSearchRoomId = searchSelect.value;
+
     renderTimeAxis('time-axis-all');
     renderTimeAxis('time-axis-single');
-    renderVerticalTimeline('all');
-    renderLogs();
-    const roomSelects = [document.getElementById('input-room'), document.getElementById('search-room-select')];
+    
+    // プルダウンの選択肢を更新
+    const roomSelects = [document.getElementById('input-room'), searchSelect];
     roomSelects.forEach(sel => {
       sel.innerHTML = "";
       masterData.rooms.forEach(r => {
@@ -347,6 +360,20 @@
         sel.appendChild(op);
       });
     });
+
+    // 記憶しておいた部屋IDを戻す（もしあれば）
+    if (currentSearchRoomId) {
+        searchSelect.value = currentSearchRoomId;
+    }
+
+    renderVerticalTimeline('all'); // メイン一覧を更新
+    renderLogs(); // 履歴を更新
+    
+    // ★追加: もし「部屋検索」タブを開いているなら、そこも更新する
+    if (document.getElementById('view-room-search').classList.contains('active')) {
+        renderRoomSearch();
+    }
+    
     renderGroupButtons();
   }
 
