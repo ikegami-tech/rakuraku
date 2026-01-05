@@ -305,15 +305,25 @@
 
   function selectGroupMembers(idsStr) {
     if (!idsStr) return;
-    const ids = idsStr.split(',');
-    ids.forEach(id => {
-        const cleanId = id.trim();
-        const exists = masterData.users.some(u => u.userId === cleanId);
-        if (exists) selectedParticipantIds.add(cleanId);
+    
+    // カンマ区切りの文字列を分解
+    const rawIds = idsStr.split(',');
+    
+    rawIds.forEach(rawId => {
+        const cleanIdStr = rawId.trim(); // 空白除去して文字列にする
+        
+        // ユーザーリストから、IDが一致する人を探す（文字・数字の違いを無視して比較）
+        const targetUser = masterData.users.find(u => String(u.userId) === cleanIdStr);
+        
+        // もし存在したら、その人の「正式なID」をリストに追加する
+        if (targetUser) {
+            selectedParticipantIds.add(targetUser.userId);
+        }
     });
+    
+    // 参加者リストを再描画（検索ボックスの入力値は維持）
     renderShuttleLists(document.getElementById('shuttle-search-input').value);
   }
-
   function renderShuttleLists(filterText = "") {
     const leftList = document.getElementById('list-candidates');
     const rightList = document.getElementById('list-selected');
