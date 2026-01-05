@@ -292,8 +292,8 @@ function renderVerticalTimeline(mode) {
           }
       }
 
-      const baseLines = Math.ceil(displayText.length / 10) + participantsLineCount + 3;
-      const neededHeight = Math.max(BASE_HOUR_HEIGHT, baseLines * 20);
+      const baseLines = Math.ceil(displayText.length / 10) + participantsLineCount + 1.5;
+      const neededHeight = Math.max(BASE_HOUR_HEIGHT, baseLines * 18);
       
       if (sHour >= START_HOUR && sHour < END_HOUR) {
           if (neededHeight > hourRowHeights[sHour]) {
