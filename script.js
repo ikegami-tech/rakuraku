@@ -299,7 +299,7 @@ function renderVerticalTimeline(mode) {
       const totalLines = titleLines + timeLines + nameLines + 1;
       
       // 必要な高さ(px) = 行数 × 15px(CSSのline-height) + 8px(余白バッファ)
-      const contentHeightPx = (totalLines * 15) + 8;
+      const contentHeightPx = (totalLines * 15) + 6;
 
       // --- 時間比率による拡張 ---
       // 予約が30分(0.5時間)しかないのに中身が大きい場合、1時間の枠を倍に広げる必要がある
