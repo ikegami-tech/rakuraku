@@ -1,5 +1,5 @@
 /* --- ★重要: GASの最新デプロイURLに書き換えてください --- */
-const API_URL = "https://script.google.com/macros/s/AKfycbz5buwxgeKis1ujWGTqx1DOWWjchej8Cjgf0yFZYUpN84pDQkmEVonoc9PgEBTxW98c/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbxpQMo3q9xGK_sGk-_371RndiaM0NcXe6Ydi225yBaK5EwzSc1rH9OtV-h5akIdxCdg/exec";
 
 const START_HOUR = 9;
 const END_HOUR = 19;
