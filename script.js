@@ -819,8 +819,12 @@ function selectRoomFromMap(element) {
 
 function switchFloor(floor) {
     currentFloor = floor;
+   
+    const mapContainer = document.getElementById('view-map-view');
+    if(mapContainer) {
+        mapContainer.querySelectorAll('.floor-tab').forEach(tab => tab.classList.remove('active'));
+    }
     
-    document.querySelectorAll('.floor-tab').forEach(tab => tab.classList.remove('active'));
     const activeTab = document.getElementById(`tab-${floor}f`);
     if(activeTab) activeTab.classList.add('active');
 
@@ -838,8 +842,6 @@ function renderMap(floor) {
     
     const existingAreas = container.querySelectorAll('.map-click-area');
     existingAreas.forEach(el => el.remove());
-
-    // ... (renderMap関数の中身の途中から) ...
 
     config.areas.forEach(area => {
         const div = document.createElement('div');
