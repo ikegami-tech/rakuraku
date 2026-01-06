@@ -125,6 +125,7 @@ function initUI() {
   }
   
   renderGroupButtons();
+  switchFloor(7);
 }
 
 function renderGroupButtons() {
@@ -821,3 +822,62 @@ function selectRoomFromMap(element) {
   // スマホなどで見やすいように、少しスクロールする（オプション）
   document.getElementById('map-timeline-section').scrollIntoView({behavior: 'smooth'});
 }
+// ▼▼▼ 【ここをファイルの最後に追加】 ▼▼▼
+
+// フロア切り替え機能
+function switchFloor(floor) {
+    currentFloor = floor;
+    
+    // タブの見た目を切り替え
+    document.querySelectorAll('.floor-tab').forEach(tab => tab.classList.remove('active'));
+    const activeTab = document.getElementById(`tab-${floor}f`);
+    if(activeTab) activeTab.classList.add('active');
+
+    renderMap(floor);
+}
+
+// マップ描画機能（画像とクリックエリアの生成）
+function renderMap(floor) {
+    // mapConfigの設定を取得
+    const config = mapConfig[floor];
+    if (!config) return;
+
+    // 画像をセット
+    const imgEl = document.getElementById('office-map-img');
+    if(imgEl) imgEl.src = config.image;
+
+    // クリックエリアの再生成
+    const container = document.getElementById('dynamic-map-container');
+    
+    // 既存のクリックエリアを削除（画像タグは残す）
+    const existingAreas = container.querySelectorAll('.map-click-area');
+    existingAreas.forEach(el => el.remove());
+
+    // 新しいエリアを追加
+    config.areas.forEach(area => {
+        const div = document.createElement('div');
+        div.className = 'map-click-area';
+        div.setAttribute('data-room-id', area.id);
+        
+        // スタイル設定
+        div.style.top = area.top + '%';
+        div.style.left = area.left + '%';
+        div.style.width = area.width + '%';
+        div.style.height = area.height + '%';
+        
+        // クリックイベント
+        div.onclick = function() { selectRoomFromMap(this); };
+        
+        // 表示テキスト
+        const span = document.createElement('span');
+        span.innerText = area.name;
+        div.appendChild(span);
+        
+        container.appendChild(div);
+    });
+
+    // 部屋選択状態をリセットして隠す
+    const timelineSection = document.getElementById('map-timeline-section');
+    if(timelineSection) timelineSection.style.display = 'none';
+}
+// ▲▲▲ 追加ここまで ▲▲▲
