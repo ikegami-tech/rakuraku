@@ -211,16 +211,18 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   color: #666;
   font-size: 0.9rem;
 }
-/* ▼▼▼ 追加: フロア切り替えタブのスタイル ▼▼▼ */
+/* フロアセレクターのスタイル */
 .floor-selector {
     display: flex;
     gap: 10px;
     margin-bottom: 10px;
     width: 100%;
     max-width: 800px;
-  justify-content: center;       /* ボタンを中央寄せ */
-    margin-left: auto;             /* 左側の余白を自動（右寄せ効果） */
-    margin-right: auto;            /* 右側の余白を自動（左寄せ効果）→ 両方で中央寄せ */
+    
+    /* ▼▼▼ この3行で中央揃えになります ▼▼▼ */
+    justify-content: center;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .floor-tab {
