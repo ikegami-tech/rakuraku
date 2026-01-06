@@ -110,7 +110,7 @@ async function tryLogin() {
 
 function logout() { location.reload(); }
 
-async function loadAllData() {
+async function loadAllData(isUpdate = false) {
   document.getElementById('loading').style.display = 'flex';
   const url = new URL(API_URL);
   url.searchParams.append('action', 'getAllData');
@@ -122,7 +122,13 @@ async function loadAllData() {
     document.getElementById('loading').style.display = 'none';
     if (json.status === 'success') {
       masterData = json.data;
-      initUI();
+      
+      // ▼▼▼ 修正: 更新モードなら画面遷移しない refreshUI を呼ぶ ▼▼▼
+      if (isUpdate) {
+          refreshUI();
+      } else {
+          initUI();
+      }
     } else { 
       alert("読込エラー: " + json.message); 
     }
@@ -157,6 +163,37 @@ function initUI() {
 
   // 5. 最初に表示するタブを指定（この関数の中で描画がトリガーされます）
   switchTab('map-view');
+}
+// ▼▼▼ 【追加】画面遷移せずにデータを更新する関数 ▼▼▼
+function refreshUI() {
+  // 1. 履歴の更新
+  renderLogs();
+  
+  // 2. グループボタンの更新
+  renderGroupButtons();
+
+  // 3. 部屋プルダウンの更新（選択状態を維持）
+  const roomSelect = document.getElementById('input-room');
+  if (roomSelect) {
+      const currentVal = roomSelect.value;
+      roomSelect.innerHTML = "";
+      masterData.rooms.forEach(r => {
+          const op = document.createElement('option');
+          op.value = r.roomId;
+          op.innerText = r.roomName;
+          roomSelect.appendChild(op);
+      });
+      if(currentVal) roomSelect.value = currentVal;
+  }
+
+  // 4. 現在開いているタブに応じて再描画
+  if (document.getElementById('view-timeline').classList.contains('active')) {
+      renderVerticalTimeline('all');
+  } else if (document.getElementById('view-map-view').classList.contains('active')) {
+      if(document.getElementById('map-timeline-section').style.display !== 'none') {
+          renderVerticalTimeline('map');
+      }
+  }
 }
 
 function renderGroupButtons() {
@@ -730,7 +767,7 @@ async function saveBooking() {
   const start = document.getElementById('input-start').value;
   const end = document.getElementById('input-end').value;
   const title = document.getElementById('input-title').value;
-  const note = document.getElementById('input-note').value; // 備考はそのまま取得
+  const note = document.getElementById('input-note').value;
   
   if (start >= end) {
       alert("開始時間は終了時間より前に設定してください。");
@@ -741,8 +778,8 @@ async function saveBooking() {
   const startTime = `${dateSlash} ${start}`;
   const endTime = `${dateSlash} ${end}`;
   
-  // ▼▼▼ 修正: 参加者IDの区切り文字に「スペース」を入れて、スプレッドシートが数字と誤認するのを防ぐ ▼▼▼
-  const pIds = Array.from(selectedParticipantIds).join(', '); // カンマの後に半角スペースを追加
+  // 参加者IDの区切り文字に「スペース」を入れる
+  const pIds = Array.from(selectedParticipantIds).join(', ');
 
   const action = id ? 'updateReservation' : 'createReservation';
   
@@ -763,7 +800,8 @@ async function saveBooking() {
   if(result.status === 'success') {
     alert("保存しました");
     closeModal();
-    loadAllData();
+    // ▼▼▼ 修正: true を渡して画面遷移を防ぐ ▼▼▼
+    loadAllData(true);
   } else {
     alert("エラー: " + result.message);
   }
@@ -781,7 +819,8 @@ async function deleteBooking() {
   if(result.status === 'success') {
     alert("削除しました");
     closeModal();
-    loadAllData();
+    // ▼▼▼ 修正: true を渡して画面遷移を防ぐ ▼▼▼
+    loadAllData(true);
   } else {
     alert("エラー: " + result.message);
   }
