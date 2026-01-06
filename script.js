@@ -985,36 +985,45 @@ function renderGroupButtons() {
 }
 
 // ボタン生成を行う共通関数
+// ボタン生成を行う共通関数（ここを書き換え）
 function createGroupButton(container, name, ids, isCustom, groupId) {
     const btn = document.createElement('div');
     btn.className = 'group-chip';
     btn.innerText = `+ ${name}`;
     
-    // クリック時の動作（予約フォームに参加者をセット）
+    // クリック時の動作
     btn.onclick = () => {
-        if (isDeleteMode && isCustom) return; // 削除モード中は選択しない
+        // --- ここから修正 ---
+        if (isDeleteMode) {
+            if (isCustom) {
+                // 削除モード中に自作グループを押した場合、削除確認を出す
+                deleteSharedGroup(groupId, name);
+            } else {
+                // 「全員」などシステム固定のものは削除できない旨を伝える
+                alert("この項目はシステム固定のため削除できません。");
+            }
+            return;
+        }
+        // 通常モード時は参加者をセット
         selectGroupMembers(ids);
+        // --- ここまで修正 ---
     };
 
-    // 削除モードかつカスタム(共有)グループの場合、バツ印を表示
+    // 削除モードかつカスタム(共有)グループの場合の見た目
     if (isDeleteMode && isCustom) {
-        const badge = document.createElement('div');
-        badge.className = 'group-delete-badge';
-        badge.innerText = "×";
-        badge.onclick = (e) => {
-            e.stopPropagation(); // 親ボタンのクリックを防止
-            deleteSharedGroup(groupId, name);
-        };
-        btn.appendChild(badge);
+        // 削除対象であることを視覚的に目立たせる（赤枠の破線など）
+        btn.style.opacity = "1.0"; 
+        btn.style.border = "2px dashed #c0392b"; 
+        btn.style.color = "#c0392b";
+        btn.style.backgroundColor = "#fdeaea"; // 薄い赤背景
         
-        // 削除対象であることを視覚的に示す
-        btn.style.opacity = "0.7";
-        btn.style.border = "1px dashed #c0392b";
+        // バツ印（badge）を作るコードは不要になったので削除、
+        // あるいは「ゴミ箱アイコン」的なテキストを添えてもOKです
+        btn.innerText = `🗑️ ${name}`; 
     }
 
     container.appendChild(btn);
 }
-
 // ★修正: 新しいグループをサーバー(GAS)に保存する処理
 async function saveNewGroup() {
     const name = document.getElementById('new-group-name').value.trim();
