@@ -387,39 +387,18 @@ function renderVerticalTimeline(mode) {
       return isTargetRoom && (resDateNum === targetDateNum);
   });
 
+  // ▼▼▼ 修正1: 高さ計算ループ（参加者名の行数計算を削除） ▼▼▼
   allRelevantReservations.forEach(res => {
       const start = new Date(res._startTime);
       const sHour = start.getHours();
       
       let displayText = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '予約';
-      let namesText = "";
-      
-      const pIdsStr = getVal(res, ['participantIds', 'participant_ids', '参加者', 'メンバー']);
-      if (pIdsStr) {
-          const resIds = String(pIdsStr).split(',').map(id => id.trim()).sort();
-          const matchedGroup = masterData.groups.find(grp => {
-              if (!grp.memberIds) return false;
-              const grpIds = grp.memberIds.split(',').map(id => id.trim()).sort();
-              return JSON.stringify(resIds) === JSON.stringify(grpIds);
-          });
-          if (matchedGroup) {
-              namesText = matchedGroup.groupName;
-          } else {
-              const names = resIds.map(id => {
-                  const u = masterData.users.find(user => {
-                      const uIdStr = String(user.userId);
-                      return uIdStr === id || (!isNaN(uIdStr) && !isNaN(id) && Number(uIdStr) === Number(id));
-                  });
-                  return u ? u.userName : "";
-              }).filter(n => n);
-              namesText = names.join(', ');
-          }
-      }
+      // ※ここで参加者名の取得・計算を行わないように変更
 
       const CHARS_PER_LINE = DYNAMIC_CHARS_PER_LINE; 
       const titleLines = Math.ceil(displayText.length / CHARS_PER_LINE) || 1;
       const timeLines = 1; 
-      const nameLines = namesText ? Math.ceil(namesText.length / CHARS_PER_LINE) : 0;
+      const nameLines = 0; // ★ここを0にして高さを確保しないようにする
       const totalLines = titleLines + timeLines + nameLines; 
       const contentHeightPx = (totalLines * 15) + 10;
 
@@ -485,6 +464,7 @@ function renderVerticalTimeline(mode) {
 
     const reservations = allRelevantReservations.filter(res => String(res._resourceId) === String(room.roomId));
     
+    // ▼▼▼ 修正2: 表示ループ（参加者のHTML出力を削除） ▼▼▼
     reservations.forEach(res => {
       const start = new Date(res._startTime);
       const end = new Date(res._endTime);
@@ -517,39 +497,16 @@ function renderVerticalTimeline(mode) {
           bar.style.height = (heightPx - 2) + "px"; 
           
           let displayTitle = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '予約';
-          let pNames = "";
-          
-          const pIdsStr = getVal(res, ['participantIds', 'participant_ids', '参加者', 'メンバー']);
-          if (pIdsStr) {
-              const resIds = String(pIdsStr).split(',').map(id => id.trim()).sort();
-              const matchedGroup = masterData.groups.find(grp => {
-                  if (!grp.memberIds) return false;
-                  const grpIds = grp.memberIds.split(',').map(id => id.trim()).sort();
-                  return JSON.stringify(resIds) === JSON.stringify(grpIds);
-              });
-              if (matchedGroup) {
-                  pNames = `(${matchedGroup.groupName})`;
-              } else {
-                  const names = resIds.map(id => {
-                      const u = masterData.users.find(user => {
-                          const uIdStr = String(user.userId);
-                          return uIdStr === id || (!isNaN(uIdStr) && !isNaN(id) && Number(uIdStr) === Number(id));
-                      });
-                      return u ? u.userName : "";
-                  }).filter(n => n);
-                  pNames = `(${names.join(', ')})`;
-              }
-          }
+          // ※ここで参加者名の取得・計算を行わないように変更
 
+          // ★参加者名を表示しないHTMLに変更
           bar.innerHTML = `
             <span style="font-weight:bold;">${pad(start.getHours())}:${pad(start.getMinutes())}</span><br>
             <span style="font-weight:bold;">${displayTitle}</span>
-            ${pNames ? `<br><span style="font-size:0.7rem; opacity:0.9;">${pNames}</span>` : ''}
           `;
           
           bar.onclick = (e) => { 
               e.stopPropagation(); 
-              // ▼▼▼ 修正: ここで詳細モーダルを開きます ▼▼▼
               openDetailModal(res); 
           };
           body.appendChild(bar);
