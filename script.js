@@ -298,10 +298,10 @@ function renderVerticalTimeline(mode) {
       container = document.getElementById('rooms-container-all');
       dateInputId = 'timeline-date';
       timeAxisId = 'time-axis-all';
- const floorConfig = mapConfig[currentTimelineFloor];
+      
+      const floorConfig = mapConfig[currentTimelineFloor];
       if (floorConfig) {
           const floorRoomIds = floorConfig.areas.map(area => area.id);
-          // 全部屋データから、その階にある部屋IDと一致するものだけを抜き出す
           targetRooms = masterData.rooms.filter(r => floorRoomIds.includes(r.roomId));
       } else {
           targetRooms = [];
@@ -313,7 +313,6 @@ function renderVerticalTimeline(mode) {
       targetRooms = masterData.rooms.filter(r => String(r.roomId) === String(currentMapRoomId));
       container.style.width = "100%";
   } else {
-      // 部屋検索は削除されたため、ここに来ることはない想定
       return;
   }
   
@@ -513,7 +512,8 @@ function renderVerticalTimeline(mode) {
           
           bar.onclick = (e) => { 
               e.stopPropagation(); 
-              openModal(res); 
+              // ▼▼▼ 修正: ここで詳細モーダルを開きます ▼▼▼
+              openDetailModal(res); 
           };
           body.appendChild(bar);
       }
@@ -906,4 +906,68 @@ function switchTimelineFloor(floor) {
 
     // タイムラインを再描画
     renderVerticalTimeline('all');
+}
+// ▼▼▼ 【追加】詳細モーダル関連の処理 ▼▼▼
+let currentDetailRes = null;
+
+function openDetailModal(res) {
+  currentDetailRes = res;
+  const modal = document.getElementById('detailModal');
+  
+  // 1. 日時の表示
+  const s = new Date(res._startTime);
+  const e = new Date(res._endTime);
+  const dateStr = `${s.getMonth()+1}/${s.getDate()}`;
+  const timeStr = `${pad(s.getHours())}:${pad(s.getMinutes())} - ${pad(e.getHours())}:${pad(e.getMinutes())}`;
+  document.getElementById('detail-time').innerText = `${dateStr} ${timeStr}`;
+  
+  // 2. 部屋名の表示
+  const room = masterData.rooms.find(r => String(r.roomId) === String(res._resourceId));
+  document.getElementById('detail-room').innerText = room ? room.roomName : res._resourceId;
+  
+  // 3. 用件の表示
+  const title = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '(なし)';
+  document.getElementById('detail-title').innerText = title;
+  
+  // 4. 参加者の表示
+  let pNames = "-";
+  const pIdsStr = getVal(res, ['participantIds', 'participant_ids', '参加者', 'メンバー']);
+  if (pIdsStr) {
+      const resIds = String(pIdsStr).split(',').map(id => id.trim()).sort();
+      // グループ名チェック
+      const matchedGroup = masterData.groups.find(grp => {
+          if (!grp.memberIds) return false;
+          const grpIds = grp.memberIds.split(',').map(id => id.trim()).sort();
+          return JSON.stringify(resIds) === JSON.stringify(grpIds);
+      });
+
+      if (matchedGroup) {
+          pNames = matchedGroup.groupName;
+      } else {
+          const names = resIds.map(id => {
+              const u = masterData.users.find(user => {
+                  const uIdStr = String(user.userId);
+                  return uIdStr === id || (!isNaN(uIdStr) && !isNaN(id) && Number(uIdStr) === Number(id));
+              });
+              return u ? u.userName : "";
+          }).filter(n => n);
+          if(names.length > 0) pNames = names.join(', ');
+      }
+  }
+  document.getElementById('detail-members').innerText = pNames;
+  
+  // 5. 備考の表示
+  document.getElementById('detail-note').innerText = getVal(res, ['note', 'description', '備考', 'メモ']) || '';
+
+  // 「編集する」ボタンを押したときの動作
+  document.getElementById('btn-go-edit').onclick = function() {
+      closeDetailModal();        // 詳細画面を閉じて
+      openModal(currentDetailRes); // 編集画面(既存のモーダル)を開く
+  };
+
+  modal.style.display = 'flex';
+}
+
+function closeDetailModal() {
+  document.getElementById('detailModal').style.display = 'none';
 }
