@@ -113,6 +113,7 @@
     </div>
   </div>
 </div>
+
 <div id="bookingModal" class="modal">
   <div class="modal-content">
     <h3 id="modal-title" style="margin-top:0;">新規予約</h3>
@@ -153,6 +154,35 @@
       <button type="button" onclick="closeModal()" style="background:#999; color:white;">キャンセル</button>
       <button type="button" id="btn-save" class="btn-primary" onclick="saveBooking()">保存</button>
       <button type="button" id="btn-delete" class="btn-danger" onclick="deleteBooking()" style="display:none;">削除</button>
+    </div>
+  </div>
+</div>
+
+<div id="groupCreateModal" class="modal">
+  <div class="modal-content" style="max-width: 600px;">
+    <h3 style="margin-top:0;">グループ作成</h3>
+    
+    <label>グループ名</label>
+    <input type="text" id="new-group-name" placeholder="例: プロジェクトAチーム">
+    
+    <label>メンバー選択</label>
+    <div class="shuttle-container">
+        <div class="shuttle-box">
+            <div class="shuttle-header">候補者</div>
+            <div class="shuttle-search">
+                <input type="text" placeholder="検索..." id="group-shuttle-search" oninput="renderGroupCreateShuttle()">
+            </div>
+            <div class="shuttle-list" id="group-create-candidates"></div>
+        </div>
+        <div class="shuttle-box" style="background:#e3f2fd;">
+            <div class="shuttle-header" style="background:#bbdefb;">選択中</div>
+            <div class="shuttle-list" id="group-create-selected"></div>
+        </div>
+    </div>
+
+    <div style="display:flex; gap:10px; margin-top:20px; justify-content: flex-end;">
+      <button type="button" onclick="closeGroupModal()" style="background:#999; color:white;">キャンセル</button>
+      <button type="button" class="btn-primary" onclick="saveNewGroup()">登録</button>
     </div>
   </div>
 </div>
