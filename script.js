@@ -155,6 +155,7 @@ function initUI() {
   
   renderGroupButtons();
   switchFloor(7);
+　switchTab('map-view');
 }
 
 function renderGroupButtons() {
