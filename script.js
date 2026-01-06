@@ -186,11 +186,16 @@ function renderShuttleLists(filterText = "") {
 function switchTab(tabName) {
   document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  
   document.getElementById('view-' + tabName).classList.add('active');
+  
   const tabs = document.querySelectorAll('.nav-item');
-  if(tabName==='timeline') tabs[0].classList.add('active');
-  if(tabName==='room-search') { tabs[1].classList.add('active'); renderRoomSearch(); }
-  if(tabName==='logs') tabs[2].classList.add('active');
+  // インデックスが変わる可能性があるので、クラス名やロジックで判定したほうが安全ですが
+  // 簡易的に以下のように変更します
+  if(tabName==='map-view') tabs[0].classList.add('active'); // 新規追加
+  if(tabName==='timeline') tabs[1].classList.add('active');
+  if(tabName==='room-search') { tabs[2].classList.add('active'); renderRoomSearch(); }
+  if(tabName==='logs') tabs[3].classList.add('active');
 }
 
 let hourRowHeights = {}; 
