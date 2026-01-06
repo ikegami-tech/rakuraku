@@ -849,7 +849,3 @@ function renderMap(floor) {
     const timelineSection = document.getElementById('map-timeline-section');
     if(timelineSection) timelineSection.style.display = 'none';
 }
-    // 部屋選択状態をリセットして隠す
-    const timelineSection = document.getElementById('map-timeline-section');
-    if(timelineSection) timelineSection.style.display = 'none';
-}
