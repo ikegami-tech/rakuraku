@@ -31,9 +31,19 @@ const mapConfig = {
         image: IMG_6F, // 画像はそのまま（6階用）
         // ▼▼▼ 修正: ここに「7階用の座標データ」を貼り付けます ▼▼▼
         areas: [
-            { id: "田中", name: "田中", top: 30, left: 40, width: 10, height: 10 },
-            { id: "鈴木", name: "鈴木", top: 30, left: 50, width: 10, height: 10 },
-            { id: "会議室A", name: "会議室A", top: 20, left: 80, width: 15, height: 15 },
+            { id: "ZOOM 1", name: "ZOOM 1", top: 20.6, left: 60.7, width: 5.2, height: 10.0 },
+            { id: "ZOOM 2", name: "ZOOM 2", top: 20.6, left: 65.9, width: 5.2, height: 10.0 },
+            { id: "ZOOM 3", name: "ZOOM 3", top: 20.6, left: 71.1, width: 5.2, height: 10.0 },
+            
+            // 右上の大きな応接室
+            { id: "応接室", name: "応接室(10人)", top: 20.6, left: 76.3, width: 15.7, height: 24.5 },
+            
+            // 右下のブース（上から順に）
+            { id: "ZOOM 4", name: "ZOOM 4", top: 45.1, left: 82.2, width: 9.8, height: 4.2 },
+            { id: "ZOOM 5", name: "ZOOM 5", top: 49.3, left: 82.2, width: 9.8, height: 4.2 },
+            { id: "ZOOM 6", name: "ZOOM 6", top: 53.5, left: 82.2, width: 9.8, height: 4.2 },
+            { id: "ZOOM 7", name: "ZOOM 7", top: 57.7, left: 82.2, width: 9.8, height: 4.2 },
+            { id: "ZOOM 8", name: "ZOOM 8", top: 61.9, left: 82.2, width: 9.8, height: 4.2 },
         ]
     }
 };
