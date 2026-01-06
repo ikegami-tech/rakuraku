@@ -152,8 +152,11 @@ function initUI() {
   
   renderGroupButtons();
   
-  switchFloor(7);
+  // ▼▼▼ 修正: 先に「マップ検索」タブを表示状態にします ▼▼▼
   switchTab('map-view');
+  
+  // ▼▼▼ 修正: その後にマップ画像を描画します（これで確実に表示されます） ▼▼▼
+  switchFloor(7);
 }
 
 function renderGroupButtons() {
