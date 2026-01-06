@@ -391,18 +391,17 @@ function renderVerticalTimeline(mode) {
       return isTargetRoom && (resDateNum === targetDateNum);
   });
 
-  // ▼▼▼ 修正1: 高さ計算ループ（参加者名の行数計算を削除） ▼▼▼
+  // 高さ計算
   allRelevantReservations.forEach(res => {
       const start = new Date(res._startTime);
       const sHour = start.getHours();
       
       let displayText = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '予約';
-      // ※ここで参加者名の取得・計算を行わないように変更
 
       const CHARS_PER_LINE = DYNAMIC_CHARS_PER_LINE; 
       const titleLines = Math.ceil(displayText.length / CHARS_PER_LINE) || 1;
       const timeLines = 1; 
-      const nameLines = 0; // ★ここを0にして高さを確保しないようにする
+      const nameLines = 0; 
       const totalLines = titleLines + timeLines + nameLines; 
       const contentHeightPx = (totalLines * 15) + 10;
 
@@ -419,6 +418,7 @@ function renderVerticalTimeline(mode) {
       }
   });
 
+  // 時間軸を描画（修正した drawTimeAxis が呼ばれます）
   drawTimeAxis(timeAxisId);
   container.innerHTML = "";
   
@@ -434,9 +434,14 @@ function renderVerticalTimeline(mode) {
     const col = document.createElement('div');
     col.className = 'room-col';
     if(mode === 'single') col.style.width = "100%"; 
+    
+    // ▼▼▼ 修正: 部屋名ヘッダーの高さを40pxに強制固定（ズレ防止） ▼▼▼
     const header = document.createElement('div');
     header.className = 'room-header';
     header.innerText = room.roomName;
+    header.style.height = "40px";       // 時間軸ヘッダーと高さを合わせる
+    header.style.overflow = "hidden";   // 文字が長くても枠を広げない
+    header.style.whiteSpace = "nowrap"; // 改行させない
     col.appendChild(header);
     
     const body = document.createElement('div');
@@ -468,7 +473,7 @@ function renderVerticalTimeline(mode) {
 
     const reservations = allRelevantReservations.filter(res => String(res._resourceId) === String(room.roomId));
     
-    // ▼▼▼ 修正2: 表示ループ（参加者のHTML出力を削除） ▼▼▼
+    // 表示ループ
     reservations.forEach(res => {
       const start = new Date(res._startTime);
       const end = new Date(res._endTime);
@@ -501,9 +506,7 @@ function renderVerticalTimeline(mode) {
           bar.style.height = (heightPx - 2) + "px"; 
           
           let displayTitle = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '予約';
-          // ※ここで参加者名の取得・計算を行わないように変更
 
-          // ★参加者名を表示しないHTMLに変更
           bar.innerHTML = `
             <span style="font-weight:bold;">${pad(start.getHours())}:${pad(start.getMinutes())}</span><br>
             <span style="font-weight:bold;">${displayTitle}</span>
