@@ -9,11 +9,13 @@ const BASE_HOUR_HEIGHT = 50;
 let currentUser = null;
 let masterData = { rooms: [], users: [], reservations: [], logs: [], groups: [] };
 let selectedParticipantIds = new Set();
-let originalParticipantIds = new Set(); 
+let originalParticipantIds = new Set();
+let currentMapRoomId = null; 
 
 window.onload = () => {
   document.getElementById('timeline-date').valueAsDate = new Date();
   document.getElementById('search-date').valueAsDate = new Date();
+  document.getElementById('map-date').valueAsDate = new Date();
 };
 
 async function callAPI(params) {
@@ -90,6 +92,7 @@ function initUI() {
 
   renderTimeAxis('time-axis-all');
   renderTimeAxis('time-axis-single');
+  renderTimeAxis('time-axis-map');
   
   const roomSelects = [document.getElementById('input-room'), searchSelect];
   roomSelects.forEach(sel => {
@@ -231,6 +234,14 @@ function renderVerticalTimeline(mode) {
       dateInputId = 'timeline-date';
       timeAxisId = 'time-axis-all';
       targetRooms = masterData.rooms;
+   } else if (mode === 'map') { // ★ここを追加
+      container = document.getElementById('rooms-container-map');
+      dateInputId = 'map-date';
+      timeAxisId = 'time-axis-map';
+      // マップで選択中の部屋IDを使う
+      targetRooms = masterData.rooms.filter(r => String(r.roomId) === String(currentMapRoomId));
+      container.style.width = "100%";
+  }
   } else {
       container = document.getElementById('rooms-container-single');
       dateInputId = 'search-date';
@@ -483,6 +494,7 @@ function changeDate(days, inputId) {
   d.setDate(d.getDate() + days);
   input.valueAsDate = d;
   if(inputId === 'timeline-date') renderVerticalTimeline('all');
+    else if(inputId === 'map-date') renderVerticalTimeline('map');
   else renderRoomSearch();
 }
 
@@ -775,33 +787,30 @@ async function deleteBooking() {
 function pad(n) { return n < 10 ? '0'+n : n; }
 function formatDate(d) { return `${d.getMonth()+1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}`; }
 function getRoomName(id) { const r = masterData.rooms.find(x => x.roomId === id); return r ? r.roomName : id; }
-// マップから部屋を選択したときの処理
+// マップから部屋を選択したときの処理（書き換え）
 function selectRoomFromMap(element) {
   const roomId = element.getAttribute('data-room-id');
   
-  // 1. 部屋プルダウンの要素を取得
-  const select = document.getElementById('search-room-select');
+  // マスタデータから部屋名を取得（日本語ID対応）
+  const roomObj = masterData.rooms.find(r => String(r.roomId) === String(roomId));
   
-  // 2. プルダウンの中に、クリックしたIDが存在するか確認
-  let exists = false;
-  for (let i = 0; i < select.options.length; i++) {
-    if (select.options[i].value === roomId) {
-      select.selectedIndex = i;
-      exists = true;
-      break;
-    }
-  }
-
-  if (!exists) {
-    alert("エラー: 指定された部屋ID (" + roomId + ") が見つかりません。\nスプレッドシートのIDとHTMLのdata-room-idを一致させてください。");
+  if (!roomObj) {
+    alert("エラー: 指定された部屋ID (" + roomId + ") が見つかりません。");
     return;
   }
 
-  // 3. 部屋検索タブに切り替える
-  switchTab('room-search');
+  // グローバル変数にセット
+  currentMapRoomId = roomId;
+
+  // 表示エリアをONにする
+  document.getElementById('map-timeline-section').style.display = 'block';
   
-  // 4. その部屋のタイムラインを描画する
-  // (switchTabの中でrenderRoomSearch()が呼ばれますが、値変更を確実にするため念の為セット)
-  select.value = roomId;
-  renderRoomSearch();
+  // 部屋名を表示
+  document.getElementById('map-selected-room-name').innerText = roomObj.roomName;
+
+  // タイムラインを描画 ('map'モードで呼び出し)
+  renderVerticalTimeline('map');
+  
+  // スマホなどで見やすいように、少しスクロールする（オプション）
+  document.getElementById('map-timeline-section').scrollIntoView({behavior: 'smooth'});
 }
