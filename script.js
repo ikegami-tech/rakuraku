@@ -730,23 +730,19 @@ async function saveBooking() {
   const start = document.getElementById('input-start').value;
   const end = document.getElementById('input-end').value;
   const title = document.getElementById('input-title').value;
-  
-  // ▼▼▼ 修正: 備考欄は入力された内容のみを使い、変更履歴を自動追記しません ▼▼▼
-  const note = document.getElementById('input-note').value;
+  const note = document.getElementById('input-note').value; // 備考はそのまま取得
   
   if (start >= end) {
       alert("開始時間は終了時間より前に設定してください。");
       return;
   }
 
-  // (※ここで以前は変更履歴を作成してnoteに追記していましたが、削除しました)
-
   const dateSlash = date.replace(/-/g, '/');
   const startTime = `${dateSlash} ${start}`;
   const endTime = `${dateSlash} ${end}`;
   
-  // 参加者IDリストの作成
-  const pIds = Array.from(selectedParticipantIds).join(',');
+  // ▼▼▼ 修正: 参加者IDの区切り文字に「スペース」を入れて、スプレッドシートが数字と誤認するのを防ぐ ▼▼▼
+  const pIds = Array.from(selectedParticipantIds).join(', '); // カンマの後に半角スペースを追加
 
   const action = id ? 'updateReservation' : 'createReservation';
   
@@ -900,14 +896,18 @@ function openDetailModal(res) {
   const title = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '(なし)';
   document.getElementById('detail-title').innerText = title;
   
-  // 4. 参加者の表示（▼▼▼ 修正箇所 ▼▼▼）
+  // 4. 参加者の表示（▼▼▼ 修正: 変な数字になっている場合の対策を追加 ▼▼▼）
   let pNames = "-";
-  const pIdsStr = getVal(res, ['participantIds', 'participant_ids', '参加者', 'メンバー']);
+  let pIdsStr = getVal(res, ['participantIds', 'participant_ids', '参加者', 'メンバー']);
   
-  if (pIdsStr) {
-      const resIds = String(pIdsStr).split(',').map(id => id.trim()).sort();
+  // もしデータが指数表記(5.04...e+41)のように壊れていたらエラーを表示
+  if (String(pIdsStr).includes('e+')) {
+      pNames = "⚠️データ形式エラー: 編集ボタンから参加者を登録し直してください";
+  } else if (pIdsStr) {
+      // カンマ区切りなどで分割して処理
+      // (万が一スペースがなくても対応できるよう、正規表現で分割します)
+      const resIds = String(pIdsStr).split(/,\s*/).map(id => id.trim()).sort();
       
-      // グループ名チェック
       const matchedGroup = masterData.groups.find(grp => {
           if (!grp.memberIds) return false;
           const grpIds = grp.memberIds.split(',').map(id => id.trim()).sort();
@@ -917,27 +917,28 @@ function openDetailModal(res) {
       if (matchedGroup) {
           pNames = matchedGroup.groupName;
       } else {
-          // ユーザーリストから名前を検索（見つからない場合はIDを表示）
           const names = resIds.map(id => {
               if(!id) return "";
-              // IDの一致確認（文字列・数値を考慮）
               const u = masterData.users.find(user => {
                   const uIdStr = String(user.userId).trim();
                   return uIdStr === id || (!isNaN(uIdStr) && !isNaN(id) && Number(uIdStr) === Number(id));
               });
-              // 名前があれば名前を、なければID自体を返す
               return u ? u.userName : id;
-          }).filter(n => n !== ""); // 空文字を除去
+          }).filter(n => n !== "");
           
           if(names.length > 0) pNames = names.join(', ');
       }
   }
   document.getElementById('detail-members').innerText = pNames;
   
-  // 5. 備考の表示
-  document.getElementById('detail-note').innerText = getVal(res, ['note', 'description', '備考', 'メモ']) || '';
+  // 5. 備考の表示（▼▼▼ 修正: 【変更履歴】を含む行を消して表示する ▼▼▼）
+  let rawNote = getVal(res, ['note', 'description', '備考', 'メモ']) || '';
+  // 「【変更履歴】」から始まる行をすべて削除して表示
+  let cleanNote = rawNote.replace(/【変更履歴】.*/g, '').replace(/^\s*[\r\n]/gm, '').trim();
+  
+  document.getElementById('detail-note').innerText = cleanNote;
 
-  // 「編集する」ボタンを押したときの動作
+  // 「編集する」ボタン
   document.getElementById('btn-go-edit').onclick = function() {
       closeDetailModal();        
       openModal(currentDetailRes); 
