@@ -1,5 +1,5 @@
 /* --- ★重要: GASの最新デプロイURLに書き換えてください --- */
-const API_URL = "https://script.google.com/macros/s/AKfycby5VLs0rwSnZk8fah8jrb-iCI3HMpi7KxggEK_83QuX64K9kCB-BovDd2Nu0tHg3r3S/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbw5xE7-HWAuOM9lCo47s7lTjPp-G_1BH3Nnzp-wY_xOVK6yDpvhg4uZ5kBXoJR38SjU/exec";
 // ▼▼▼ ここにBase64コードを貼り付けます ▼▼▼
 
 // 7階の画像（以前の画像コードをこの引用符の中に貼り付け）
