@@ -267,7 +267,14 @@ function renderVerticalTimeline(mode) {
       container = document.getElementById('rooms-container-all');
       dateInputId = 'timeline-date';
       timeAxisId = 'time-axis-all';
-      targetRooms = masterData.rooms;
+ const floorConfig = mapConfig[currentTimelineFloor];
+      if (floorConfig) {
+          const floorRoomIds = floorConfig.areas.map(area => area.id);
+          // 全部屋データから、その階にある部屋IDと一致するものだけを抜き出す
+          targetRooms = masterData.rooms.filter(r => floorRoomIds.includes(r.roomId));
+      } else {
+          targetRooms = [];
+      }
    } else if (mode === 'map') { 
       container = document.getElementById('rooms-container-map');
       dateInputId = 'map-date';
@@ -829,6 +836,8 @@ function renderMap(floor) {
     const existingAreas = container.querySelectorAll('.map-click-area');
     existingAreas.forEach(el => el.remove());
 
+    // ... (renderMap関数の中身の途中から) ...
+
     config.areas.forEach(area => {
         const div = document.createElement('div');
         div.className = 'map-click-area';
@@ -848,4 +857,17 @@ function renderMap(floor) {
 
     const timelineSection = document.getElementById('map-timeline-section');
     if(timelineSection) timelineSection.style.display = 'none';
+}
+
+// ▼▼▼ 【追加】一覧画面の階切り替え機能 ▼▼▼
+function switchTimelineFloor(floor) {
+    currentTimelineFloor = floor;
+    
+    // タブの見た目を切り替え
+    document.querySelectorAll('#view-timeline .floor-tab').forEach(tab => tab.classList.remove('active'));
+    const activeTab = document.getElementById(`timeline-tab-${floor}f`);
+    if(activeTab) activeTab.classList.add('active');
+
+    // タイムラインを再描画
+    renderVerticalTimeline('all');
 }
