@@ -731,49 +731,21 @@ async function saveBooking() {
   const end = document.getElementById('input-end').value;
   const title = document.getElementById('input-title').value;
   
-  let note = document.getElementById('input-note').value;
+  // ▼▼▼ 修正: 備考欄は入力された内容のみを使い、変更履歴を自動追記しません ▼▼▼
+  const note = document.getElementById('input-note').value;
   
   if (start >= end) {
       alert("開始時間は終了時間より前に設定してください。");
       return;
   }
 
-  if (id) {
-      let addedNames = [];
-      let removedNames = [];
-
-      selectedParticipantIds.forEach(newId => {
-          if (!originalParticipantIds.has(newId)) {
-              const u = masterData.users.find(user => String(user.userId) === newId);
-              if (u) addedNames.push(u.userName);
-          }
-      });
-
-      originalParticipantIds.forEach(oldId => {
-          if (!selectedParticipantIds.has(oldId)) {
-              const u = masterData.users.find(user => String(user.userId) === oldId);
-              if (u) removedNames.push(u.userName);
-          }
-      });
-
-      if (addedNames.length > 0 || removedNames.length > 0) {
-          let changeLog = "【変更履歴】";
-          if (addedNames.length > 0) changeLog += " 追加: " + addedNames.join(", ");
-          if (removedNames.length > 0) changeLog += " 削除: " + removedNames.join(", ");
-          
-          const now = new Date();
-          const timeStr = `${now.getHours()}:${pad(now.getMinutes())}`;
-          changeLog += ` (${timeStr})`;
-
-          if (!note.includes(changeLog)) {
-              note = note ? note + "\n" + changeLog : changeLog;
-          }
-      }
-  }
+  // (※ここで以前は変更履歴を作成してnoteに追記していましたが、削除しました)
 
   const dateSlash = date.replace(/-/g, '/');
   const startTime = `${dateSlash} ${start}`;
   const endTime = `${dateSlash} ${end}`;
+  
+  // 参加者IDリストの作成
   const pIds = Array.from(selectedParticipantIds).join(',');
 
   const action = id ? 'updateReservation' : 'createReservation';
@@ -800,7 +772,6 @@ async function saveBooking() {
     alert("エラー: " + result.message);
   }
 }
-
 async function deleteBooking() {
   if(!confirm("削除しますか？")) return;
   const id = document.getElementById('edit-res-id').value;
@@ -929,11 +900,13 @@ function openDetailModal(res) {
   const title = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '(なし)';
   document.getElementById('detail-title').innerText = title;
   
-  // 4. 参加者の表示
+  // 4. 参加者の表示（▼▼▼ 修正箇所 ▼▼▼）
   let pNames = "-";
   const pIdsStr = getVal(res, ['participantIds', 'participant_ids', '参加者', 'メンバー']);
+  
   if (pIdsStr) {
       const resIds = String(pIdsStr).split(',').map(id => id.trim()).sort();
+      
       // グループ名チェック
       const matchedGroup = masterData.groups.find(grp => {
           if (!grp.memberIds) return false;
@@ -944,13 +917,18 @@ function openDetailModal(res) {
       if (matchedGroup) {
           pNames = matchedGroup.groupName;
       } else {
+          // ユーザーリストから名前を検索（見つからない場合はIDを表示）
           const names = resIds.map(id => {
+              if(!id) return "";
+              // IDの一致確認（文字列・数値を考慮）
               const u = masterData.users.find(user => {
-                  const uIdStr = String(user.userId);
+                  const uIdStr = String(user.userId).trim();
                   return uIdStr === id || (!isNaN(uIdStr) && !isNaN(id) && Number(uIdStr) === Number(id));
               });
-              return u ? u.userName : "";
-          }).filter(n => n);
+              // 名前があれば名前を、なければID自体を返す
+              return u ? u.userName : id;
+          }).filter(n => n !== ""); // 空文字を除去
+          
           if(names.length > 0) pNames = names.join(', ');
       }
   }
@@ -961,13 +939,12 @@ function openDetailModal(res) {
 
   // 「編集する」ボタンを押したときの動作
   document.getElementById('btn-go-edit').onclick = function() {
-      closeDetailModal();        // 詳細画面を閉じて
-      openModal(currentDetailRes); // 編集画面(既存のモーダル)を開く
+      closeDetailModal();        
+      openModal(currentDetailRes); 
   };
 
   modal.style.display = 'flex';
 }
-
 function closeDetailModal() {
   document.getElementById('detailModal').style.display = 'none';
 }
