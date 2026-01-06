@@ -218,6 +218,9 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
     margin-bottom: 10px;
     width: 100%;
     max-width: 800px;
+  justify-content: center;       /* ボタンを中央寄せ */
+    margin-left: auto;             /* 左側の余白を自動（右寄せ効果） */
+    margin-right: auto;            /* 右側の余白を自動（左寄せ効果）→ 両方で中央寄せ */
 }
 
 .floor-tab {
