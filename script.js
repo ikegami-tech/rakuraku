@@ -16,28 +16,24 @@ let currentFloor = 7;
 // マップの設定データ（座標定義）
 const mapConfig = {
     7: {
-        // ▼▼▼ 修正: IMG_6F から IMG_7F に変更（7階の画像変数を使用） ▼▼▼
-        image: IMG_7F, 
+        image: IMG_7F, // 画像はそのまま（7階用）
+        // ▼▼▼ 修正: ここに「6階用の座標データ」を貼り付けます ▼▼▼
         areas: [
-            // 7階の部屋データ (田中、鈴木、会議室Aなど)
-            // ※座標データは7階のままでOK
-            { id: "田中", name: "田中", top: 30, left: 40, width: 10, height: 10 },
-            { id: "鈴木", name: "鈴木", top: 30, left: 50, width: 10, height: 10 },
-            { id: "会議室A", name: "会議室A", top: 20, left: 80, width: 15, height: 15 },
-        ]
-    },
-    6: {
-        // ▼▼▼ 修正: IMG_7F から IMG_6F に変更（6階の画像変数を使用） ▼▼▼
-        image: IMG_6F,
-        areas: [
-            // 6階の部屋データ (会議室1、2、応接室など)
-            // ※座標データは6階のままでOK
             { id: "会議室1", name: "会議室1", top: 40.0, left: 71.4, width: 14.7, height: 9.0 },
             { id: "会議室2", name: "会議室2", top: 26.6, left: 71.4, width: 14.7, height: 13.4 },
             { id: "応接室(6人)", name: "応接室(6人)", top: 63.6, left: 31.5, width: 13.9, height: 14.0 },
             { id: "応接室(8人)", name: "応接室(8人)", top: 60.1, left: 15.7, width: 15.8, height: 17.5 },
             { id: "ZOOM(中)", name: "ZOOM(中)", top: 17.8, left: 54.8, width: 8.5, height: 4.2 },
             { id: "ZOOM(角)", name: "ZOOM(角)", top: 24.5, left: 15.7, width: 8.5, height: 4.2 },
+        ]
+    },
+    6: {
+        image: IMG_6F, // 画像はそのまま（6階用）
+        // ▼▼▼ 修正: ここに「7階用の座標データ」を貼り付けます ▼▼▼
+        areas: [
+            { id: "田中", name: "田中", top: 30, left: 40, width: 10, height: 10 },
+            { id: "鈴木", name: "鈴木", top: 30, left: 50, width: 10, height: 10 },
+            { id: "会議室A", name: "会議室A", top: 20, left: 80, width: 15, height: 15 },
         ]
     }
 };
