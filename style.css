@@ -210,3 +210,33 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   color: #666;
   font-size: 0.9rem;
 }
+/* ▼▼▼ 追加: フロア切り替えタブのスタイル ▼▼▼ */
+.floor-selector {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    width: 100%;
+    max-width: 800px;
+}
+
+.floor-tab {
+    padding: 10px 20px;
+    background-color: #ddd;
+    border: none;
+    border-radius: 6px 6px 0 0;
+    cursor: pointer;
+    font-weight: bold;
+    color: #666;
+    transition: all 0.2s;
+    flex-grow: 0;
+}
+
+.floor-tab.active {
+    background-color: #fff;
+    color: #2c3e50;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+}
+
+.floor-tab:hover:not(.active) {
+    background-color: #ccc;
+}
