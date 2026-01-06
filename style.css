@@ -155,7 +155,7 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
 .fab { position: fixed; bottom: 20px; right: calc(50% - 600px + 20px); width: 56px; height: 56px; background: var(--accent); color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 24px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; z-index: 100; border: none; }
 @media (max-width: 1280px) { .fab { right: 20px; } }
 @media (max-width: 600px) { .shuttle-container { flex-direction: column; height: 300px; } }
-/* --- マップビュー用スタイル (元のサイズに戻す) --- */
+/* --- マップビュー用スタイル (はみ出していた頃の状態) --- */
 .map-wrapper {
   padding: 20px;
   background: #f9f9f9;
@@ -164,31 +164,23 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100%;
 }
 
 .map-container {
   position: relative; 
   width: 100%;
-  max-width: 800px; /* 最大幅を800pxに戻す */
-  height: auto;
+  max-width: 800px; /* 横幅の最大値のみ制限 */
   border: 1px solid #ddd;
   background: white;
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  /* 画面に収まるように高さを70%に戻す */
-  max-height: 70vh; 
-  overflow: hidden;
-  display: flex;
-  justify-content: center;
+  /* 高さ制限(max-height)や中央寄せ(display:flex)を削除 */
 }
 
 .map-image {
-  width: auto;
-  height: 100%;
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain; /* アスペクト比を維持して収める */
+  width: 100%;      /* 横幅いっぱいに表示 */
+  height: auto;     /* 高さは自動（縦に伸びる） */
   display: block;
+  /* object-fit などを削除 */
 }
 /* クリック領域（透明なオーバーレイ） */
 .map-click-area {
