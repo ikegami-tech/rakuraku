@@ -76,10 +76,24 @@
              onclick="selectRoomFromMap(this)">
            <span>ZOOM(角)</span>
         </div>
-
       </div>
-      <p class="map-hint">予約したい部屋をクリックしてください</p>
-    </div>
+      
+      <p class="map-hint">部屋をクリックすると下に予約状況が表示されます</p>
+
+      <div id="map-timeline-section" style="display:none; width:100%; margin-top:10px; border-top:2px solid #ddd; padding-top:10px;">
+        <h4 id="map-selected-room-name" style="text-align:center; margin:5px 0;"></h4>
+        
+        <div class="date-controller">
+          <button onclick="changeDate(-1, 'map-date')">&lt;</button>
+          <input type="date" id="map-date" onchange="renderVerticalTimeline('map')">
+          <button onclick="changeDate(1, 'map-date')">&gt;</button>
+        </div>
+
+        <div class="calendar-scroll-area" style="height: 400px;"> <div class="time-axis-col" id="time-axis-map"><div class="time-axis-header"></div></div>
+           <div class="rooms-container" id="rooms-container-map" style="flex:1;"></div>
+        </div>
+      </div>
+      </div>
   </div>
   
   <div id="view-timeline" class="view-container active">
