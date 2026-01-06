@@ -158,10 +158,13 @@ function initUI() {
   }
   
   renderGroupButtons();
+  
+  // マップの初期化（7階を表示）
   switchFloor(7);
-　switchTab('map-view');
-}
 
+  // ▼▼▼ 【ここを追加】 タブを「マップ検索」に強制的に切り替える ▼▼▼
+  switchTab('map-view');
+}
 function renderGroupButtons() {
   const container = document.getElementById('group-buttons-area');
   container.innerHTML = "";
