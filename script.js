@@ -308,11 +308,16 @@ let hourRowHeights = {};
 
 function drawTimeAxis(containerId) {
   const container = document.getElementById(containerId);
-  const children = Array.from(container.children);
-  children.forEach(child => {
-      if(!child.classList.contains('time-axis-header')) container.removeChild(child);
-  });
+  // 中身を完全にリセット
+  container.innerHTML = "";
 
+  // ▼▼▼ 修正: 必ずヘッダー(40px)を生成して、右側の部屋名ヘッダーと高さを合わせる ▼▼▼
+  const header = document.createElement('div');
+  header.className = 'time-axis-header';
+  header.style.height = "40px"; // CSSだけでなくJSでも高さを強制
+  container.appendChild(header);
+
+  // 時間ラベルの生成
   for (let i = START_HOUR; i < END_HOUR; i++) {
       const height = hourRowHeights[i] || BASE_HOUR_HEIGHT;
       const div = document.createElement('div');
@@ -322,7 +327,6 @@ function drawTimeAxis(containerId) {
       container.appendChild(div);
   }
 }
-
 function renderTimeAxis(containerId) {
     // 初期化時は何もしない
 }
