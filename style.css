@@ -155,3 +155,58 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
 .fab { position: fixed; bottom: 20px; right: calc(50% - 600px + 20px); width: 56px; height: 56px; background: var(--accent); color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 24px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; z-index: 100; border: none; }
 @media (max-width: 1280px) { .fab { right: 20px; } }
 @media (max-width: 600px) { .shuttle-container { flex-direction: column; height: 300px; } }
+/* マップビュー用スタイル */
+.map-wrapper {
+  padding: 20px;
+  background: #f9f9f9;
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.map-container {
+  position: relative; /* 子要素の基準点にする */
+  width: 100%;
+  max-width: 800px; /* 画像の最大幅 */
+  border: 1px solid #ddd;
+  background: white;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.map-image {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* クリック領域（透明なオーバーレイ） */
+.map-click-area {
+  position: absolute;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.3); /* デバッグ用に半透明。完成時は0にして透明にする */
+  border: 2px solid transparent;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.9rem;
+  color: transparent; /* 文字も通常は隠す */
+  text-shadow: none;
+}
+
+/* ホバー時のエフェクト */
+.map-click-area:hover {
+  background: rgba(39, 174, 96, 0.3); /* マウスが乗ったときに緑色にする */
+  border: 2px solid #27ae60;
+  color: #fff;
+  text-shadow: 0 0 3px rgba(0,0,0,0.8);
+}
+
+.map-hint {
+  margin-top: 10px;
+  color: #666;
+  font-size: 0.9rem;
+}
