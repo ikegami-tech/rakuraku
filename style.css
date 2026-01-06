@@ -155,9 +155,7 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
 .fab { position: fixed; bottom: 20px; right: calc(50% - 600px + 20px); width: 56px; height: 56px; background: var(--accent); color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 24px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; z-index: 100; border: none; }
 @media (max-width: 1280px) { .fab { right: 20px; } }
 @media (max-width: 600px) { .shuttle-container { flex-direction: column; height: 300px; } }
-/* マップビュー用スタイル */
-/* --- マップビュー用スタイル (修正版) --- */
-/* --- マップビュー用スタイル (再修正版) --- */
+/* --- マップビュー用スタイル (元のサイズに戻す) --- */
 .map-wrapper {
   padding: 20px;
   background: #f9f9f9;
@@ -172,14 +170,13 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
 .map-container {
   position: relative; 
   width: 100%;
-  /* ▼▼▼ 最大幅を広げます ▼▼▼ */
-  max-width: 1000px; 
+  max-width: 800px; /* 最大幅を800pxに戻す */
   height: auto;
   border: 1px solid #ddd;
   background: white;
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  /* ▼▼▼ 最大高さを広げます（画面の85%まで） ▼▼▼ */
-  max-height: 85vh; 
+  /* 画面に収まるように高さを70%に戻す */
+  max-height: 70vh; 
   overflow: hidden;
   display: flex;
   justify-content: center;
@@ -190,7 +187,7 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   height: 100%;
   max-width: 100%;
   max-height: 100%;
-  object-fit: contain;
+  object-fit: contain; /* アスペクト比を維持して収める */
   display: block;
 }
 /* クリック領域（透明なオーバーレイ） */
