@@ -132,10 +132,11 @@ async function loadAllData() {
 }
 
 function initUI() {
+  // 1. 時間軸の枠組みだけ準備
   renderTimeAxis('time-axis-all');
   renderTimeAxis('time-axis-map');
   
-  // 入力用プルダウンのみ初期化
+  // 2. 部屋選択プルダウンの生成
   const roomSelect = document.getElementById('input-room');
   if (roomSelect) {
     roomSelect.innerHTML = "";
@@ -147,16 +148,15 @@ function initUI() {
     });
   }
 
-  renderVerticalTimeline('all');
-  renderLogs();
-  
+  // 3. グループボタンの生成
   renderGroupButtons();
   
-  // ▼▼▼ 修正: 先に「マップ検索」タブを表示状態にします ▼▼▼
+  // 4. 各画面の変数を初期化（描画はまだしない）
+  currentFloor = 7;
+  currentTimelineFloor = 7;
+
+  // 5. 最初に表示するタブを指定（この関数の中で描画がトリガーされます）
   switchTab('map-view');
-  
-  // ▼▼▼ 修正: その後にマップ画像を描画します（これで確実に表示されます） ▼▼▼
-  switchFloor(7);
 }
 
 function renderGroupButtons() {
@@ -227,16 +227,44 @@ function renderShuttleLists(filterText = "") {
 }
 
 function switchTab(tabName) {
+  // 1. すべてのタブと画面を非アクティブにする
   document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
   
-  document.getElementById('view-' + tabName).classList.add('active');
+  // 2. 選択された画面を表示する（CSSで display: block になる）
+  const targetView = document.getElementById('view-' + tabName);
+  if(targetView) targetView.classList.add('active');
   
+  // 3. ナビゲーションボタンの見た目を更新
   const tabs = document.querySelectorAll('.nav-item');
-  if(tabName==='map-view') tabs[0].classList.add('active');
-  if(tabName==='timeline') tabs[1].classList.add('active');
-  // 部屋検索削除に伴い、logsのインデックスを修正
-  if(tabName==='logs') tabs[2].classList.add('active');
+  // インデックスはHTMLの並び順 (0:マップ, 1:一覧, 2:履歴)
+  if(tabName === 'map-view' && tabs[0]) tabs[0].classList.add('active');
+  if(tabName === 'timeline' && tabs[1]) tabs[1].classList.add('active');
+  if(tabName === 'logs' && tabs[2]) tabs[2].classList.add('active');
+
+  // ▼▼▼ 【重要修正】画面が表示された後に、中身を描画する ▼▼▼
+  
+  if (tabName === 'map-view') {
+      // マップ画面の場合：描画ズレを防ぐため、ほんの少し待ってから描画
+      setTimeout(() => {
+          switchFloor(currentFloor); 
+      }, 50);
+      
+  } else if (tabName === 'timeline') {
+      // 一覧画面の場合：画面幅を正しく取得させるため、setTimeout(0)で実行
+      setTimeout(() => {
+          // タブの見た目も同期
+          document.querySelectorAll('#view-timeline .floor-tab').forEach(tab => tab.classList.remove('active'));
+          const activeTab = document.getElementById(`timeline-tab-${currentTimelineFloor}f`);
+          if(activeTab) activeTab.classList.add('active');
+          
+          renderVerticalTimeline('all');
+      }, 0);
+      
+  } else if (tabName === 'logs') {
+      // 履歴画面の場合
+      renderLogs();
+  }
 }
 
 let hourRowHeights = {}; 
@@ -819,15 +847,18 @@ function selectRoomFromMap(element) {
 
 function switchFloor(floor) {
     currentFloor = floor;
-   
+    
+    // マップ画面内のタブだけを対象にする（一覧画面のタブには影響させない）
     const mapContainer = document.getElementById('view-map-view');
     if(mapContainer) {
         mapContainer.querySelectorAll('.floor-tab').forEach(tab => tab.classList.remove('active'));
     }
     
+    // 押されたタブを「選択中（active）」にする
     const activeTab = document.getElementById(`tab-${floor}f`);
     if(activeTab) activeTab.classList.add('active');
 
+    // 画像を描画する
     renderMap(floor);
 }
 
