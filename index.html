@@ -30,11 +30,57 @@
   </header>
 
   <div class="nav-tabs">
-  <div class="nav-item" onclick="switchTab('map-view')">マップ検索</div>
-  <div class="nav-item active" onclick="switchTab('timeline')">一覧(縦)</div>
-  <div class="nav-item" onclick="switchTab('room-search')">部屋検索</div>
-  <div class="nav-item" onclick="switchTab('logs')">履歴</div>
-</div>
+    <div class="nav-item" onclick="switchTab('map-view')">マップ検索</div>
+    <div class="nav-item active" onclick="switchTab('timeline')">一覧(縦)</div>
+    <div class="nav-item" onclick="switchTab('room-search')">部屋検索</div>
+    <div class="nav-item" onclick="switchTab('logs')">履歴</div>
+  </div>
+
+  <div id="view-map-view" class="view-container">
+    <div class="map-wrapper">
+      <div class="map-container">
+        <img src="YOUR_MAP_IMAGE_URL" alt="フロアマップ" class="map-image">
+
+        <div class="map-click-area" data-room-id="meeting1" 
+             style="top: 48%; left: 0%; width: 25%; height: 14%;"
+             onclick="selectRoomFromMap(this)">
+           <span>会議室1</span>
+        </div>
+
+        <div class="map-click-area" data-room-id="meeting2" 
+             style="top: 62%; left: 0%; width: 25%; height: 21%;"
+             onclick="selectRoomFromMap(this)">
+           <span>会議室2</span>
+        </div>
+
+        <div class="map-click-area" data-room-id="reception6" 
+             style="top: 0%; left: 45%; width: 25%; height: 30%;"
+             onclick="selectRoomFromMap(this)">
+           <span>応接室(6)</span>
+        </div>
+
+        <div class="map-click-area" data-room-id="reception8" 
+             style="top: 0%; left: 70%; width: 30%; height: 35%;"
+             onclick="selectRoomFromMap(this)">
+           <span>応接室(8)</span>
+        </div>
+
+        <div class="map-click-area" data-room-id="private_mid" 
+             style="top: 91%; left: 28%; width: 10%; height: 9%;"
+             onclick="selectRoomFromMap(this)">
+           <span>個室(中)</span>
+        </div>
+
+        <div class="map-click-area" data-room-id="private_corner" 
+             style="top: 80%; left: 82%; width: 18%; height: 10%;"
+             onclick="selectRoomFromMap(this)">
+           <span>個室(角)</span>
+        </div>
+
+      </div>
+      <p class="map-hint">予約したい部屋をクリックしてください</p>
+    </div>
+  </div>
 
   <div id="view-timeline" class="view-container active">
     <div class="date-controller">
