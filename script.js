@@ -308,22 +308,23 @@ let hourRowHeights = {};
 
 function drawTimeAxis(containerId) {
   const container = document.getElementById(containerId);
-  // 中身を完全にリセット
   container.innerHTML = "";
 
-  // ▼▼▼ 修正: 必ずヘッダー(40px)を生成して、右側の部屋名ヘッダーと高さを合わせる ▼▼▼
+  // ▼▼▼ 修正: ヘッダーの高さを「最小高さ」としても指定し、縮小を禁止する ▼▼▼
   const header = document.createElement('div');
   header.className = 'time-axis-header';
-  header.style.height = "40px"; // CSSだけでなくJSでも高さを強制
+  header.style.height = "40px"; 
+  header.style.minHeight = "40px"; // これを追加（押しつぶされ防止）
+  header.style.flexShrink = "0";   // これを追加（縮小禁止）
   container.appendChild(header);
 
-  // 時間ラベルの生成
   for (let i = START_HOUR; i < END_HOUR; i++) {
       const height = hourRowHeights[i] || BASE_HOUR_HEIGHT;
       const div = document.createElement('div');
       div.className = 'time-label';
       div.innerText = i + ":00";
       div.style.height = height + "px";
+      div.style.minHeight = height + "px"; // 念のためここも固定
       container.appendChild(div);
   }
 }
@@ -418,7 +419,7 @@ function renderVerticalTimeline(mode) {
       }
   });
 
-  // 時間軸を描画（修正した drawTimeAxis が呼ばれます）
+  // 時間軸を描画
   drawTimeAxis(timeAxisId);
   container.innerHTML = "";
   
@@ -435,13 +436,15 @@ function renderVerticalTimeline(mode) {
     col.className = 'room-col';
     if(mode === 'single') col.style.width = "100%"; 
     
-    // ▼▼▼ 修正: 部屋名ヘッダーの高さを40pxに強制固定（ズレ防止） ▼▼▼
+    // ▼▼▼ 修正: ヘッダーの高さ固定を強化（minHeight, flexShrinkを追加） ▼▼▼
     const header = document.createElement('div');
     header.className = 'room-header';
     header.innerText = room.roomName;
-    header.style.height = "40px";       // 時間軸ヘッダーと高さを合わせる
-    header.style.overflow = "hidden";   // 文字が長くても枠を広げない
-    header.style.whiteSpace = "nowrap"; // 改行させない
+    header.style.height = "40px";       
+    header.style.minHeight = "40px";    // これを追加（押しつぶされ防止）
+    header.style.flexShrink = "0";      // これを追加（縮小禁止）
+    header.style.overflow = "hidden";   
+    header.style.whiteSpace = "nowrap"; 
     col.appendChild(header);
     
     const body = document.createElement('div');
