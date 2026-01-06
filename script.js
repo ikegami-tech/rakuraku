@@ -199,12 +199,40 @@ function refreshUI() {
 function renderGroupButtons() {
   const container = document.getElementById('group-buttons-area');
   container.innerHTML = "";
-  if (!masterData.groups || masterData.groups.length === 0) return;
-  masterData.groups.forEach(grp => {
+
+  // ▼▼▼ 修正: 表示したいグループをここで直接定義します ▼▼▼
+  
+  // 1. まず「全員」のIDリストを自動生成（masterData.usersから取得）
+  const allUserIds = masterData.users ? masterData.users.map(u => u.userId).join(',') : "";
+
+  // 2. グループのリストを作成
+  // ※「1課」などのメンバーIDは現在不明なため、空文字 ("") にしています。
+  // メンバーを割り当てたい場合は、"" の中にユーザーIDをカンマ区切りで記述してください（例: "1001, 1002"）。
+  const customGroups = [
+      { name: "1課", ids: "" },
+      { name: "2課", ids: "" },
+      { name: "3課", ids: "" },
+      { name: "4課", ids: "" },
+      { name: "5課", ids: "" },
+      { name: "システム課", ids: "" },
+      { name: "全員", ids: allUserIds }
+  ];
+
+  // 3. ボタンを生成して配置
+  customGroups.forEach(grp => {
       const btn = document.createElement('div');
       btn.className = 'group-chip';
-      btn.innerText = `+ ${grp.groupName}`;
-      btn.onclick = () => selectGroupMembers(grp.memberIds);
+      btn.innerText = `+ ${grp.name}`;
+      
+      btn.onclick = () => {
+          // IDが設定されていない場合はアラートを表示（不要なら削除可）
+          if(!grp.ids && grp.name !== "全員") {
+              alert(`「${grp.name}」のメンバーが設定されていません。\nscript.jsの renderGroupButtons 関数内の ids を編集してください。`);
+              return;
+          }
+          selectGroupMembers(grp.ids);
+      };
+      
       container.appendChild(btn);
   });
 }
