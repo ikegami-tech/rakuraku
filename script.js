@@ -241,8 +241,7 @@ function renderVerticalTimeline(mode) {
       // マップで選択中の部屋IDを使う
       targetRooms = masterData.rooms.filter(r => String(r.roomId) === String(currentMapRoomId));
       container.style.width = "100%";
-  }
-  } else {
+  }  else {
       container = document.getElementById('rooms-container-single');
       dateInputId = 'search-date';
       timeAxisId = 'time-axis-single';
