@@ -68,6 +68,10 @@
   </div>
   
   <div id="view-timeline" class="view-container">
+    <div class="floor-selector" style="margin-top: 10px; justify-content: center;">
+        <button class="floor-tab active" onclick="switchTimelineFloor(7)" id="timeline-tab-7f">7階</button>
+        <button class="floor-tab" onclick="switchTimelineFloor(6)" id="timeline-tab-6f">6階</button>
+    </div>
     <div class="date-controller">
       <button onclick="changeDate(-1, 'timeline-date')">&lt;</button>
       <input type="date" id="timeline-date" onchange="renderVerticalTimeline('all')">
