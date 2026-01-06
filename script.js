@@ -775,3 +775,33 @@ async function deleteBooking() {
 function pad(n) { return n < 10 ? '0'+n : n; }
 function formatDate(d) { return `${d.getMonth()+1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}`; }
 function getRoomName(id) { const r = masterData.rooms.find(x => x.roomId === id); return r ? r.roomName : id; }
+// マップから部屋を選択したときの処理
+function selectRoomFromMap(element) {
+  const roomId = element.getAttribute('data-room-id');
+  
+  // 1. 部屋プルダウンの要素を取得
+  const select = document.getElementById('search-room-select');
+  
+  // 2. プルダウンの中に、クリックしたIDが存在するか確認
+  let exists = false;
+  for (let i = 0; i < select.options.length; i++) {
+    if (select.options[i].value === roomId) {
+      select.selectedIndex = i;
+      exists = true;
+      break;
+    }
+  }
+
+  if (!exists) {
+    alert("エラー: 指定された部屋ID (" + roomId + ") が見つかりません。\nスプレッドシートのIDとHTMLのdata-room-idを一致させてください。");
+    return;
+  }
+
+  // 3. 部屋検索タブに切り替える
+  switchTab('room-search');
+  
+  // 4. その部屋のタイムラインを描画する
+  // (switchTabの中でrenderRoomSearch()が呼ばれますが、値変更を確実にするため念の為セット)
+  select.value = roomId;
+  renderRoomSearch();
+}
