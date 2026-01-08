@@ -972,74 +972,175 @@ function switchTimelineFloor(floor) {
 // ▼▼▼ 【追加】詳細モーダル関連の処理 ▼▼▼
 let currentDetailRes = null;
 
-function openDetailModal(res) {
-  currentDetailRes = res;
-  const modal = document.getElementById('detailModal');
-  
-  // 1. 日時の表示
-  const s = new Date(res._startTime);
-  const e = new Date(res._endTime);
-  const dateStr = `${s.getMonth()+1}/${s.getDate()}`;
-  const timeStr = `${pad(s.getHours())}:${pad(s.getMinutes())} - ${pad(e.getHours())}:${pad(e.getMinutes())}`;
-  document.getElementById('detail-time').innerText = `${dateStr} ${timeStr}`;
-  
-  // 2. 部屋名の表示
-  const room = masterData.rooms.find(r => String(r.roomId) === String(res._resourceId));
-  document.getElementById('detail-room').innerText = room ? room.roomName : res._resourceId;
-  
-  // 3. 用件の表示
-  const title = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '(なし)';
-  document.getElementById('detail-title').innerText = title;
-  
-  // 4. 参加者の表示（▼▼▼ 修正: 変な数字になっている場合の対策を追加 ▼▼▼）
-  let pNames = "-";
-  let pIdsStr = getVal(res, ['participantIds', 'participant_ids', '参加者', 'メンバー']);
-  
-  // もしデータが指数表記(5.04...e+41)のように壊れていたらエラーを表示
-  if (String(pIdsStr).includes('e+')) {
-      pNames = "⚠️データ形式エラー: 編集ボタンから参加者を登録し直してください";
-  } else if (pIdsStr) {
-      // カンマ区切りなどで分割して処理
-      // (万が一スペースがなくても対応できるよう、正規表現で分割します)
-      const resIds = String(pIdsStr).split(/,\s*/).map(id => id.trim()).sort();
-      
-      const matchedGroup = masterData.groups.find(grp => {
-          if (!grp.memberIds) return false;
-          const grpIds = grp.memberIds.split(',').map(id => id.trim()).sort();
-          return JSON.stringify(resIds) === JSON.stringify(grpIds);
-      });
+function openDetailModal(res = null, defaultRoomId = null, clickHour = null) {
+    const modal = document.getElementById('bookingModal');
+    modal.style.display = 'flex';
 
-      if (matchedGroup) {
-          pNames = matchedGroup.groupName;
-      } else {
-          const names = resIds.map(id => {
-              if(!id) return "";
-              const u = masterData.users.find(user => {
-                  const uIdStr = String(user.userId).trim();
-                  return uIdStr === id || (!isNaN(uIdStr) && !isNaN(id) && Number(uIdStr) === Number(id));
-              });
-              return u ? u.userName : id;
-          }).filter(n => n !== "");
-          
-          if(names.length > 0) pNames = names.join(', ');
-      }
-  }
-  document.getElementById('detail-members').innerText = pNames;
-  
-  // 5. 備考の表示（▼▼▼ 修正: 【変更履歴】を含む行を消して表示する ▼▼▼）
-  let rawNote = getVal(res, ['note', 'description', '備考', 'メモ']) || '';
-  // 「【変更履歴】」から始まる行をすべて削除して表示
-  let cleanNote = rawNote.replace(/【変更履歴】.*/g, '').replace(/^\s*[\r\n]/gm, '').trim();
-  
-  document.getElementById('detail-note').innerText = cleanNote;
+    selectedParticipantIds.clear();
+    originalParticipantIds.clear();
+    document.getElementById('shuttle-search-input').value = "";
 
-  // 「編集する」ボタン
-  document.getElementById('btn-go-edit').onclick = function() {
-      closeDetailModal();        
-      openModal(currentDetailRes); 
-  };
+    // 上部の時間表示エリアを作成・取得
+    let timeDisplayEl = document.getElementById('modal-time-display');
+    if (!timeDisplayEl) {
+        const header = document.getElementById('modal-title');
+        timeDisplayEl = document.createElement('div');
+        timeDisplayEl.id = 'modal-time-display';
+        timeDisplayEl.style.cssText = "font-size: 1.1rem; color: #27ae60; font-weight: bold; margin-bottom: 15px; text-align:center; background:#e8f5e9; padding:8px; border-radius:4px;";
+        header.parentNode.insertBefore(timeDisplayEl, header.nextSibling);
+    }
+    // 一旦クリア
+    timeDisplayEl.innerText = "";
 
-  modal.style.display = 'flex';
+    const startInput = document.getElementById('input-start');
+    const endInput = document.getElementById('input-end');
+    if (startInput) { startInput.min = "09:00"; startInput.max = "18:00"; }
+    if (endInput) { endInput.min = "09:00"; endInput.max = "18:00"; }
+
+    if (res) {
+        // === 既存予約の編集 ===
+        document.getElementById('modal-title').innerText = "予約編集";
+        document.getElementById('edit-res-id').value = res.id;
+
+        const rId = res._resourceId || res.resourceId || res.roomId;
+        document.getElementById('input-room').value = rId;
+
+        const startObj = new Date(res._startTime || res.startTime);
+        const endObj = new Date(res._endTime || res.endTime);
+
+        // 日付入力欄
+        const y = startObj.getFullYear();
+        const m = ('0' + (startObj.getMonth() + 1)).slice(-2);
+        const d = ('0' + startObj.getDate()).slice(-2);
+        document.getElementById('input-date').value = `${y}-${m}-${d}`;
+
+        // 時間入力欄
+        const sh = ('0' + startObj.getHours()).slice(-2);
+        const sm = ('0' + startObj.getMinutes()).slice(-2);
+        const eh = ('0' + endObj.getHours()).slice(-2);
+        const em = ('0' + endObj.getMinutes()).slice(-2);
+        document.getElementById('input-start').value = `${sh}:${sm}`;
+        document.getElementById('input-end').value = `${eh}:${em}`;
+
+        // タイトル・備考
+        document.getElementById('input-title').value = getVal(res, ['title', 'subject', '件名', 'タイトル', '用件', 'name']);
+        document.getElementById('input-note').value = getVal(res, ['note', 'description', '備考', 'メモ', '詳細', 'body']);
+
+        // 参加者の復元 (編集画面用)
+        const pIds = getVal(res, ['participantIds', 'participant_ids', '参加者', 'メンバー']);
+        if (pIds) {
+            let idList = [];
+            if (Array.isArray(pIds)) idList = pIds;
+            else if (typeof pIds === 'string') idList = pIds.split(',');
+            else if (typeof pIds === 'number') idList = [pIds];
+
+            // ▼▼▼ 修正: ここもID照合を強化 ▼▼▼
+            idList.forEach(rawId => {
+                if (rawId !== null && rawId !== undefined && String(rawId).trim() !== "") {
+                    const targetId = String(rawId).trim();
+                    // 全角→半角変換用関数
+                    const normalize = (str) => String(str).replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0)).trim();
+                    const normTarget = normalize(targetId);
+
+                    const user = masterData.users.find(u => {
+                        const uId = String(u.userId).trim();
+                        // そのまま一致 or 正規化して一致
+                        return uId === targetId || normalize(uId) === normTarget;
+                    });
+                    const finalId = user ? String(user.userId).trim() : targetId;
+                    selectedParticipantIds.add(finalId);
+                    originalParticipantIds.add(finalId);
+                }
+            });
+        }
+        document.getElementById('btn-delete').style.display = 'inline-block';
+
+        // === 詳細表示モーダル用のテキスト生成（画像の部分） ===
+        let pNames = "-";
+        let pIdsStr = getVal(res, ['participantIds', 'participant_ids', '参加者', 'メンバー']);
+
+        if (String(pIdsStr).includes('e+')) {
+            pNames = "⚠️データ形式エラー: 編集ボタンから参加者を登録し直してください";
+        } else if (pIdsStr) {
+            const resIds = String(pIdsStr).split(/,\s*/).map(id => id.trim()).sort();
+
+            const matchedGroup = masterData.groups.find(grp => {
+                if (!grp.memberIds) return false;
+                const grpIds = grp.memberIds.split(',').map(id => id.trim()).sort();
+                return JSON.stringify(resIds) === JSON.stringify(grpIds);
+            });
+
+            if (matchedGroup) {
+                pNames = matchedGroup.groupName;
+            } else {
+                // ▼▼▼ ここがメインの修正箇所です ▼▼▼
+                const names = resIds.map(id => {
+                    if (!id) return "";
+                    
+                    // IDを正規化（全角数字を半角に変換）する関数
+                    const normalize = (str) => String(str).replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0)).trim();
+                    const searchId = normalize(id);
+
+                    const u = masterData.users.find(user => {
+                        const uIdStr = normalize(user.userId);
+                        // 正規化したID同士で比較
+                        return uIdStr === searchId;
+                    });
+                    return u ? u.userName : id;
+                }).filter(n => n !== "");
+
+                if (names.length > 0) pNames = names.join(', ');
+            }
+        }
+        document.getElementById('detail-members').innerText = pNames;
+        // ▲▲▲ 修正ここまで ▲▲▲
+
+    } else {
+        // === 新規予約 ===
+        document.getElementById('modal-title').innerText = "新規予約";
+        document.getElementById('edit-res-id').value = "";
+        if (defaultRoomId) document.getElementById('input-room').value = defaultRoomId;
+
+        let currentTabDate = "";
+        if (document.getElementById('view-timeline').classList.contains('active')) {
+            currentTabDate = document.getElementById('timeline-date').value;
+        } else {
+            currentTabDate = document.getElementById('map-date').value;
+        }
+
+        if (!currentTabDate) {
+            const now = new Date();
+            const y = now.getFullYear();
+            const mm = ('0' + (now.getMonth() + 1)).slice(-2);
+            const dd = ('0' + now.getDate()).slice(-2);
+            currentTabDate = `${y}-${mm}-${dd}`;
+        }
+        document.getElementById('input-date').value = currentTabDate;
+
+        const sHour = clickHour ? clickHour : 9;
+        document.getElementById('input-start').value = `${pad(sHour)}:00`;
+        document.getElementById('input-end').value = `${pad(sHour + 1)}:00`;
+
+        document.getElementById('input-title').value = "";
+        document.getElementById('input-note').value = "";
+        document.getElementById('btn-delete').style.display = 'none';
+        
+        // 新規時は詳細表示を空にする
+        document.getElementById('detail-members').innerText = "";
+    }
+
+    renderShuttleLists();
+
+    const inputs = ['input-date', 'input-start', 'input-end'];
+    inputs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.oninput = updateModalDisplay;
+            el.onchange = updateModalDisplay;
+        }
+    });
+
+    updateModalDisplay();
 }
 function closeDetailModal() {
   document.getElementById('detailModal').style.display = 'none';
