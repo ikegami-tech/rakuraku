@@ -4,40 +4,32 @@ const IMG_6F = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAmcAAAIUCAMAAABo2n
 let currentFloor = 7; 
 const mapConfig = {
     7: {
-        image: IMG_7F, // 新しい7階の画像
+        image: IMG_7F, // 画像はそのまま（7階用）
         areas: [
-            // 右上の縦長の会議室
-            { id: "会議室1", name: "会議室1", top: 37.6, left: 79.4, width: 20.2, height: 14.5 },
-            
-            // 右下の大きな応接室エリア
-            { id: "応接室(6人)", name: "応接室(6人)", top: 76.4, left: 22.6, width: 19.4, height: 23.0 },
-            { id: "応接室(8人)", name: "応接室(8人)", top: 71.1, left: 0.2, width: 22.2, height: 28.7 },
-            
-            // 中央下部の小さな会議室
-            { id: "会議室2", name: "会議室2", top: 14.8, left: 79.4, width: 20.4, height: 22.6 },
-            
-            // 左側の個室群（上から順に）
-            { id: "ZOOM(中)", name: "ZOOM(中)", top: 0.1, left: 56.0, width: 11.4, height: 6.4 },
-            { id: "ZOOM(角)", name: "ZOOM(角)", top: 11.1, left: 0.4, width: 11.6, height: 6.4 },
+            { id: "会議室1", name: "会議室1", top: 40.0, left: 71.4, width: 14.7, height: 9.0 },
+            { id: "会議室2", name: "会議室2", top: 26.6, left: 71.4, width: 14.7, height: 13.4 },
+            { id: "応接室(6人)", name: "応接室(6人)", top: 63.6, left: 31.5, width: 13.9, height: 14.0 },
+            { id: "応接室(8人)", name: "応接室(8人)", top: 60.1, left: 15.7, width: 15.8, height: 17.5 },
+            { id: "ZOOM(中)", name: "ZOOM(中)", top: 17.8, left: 54.8, width: 8.5, height: 4.2 },
+            { id: "ZOOM(角)", name: "ZOOM(角)", top: 24.5, left: 15.7, width: 8.5, height: 4.2 },
         ]
     },
     6: {
-        image: IMG_6F, // 新しい6階の画像
+        image: IMG_6F, // 画像はそのまま（6階用）
         areas: [
-            // 上部の横並び3部屋（左から）
-            { id: "ZOOM 1", name: "ZOOM 1", top: 0.0, left: 63.4, width: 6.0, height: 17.3 },
-            { id: "ZOOM 2", name: "ZOOM 2", top: 0.2, left: 69.3, width: 6.0, height: 17.3 },
-            { id: "ZOOM 3", name: "ZOOM 3", top: 0.0, left: 75.4, width: 5.7, height: 17.7 },
+            { id: "ZOOM 1", name: "ZOOM 1", top: 20.6, left: 60.7, width: 5.2, height: 10.0 },
+            { id: "ZOOM 2", name: "ZOOM 2", top: 20.6, left: 65.9, width: 5.2, height: 10.0 },
+            { id: "ZOOM 3", name: "ZOOM 3", top: 20.6, left: 71.1, width: 5.2, height: 10.0 },
             
-            // 左下の大きな応接室
-            { id: "応接室(10人)", name: "応接室(10人)", top: 0.4, left: 81.5, width: 18.2, height: 43.8 },
+            // 右上の大きな応接室
+            { id: "応接室", name: "応接室(10人)", top: 20.6, left: 76.3, width: 15.7, height: 24.5 },
             
-            // 右側の個室群（上から順に）
-            { id: "ZOOM 4", name: "ZOOM 4", top: 44.5, left: 88.5, width: 11.2, height: 6.6 },
-            { id: "ZOOM 5", name: "ZOOM 5", top: 51.9, left: 88.6, width: 10.9, height: 6.4 },
-            { id: "ZOOM 6", name: "ZOOM 6", top: 59.0, left: 88.8, width: 10.7, height: 7.3 },
-            { id: "ZOOM 7", name: "ZOOM 7", top: 66.4, left: 88.6, width: 11.1, height: 7.0 },
-            { id: "ZOOM 8", name: "ZOOM 8", top: 73.5, left: 88.8, width: 10.9, height: 7.1 },
+            // 右下のブース（上から順に）
+            { id: "ZOOM 4", name: "ZOOM 4", top: 45.1, left: 82.2, width: 9.8, height: 4.2 },
+            { id: "ZOOM 5", name: "ZOOM 5", top: 49.3, left: 82.2, width: 9.8, height: 4.2 },
+            { id: "ZOOM 6", name: "ZOOM 6", top: 53.5, left: 82.2, width: 9.8, height: 4.2 },
+            { id: "ZOOM 7", name: "ZOOM 7", top: 57.7, left: 82.2, width: 9.8, height: 4.2 },
+            { id: "ZOOM 8", name: "ZOOM 8", top: 61.9, left: 82.2, width: 9.8, height: 4.2 },
         ]
     }
 };
@@ -823,44 +815,15 @@ function pad(n) { return n < 10 ? '0'+n : n; }
 function formatDate(d) { return `${d.getMonth()+1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}`; }
 function getRoomName(id) { const r = masterData.rooms.find(x => x.roomId === id); return r ? r.roomName : id; }
 
-function selectRoomFromMap(element, e) {
-    const roomId = element.getAttribute('data-room-id');
-    
-    const roomObj = masterData.rooms.find(r => String(r.roomId) === String(roomId));
-    
-    if (!roomObj) {
-        alert("エラー: 指定された部屋ID (" + roomId + ") が見つかりません。");
-        return;
-    }
-
-    // ---------------------------------------------------------
-    // ▼▼ ピンの位置を動かす追加コード (ここから) ▼▼
-    // ---------------------------------------------------------
-    const pin = document.getElementById('pin');
-    // ピンの基準となる親枠（dynamic-map-container）を取得
-    const mapContainer = document.getElementById('dynamic-map-container');
-
-    // 引数 e (クリックイベント) があり、ピンと親枠がある場合のみ実行
-    if (e && pin && mapContainer) {
-        // 親枠の現在位置とサイズを取得
-        const rect = mapContainer.getBoundingClientRect();
-
-        // 親枠の左上からのクリック位置を計算
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-
-        // パーセント(%)に変換してズレを防ぐ
-        const xPercent = (x / rect.width) * 100;
-        const yPercent = (y / rect.height) * 100;
-
-        // ピンに適用
-        pin.style.left = xPercent + '%';
-        pin.style.top = yPercent + '%';
-        pin.style.display = 'block'; // ピンを表示
-    }
-    // ---------------------------------------------------------
-    // ▲▲ 追加コード (ここまで) ▲▲
-    // ---------------------------------------------------------
+function selectRoomFromMap(element) {
+  const roomId = element.getAttribute('data-room-id');
+  
+  const roomObj = masterData.rooms.find(r => String(r.roomId) === String(roomId));
+  
+  if (!roomObj) {
+    alert("エラー: 指定された部屋ID (" + roomId + ") が見つかりません。");
+    return;
+  }
 
   currentMapRoomId = roomId;
 
@@ -910,7 +873,7 @@ function renderMap(floor) {
         div.style.left = area.left + '%';
         div.style.width = area.width + '%';
         div.style.height = area.height + '%';
-        div.onclick = function(e) { selectRoomFromMap(this, e); };
+        div.onclick = function() { selectRoomFromMap(this); };
         
         const span = document.createElement('span');
         span.innerText = area.name;
