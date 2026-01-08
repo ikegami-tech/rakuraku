@@ -864,36 +864,15 @@ function switchFloor(floor) {
     renderMap(floor);
 }
 
-// script.js の renderMap 関数をこれに置き換えてください
-
-// script.js の renderMap 関数をこれに置き換えてください
-
 function renderMap(floor) {
     const config = mapConfig[floor];
     if (!config) return;
 
     const imgEl = document.getElementById('office-map-img');
-    const container = document.getElementById('dynamic-map-container');
-    
-    // ▼ここから追加・変更箇所▼
-    // 画像が切り替わったタイミングで、画像の本来のサイズから縦横比を計算してコンテナに適用する
-    imgEl.onload = function() {
-        const naturalWidth = this.naturalWidth;
-        const naturalHeight = this.naturalHeight;
-        
-        // 画像がロードされていない、またはサイズが0の場合は何もしない
-        if (!naturalWidth || !naturalHeight) return;
-
-        // コンテナの縦横比を画像と全く同じにする
-        // これにより、CSSでmax-height等で制限されても、幅が自動で縮み、余白が生まれません
-        container.style.aspectRatio = `${naturalWidth} / ${naturalHeight}`;
-    };
-    // ▲ここまで追加▲
-
-    // 画像ソースをセット（これをセットすると上記のonloadが走ります）
     if(imgEl) imgEl.src = config.image;
 
-    // 以下は既存のエリア生成処理（変更なし）
+    const container = document.getElementById('dynamic-map-container');
+    
     const existingAreas = container.querySelectorAll('.map-click-area');
     existingAreas.forEach(el => el.remove());
 
@@ -917,6 +896,7 @@ function renderMap(floor) {
     const timelineSection = document.getElementById('map-timeline-section');
     if(timelineSection) timelineSection.style.display = 'none';
 }
+
 // ▼▼▼ 【追加】一覧画面の階切り替え機能 ▼▼▼
 function switchTimelineFloor(floor) {
     currentTimelineFloor = floor;
