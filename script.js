@@ -545,69 +545,93 @@ function changeDate(days, inputId) {
 }
 
 function renderLogs() {
-  const tbody = document.getElementById('log-tbody');
-  tbody.innerHTML = "";
-  
-  if (!masterData.logs || masterData.logs.length === 0) return;
+    const tbody = document.getElementById('log-tbody');
+    tbody.innerHTML = "";
 
-  const logs = [...masterData.logs].reverse().slice(0, 20);
-  
-  const resolveName = (id) => {
-    const targetIdStr = String(id).trim(); 
-    const u = masterData.users.find(user => {
-        const uIdStr = String(user.userId).trim();
-        return uIdStr === targetIdStr || (!isNaN(uIdStr) && !isNaN(targetIdStr) && Number(uIdStr) === Number(targetIdStr));
-    });
-    return u ? u.userName : id;
-  };
+    if (!masterData.logs || masterData.logs.length === 0) return;
 
-  logs.forEach(log => {
-    const tr = document.createElement('tr');
-    
-    let rawResName = log.resourceName || '-';
-    let roomDisplay = rawResName;
-    let detailLines = "";
+    const logs = [...masterData.logs].reverse().slice(0, 20);
 
-    if (rawResName.includes('\n')) {
-        const parts = rawResName.split('\n');
-        const roomIdPart = parts[0].trim();
-        detailLines = parts.slice(1).join('<br>');
-        
-        const roomObj = masterData.rooms.find(r => String(r.roomId) === String(roomIdPart));
-        roomDisplay = roomObj ? roomObj.roomName : roomIdPart;
-    } else {
-        const roomObj = masterData.rooms.find(r => String(r.roomId) === String(rawResName));
-        if (roomObj) roomDisplay = roomObj.roomName;
-    }
-
-    if (detailLines) {
-        detailLines = detailLines.replace(/(\d+)/g, (match) => {
-            return resolveName(match);
+    // IDから名前を解決するヘルパー
+    const resolveName = (id) => {
+        const targetIdStr = String(id).trim();
+        const u = masterData.users.find(user => {
+            const uIdStr = String(user.userId).trim();
+            return uIdStr === targetIdStr || (!isNaN(uIdStr) && !isNaN(targetIdStr) && Number(uIdStr) === Number(targetIdStr));
         });
-    }
+        return u ? u.userName : id;
+    };
 
-    let timeDisplay = log.timeRange || '';
-    if (timeDisplay.includes(' - ')) {
-        const parts = timeDisplay.split(' - ');
-        if (parts[0] && parts[1]) {
-            const sDate = new Date(parts[0]);
-            const eDate = new Date(parts[1]);
-            timeDisplay = `${sDate.getMonth()+1}/${sDate.getDate()} ${pad(sDate.getHours())}:${pad(sDate.getMinutes())} - ${pad(eDate.getHours())}:${pad(eDate.getMinutes())}`;
+    // 日時フォーマットのヘルパー
+    // (例: "2023/10/01 10:00 - 2023/10/01 11:00" → "10/1 10:00 - 11:00")
+    const formatRange = (rangeStr) => {
+        if (!rangeStr || !rangeStr.includes(' - ')) return rangeStr;
+        const parts = rangeStr.split(' - ');
+        if (!parts[0] || !parts[1]) return rangeStr;
+
+        const sDate = new Date(parts[0]);
+        const eDate = new Date(parts[1]);
+
+        // 日付が無効な場合はそのまま返す
+        if (isNaN(sDate.getTime()) || isNaN(eDate.getTime())) return rangeStr;
+
+        return `${sDate.getMonth() + 1}/${sDate.getDate()} ${pad(sDate.getHours())}:${pad(sDate.getMinutes())} - ${pad(eDate.getHours())}:${pad(eDate.getMinutes())}`;
+    };
+
+    logs.forEach(log => {
+        const tr = document.createElement('tr');
+
+        let rawResName = log.resourceName || '-';
+        let roomDisplay = rawResName;
+        let detailLines = "";
+
+        if (rawResName.includes('\n')) {
+            const parts = rawResName.split('\n');
+            const roomIdPart = parts[0].trim();
+            detailLines = parts.slice(1).join('<br>');
+
+            const roomObj = masterData.rooms.find(r => String(r.roomId) === String(roomIdPart));
+            roomDisplay = roomObj ? roomObj.roomName : roomIdPart;
+        } else {
+            const roomObj = masterData.rooms.find(r => String(r.roomId) === String(rawResName));
+            if (roomObj) roomDisplay = roomObj.roomName;
         }
-    }
 
-    const detailHtml = `<strong>${roomDisplay}</strong>${detailLines ? `<br><span style="font-size:0.85em; color:#666;">${detailLines}</span>` : ''}<br><span style="font-size:0.8em; color:#999;">${timeDisplay}</span>`;
+        if (detailLines) {
+            detailLines = detailLines.replace(/(\d+)/g, (match) => {
+                return resolveName(match);
+            });
+        }
 
-    tr.innerHTML = `
+        // --- ここが修正ポイント（変更前後の表示対応） ---
+        let timeDisplay = log.timeRange || '';
+
+        // "→"が含まれている場合（変更ログの場合）
+        if (timeDisplay.includes('→')) {
+            const ranges = timeDisplay.split('→');
+            // 前後の日付をそれぞれきれいに整形して矢印でつなぐ
+            const oldTime = formatRange(ranges[0].trim());
+            const newTime = formatRange(ranges[1].trim());
+            
+            // 見やすくするために改行と矢印を入れる
+            timeDisplay = `${oldTime} <br><span style="color:#e67e22; font-weight:bold;">↓</span><br> ${newTime}`;
+        } else {
+            // 通常の予約（矢印がない場合）
+            timeDisplay = formatRange(timeDisplay);
+        }
+        // ---------------------------------------------
+
+        const detailHtml = `<strong>${roomDisplay}</strong>${detailLines ? `<br><span style="font-size:0.85em; color:#666;">${detailLines}</span>` : ''}<br><span style="font-size:0.8em; color:#999;">${timeDisplay}</span>`;
+
+        tr.innerHTML = `
       <td>${formatDate(new Date(log.timestamp))}</td>
       <td>${log.operatorName}</td>
       <td>${log.action}</td>
       <td>${detailHtml}</td>
     `;
-    tbody.appendChild(tr);
-  });
+        tbody.appendChild(tr);
+    });
 }
-
 function getVal(obj, keys) {
     if(!obj) return "";
     for (const k of keys) {
