@@ -17,8 +17,8 @@ const mapConfig = {
             { id: "会議室2", name: "会議室2", top: 70.0, left: 48.0, width: 15.0, height: 15.0 },
             
             // 左側の個室群（上から順に）
-            { id: "ZOOM(中)", name: "ZOOM(中)", top: 15.0, left: 8.0, width: 8.0, height: 12.0 },
-            { id: "ZOOM(角)", name: "ZOOM(角)", top: 30.0, left: 8.0, width: 8.0, height: 12.0 },
+            { id: "ZOOM(中)", name: "ZOOM(中)", top: 0.1, left: 56.0, width: 11.4, height: 6.4 },
+            { id: "ZOOM(角)", name: "ZOOM(角)", top: 11.1, left: 0.4, width: 11.6, height: 6.4 },
         ]
     },
     6: {
