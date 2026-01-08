@@ -871,32 +871,41 @@ function renderMap(floor) {
     const imgEl = document.getElementById('office-map-img');
     if(imgEl) imgEl.src = config.image;
 
-    const container = document.getElementById('dynamic-map-container');
+    // ▼▼▼ 修正: 追加先を container ではなく inner-wrapper に変更 ▼▼▼
+    const container = document.getElementById('dynamic-map-container'); // 必要なら残すが使わないかも
+    const wrapper = document.getElementById('map-inner-wrapper'); 
     
-    const existingAreas = container.querySelectorAll('.map-click-area');
+    // 念のため wrapper が無ければ container を使う（エラー回避）
+    const targetParent = wrapper || container;
+
+    // 既存のエリアを削除 (targetParentの中から探す)
+    const existingAreas = targetParent.querySelectorAll('.map-click-area');
     existingAreas.forEach(el => el.remove());
 
     config.areas.forEach(area => {
         const div = document.createElement('div');
         div.className = 'map-click-area';
         div.setAttribute('data-room-id', area.id);
+        
+        // %指定の位置情報は、親(targetParent)のサイズに対する割合になる
         div.style.top = area.top + '%';
         div.style.left = area.left + '%';
         div.style.width = area.width + '%';
         div.style.height = area.height + '%';
+        
         div.onclick = function() { selectRoomFromMap(this); };
         
         const span = document.createElement('span');
         span.innerText = area.name;
         div.appendChild(span);
         
-        container.appendChild(div);
+        // ▼▼▼ 修正: ラッパーに追加する ▼▼▼
+        targetParent.appendChild(div);
     });
 
     const timelineSection = document.getElementById('map-timeline-section');
     if(timelineSection) timelineSection.style.display = 'none';
 }
-
 // ▼▼▼ 【追加】一覧画面の階切り替え機能 ▼▼▼
 function switchTimelineFloor(floor) {
     currentTimelineFloor = floor;
