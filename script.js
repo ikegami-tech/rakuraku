@@ -6,23 +6,30 @@ const mapConfig = {
     7: {
         image: IMG_7F, 
         areas: [
+
             // ■ 左上の小さい白い四角 (ZOOM角)
-            { id: "ZOOM(角)", name: "ZOOM(角)", top: 2.0, left: 2.0, width: 12.0, height: 12.0 },
+            // 画像のかなり左上端に移動
+            { id: "ZOOM(角)", name: "ZOOM(角)", top: 5.0, left: 5.0, width: 12.0, height: 12.0 },
 
             // ■ 中央上の小さい白い四角 (ZOOM中)
-            { id: "ZOOM(中)", name: "ZOOM(中)", top: 2.0, left: 45.0, width: 10.0, height: 12.0 },
+            // 上端に移動し、位置を微調整
+            { id: "ZOOM(中)", name: "ZOOM(中)", top: 5.0, left: 45.0, width: 10.0, height: 10.0 },
 
             // ■ 右側の列、上から2番目の正方形 (会議室2) 
-            { id: "会議室2", name: "会議室2", top: 28.0, left: 83.0, width: 15.0, height: 15.0 },
+            // ※一番上のグレーの四角は除外。右端へ移動。
+            { id: "会議室2", name: "会議室2", top: 28.0, left: 82.0, width: 15.0, height: 15.0 },
             
             // ■ 右側の列、上から3番目の正方形 (会議室1)
-            { id: "会議室1", name: "会議室1", top: 50.0, left: 83.0, width: 15.0, height: 15.0 },
+            // 右端へ移動し、会議室2の下へ配置。
+            { id: "会議室1", name: "会議室1", top: 48.0, left: 82.0, width: 15.0, height: 15.0 },
             
             // ■ 左下、一番左の縦長 (応接室8人)
-            { id: "応接室(8人)", name: "応接室(8人)", top: 65.0, left: 15.0, width: 12.0, height: 25.0 },
+            // 左下へ移動。
+            { id: "応接室(8人)", name: "応接室(8人)", top: 70.0, left: 18.0, width: 14.0, height: 22.0 },
             
             // ■ 左下、その右隣の縦長 (応接室6人)
-            { id: "応接室(6人)", name: "応接室(6人)", top: 65.0, left: 30.0, width: 12.0, height: 25.0 },
+            // 応接室8人の隣へ配置。
+            { id: "応接室(6人)", name: "応接室(6人)", top: 70.0, left: 38.0, width: 12.0, height: 20.0 },
         ]
     },
     6: {
@@ -867,70 +874,38 @@ function renderMap(floor) {
     if (!config) return;
 
     const imgEl = document.getElementById('office-map-img');
+    if(imgEl) imgEl.src = config.image;
+
+    // ▼▼▼ 修正: 追加先を container ではなく inner-wrapper に変更 ▼▼▼
+    const container = document.getElementById('dynamic-map-container'); // 必要なら残すが使わないかも
     const wrapper = document.getElementById('map-inner-wrapper'); 
     
-    if (!imgEl || !wrapper) return;
+    // 念のため wrapper が無ければ container を使う（エラー回避）
+    const targetParent = wrapper || container;
 
-    // 画像のセット
-    imgEl.src = config.image;
-
-    // ▼▼▼ ズレ防止のためのスタイル設定（ここが重要） ▼▼▼
-    
-    // 1. ラッパーの設定: 画像とまったく同じサイズになるように余白を消す
-    wrapper.style.position = "relative";
-    wrapper.style.width = "100%";
-    wrapper.style.lineHeight = "0"; // 画像下の隙間を削除
-    wrapper.style.fontSize = "0";   // 余計な空白文字を削除
-
-    // 2. 画像の設定: 親要素(ラッパー)いっぱいに広げる
-    imgEl.style.display = "block";
-    imgEl.style.width = "100%";
-    imgEl.style.height = "auto";    // 高さは自動計算で比率を維持
-
-    // 既存のクリックエリアを削除
-    const existingAreas = wrapper.querySelectorAll('.map-click-area');
+    // 既存のエリアを削除 (targetParentの中から探す)
+    const existingAreas = targetParent.querySelectorAll('.map-click-area');
     existingAreas.forEach(el => el.remove());
 
-    // 新しいエリアを作成
     config.areas.forEach(area => {
         const div = document.createElement('div');
         div.className = 'map-click-area';
         div.setAttribute('data-room-id', area.id);
         
-        // 座標指定（%）
-        div.style.position = 'absolute';
+        // %指定の位置情報は、親(targetParent)のサイズに対する割合になる
         div.style.top = area.top + '%';
         div.style.left = area.left + '%';
         div.style.width = area.width + '%';
         div.style.height = area.height + '%';
         
-        // ▼デバッグ用の見た目（確認できたら border: none; bg: transparent; にしてください）
-        div.style.border = '2px solid rgba(255, 0, 0, 0.5)'; 
-        div.style.backgroundColor = 'rgba(255, 255, 255, 0.2)'; 
-        div.style.cursor = 'pointer';
-        
         div.onclick = function() { selectRoomFromMap(this); };
         
-        // 文字ラベル（中央寄せ・クリック無効化）
         const span = document.createElement('span');
         span.innerText = area.name;
-        span.style.position = "absolute";
-        span.style.top = "50%";
-        span.style.left = "50%";
-        span.style.transform = "translate(-50%, -50%)";
-        span.style.fontSize = "10px"; // 必要に応じて調整
-        span.style.fontWeight = "bold";
-        span.style.color = "red";
-        span.style.pointerEvents = "none";
-        span.style.whiteSpace = "nowrap";
-        
-        // ラベルの文字サイズもレスポンシブ対応したい場合は vw などを使う必要がありますが
-        // ここでは固定サイズにしています。文字サイズをリセット
-        span.style.lineHeight = "1.2";
-        span.style.fontSize = "12px"; 
-
         div.appendChild(span);
-        wrapper.appendChild(div);
+        
+        // ▼▼▼ 修正: ラッパーに追加する ▼▼▼
+        targetParent.appendChild(div);
     });
 
     const timelineSection = document.getElementById('map-timeline-section');
