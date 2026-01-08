@@ -6,23 +6,25 @@ const mapConfig = {
     7: {
         image: IMG_7F, 
         areas: [
-            // ■ 左上の小さい白い四角 (黒丸で囲んだ場所)
-            { id: "ZOOM(角)", name: "ZOOM(角)", top: 19.0, left: 6.5, width: 11.5, height: 9.5 },
+            // ■ 左上の小さい白い四角 (ZOOM角)
+            // 画像全体の左から約29%、上から約21%の位置にあります
+            { id: "ZOOM(角)", name: "ZOOM(角)", top: 21.2, left: 29.2, width: 5.0, height: 6.0 },
 
-            // ■ 中央上の横長の白い四角
-            { id: "ZOOM(中)", name: "ZOOM(中)", top: 5.5, left: 51.0, width: 13.0, height: 8.5 },
+            // ■ 中央上の小さい白い四角 (ZOOM中)
+            { id: "ZOOM(中)", name: "ZOOM(中)", top: 12.5, left: 51.8, width: 5.0, height: 6.0 },
 
-            // ■ 右側、上から2番目の正方形 (会議室2)
-            { id: "会議室2", name: "会議室2", top: 24.0, left: 77.5, width: 18.5, height: 18.5 },
+            // ■ 右側の列、上から2番目の正方形 (会議室2) 
+            // ※一番上のグレーの四角は除外しています
+            { id: "会議室2", name: "会議室2", top: 24.5, left: 61.3, width: 8.5, height: 16.5 },
             
-            // ■ 右側、上から3番目の正方形 (会議室1)
-            { id: "会議室1", name: "会議室1", top: 45.5, left: 77.5, width: 18.5, height: 18.5 },
+            // ■ 右側の列、上から3番目の正方形 (会議室1)
+            { id: "会議室1", name: "会議室1", top: 41.5, left: 61.3, width: 8.5, height: 11.5 },
             
             // ■ 左下、一番左の縦長 (応接室8人)
-            { id: "応接室(8人)", name: "応接室(8人)", top: 70.0, left: 6.5, width: 19.0, height: 24.0 },
+            { id: "応接室(8人)", name: "応接室(8人)", top: 67.5, left: 29.2, width: 9.0, height: 22.5 },
             
             // ■ 左下、その右隣の縦長 (応接室6人)
-            { id: "応接室(6人)", name: "応接室(6人)", top: 72.5, left: 28.5, width: 16.5, height: 21.5 },
+            { id: "応接室(6人)", name: "応接室(6人)", top: 71.5, left: 38.5, width: 8.0, height: 18.5 },
         ]
     },
     6: {
