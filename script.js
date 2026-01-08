@@ -620,6 +620,7 @@ function openModal(res = null, defaultRoomId = null, clickHour = null) {
   originalParticipantIds.clear(); 
   document.getElementById('shuttle-search-input').value = "";
   
+  // 上部の時間表示エリアを作成・取得
   let timeDisplayEl = document.getElementById('modal-time-display');
   if (!timeDisplayEl) {
       const header = document.getElementById('modal-title');
@@ -628,9 +629,11 @@ function openModal(res = null, defaultRoomId = null, clickHour = null) {
       timeDisplayEl.style.cssText = "font-size: 1.1rem; color: #27ae60; font-weight: bold; margin-bottom: 15px; text-align:center; background:#e8f5e9; padding:8px; border-radius:4px;";
       header.parentNode.insertBefore(timeDisplayEl, header.nextSibling);
   }
+  // 一旦クリア（あとで updateModalDisplay で設定するため）
   timeDisplayEl.innerText = "";
 
   if (res) {
+    // === 既存予約の編集 ===
     document.getElementById('modal-title').innerText = "予約編集";
     document.getElementById('edit-res-id').value = res.id;
     
@@ -640,15 +643,13 @@ function openModal(res = null, defaultRoomId = null, clickHour = null) {
     const startObj = new Date(res._startTime || res.startTime);
     const endObj = new Date(res._endTime || res.endTime);
     
-    const dateStr = `${startObj.getMonth() + 1}月${startObj.getDate()}日`;
-    const timeStr = `${pad(startObj.getHours())}:${pad(startObj.getMinutes())} - ${pad(endObj.getHours())}:${pad(endObj.getMinutes())}`;
-    timeDisplayEl.innerText = `${dateStr} ${timeStr}`;
-
+    // 日付入力欄 (YYYY-MM-DD)
     const y = startObj.getFullYear();
     const m = ('0' + (startObj.getMonth() + 1)).slice(-2);
     const d = ('0' + startObj.getDate()).slice(-2);
     document.getElementById('input-date').value = `${y}-${m}-${d}`;
 
+    // 時間入力欄 (HH:mm)
     const sh = ('0' + startObj.getHours()).slice(-2);
     const sm = ('0' + startObj.getMinutes()).slice(-2);
     const eh = ('0' + endObj.getHours()).slice(-2);
@@ -656,12 +657,14 @@ function openModal(res = null, defaultRoomId = null, clickHour = null) {
     document.getElementById('input-start').value = `${sh}:${sm}`;
     document.getElementById('input-end').value = `${eh}:${em}`;
     
+    // タイトル・備考
     const titleVal = getVal(res, ['title', 'subject', '件名', 'タイトル', '用件', 'name']);
     document.getElementById('input-title').value = titleVal;
 
     const noteVal = getVal(res, ['note', 'description', '備考', 'メモ', '詳細', 'body']);
     document.getElementById('input-note').value = noteVal;
     
+    // 参加者の復元
     const pIds = getVal(res, ['participantIds', 'participant_ids', '参加者', 'メンバー']);
     if (pIds) {
         let idList = [];
@@ -685,6 +688,7 @@ function openModal(res = null, defaultRoomId = null, clickHour = null) {
     document.getElementById('btn-delete').style.display = 'inline-block';
 
   } else {
+    // === 新規予約 ===
     document.getElementById('modal-title').innerText = "新規予約";
     document.getElementById('edit-res-id').value = "";
     if(defaultRoomId) document.getElementById('input-room').value = defaultRoomId;
@@ -711,16 +715,20 @@ function openModal(res = null, defaultRoomId = null, clickHour = null) {
     document.getElementById('input-start').value = `${pad(sHour)}:00`;
     document.getElementById('input-end').value = `${pad(sHour+1)}:00`;
     
-    const dateParts = currentTabDate.split('-');
-    const timeStr = `${pad(sHour)}:00 - ${pad(sHour+1)}:00`;
-    timeDisplayEl.innerText = `${parseInt(dateParts[1])}月${parseInt(dateParts[2])}日 ${timeStr}`;
-
     document.getElementById('input-title').value = "";
     document.getElementById('input-note').value = "";
     document.getElementById('btn-delete').style.display = 'none';
   }
   
   renderShuttleLists();
+
+  // ▼▼▼ 【修正】初期表示の更新と、変更イベントの登録 ▼▼▼
+  updateModalDisplay(); // 最初に一度実行して表示を合わせる
+
+  // 日付・開始・終了が変わったら、即座に表示を更新する設定
+  document.getElementById('input-date').onchange = updateModalDisplay;
+  document.getElementById('input-start').onchange = updateModalDisplay;
+  document.getElementById('input-end').onchange = updateModalDisplay;
 }
 
 function closeModal() { document.getElementById('bookingModal').style.display = 'none'; }
@@ -1133,4 +1141,21 @@ function renderGroupCreateShuttle() {
             leftList.appendChild(div);
         }
     });
+}
+// ▼▼▼ 【追加】モーダルの上部表示を更新する関数 ▼▼▼
+function updateModalDisplay() {
+    const dateVal = document.getElementById('input-date').value;
+    const startVal = document.getElementById('input-start').value;
+    const endVal = document.getElementById('input-end').value;
+    const displayEl = document.getElementById('modal-time-display');
+
+    if (!dateVal || !startVal || !endVal || !displayEl) return;
+
+    // 日付のパース (YYYY-MM-DD を M月D日 に)
+    const parts = dateVal.split('-');
+    const m = parseInt(parts[1], 10);
+    const d = parseInt(parts[2], 10);
+    
+    // 表示を更新
+    displayEl.innerText = `${m}月${d}日 ${startVal} - ${endVal}`;
 }
