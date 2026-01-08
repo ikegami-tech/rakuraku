@@ -184,30 +184,41 @@ function refreshUI() {
 
 
 
-// ▼▼▼ 修正版: ユーザーを確実に探して選択する関数 ▼▼▼
+// ▼▼▼ 修正版: グループメンバーの選択/解除を切り替える関数 ▼▼▼
 function selectGroupMembers(idsStr) {
   // ID文字列が空なら何もしない
   if (!idsStr) return;
   
-  // カンマ区切りのIDを配列に分解
+  // 1. まず対象となる有効なユーザーIDのリストを作成する
   const rawIds = String(idsStr).split(',');
-  
-  // ひとつひとつのIDについて処理
-  rawIds.forEach(rawId => {
-      const targetId = rawId.trim(); // 余分な空白を除去
-      if (!targetId) return;
+  const targetIds = [];
 
-      // masterData.usersの中から、IDが一致するユーザーを探す
-      // (String()を使うことで、数字・文字の違いを吸収して比較します)
-      const user = masterData.users.find(u => String(u.userId) === targetId);
-      
+  rawIds.forEach(rawId => {
+      const cleanId = rawId.trim();
+      if (!cleanId) return;
+
+      // 登録されているユーザーか確認
+      const user = masterData.users.find(u => String(u.userId) === cleanId);
       if (user) {
-          // ユーザーが見つかった場合のみ追加する
-          selectedParticipantIds.add(String(user.userId));
+          targetIds.push(String(user.userId));
       }
   });
 
-  // 画面を再描画して、チェックマーク（選択状態）を反映させる
+  if (targetIds.length === 0) return;
+
+  // 2. 対象メンバーが「全員すでに選択されているか」をチェック
+  const isAllSelected = targetIds.every(id => selectedParticipantIds.has(id));
+
+  // 3. 状態に応じて追加または削除（トグル動作）
+  if (isAllSelected) {
+      // 全員選択済みの場合は -> 全員解除（候補一覧に戻す）
+      targetIds.forEach(id => selectedParticipantIds.delete(id));
+  } else {
+      // 誰か一人でも未選択なら -> 全員追加（参加予定者にする）
+      targetIds.forEach(id => selectedParticipantIds.add(id));
+  }
+
+  // 4. 画面を再描画
   const searchInput = document.getElementById('shuttle-search-input');
   const filterVal = searchInput ? searchInput.value : "";
   renderShuttleLists(filterVal);
