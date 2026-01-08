@@ -286,3 +286,27 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   padding: 10px;
   border-bottom: 1px solid #eee;
 }
+/* マップとピンを囲む箱 */
+.map-container {
+    position: relative; /* ★重要：これを基準にします */
+    display: inline-block; /* 画像の大きさに箱を合わせる */
+    width: 100%; /* 必要に応じて調整 */
+}
+
+/* マップ画像 */
+#map-image {
+    width: 100%; /* 画像をレスポンシブにする設定 */
+    height: auto;
+    display: block;
+}
+
+/* ピンの設定 */
+#pin {
+    position: absolute; /* 箱の中で自由に動けるようにする */
+    display: none;      /* 最初は隠しておく */
+    
+    /* ★ここが一番重要：ピンの「針の先」をクリック位置に合わせる設定 */
+    /* これがないとピンの「左上」が座標になってズレます */
+    transform: translate(-50%, -100%);
+    pointer-events: none; /* ピン自体をクリックできないようにする（誤作動防止） */
+}
