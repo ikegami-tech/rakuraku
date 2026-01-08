@@ -1180,28 +1180,7 @@ function updateModalDisplay() {
     // 表示を更新
     displayEl.innerText = `${m}月${d}日 ${startEl.value} - ${endEl.value}`;
 }
-/* =========================================
-   ▼▼▼ 座標調整モード機能 (本番では削除してもOK) ▼▼▼
-   ========================================= */
-let isDebugMode = false;
-let debugClickStart = null;
 
-// キーボードの "D" キーを押すと調整モードがON/OFF切り替わります
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'd' || e.key === 'D') {
-        isDebugMode = !isDebugMode;
-        alert("調整モード: " + (isDebugMode ? "ON\n画像の部屋の「左上」→「右下」の順にクリックしてください。" : "OFF"));
-        
-        // 調整モード中は既存のクリックイベントを邪魔しないようにする
-        const mapContainer = document.getElementById('dynamic-map-container');
-        if (mapContainer) {
-            mapContainer.style.pointerEvents = isDebugMode ? 'auto' : 'auto'; 
-            // 既存のエリアを非表示にしてクリックしやすくする
-            const areas = document.querySelectorAll('.map-click-area');
-            areas.forEach(el => el.style.display = isDebugMode ? 'none' : 'block');
-        }
-    }
-});
 /* =========================================
    ▼▼▼ 座標調整モード機能 (本番では削除してもOK) ▼▼▼
    ========================================= */
