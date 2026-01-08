@@ -866,6 +866,8 @@ function switchFloor(floor) {
 
 // script.js の renderMap 関数をこれに置き換えてください
 
+// script.js の renderMap 関数をこれに置き換えてください
+
 function renderMap(floor) {
     const config = mapConfig[floor];
     if (!config) return;
@@ -915,7 +917,6 @@ function renderMap(floor) {
     const timelineSection = document.getElementById('map-timeline-section');
     if(timelineSection) timelineSection.style.display = 'none';
 }
-
 // ▼▼▼ 【追加】一覧画面の階切り替え機能 ▼▼▼
 function switchTimelineFloor(floor) {
     currentTimelineFloor = floor;
