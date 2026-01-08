@@ -1038,7 +1038,7 @@ function createGroupButton(container, name, ids, isCustom, groupId) {
 
     container.appendChild(btn);
 }
-// ★修正: 新しいグループをサーバー(GAS)に保存する処理
+/* ▼▼▼ 修正版: グループ作成時の保存処理（複数ID対応） ▼▼▼ */
 async function saveNewGroup() {
     const name = document.getElementById('new-group-name').value.trim();
     if (!name) {
@@ -1050,13 +1050,18 @@ async function saveNewGroup() {
         return;
     }
 
-    const idsStr = Array.from(groupCreateSelectedIds).join(',');
+    // 1. セットから配列に変換し、確実に文字列化して空白を除去
+    const idArray = Array.from(groupCreateSelectedIds)
+        .map(id => String(id).trim())
+        .filter(id => id !== "");
 
-    // API呼び出し用のパラメータ
+    // 2. カンマ区切りの文字列を作成 (例: "1001,1002,1003")
+    const idsStr = idArray.join(',');
+
     const params = {
         action: 'createGroup',
         groupName: name,
-        memberIds: idsStr,
+        memberIds: idsStr, // 整形した文字列を送信
         operatorName: currentUser ? currentUser.userName : 'Unknown'
     };
 
@@ -1066,14 +1071,51 @@ async function saveNewGroup() {
         alert(`グループ「${name}」を作成し、共有しました`);
         closeGroupModal();
         isDeleteMode = false;
-        // データを再読み込みして全画面に反映（trueを渡して画面遷移を防ぐ）
         loadAllData(true);
     } else {
         alert("保存エラー: " + result.message);
     }
 }
 
-// ★修正: サーバー(GAS)からグループを削除する処理
+/* ▼▼▼ 修正版: グループ作成時のメンバー選択処理 ▼▼▼ */
+function renderGroupCreateShuttle() {
+    const filterText = document.getElementById('group-shuttle-search').value.toLowerCase();
+    const leftList = document.getElementById('group-create-candidates');
+    const rightList = document.getElementById('group-create-selected');
+    leftList.innerHTML = "";
+    rightList.innerHTML = "";
+
+    masterData.users.forEach(u => {
+        // IDを必ず文字列型として扱う
+        const uidStr = String(u.userId);
+        
+        if (groupCreateSelectedIds.has(uidStr)) {
+            // 右側：選択済み
+            const div = document.createElement('div');
+            div.className = 'shuttle-item icon-remove';
+            div.innerText = u.userName;
+            div.onclick = () => {
+                groupCreateSelectedIds.delete(uidStr);
+                renderGroupCreateShuttle();
+            };
+            rightList.appendChild(div);
+        } else {
+            // 左側：候補（検索フィルタ適用）
+            if (filterText === "" || u.userName.toLowerCase().includes(filterText)) {
+                const div = document.createElement('div');
+                div.className = 'shuttle-item icon-add';
+                div.innerText = u.userName;
+                div.onclick = () => {
+                    // 追加する際も必ず文字列型で追加
+                    groupCreateSelectedIds.add(uidStr);
+                    renderGroupCreateShuttle();
+                };
+                leftList.appendChild(div);
+            }
+        }
+    });
+}
+/* ▼▼▼ 追加: 共有グループ削除用の関数 ▼▼▼ */
 async function deleteSharedGroup(groupId, groupName) {
     if(!confirm(`共有グループ「${groupName}」を本当に削除しますか？\n（全社員の画面から消えます）`)) return;
 
@@ -1091,47 +1133,4 @@ async function deleteSharedGroup(groupId, groupName) {
     } else {
         alert("削除エラー: " + result.message);
     }
-}
-// --- グループ作成モーダル関連（不足分を追加） ---
-function openGroupModal() {
-    document.getElementById('groupCreateModal').style.display = 'flex';
-    document.getElementById('new-group-name').value = "";
-    document.getElementById('group-shuttle-search').value = "";
-    groupCreateSelectedIds.clear();
-    renderGroupCreateShuttle();
-}
-
-function closeGroupModal() {
-    document.getElementById('groupCreateModal').style.display = 'none';
-}
-
-function renderGroupCreateShuttle() {
-    const filterText = document.getElementById('group-shuttle-search').value.toLowerCase();
-    const leftList = document.getElementById('group-create-candidates');
-    const rightList = document.getElementById('group-create-selected');
-    leftList.innerHTML = "";
-    rightList.innerHTML = "";
-
-    masterData.users.forEach(u => {
-        const uidStr = String(u.userId);
-        if (groupCreateSelectedIds.has(uidStr)) {
-            const div = document.createElement('div');
-            div.className = 'shuttle-item icon-remove';
-            div.innerText = u.userName;
-            div.onclick = () => {
-                groupCreateSelectedIds.delete(uidStr);
-                renderGroupCreateShuttle();
-            };
-            rightList.appendChild(div);
-        } else if (filterText === "" || u.userName.toLowerCase().includes(filterText)) {
-            const div = document.createElement('div');
-            div.className = 'shuttle-item icon-add';
-            div.innerText = u.userName;
-            div.onclick = () => {
-                groupCreateSelectedIds.add(uidStr);
-                renderGroupCreateShuttle();
-            };
-            leftList.appendChild(div);
-        }
-    });
 }
