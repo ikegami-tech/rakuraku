@@ -823,15 +823,44 @@ function pad(n) { return n < 10 ? '0'+n : n; }
 function formatDate(d) { return `${d.getMonth()+1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}`; }
 function getRoomName(id) { const r = masterData.rooms.find(x => x.roomId === id); return r ? r.roomName : id; }
 
-function selectRoomFromMap(element) {
-  const roomId = element.getAttribute('data-room-id');
-  
-  const roomObj = masterData.rooms.find(r => String(r.roomId) === String(roomId));
-  
-  if (!roomObj) {
-    alert("エラー: 指定された部屋ID (" + roomId + ") が見つかりません。");
-    return;
-  }
+function selectRoomFromMap(element, e) {
+    const roomId = element.getAttribute('data-room-id');
+    
+    const roomObj = masterData.rooms.find(r => String(r.roomId) === String(roomId));
+    
+    if (!roomObj) {
+        alert("エラー: 指定された部屋ID (" + roomId + ") が見つかりません。");
+        return;
+    }
+
+    // ---------------------------------------------------------
+    // ▼▼ ピンの位置を動かす追加コード (ここから) ▼▼
+    // ---------------------------------------------------------
+    const pin = document.getElementById('pin');
+    // ピンの基準となる親枠（dynamic-map-container）を取得
+    const mapContainer = document.getElementById('dynamic-map-container');
+
+    // 引数 e (クリックイベント) があり、ピンと親枠がある場合のみ実行
+    if (e && pin && mapContainer) {
+        // 親枠の現在位置とサイズを取得
+        const rect = mapContainer.getBoundingClientRect();
+
+        // 親枠の左上からのクリック位置を計算
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        // パーセント(%)に変換してズレを防ぐ
+        const xPercent = (x / rect.width) * 100;
+        const yPercent = (y / rect.height) * 100;
+
+        // ピンに適用
+        pin.style.left = xPercent + '%';
+        pin.style.top = yPercent + '%';
+        pin.style.display = 'block'; // ピンを表示
+    }
+    // ---------------------------------------------------------
+    // ▲▲ 追加コード (ここまで) ▲▲
+    // ---------------------------------------------------------
 
   currentMapRoomId = roomId;
 
@@ -881,7 +910,7 @@ function renderMap(floor) {
         div.style.left = area.left + '%';
         div.style.width = area.width + '%';
         div.style.height = area.height + '%';
-        div.onclick = function() { selectRoomFromMap(this); };
+        div.onclick = function(e) { selectRoomFromMap(this, e); };
         
         const span = document.createElement('span');
         span.innerText = area.name;
