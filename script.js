@@ -1013,7 +1013,7 @@ function renderGroupButtons() {
 function createGroupButton(container, name, ids, isCustom, groupId) {
     const btn = document.createElement('div');
     btn.className = 'group-chip';
-    btn.innerText = `+ ${name}`;
+    btn.innerText = name;
     
     // クリック時の動作
     btn.onclick = () => {
