@@ -750,8 +750,12 @@ async function saveBooking() {
   const title = document.getElementById('input-title').value;
   const note = document.getElementById('input-note').value;
   
-  if (start >= end) {
+ if (start >= end) {
       alert("開始時間は終了時間より前に設定してください。");
+      return;
+  }
+  if (start < "09:00" || start > "18:00" || end < "09:00" || end > "18:00") {
+      alert("利用時間は 9:00 〜 18:00 の範囲で設定してください。");
       return;
   }
 
