@@ -874,38 +874,62 @@ function renderMap(floor) {
     if (!config) return;
 
     const imgEl = document.getElementById('office-map-img');
-    if(imgEl) imgEl.src = config.image;
-
-    // ▼▼▼ 修正: 追加先を container ではなく inner-wrapper に変更 ▼▼▼
-    const container = document.getElementById('dynamic-map-container'); // 必要なら残すが使わないかも
     const wrapper = document.getElementById('map-inner-wrapper'); 
     
-    // 念のため wrapper が無ければ container を使う（エラー回避）
-    const targetParent = wrapper || container;
+    // エラー回避: 要素がなければ何もしない
+    if (!imgEl || !wrapper) return;
 
-    // 既存のエリアを削除 (targetParentの中から探す)
-    const existingAreas = targetParent.querySelectorAll('.map-click-area');
+    // 画像のセット
+    imgEl.src = config.image;
+
+    // ▼▼▼ 重要なスタイル補正（ズレ防止） ▼▼▼
+    // ラッパーを相対配置にし、画像がはみ出さないようにする
+    wrapper.style.position = "relative";
+    wrapper.style.display = "inline-block"; // 画像サイズに合わせる
+    wrapper.style.width = "100%";           // 親コンテナに合わせる
+    
+    // 画像はブロック要素として幅いっぱいにする
+    imgEl.style.display = "block";
+    imgEl.style.width = "100%";
+    imgEl.style.height = "auto";
+
+    // 既存のクリックエリアを削除
+    const existingAreas = wrapper.querySelectorAll('.map-click-area');
     existingAreas.forEach(el => el.remove());
 
+    // 新しいエリアを作成
     config.areas.forEach(area => {
         const div = document.createElement('div');
         div.className = 'map-click-area';
         div.setAttribute('data-room-id', area.id);
         
-        // %指定の位置情報は、親(targetParent)のサイズに対する割合になる
+        // エリアのスタイル（絶対配置）
+        div.style.position = 'absolute'; // これがないとズレます
         div.style.top = area.top + '%';
         div.style.left = area.left + '%';
         div.style.width = area.width + '%';
         div.style.height = area.height + '%';
+        div.style.border = '2px solid rgba(255, 0, 0, 0.5)'; // デバッグ用に一時的に赤枠を表示（不要なら透明にしてください）
+        div.style.cursor = 'pointer';
+        div.style.backgroundColor = 'rgba(255, 255, 255, 0.2)'; // 薄い白背景でクリック場所をわかりやすく
         
         div.onclick = function() { selectRoomFromMap(this); };
         
+        // ラベル表示（はみ出し防止のスタイル追加）
         const span = document.createElement('span');
         span.innerText = area.name;
+        span.style.position = "absolute";
+        span.style.top = "50%";
+        span.style.left = "50%";
+        span.style.transform = "translate(-50%, -50%)";
+        span.style.fontSize = "10px";
+        span.style.fontWeight = "bold";
+        span.style.color = "red";
+        span.style.pointerEvents = "none"; // 文字がクリックの邪魔をしないように
+        span.style.whiteSpace = "nowrap"; // 折り返し防止
         div.appendChild(span);
         
-        // ▼▼▼ 修正: ラッパーに追加する ▼▼▼
-        targetParent.appendChild(div);
+        wrapper.appendChild(div);
     });
 
     const timelineSection = document.getElementById('map-timeline-section');
