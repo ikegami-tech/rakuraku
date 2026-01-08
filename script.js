@@ -858,7 +858,6 @@ function switchFloor(floor) {
     // 画像を描画する
     renderMap(floor);
 }
-
 function renderMap(floor) {
     const config = mapConfig[floor];
     if (!config) return;
@@ -866,38 +865,71 @@ function renderMap(floor) {
     const imgEl = document.getElementById('office-map-img');
     if(imgEl) imgEl.src = config.image;
 
-    // ▼▼▼ 修正: 追加先を container ではなく inner-wrapper に変更 ▼▼▼
-    const container = document.getElementById('dynamic-map-container'); // 必要なら残すが使わないかも
+    // 描画する親要素を取得（画像に重なるラッパー）
     const wrapper = document.getElementById('map-inner-wrapper'); 
-    
-    // 念のため wrapper が無ければ container を使う（エラー回避）
+    const container = document.getElementById('dynamic-map-container');
     const targetParent = wrapper || container;
+    
+    if (!targetParent) return;
 
-    // 既存のエリアを削除 (targetParentの中から探す)
+    // 既存のエリアを削除
     const existingAreas = targetParent.querySelectorAll('.map-click-area');
     existingAreas.forEach(el => el.remove());
 
+    // 各部屋のエリアを描画
     config.areas.forEach(area => {
-        const div = document.createElement('div');
-        div.className = 'map-click-area';
+        const div = document.createElement("div");
+        div.className = "map-click-area"; // CSSクラス
+
+        // 座標とサイズ設定
+        div.style.top = area.top + "%";
+        div.style.left = area.left + "%";
+        div.style.width = area.width + "%";
+        div.style.height = area.height + "%";
+
+        // --- 色とホバー効果の設定 ---
+        
+        // デフォルトの色（configに設定がなければ薄いグレー）
+        const baseColor = area.color || "rgba(128, 128, 128, 0.3)";
+        
+        div.style.backgroundColor = baseColor;
+        div.style.border = "none";    // 枠線なし
+        div.style.cursor = "pointer"; // 指カーソル
+
+        // マウスが乗った時
+        div.onmouseenter = function() {
+            if (area.hoverColor) {
+                this.style.backgroundColor = area.hoverColor; // ホバー色に変更
+            } else {
+                this.style.opacity = "0.7";
+            }
+            // わかりやすく白い枠線をつける
+            this.style.border = "2px solid rgba(255, 255, 255, 0.8)";
+        };
+
+        // マウスが離れた時
+        div.onmouseleave = function() {
+            this.style.backgroundColor = baseColor; // 元の色に戻す
+            this.style.opacity = "1.0";
+            this.style.border = "none"; // 枠線を消す
+        };
+
+        // 部屋名を表示
+        div.innerText = area.name;
+        
+        // 重要: クリック時に使うIDを埋め込む
         div.setAttribute('data-room-id', area.id);
-        
-        // %指定の位置情報は、親(targetParent)のサイズに対する割合になる
-        div.style.top = area.top + '%';
-        div.style.left = area.left + '%';
-        div.style.width = area.width + '%';
-        div.style.height = area.height + '%';
-        
-        div.onclick = function() { selectRoomFromMap(this); };
-        
-        const span = document.createElement('span');
-        span.innerText = area.name;
-        div.appendChild(span);
-        
-        // ▼▼▼ 修正: ラッパーに追加する ▼▼▼
+
+        // クリックイベント
+        div.onclick = function() {
+            selectRoomFromMap(this);
+        };
+
+        // 画面に追加
         targetParent.appendChild(div);
     });
 
+    // マップ下のタイムラインを一旦隠す（部屋を選び直したため）
     const timelineSection = document.getElementById('map-timeline-section');
     if(timelineSection) timelineSection.style.display = 'none';
 }
