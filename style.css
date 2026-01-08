@@ -208,26 +208,42 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   max-height: 80vh; /* 画面からはみ出しすぎないように制限(任意) */
   object-fit: contain;
 }
-/* --- 以下は変更なし --- */
-/* クリック領域（透明なオーバーレイ） */
 .map-click-area {
   position: absolute;
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.3); /* デバッグ用 */
-  border: 2px solid transparent;
+  
+  /* ▼ 変更点1：背景色を削除（JSで指定した色が効くようにするため） */
+  /* background: rgba(255, 0, 0, 0.5); ← これを削除 */
+  background: transparent; /* デフォルトは透明に */
+
+  /* ▼ 変更点2：枠線を透明/なしに変更 */
+  /* border: 1px solid red; ← これを削除 */
+  border: none; 
+
   transition: all 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
+  
+  /* 文字設定 */
   font-weight: bold;
   font-size: 0.9rem;
-  color: transparent; 
-  text-shadow: none;
-  background: rgba(255, 0, 0, 0.5); /* 半透明の赤 */
-  color: white; /* 文字を白く */
-  border: 1px solid red;
+  color: white; /* 文字色は白で見やすく */
+  text-shadow: 0 0 3px rgba(0,0,0,0.5); /* 文字が背景に溶け込まないように影をつける */
 }
 
+/* ホバー（マウスを乗せた）時の動き */
+.map-click-area:hover {
+  /* ▼ 背景色はJSで決まっているので、ここでは濃さ（透明度）だけ変えるのが綺麗です */
+  opacity: 0.8; 
+  
+  /* ▼ ホバー時だけ枠線を出したい場合は色を指定。出したくないなら none のまま */
+  border: 2px solid rgba(255, 255, 255, 0.8); 
+  
+  /* 以下の緑色の指定は削除またはコメントアウト推奨（部屋の色と喧嘩するため） */
+  /* background: rgba(39, 174, 96, 0.3); */
+  /* border: 2px solid #27ae60; */
+}
 .map-click-area:hover {
   background: rgba(39, 174, 96, 0.3);
   border: 2px solid #27ae60;
