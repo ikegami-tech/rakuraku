@@ -629,7 +629,7 @@ function openModal(res = null, defaultRoomId = null, clickHour = null) {
       timeDisplayEl.style.cssText = "font-size: 1.1rem; color: #27ae60; font-weight: bold; margin-bottom: 15px; text-align:center; background:#e8f5e9; padding:8px; border-radius:4px;";
       header.parentNode.insertBefore(timeDisplayEl, header.nextSibling);
   }
-  // 一旦クリア（あとで updateModalDisplay で設定するため）
+  // 一旦クリア
   timeDisplayEl.innerText = "";
 
   if (res) {
@@ -643,13 +643,13 @@ function openModal(res = null, defaultRoomId = null, clickHour = null) {
     const startObj = new Date(res._startTime || res.startTime);
     const endObj = new Date(res._endTime || res.endTime);
     
-    // 日付入力欄 (YYYY-MM-DD)
+    // 日付入力欄
     const y = startObj.getFullYear();
     const m = ('0' + (startObj.getMonth() + 1)).slice(-2);
     const d = ('0' + startObj.getDate()).slice(-2);
     document.getElementById('input-date').value = `${y}-${m}-${d}`;
 
-    // 時間入力欄 (HH:mm)
+    // 時間入力欄
     const sh = ('0' + startObj.getHours()).slice(-2);
     const sm = ('0' + startObj.getMinutes()).slice(-2);
     const eh = ('0' + endObj.getHours()).slice(-2);
@@ -658,11 +658,8 @@ function openModal(res = null, defaultRoomId = null, clickHour = null) {
     document.getElementById('input-end').value = `${eh}:${em}`;
     
     // タイトル・備考
-    const titleVal = getVal(res, ['title', 'subject', '件名', 'タイトル', '用件', 'name']);
-    document.getElementById('input-title').value = titleVal;
-
-    const noteVal = getVal(res, ['note', 'description', '備考', 'メモ', '詳細', 'body']);
-    document.getElementById('input-note').value = noteVal;
+    document.getElementById('input-title').value = getVal(res, ['title', 'subject', '件名', 'タイトル', '用件', 'name']);
+    document.getElementById('input-note').value = getVal(res, ['note', 'description', '備考', 'メモ', '詳細', 'body']);
     
     // 参加者の復元
     const pIds = getVal(res, ['participantIds', 'participant_ids', '参加者', 'メンバー']);
@@ -694,10 +691,8 @@ function openModal(res = null, defaultRoomId = null, clickHour = null) {
     if(defaultRoomId) document.getElementById('input-room').value = defaultRoomId;
     
     let currentTabDate = "";
-    const timelineDateInput = document.getElementById('timeline-date');
-    
     if(document.getElementById('view-timeline').classList.contains('active')) {
-        currentTabDate = timelineDateInput.value;
+        currentTabDate = document.getElementById('timeline-date').value;
     } else {
         currentTabDate = document.getElementById('map-date').value;
     }
@@ -722,6 +717,23 @@ function openModal(res = null, defaultRoomId = null, clickHour = null) {
   
   renderShuttleLists();
 
+  // ▼▼▼ 【修正】イベントリスナーの登録強化 ▼▼▼
+  // 以前の onchange だけだと反応しないことがあるため、addEventListener を使用
+  const inputs = ['input-date', 'input-start', 'input-end'];
+  inputs.forEach(id => {
+      const el = document.getElementById(id);
+      if(el) {
+          // 重複登録を防ぐため、念のため古いリスナーを削除する記述を入れることもありますが、
+          // モーダルを開くたびに上書きでも動作上は問題ありません。
+          // ここではシンプルに 'input' (入力中) と 'change' (確定後) の両方を監視します。
+          el.oninput = updateModalDisplay;
+          el.onchange = updateModalDisplay;
+      }
+  });
+
+  // 最後に一度実行して表示を合わせる
+  updateModalDisplay();
+}
   // ▼▼▼ 【修正】初期表示の更新と、変更イベントの登録 ▼▼▼
   updateModalDisplay(); // 最初に一度実行して表示を合わせる
 
@@ -1143,19 +1155,23 @@ function renderGroupCreateShuttle() {
     });
 }
 // ▼▼▼ 【追加】モーダルの上部表示を更新する関数 ▼▼▼
+// ▼▼▼ 【修正版】モーダルの上部表示を更新する関数 ▼▼▼
 function updateModalDisplay() {
-    const dateVal = document.getElementById('input-date').value;
-    const startVal = document.getElementById('input-start').value;
-    const endVal = document.getElementById('input-end').value;
+    // 要素の取得
+    const dateEl = document.getElementById('input-date');
+    const startEl = document.getElementById('input-start');
+    const endEl = document.getElementById('input-end');
     const displayEl = document.getElementById('modal-time-display');
 
-    if (!dateVal || !startVal || !endVal || !displayEl) return;
+    // 要素が見つからない、または値が空の場合は何もしない
+    if (!dateEl || !startEl || !endEl || !displayEl) return;
+    if (!dateEl.value || !startEl.value || !endEl.value) return;
 
     // 日付のパース (YYYY-MM-DD を M月D日 に)
-    const parts = dateVal.split('-');
+    const parts = dateEl.value.split('-');
     const m = parseInt(parts[1], 10);
     const d = parseInt(parts[2], 10);
     
     // 表示を更新
-    displayEl.innerText = `${m}月${d}日 ${startVal} - ${endVal}`;
+    displayEl.innerText = `${m}月${d}日 ${startEl.value} - ${endEl.value}`;
 }
