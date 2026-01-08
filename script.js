@@ -185,22 +185,35 @@ function refreshUI() {
 
 
 function selectGroupMembers(idsStr) {
-  if (!idsStr) return;
-  const rawIds = idsStr.split(',');
+  // nullやundefined、空文字の場合は何もしない
+  if (idsStr === null || idsStr === undefined || idsStr === "") return;
+
+  // 【重要修正】スプレッドシートから数値で返ってくる場合があるため、必ずStringに変換してからsplitする
+  const rawIds = String(idsStr).split(',');
+
   const targetUsers = [];
   rawIds.forEach(rawId => {
       const cleanIdStr = rawId.trim();
+      // IDの一致確認（念のため両方String化して比較）
       const user = masterData.users.find(u => String(u.userId) === cleanIdStr);
       if (user) { targetUsers.push(user); }
   });
+
+  // 該当するユーザーがいなければ終了
   if (targetUsers.length === 0) return;
 
+  // グループ全員がすでに「選択済み」かどうかを判定
   const isAllSelected = targetUsers.every(u => selectedParticipantIds.has(String(u.userId)));
+
   if (isAllSelected) {
+      // 全員選択済みなら → 全員解除（候補者一覧に戻す）
       targetUsers.forEach(u => selectedParticipantIds.delete(String(u.userId)));
   } else {
+      // まだ選択されていない人がいれば → 全員追加（参加予定者に移動）
       targetUsers.forEach(u => selectedParticipantIds.add(String(u.userId)));
   }
+
+  // リストの表示を更新（検索フィルタの状態を維持）
   renderShuttleLists(document.getElementById('shuttle-search-input').value);
 }
 
