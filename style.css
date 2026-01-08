@@ -157,45 +157,57 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
 @media (max-width: 600px) { .shuttle-container { flex-direction: column; height: 300px; } }
 /* --- マップビュー用スタイル (はみ出していた頃の状態) --- */
 /* --- マップビュー用スタイル (画面内に収める修正版) --- */
-/* --- マップビュー用スタイル --- */
 .map-wrapper {
   padding: 10px;
   background: #f9f9f9;
   flex: 1;
-  overflow-y: auto; /* スクロール可能に */
+  
+  /* ▼▼▼ 修正点1: hidden を auto に変更してスクロール可能にする ▼▼▼ */
+  overflow-y: auto; 
+  
   display: flex;
   flex-direction: column;
   align-items: center;
+  
+  /* ▼▼▼ 修正点2: center を flex-start に変更（中身が増えた時のズレ防止） ▼▼▼ */
   justify-content: flex-start;
+  
   height: 100%;
 }
 
-/* マップとピンを囲む箱（統合版） */
 .map-container {
-  /* ★重要：ピンやクリックエリアの基準点 */
   position: relative; 
+  width: 100%;
   
-  /* 画像を中央に配置するための設定 */
-  display: inline-block; /* 画像サイズにフィットさせる */
-  margin: auto; /* 上下左右中央寄せ */
+  /* ▼▼▼ 修正点3: 高さを固定せず、余白で中央寄せする設定に変更 ▼▼▼ */
+  height: auto;       /* 100%からautoへ変更 */
+  min-height: 80vh;   /* 最低でも画面の6割は確保 */
+  flex-shrink: 0;     /* 縮まないようにする */
+  margin: auto 0;     /* 上下中央寄せ（タイムラインが出ると上にズレてくれる） */
   
-  /* 見た目の調整 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
   background: white;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  box-shadow: none;
+  border: none;
 }
 
-/* マップ画像 */
 .map-image {
-  max-width: 100%;
-  height: auto;
-  display: block; /* 隙間防止 */
+  max-width: 100%;  /* 横幅が親を超えないようにする */
+  max-height: 100%; /* 高さも親を超えないようにする */
+  width: auto;      /* 比率を維持 */
+  height: auto;     /* 比率を維持 */
+  display: block;
+  object-fit: contain; /* アスペクト比を保ったまま枠内に収める */
 }
 
-/* クリック領域（透明なボタン） */
+/* --- 以下は変更なし --- */
+/* クリック領域（透明なオーバーレイ） */
 .map-click-area {
-  position: absolute; /* 親(map-container)を基準に配置 */
+  position: absolute;
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.3); /* デバッグ用（本番は0にしてもOK） */
+  background: rgba(255, 255, 255, 0.3); /* デバッグ用 */
   border: 2px solid transparent;
   transition: all 0.2s;
   display: flex;
@@ -205,7 +217,6 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   font-size: 0.9rem;
   color: transparent; 
   text-shadow: none;
-  z-index: 10; /* ピンより下に、画像より上に */
 }
 
 .map-click-area:hover {
@@ -215,35 +226,21 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   text-shadow: 0 0 3px rgba(0,0,0,0.8);
 }
 
-/* ピンの設定（完璧です！） */
-#pin {
-    position: absolute;
-    display: none;      /* 最初は非表示 */
-    z-index: 20;        /* クリックエリアより手前に表示 */
-    
-    /* ピンの「針の先」をクリック位置に合わせる設定 */
-    transform: translate(-50%, -100%);
-    pointer-events: none; /* ピン自体はクリックを邪魔しない */
-    
-    /* 見た目の調整（必要なら） */
-    font-size: 2rem; /* ピンの大きさ */
-    filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.3)); /* 影をつける */
-}
-
 .map-hint {
   margin-top: 5px;
   color: #666;
   font-size: 0.8rem;
   text-align: center;
 }
-
-/* フロアセレクター */
+/* フロアセレクターのスタイル */
 .floor-selector {
     display: flex;
     gap: 10px;
     margin-bottom: 10px;
     width: 100%;
     max-width: 800px;
+    
+    /* ▼▼▼ この3行で中央揃えになります ▼▼▼ */
     justify-content: center;
     margin-left: auto;
     margin-right: auto;
@@ -270,8 +267,7 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
 .floor-tab:hover:not(.active) {
     background-color: #ccc;
 }
-
-/* 詳細表示用テーブル */
+/* ▼▼▼ 【追加】詳細表示用テーブルのスタイル ▼▼▼ */
 .detail-table {
   width: 100%;
   border-collapse: collapse;
