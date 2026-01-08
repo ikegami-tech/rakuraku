@@ -157,51 +157,57 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
 @media (max-width: 600px) { .shuttle-container { flex-direction: column; height: 300px; } }
 /* --- マップビュー用スタイル (はみ出していた頃の状態) --- */
 /* --- マップビュー用スタイル (画面内に収める修正版) --- */
+/* --- マップビュー用スタイル (修正版) --- */
 .map-wrapper {
   padding: 10px;
   background: #f9f9f9;
   flex: 1;
-  
-  /* ▼▼▼ 修正点1: hidden を auto に変更してスクロール可能にする ▼▼▼ */
-  overflow-y: auto; 
-  
+  overflow: auto; /* スクロール可能に */
   display: flex;
   flex-direction: column;
   align-items: center;
-  
-  /* ▼▼▼ 修正点2: center を flex-start に変更（中身が増えた時のズレ防止） ▼▼▼ */
   justify-content: flex-start;
-  
   height: 100%;
 }
 
 .map-container {
-  position: relative; 
+  /* ここはあくまで「配置場所」としての枠にします */
+  position: relative;
   width: 100%;
-  
-  /* ▼▼▼ 修正点3: 高さを固定せず、余白で中央寄せする設定に変更 ▼▼▼ */
-  height: auto;       /* 100%からautoへ変更 */
-  min-height: 80vh;   /* 最低でも画面の6割は確保 */
-  flex-shrink: 0;     /* 縮まないようにする */
-  margin: auto 0;     /* 上下中央寄せ（タイムラインが出ると上にズレてくれる） */
+  height: auto;
+  min-height: 50vh; /* 最低限の高さを確保 */
+  flex-shrink: 0;
+  margin: auto 0;
   
   display: flex;
   justify-content: center;
-  align-items: center;
-  background: white;
+  align-items: center; /* 中央寄せ */
+  
+  /* 背景やボーダーは削除（インナーラッパーに任せるため） */
+  background: transparent;
   box-shadow: none;
   border: none;
 }
 
-.map-image {
-  max-width: 100%;  /* 横幅が親を超えないようにする */
-  max-height: 100%; /* 高さも親を超えないようにする */
-  width: auto;      /* 比率を維持 */
-  height: auto;     /* 比率を維持 */
-  display: block;
-  object-fit: contain; /* アスペクト比を保ったまま枠内に収める */
+/* ▼▼▼ 追加: 画像にピッタリ張り付くラッパー ▼▼▼ */
+.map-inner-wrapper {
+  position: relative; /* 子要素(クリック範囲)の基準点になる */
+  display: inline-block; /* 中身(画像)のサイズに合わせて伸縮する */
+  width: auto;
+  max-width: 100%; /* 親を超えない */
+  line-height: 0; /* 画像下の隙間を消す */
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1); /* 影をつけるならここに */
 }
 
+/* 画像の設定をシンプルに */
+.map-image {
+  display: block;
+  width: 100%;    /* ラッパー幅いっぱいに */
+  height: auto;   /* 比率を維持 */
+  max-width: 100%; 
+  max-height: 80vh; /* 画面からはみ出しすぎないように制限(任意) */
+  object-fit: contain;
+}
 /* --- 以下は変更なし --- */
 /* クリック領域（透明なオーバーレイ） */
 .map-click-area {
