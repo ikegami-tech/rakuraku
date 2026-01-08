@@ -947,50 +947,46 @@ let groupCreateSelectedIds = new Set();
 // 削除モードかどうかのフラグ
 let isDeleteMode = false;
 
-// ★修正: 固定の「〇〇課」を削除し、サーバーデータのみを表示するように変更
+// ▼▼▼ 修正版: 「全員」ボタンを削除した関数 ▼▼▼
 function renderGroupButtons() {
   const container = document.getElementById('group-buttons-area');
   container.innerHTML = "";
 
-  // 1. 「全員」ボタンだけはシステムで自動生成して配置
-  const allUserIds = masterData.users ? masterData.users.map(u => u.userId).join(',') : "";
-  createGroupButton(container, "全員", allUserIds, false, null);
+  // 1. 【削除】以前ここにあった「全員」ボタンの作成コードを削除しました
 
-  // 2. サーバー（スプレッドシート）から取得した共有グループを表示
-  // ※ loadAllDataで取得した masterData.groups を使用
+  // 2. 共有グループの表示
+  // (サーバーから取得したグループのみを表示します)
   const serverGroups = masterData.groups || [];
-
   serverGroups.forEach(grp => {
-      // GASからは { groupId, groupName, memberIds, ... } が返ってきています
       createGroupButton(container, grp.groupName, grp.memberIds, true, grp.groupId);
   });
 
-  // 3. 「＋新規作成」ボタン（これを押すとモーダルが開く）
+  // 3. 「＋新規作成」ボタン
   const addBtn = document.createElement('div');
   addBtn.className = 'group-chip';
-  addBtn.style.backgroundColor = '#4caf50'; // 緑色
+  addBtn.style.backgroundColor = '#4caf50'; 
   addBtn.style.color = 'white';
   addBtn.style.fontWeight = 'bold';
   addBtn.innerText = "＋新規作成";
   addBtn.onclick = openGroupModal;
   container.appendChild(addBtn);
 
-  // 4. 「ー削除」ボタン（共有グループがある場合のみ表示）
+  // 4. 「ー削除」ボタン
+  // (グループが1つ以上ある場合のみ表示)
   if (serverGroups.length > 0) {
       const delBtn = document.createElement('div');
       delBtn.className = 'group-chip';
-      delBtn.style.backgroundColor = isDeleteMode ? '#e74c3c' : '#95a5a6'; // 赤 or グレー
+      delBtn.style.backgroundColor = isDeleteMode ? '#e74c3c' : '#95a5a6';
       delBtn.style.color = 'white';
       delBtn.style.fontWeight = 'bold';
       delBtn.innerText = isDeleteMode ? "完了" : "ー削除";
       delBtn.onclick = () => {
           isDeleteMode = !isDeleteMode;
-          renderGroupButtons(); // 再描画してバツ印を表示/非表示
+          renderGroupButtons();
       };
       container.appendChild(delBtn);
   }
 }
-
 // ボタン生成を行う共通関数
 // ボタン生成を行う共通関数（ここを書き換え）
 function createGroupButton(container, name, ids, isCustom, groupId) {
