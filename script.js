@@ -632,6 +632,11 @@ function openModal(res = null, defaultRoomId = null, clickHour = null) {
   // 一旦クリア
   timeDisplayEl.innerText = "";
 
+    const startInput = document.getElementById('input-start');
+  const endInput = document.getElementById('input-end');
+  if(startInput) { startInput.min = "09:00"; startInput.max = "18:00"; }
+  if(endInput)   { endInput.min = "09:00"; endInput.max = "18:00"; }
+
   if (res) {
     // === 既存予約の編集 ===
     document.getElementById('modal-title').innerText = "予約編集";
