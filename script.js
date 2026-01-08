@@ -7,37 +7,37 @@ const mapConfig = {
         image: IMG_7F, // 新しい7階の画像
         areas: [
             // 右上の縦長の会議室
-            { id: "会議室1", name: "会議室1", top: 13.0, left: 70.0, width: 11.0, height: 38.0 },
+            { id: "会議室1", name: "会議室1", top: 37.6, left: 79.4, width: 20.2, height: 14.5 },
             
             // 右下の大きな応接室エリア
-            { id: "応接室(6人)", name: "応接室(6人)", top: 57.0, left: 68.0, width: 20.0, height: 30.0 },
-            { id: "応接室(8人)", name: "応接室(8人)", top: 57.0, left: 88.0, width: 10.0, height: 30.0 },
+            { id: "応接室(6人)", name: "応接室(6人)", top: 76.4, left: 22.6, width: 19.4, height: 23.0 },
+            { id: "応接室(8人)", name: "応接室(8人)", top: 71.1, left: 0.2, width: 22.2, height: 28.7 },
             
             // 中央下部の小さな会議室
-            { id: "会議室2", name: "会議室2", top: 70.0, left: 48.0, width: 15.0, height: 15.0 },
+            { id: "会議室2", name: "会議室2", top: 14.8, left: 79.4, width: 20.4, height: 22.6 },
             
             // 左側の個室群（上から順に）
             { id: "ZOOM(中)", name: "ZOOM(中)", top: 0.1, left: 56.0, width: 11.4, height: 6.4 },
-            { id: "ZOOM(角)", name: "ZOOM(角)", top: 11.1, left: 0.4, width: 11.6, height: 6.4 },
+            { id: "ZOOM(角)", name: "ZOOM(角)", top: 11.1, left:d 0.4, width: 11.6, height: 6.4 },
         ]
     },
     6: {
         image: IMG_6F, // 新しい6階の画像
         areas: [
             // 上部の横並び3部屋（左から）
-            { id: "ZOOM 1", name: "ZOOM 1", top: 10.0, left: 25.0, width: 12.0, height: 10.0 },
-            { id: "ZOOM 2", name: "ZOOM 2", top: 10.0, left: 38.0, width: 12.0, height: 10.0 },
-            { id: "ZOOM 3", name: "ZOOM 3", top: 10.0, left: 51.0, width: 12.0, height: 10.0 },
+            { id: "ZOOM 1", name: "ZOOM 1", top: 0.0, left: 63.4, width: 6.0, height: 17.3 },
+            { id: "ZOOM 2", name: "ZOOM 2", top: 0.2, left: 69.3, width: 6.0, height: 17.3 },
+            { id: "ZOOM 3", name: "ZOOM 3", top: 0.0, left: 75.4, width: 5.7, height: 17.7 },
             
             // 左下の大きな応接室
-            { id: "応接室", name: "応接室(10人)", top: 45.0, left: 10.0, width: 30.0, height: 40.0 },
+            { id: "応接室(10人)", name: "応接室(10人)", top: 0.4, left: 81.5, width: 18.2, height: 43.8 },
             
             // 右側の個室群（上から順に）
-            { id: "ZOOM 4", name: "ZOOM 4", top: 15.0, left: 85.0, width: 10.0, height: 12.0 },
-            { id: "ZOOM 5", name: "ZOOM 5", top: 30.0, left: 85.0, width: 10.0, height: 12.0 },
-            { id: "ZOOM 6", name: "ZOOM 6", top: 45.0, left: 85.0, width: 10.0, height: 12.0 },
-            { id: "ZOOM 7", name: "ZOOM 7", top: 60.0, left: 85.0, width: 10.0, height: 12.0 },
-            { id: "ZOOM 8", name: "ZOOM 8", top: 75.0, left: 85.0, width: 10.0, height: 12.0 },
+            { id: "ZOOM 4", name: "ZOOM 4", top: 44.5, left: 88.5, width: 11.2, height: 6.6 },
+            { id: "ZOOM 5", name: "ZOOM 5", top: 51.9, left: 88.6, width: 10.9, height: 6.4 },
+            { id: "ZOOM 6", name: "ZOOM 6", top: 59.0, left: 88.8, width: 10.7, height: 7.3 },
+            { id: "ZOOM 7", name: "ZOOM 7", top: 66.4, left: 88.6, width: 11.1, height: 7.0 },
+            { id: "ZOOM 8", name: "ZOOM 8", top: 73.5, left: 88.8, width: 10.9, height: 7.1 },
         ]
     }
 };
