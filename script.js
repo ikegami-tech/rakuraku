@@ -1202,3 +1202,65 @@ document.addEventListener('keydown', (e) => {
         }
     }
 });
+/* =========================================
+   ▼▼▼ 座標調整モード機能 (本番では削除してもOK) ▼▼▼
+   ========================================= */
+let isDebugMode = false;
+let debugClickStart = null;
+
+// キーボードの "D" キーを押すと調整モードがON/OFF切り替わります
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'd' || e.key === 'D') {
+        isDebugMode = !isDebugMode;
+        alert("調整モード: " + (isDebugMode ? "ON\n画像の部屋の「左上」→「右下」の順にクリックしてください。" : "OFF"));
+        
+        // 調整モード中は既存のクリックイベントを邪魔しないようにする
+        const mapContainer = document.getElementById('dynamic-map-container');
+        if (mapContainer) {
+            mapContainer.style.pointerEvents = isDebugMode ? 'auto' : 'auto'; 
+            // 既存のエリアを非表示にしてクリックしやすくする
+            const areas = document.querySelectorAll('.map-click-area');
+            areas.forEach(el => el.style.display = isDebugMode ? 'none' : 'block');
+        }
+    }
+});
+
+// マップ画像をクリックしたときの処理
+document.addEventListener('click', (e) => {
+    if (!isDebugMode) return;
+
+    const img = document.getElementById('office-map-img');
+    if (!img) return;
+
+    // クリック位置が画像内かどうか判定
+    const rect = img.getBoundingClientRect();
+    if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) {
+        return;
+    }
+
+    // パーセント座標を計算
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+    if (!debugClickStart) {
+        // 1回目のクリック（左上）
+        debugClickStart = { x, y };
+        console.log(`Start: left=${x.toFixed(1)}%, top=${y.toFixed(1)}%`);
+        alert("左上を記録しました。次は右下をクリックしてください。");
+    } else {
+        // 2回目のクリック（右下）→ 範囲計算
+        const start = debugClickStart;
+        const width = Math.abs(x - start.x);
+        const height = Math.abs(y - start.y);
+        const left = Math.min(x, start.x);
+        const top = Math.min(y, start.y);
+
+        const resultString = `{ id: "★IDを入力★", name: "★名前を入力★", top: ${top.toFixed(1)}, left: ${left.toFixed(1)}, width: ${width.toFixed(1)}, height: ${height.toFixed(1)} },`;
+        
+        console.log(resultString);
+        prompt("以下のコードをコピーして mapConfig に貼り付けてください", resultString);
+
+        // リセット
+        debugClickStart = null;
+    }
+});
