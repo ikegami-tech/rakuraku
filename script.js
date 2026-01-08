@@ -7,9 +7,9 @@ const mapConfig = {
         image: IMG_7F, 
         areas: [
 
-            { id: "ZOOM(角)", name: "ZOOM(角)", top: 11.0, left: 0.0, width: 12.0, height: 8.0 },
+            { id: "ZOOM(角)", name: "ZOOM(角)", top: 11.0, left: 0.0, width: 12.0, height: 7.5 },
 
-            { id: "ZOOM(中)", name: "ZOOM(中)", top: 2.0, left: 45.0, width: 10.0, height: 12.0 },
+            { id: "ZOOM(中)", name: "ZOOM(中)", top: 0.0, left: 55.0, width: 12.0, height: 7.5 },
 
             { id: "会議室2", name: "会議室2", top: 28.0, left: 83.0, width: 22.0, height: 15.0 },
 
