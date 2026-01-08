@@ -185,23 +185,34 @@ function refreshUI() {
 
 
 function selectGroupMembers(idsStr) {
-  // nullやundefined、空文字の場合は何もしない
+  // データがない場合は何もしない
   if (idsStr === null || idsStr === undefined || idsStr === "") return;
 
-  // 【重要修正】スプレッドシートから数値で返ってくる場合があるため、必ずStringに変換してからsplitする
-  const rawIds = String(idsStr).split(',');
+  // 1. 強力な分割処理
+  // 文字列に変換し、カンマ(,)、読点(、)、スペースなどで区切る
+  // これにより "101, 102" や "101 102" などの表記揺れを吸収します
+  const rawIds = String(idsStr).split(/[,、\s]+/);
 
   const targetUsers = [];
   rawIds.forEach(rawId => {
-      const cleanIdStr = rawId.trim();
-      // IDの一致確認（念のため両方String化して比較）
+      // 2. IDのクリーニング
+      // 前後の空白や、万が一の引用符('や")を除去します
+      const cleanIdStr = rawId.replace(/['"]/g, "").trim();
+      
+      if (!cleanIdStr) return; // 空文字ならスキップ
+
+      // 3. ユーザーの検索（IDの一致確認）
       const user = masterData.users.find(u => String(u.userId) === cleanIdStr);
       if (user) { targetUsers.push(user); }
   });
 
   // 該当するユーザーがいなければ終了
-  if (targetUsers.length === 0) return;
+  if (targetUsers.length === 0) {
+      console.warn("グループメンバーが見つかりませんでした: ", idsStr);
+      return;
+  }
 
+  // 4. 選択状態の切り替えロジック
   // グループ全員がすでに「選択済み」かどうかを判定
   const isAllSelected = targetUsers.every(u => selectedParticipantIds.has(String(u.userId)));
 
