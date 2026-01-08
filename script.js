@@ -1040,10 +1040,7 @@ function createGroupButton(container, name, ids, isCustom, groupId) {
         btn.style.border = "2px dashed #c0392b"; 
         btn.style.color = "#c0392b";
         btn.style.backgroundColor = "#fdeaea"; // 薄い赤背景
-        
-        // バツ印（badge）を作るコードは不要になったので削除、
-        // あるいは「ゴミ箱アイコン」的なテキストを添えてもOKです
-        btn.innerText = `🗑️ ${name}`; 
+        btn.innerText = name; 
     }
 
     container.appendChild(btn);
