@@ -156,37 +156,47 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
 @media (max-width: 1280px) { .fab { right: 20px; } }
 @media (max-width: 600px) { .shuttle-container { flex-direction: column; height: 300px; } }
 /* --- マップビュー用スタイル (はみ出していた頃の状態) --- */
+/* --- マップビュー用スタイル (画面内に収める修正版) --- */
 .map-wrapper {
-  padding: 20px;
+  padding: 10px; /* 余白を少し減らす */
   background: #f9f9f9;
   flex: 1;
-  overflow-y: auto;
+  overflow: hidden; /* スクロールバーを出さずに収める */
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center; /* 上下中央寄せ */
+  height: 100%; /* 親要素の高さを確保 */
 }
 
 .map-container {
   position: relative; 
   width: 100%;
-  max-width: 800px; /* 横幅の最大値のみ制限 */
-  border: 1px solid #ddd;
+  max-width: 100%; /* 横幅制限を解除 */
+  height: 100%;    /* 高さを親に合わせる */
+  display: flex;   /* 画像を中央配置するためにflex */
+  justify-content: center;
+  align-items: center;
   background: white;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  /* 高さ制限(max-height)や中央寄せ(display:flex)を削除 */
+  box-shadow: none; /* 影を消してスッキリさせる */
+  border: none;     /* 枠線も消す */
 }
 
 .map-image {
-  width: 100%;      /* 横幅いっぱいに表示 */
-  height: auto;     /* 高さは自動（縦に伸びる） */
+  max-width: 100%;  /* 横幅が親を超えないようにする */
+  max-height: 100%; /* 高さも親を超えないようにする */
+  width: auto;      /* 比率を維持 */
+  height: auto;     /* 比率を維持 */
   display: block;
-  /* object-fit などを削除 */
+  object-fit: contain; /* アスペクト比を保ったまま枠内に収める */
 }
+
+/* --- 以下は変更なし --- */
 /* クリック領域（透明なオーバーレイ） */
 .map-click-area {
   position: absolute;
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.3); /* デバッグ用に半透明。完成時は0にして透明にする */
+  background: rgba(255, 255, 255, 0.3); /* デバッグ用 */
   border: 2px solid transparent;
   transition: all 0.2s;
   display: flex;
@@ -194,22 +204,22 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   justify-content: center;
   font-weight: bold;
   font-size: 0.9rem;
-  color: transparent; /* 文字も通常は隠す */
+  color: transparent; 
   text-shadow: none;
 }
 
-/* ホバー時のエフェクト */
 .map-click-area:hover {
-  background: rgba(39, 174, 96, 0.3); /* マウスが乗ったときに緑色にする */
+  background: rgba(39, 174, 96, 0.3);
   border: 2px solid #27ae60;
   color: #fff;
   text-shadow: 0 0 3px rgba(0,0,0,0.8);
 }
 
 .map-hint {
-  margin-top: 10px;
+  margin-top: 5px;
   color: #666;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
+  text-align: center;
 }
 /* フロアセレクターのスタイル */
 .floor-selector {
