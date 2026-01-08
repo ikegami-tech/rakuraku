@@ -733,7 +733,7 @@ function openModal(res = null, defaultRoomId = null, clickHour = null) {
 
   // 最後に一度実行して表示を合わせる
   updateModalDisplay();
-
+}
     function closeModal() { document.getElementById('bookingModal').style.display = 'none'; }
 
 async function saveBooking() {
