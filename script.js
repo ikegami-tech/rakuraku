@@ -5,7 +5,6 @@ let currentFloor = 7;
 const mapConfig = {
     7: {
         image: IMG_7F, // 画像はそのまま（7階用）
-        // ▼▼▼ 修正: ここに「6階用の座標データ」を貼り付けます ▼▼▼
         areas: [
             { id: "会議室1", name: "会議室1", top: 40.0, left: 71.4, width: 14.7, height: 9.0 },
             { id: "会議室2", name: "会議室2", top: 26.6, left: 71.4, width: 14.7, height: 13.4 },
@@ -17,7 +16,6 @@ const mapConfig = {
     },
     6: {
         image: IMG_6F, // 画像はそのまま（6階用）
-        // ▼▼▼ 修正: ここに「7階用の座標データ」を貼り付けます ▼▼▼
         areas: [
             { id: "ZOOM 1", name: "ZOOM 1", top: 20.6, left: 60.7, width: 5.2, height: 10.0 },
             { id: "ZOOM 2", name: "ZOOM 2", top: 20.6, left: 65.9, width: 5.2, height: 10.0 },
@@ -186,24 +184,33 @@ function refreshUI() {
 
 
 
+// ▼▼▼ 修正版: ユーザーを確実に探して選択する関数 ▼▼▼
 function selectGroupMembers(idsStr) {
+  // ID文字列が空なら何もしない
   if (!idsStr) return;
-  const rawIds = idsStr.split(',');
-  const targetUsers = [];
+  
+  // カンマ区切りのIDを配列に分解
+  const rawIds = String(idsStr).split(',');
+  
+  // ひとつひとつのIDについて処理
   rawIds.forEach(rawId => {
-      const cleanIdStr = rawId.trim();
-      const user = masterData.users.find(u => String(u.userId) === cleanIdStr);
-      if (user) { targetUsers.push(user); }
-  });
-  if (targetUsers.length === 0) return;
+      const targetId = rawId.trim(); // 余分な空白を除去
+      if (!targetId) return;
 
-  const isAllSelected = targetUsers.every(u => selectedParticipantIds.has(String(u.userId)));
-  if (isAllSelected) {
-      targetUsers.forEach(u => selectedParticipantIds.delete(String(u.userId)));
-  } else {
-      targetUsers.forEach(u => selectedParticipantIds.add(String(u.userId)));
-  }
-  renderShuttleLists(document.getElementById('shuttle-search-input').value);
+      // masterData.usersの中から、IDが一致するユーザーを探す
+      // (String()を使うことで、数字・文字の違いを吸収して比較します)
+      const user = masterData.users.find(u => String(u.userId) === targetId);
+      
+      if (user) {
+          // ユーザーが見つかった場合のみ追加する
+          selectedParticipantIds.add(String(user.userId));
+      }
+  });
+
+  // 画面を再描画して、チェックマーク（選択状態）を反映させる
+  const searchInput = document.getElementById('shuttle-search-input');
+  const filterVal = searchInput ? searchInput.value : "";
+  renderShuttleLists(filterVal);
 }
 
 function renderShuttleLists(filterText = "") {
