@@ -8,7 +8,7 @@ const mapConfig = {
         areas: [
             // ■ 左上の小さい白い四角 (ZOOM角)
             // 画像全体の左から約29%、上から約21%の位置にあります
-            { id: "ZOOM(角)", name: "ZOOM(角)", top: 25.5, left: 26.0, width: 6.0, height: 7.0 },
+            { id: "ZOOM(角)", name: "ZOOM(角)", top: 16.0, left: 6.5, width: 8.0, height: 8.0 },
 
             // ■ 中央上の小さい白い四角 (ZOOM中)
             { id: "ZOOM(中)", name: "ZOOM(中)", top: 12.5, left: 51.8, width: 5.0, height: 6.0 },
