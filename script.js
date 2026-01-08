@@ -6,34 +6,36 @@ const mapConfig = {
     7: {
         image: IMG_7F, 
         areas: [
+            // ▼ ZOOMブース：青系 (rgba(0, 100, 255, 0.3))
+            { id: "ZOOM(角)", name: "ZOOM(角)", top: 11.0, left: 0.0, width: 12.0, height: 7.2, color: "rgba(0, 100, 255, 0.3)" },
+            { id: "ZOOM(中)", name: "ZOOM(中)", top: 0.0, left: 56.0, width: 12.0, height: 7.0, color: "rgba(0, 100, 255, 0.3)" },
 
-            { id: "ZOOM(角)", name: "ZOOM(角)", top: 11.0, left: 0.0, width: 12.0, height: 7.2 },
+            // ▼ 会議室：緑系 (rgba(0, 200, 80, 0.3))
+            { id: "会議室2", name: "会議室2", top: 15.0, left: 79.0, width: 21.0, height: 22.5, color: "rgba(0, 200, 80, 0.3)" },
+            { id: "会議室1", name: "会議室1", top: 38.0, left: 79.0, width: 21.0, height: 15.0, color: "rgba(0, 200, 80, 0.3)" },
 
-            { id: "ZOOM(中)", name: "ZOOM(中)", top: 0.0, left: 56.0, width: 12.0, height: 7.0 },
-
-            { id: "会議室2", name: "会議室2", top: 15.0, left: 79.0, width: 21.0, height: 22.5 },
-
-            { id: "会議室1", name: "会議室1", top: 38.0, left: 79.0, width: 21.0, height: 15.0 },
-
-            { id: "応接室(8人)", name: "応接室(8人)", top: 71.5, left: 0.0, width: 22.5, height: 28.5 },
-
-            { id: "応接室(6人)", name: "応接室(6人)", top: 76.5, left: 22.6, width: 20.0, height: 22.0 },
+            // ▼ 応接室：オレンジ系 (rgba(255, 165, 0, 0.3))
+            { id: "応接室(8人)", name: "応接室(8人)", top: 71.5, left: 0.0, width: 22.5, height: 28.5, color: "rgba(255, 165, 0, 0.3)" },
+            { id: "応接室(6人)", name: "応接室(6人)", top: 76.5, left: 22.6, width: 20.0, height: 22.0, color: "rgba(255, 165, 0, 0.3)" },
         ]
     },
     6: {
-        // ...（6階はそのまま、または同様に調整が必要であれば教えてください）
         image: IMG_6F,
         areas: [
-             // 変更なし（省略）
-             { id: "ZOOM 1", name: "ZOOM 1", top: 0.0, left: 63.4, width: 6.0, height: 17.7 },
-             { id: "ZOOM 2", name: "ZOOM 2", top: 0.0, left: 69.3, width: 6.0, height: 17.7 },
-             { id: "ZOOM 3", name: "ZOOM 3", top: 0.0, left: 75.4, width: 6.0, height: 17.7 },
-             { id: "応接室(10人)", name: "応接室(10人)", top: 0.0, left: 81.5, width: 18.2, height: 43.8 },
-             { id: "ZOOM 4", name: "ZOOM 4", top: 44.5, left: 88.5, width: 11.2, height: 6.6 },
-             { id: "ZOOM 5", name: "ZOOM 5", top: 51.9, left: 88.6, width: 10.9, height: 6.4 },
-             { id: "ZOOM 6", name: "ZOOM 6", top: 59.0, left: 88.8, width: 10.7, height: 7.3 },
-             { id: "ZOOM 7", name: "ZOOM 7", top: 66.4, left: 88.6, width: 11.1, height: 7.0 },
-             { id: "ZOOM 8", name: "ZOOM 8", top: 73.5, left: 88.8, width: 10.9, height: 7.1 },
+             // ▼ ZOOMブース：青系
+             { id: "ZOOM 1", name: "ZOOM 1", top: 0.0, left: 63.4, width: 6.0, height: 17.7, color: "rgba(0, 100, 255, 0.3)" },
+             { id: "ZOOM 2", name: "ZOOM 2", top: 0.0, left: 69.3, width: 6.0, height: 17.7, color: "rgba(0, 100, 255, 0.3)" },
+             { id: "ZOOM 3", name: "ZOOM 3", top: 0.0, left: 75.4, width: 6.0, height: 17.7, color: "rgba(0, 100, 255, 0.3)" },
+             
+             // ▼ 応接室：オレンジ系
+             { id: "応接室(10人)", name: "応接室(10人)", top: 0.0, left: 81.5, width: 18.2, height: 43.8, color: "rgba(255, 165, 0, 0.3)" },
+             
+             // ▼ ZOOMブース：青系
+             { id: "ZOOM 4", name: "ZOOM 4", top: 44.5, left: 88.5, width: 11.2, height: 6.6, color: "rgba(0, 100, 255, 0.3)" },
+             { id: "ZOOM 5", name: "ZOOM 5", top: 51.9, left: 88.6, width: 10.9, height: 6.4, color: "rgba(0, 100, 255, 0.3)" },
+             { id: "ZOOM 6", name: "ZOOM 6", top: 59.0, left: 88.8, width: 10.7, height: 7.3, color: "rgba(0, 100, 255, 0.3)" },
+             { id: "ZOOM 7", name: "ZOOM 7", top: 66.4, left: 88.6, width: 11.1, height: 7.0, color: "rgba(0, 100, 255, 0.3)" },
+             { id: "ZOOM 8", name: "ZOOM 8", top: 73.5, left: 88.8, width: 10.9, height: 7.1, color: "rgba(0, 100, 255, 0.3)" },
         ]
     }
 };
