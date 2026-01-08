@@ -733,17 +733,8 @@ function openModal(res = null, defaultRoomId = null, clickHour = null) {
 
   // 最後に一度実行して表示を合わせる
   updateModalDisplay();
-}
-  // ▼▼▼ 【修正】初期表示の更新と、変更イベントの登録 ▼▼▼
-  updateModalDisplay(); // 最初に一度実行して表示を合わせる
 
-  // 日付・開始・終了が変わったら、即座に表示を更新する設定
-  document.getElementById('input-date').onchange = updateModalDisplay;
-  document.getElementById('input-start').onchange = updateModalDisplay;
-  document.getElementById('input-end').onchange = updateModalDisplay;
-}
-
-function closeModal() { document.getElementById('bookingModal').style.display = 'none'; }
+    function closeModal() { document.getElementById('bookingModal').style.display = 'none'; }
 
 async function saveBooking() {
   const id = document.getElementById('edit-res-id').value;
