@@ -951,17 +951,11 @@ let groupCreateSelectedIds = new Set();
 // 削除モードかどうかのフラグ
 let isDeleteMode = false;
 
-// ★修正: 固定の「〇〇課」を削除し、サーバーデータのみを表示するように変更
+// script.js の renderGroupButtons 関数をこれに置き換えてください
+
 function renderGroupButtons() {
   const container = document.getElementById('group-buttons-area');
   container.innerHTML = "";
-
-  // 1. 「全員」ボタンだけはシステムで自動生成して配置
-  const allUserIds = masterData.users ? masterData.users.map(u => u.userId).join(',') : "";
-  createGroupButton(container, "全員", allUserIds, false, null);
-
-  // 2. サーバー（スプレッドシート）から取得した共有グループを表示
-  // ※ loadAllDataで取得した masterData.groups を使用
   const serverGroups = masterData.groups || [];
 
   serverGroups.forEach(grp => {
@@ -969,7 +963,7 @@ function renderGroupButtons() {
       createGroupButton(container, grp.groupName, grp.memberIds, true, grp.groupId);
   });
 
-  // 3. 「＋新規作成」ボタン（これを押すとモーダルが開く）
+  // 2. 「＋新規作成」ボタン（これを押すとモーダルが開く）
   const addBtn = document.createElement('div');
   addBtn.className = 'group-chip';
   addBtn.style.backgroundColor = '#4caf50'; // 緑色
@@ -979,7 +973,7 @@ function renderGroupButtons() {
   addBtn.onclick = openGroupModal;
   container.appendChild(addBtn);
 
-  // 4. 「ー削除」ボタン（共有グループがある場合のみ表示）
+  // 3. 「ー削除」ボタン（共有グループがある場合のみ表示）
   if (serverGroups.length > 0) {
       const delBtn = document.createElement('div');
       delBtn.className = 'group-chip';
@@ -994,9 +988,6 @@ function renderGroupButtons() {
       container.appendChild(delBtn);
   }
 }
-
-// ボタン生成を行う共通関数
-// ボタン生成を行う共通関数（ここを書き換え）
 function createGroupButton(container, name, ids, isCustom, groupId) {
     const btn = document.createElement('div');
     btn.className = 'group-chip';
