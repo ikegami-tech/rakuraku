@@ -21,7 +21,7 @@ const mapConfig = {
             { id: "会議室1", name: "会議室1", top: 41.5, left: 69.3, width: 8.5, height: 11.5 },
             
             // ■ 左下、一番左の縦長 (応接室8人)
-            { id: "応接室(8人)", name: "応接室(8人)", top: 66.5, left: 22.4, width: 12.5, height: 22.2 },
+            { id: "応接室(8人)", name: "応接室(8人)", top: 66.5, left: 22.4, width: 12.5, height: 22.5 },
             
             // ■ 左下、その右隣の縦長 (応接室6人)
             { id: "応接室(6人)", name: "応接室(6人)", top: 71.5, left: 38.5, width: 8.0, height: 18.5 },
