@@ -15,9 +15,9 @@ const mapConfig = {
 
             { id: "会議室1", name: "会議室1", top: 50.0, left: 83.0, width: 21.0, height: 15.0 },
 
-            { id: "応接室(8人)", name: "応接室(8人)", top: 75.0, left: 0.0, width: 22.5, height: 28.0 },
+            { id: "応接室(8人)", name: "応接室(8人)", top: 70.0, left: 0.0, width: 22.5, height: 28.0 },
 
-            { id: "応接室(6人)", name: "応接室(6人)", top: 75.0, left: 20.0, width: 22.0, height: 23.0 },
+            { id: "応接室(6人)", name: "応接室(6人)", top: 77.0, left: 23.0, width: 22.0, height: 23.0 },
         ]
     },
     6: {
