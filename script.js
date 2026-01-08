@@ -36,10 +36,10 @@ const mapConfig = {
         image: IMG_6F,
         areas: [
              // 変更なし（省略）
-             { id: "ZOOM 1", name: "ZOOM 1", top: 0.0, left: 63.4, width: 6.0, height: 17.3 },
-             { id: "ZOOM 2", name: "ZOOM 2", top: 0.2, left: 69.3, width: 6.0, height: 17.3 },
-             { id: "ZOOM 3", name: "ZOOM 3", top: 0.0, left: 75.4, width: 5.7, height: 17.7 },
-             { id: "応接室(10人)", name: "応接室(10人)", top: 0.4, left: 81.5, width: 18.2, height: 43.8 },
+             { id: "ZOOM 1", name: "ZOOM 1", top: 0.0, left: 63.4, width: 6.0, height: 17.7 },
+             { id: "ZOOM 2", name: "ZOOM 2", top: 0.0, left: 69.3, width: 6.0, height: 17.7 },
+             { id: "ZOOM 3", name: "ZOOM 3", top: 0.0, left: 75.4, width: 6.0, height: 17.7 },
+             { id: "応接室(10人)", name: "応接室(10人)", top: 0.0, left: 81.5, width: 18.2, height: 43.8 },
              { id: "ZOOM 4", name: "ZOOM 4", top: 44.5, left: 88.5, width: 11.2, height: 6.6 },
              { id: "ZOOM 5", name: "ZOOM 5", top: 51.9, left: 88.6, width: 10.9, height: 6.4 },
              { id: "ZOOM 6", name: "ZOOM 6", top: 59.0, left: 88.8, width: 10.7, height: 7.3 },
