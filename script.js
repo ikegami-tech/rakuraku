@@ -859,22 +859,23 @@ function renderMap(floor) {
     const imgEl = document.getElementById('office-map-img');
     const wrapper = document.getElementById('map-inner-wrapper'); 
     
-    // エラー回避: 要素がなければ何もしない
     if (!imgEl || !wrapper) return;
 
     // 画像のセット
     imgEl.src = config.image;
 
-    // ▼▼▼ 重要なスタイル補正（ズレ防止） ▼▼▼
-    // ラッパーを相対配置にし、画像がはみ出さないようにする
-    wrapper.style.position = "relative";
-    wrapper.style.display = "inline-block"; // 画像サイズに合わせる
-    wrapper.style.width = "100%";           // 親コンテナに合わせる
+    // ▼▼▼ ズレ防止のためのスタイル設定（ここが重要） ▼▼▼
     
-    // 画像はブロック要素として幅いっぱいにする
+    // 1. ラッパーの設定: 画像とまったく同じサイズになるように余白を消す
+    wrapper.style.position = "relative";
+    wrapper.style.width = "100%";
+    wrapper.style.lineHeight = "0"; // 画像下の隙間を削除
+    wrapper.style.fontSize = "0";   // 余計な空白文字を削除
+
+    // 2. 画像の設定: 親要素(ラッパー)いっぱいに広げる
     imgEl.style.display = "block";
     imgEl.style.width = "100%";
-    imgEl.style.height = "auto";
+    imgEl.style.height = "auto";    // 高さは自動計算で比率を維持
 
     // 既存のクリックエリアを削除
     const existingAreas = wrapper.querySelectorAll('.map-click-area');
@@ -886,32 +887,39 @@ function renderMap(floor) {
         div.className = 'map-click-area';
         div.setAttribute('data-room-id', area.id);
         
-        // エリアのスタイル（絶対配置）
-        div.style.position = 'absolute'; // これがないとズレます
+        // 座標指定（%）
+        div.style.position = 'absolute';
         div.style.top = area.top + '%';
         div.style.left = area.left + '%';
         div.style.width = area.width + '%';
         div.style.height = area.height + '%';
-        div.style.border = '2px solid rgba(255, 0, 0, 0.5)'; // デバッグ用に一時的に赤枠を表示（不要なら透明にしてください）
+        
+        // ▼デバッグ用の見た目（確認できたら border: none; bg: transparent; にしてください）
+        div.style.border = '2px solid rgba(255, 0, 0, 0.5)'; 
+        div.style.backgroundColor = 'rgba(255, 255, 255, 0.2)'; 
         div.style.cursor = 'pointer';
-        div.style.backgroundColor = 'rgba(255, 255, 255, 0.2)'; // 薄い白背景でクリック場所をわかりやすく
         
         div.onclick = function() { selectRoomFromMap(this); };
         
-        // ラベル表示（はみ出し防止のスタイル追加）
+        // 文字ラベル（中央寄せ・クリック無効化）
         const span = document.createElement('span');
         span.innerText = area.name;
         span.style.position = "absolute";
         span.style.top = "50%";
         span.style.left = "50%";
         span.style.transform = "translate(-50%, -50%)";
-        span.style.fontSize = "10px";
+        span.style.fontSize = "10px"; // 必要に応じて調整
         span.style.fontWeight = "bold";
         span.style.color = "red";
-        span.style.pointerEvents = "none"; // 文字がクリックの邪魔をしないように
-        span.style.whiteSpace = "nowrap"; // 折り返し防止
-        div.appendChild(span);
+        span.style.pointerEvents = "none";
+        span.style.whiteSpace = "nowrap";
         
+        // ラベルの文字サイズもレスポンシブ対応したい場合は vw などを使う必要がありますが
+        // ここでは固定サイズにしています。文字サイズをリセット
+        span.style.lineHeight = "1.2";
+        span.style.fontSize = "12px"; 
+
+        div.appendChild(span);
         wrapper.appendChild(div);
     });
 
