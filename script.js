@@ -7,13 +7,13 @@ const mapConfig = {
         image: IMG_7F, 
         areas: [
 
-            { id: "ZOOM(角)", name: "ZOOM(角)", top: 11.0, left: 0.0, width: 12.0, height: 7.5 },
+            { id: "ZOOM(角)", name: "ZOOM(角)", top: 11.0, left: 0.0, width: 12.0, height: 7.2 },
 
-            { id: "ZOOM(中)", name: "ZOOM(中)", top: 0.0, left: 55.0, width: 12.0, height: 7.5 },
+            { id: "ZOOM(中)", name: "ZOOM(中)", top: 0.0, left: 57.0, width: 12.0, height: 7.2 },
 
-            { id: "会議室2", name: "会議室2", top: 28.0, left: 83.0, width: 22.0, height: 15.0 },
+            { id: "会議室2", name: "会議室2", top: 15.0, left: 83.0, width: 21.0, height: 30.0 },
 
-            { id: "会議室1", name: "会議室1", top: 50.0, left: 83.0, width: 22.0, height: 15.0 },
+            { id: "会議室1", name: "会議室1", top: 50.0, left: 83.0, width: 21.0, height: 15.0 },
 
             { id: "応接室(8人)", name: "応接室(8人)", top: 75.0, left: 0.0, width: 22.5, height: 28.0 },
 
