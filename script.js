@@ -740,8 +740,9 @@ function openModal(res = null, defaultRoomId = null, clickHour = null) {
   // 一旦クリア
   timeDisplayEl.innerText = "";
 
-    const startInput = document.getElementById('input-start');
+ const startInput = document.getElementById('input-start');
   const endInput = document.getElementById('input-end');
+  // ▼ 07:00 〜 21:00 に変更
   if(startInput) { startInput.min = "07:00"; startInput.max = "21:00"; }
   if(endInput)   { endInput.min = "07:00"; endInput.max = "21:00"; }
 
@@ -862,7 +863,8 @@ async function saveBooking() {
       alert("開始時間は終了時間より前に設定してください。");
       return;
   }
-  if (start < "07:00" || start > "21:00" || end < "7:00" || end > "21:00") {
+  // ▼ 7:00 〜 21:00 に変更
+  if (start < "07:00" || start > "21:00" || end < "07:00" || end > "21:00") {
       alert("利用時間は 7:00 〜 21:00 の範囲で設定してください。");
       return;
   }
