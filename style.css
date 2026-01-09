@@ -450,32 +450,27 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
 
   /* ▼▼▼ 予約詳細：参加者リスト（スクロール対応版） ▼▼▼ */
 
-/* リスト全体の枠 */
+/* ▼▼▼ 予約詳細：参加者リスト（スクロール対応版） ▼▼▼ */
 #detail-members {
-  display: block !important; /* 強制的にブロック要素にする */
-  width: 100%;
-  
-  /* ★高さ制限: 約5〜6行分（1行30px換算で180px） */
-  max-height: 180px; 
-  overflow-y: auto;  /* あふれたらスクロールバーを出す */
-  
-  border: 1px solid #ddd; /* 枠線 */
+  display: block !important;
+  width: 100% !important;
+  max-height: 180px !important; /* ここで高さを制限 */
+  overflow-y: auto !important;  /* ここでスクロールを有効化 */
+  border: 1px solid #ddd;
   border-radius: 4px;
   background-color: #fff;
-  padding: 0;
-  margin-top: 5px; /* 上の間隔 */
+  padding: 0 !important;
+  margin-top: 5px;
 }
 
-/* リスト内の各行（1人分）のデザイン */
 .detail-member-item {
-  padding: 8px 12px;       /* 文字周りの余白 */
-  border-bottom: 1px solid #f0f0f0; /* 行ごとの薄い区切り線 */
-  font-size: 14px;         /* 読みやすい文字サイズ */
-  color: #333;             /* 文字色 */
+  padding: 8px 12px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+  color: #333;
   line-height: 1.4;
 }
 
-/* 最後の行の下線は消す */
 .detail-member-item:last-child {
   border-bottom: none;
 }
