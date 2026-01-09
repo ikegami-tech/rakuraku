@@ -40,8 +40,8 @@ const mapConfig = {
     }
 };
 
-const START_HOUR = 9;
-const END_HOUR = 19;
+const START_HOUR = 7;
+const END_HOUR = 22;
 const BASE_HOUR_HEIGHT = 50; 
 
 let currentUser = null;
@@ -742,8 +742,8 @@ function openModal(res = null, defaultRoomId = null, clickHour = null) {
 
     const startInput = document.getElementById('input-start');
   const endInput = document.getElementById('input-end');
-  if(startInput) { startInput.min = "09:00"; startInput.max = "18:00"; }
-  if(endInput)   { endInput.min = "09:00"; endInput.max = "18:00"; }
+  if(startInput) { startInput.min = "07:00"; startInput.max = "21:00"; }
+  if(endInput)   { endInput.min = "07:00"; endInput.max = "21:00"; }
 
   if (res) {
     // === 既存予約の編集 ===
@@ -862,8 +862,8 @@ async function saveBooking() {
       alert("開始時間は終了時間より前に設定してください。");
       return;
   }
-  if (start < "09:00" || start > "18:00" || end < "09:00" || end > "18:00") {
-      alert("利用時間は 9:00 〜 18:00 の範囲で設定してください。");
+  if (start < "07:00" || start > "21:00" || end < "7:00" || end > "21:00") {
+      alert("利用時間は 7:00 〜 21:00 の範囲で設定してください。");
       return;
   }
 
