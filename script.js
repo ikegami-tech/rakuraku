@@ -969,7 +969,7 @@ function renderMap(floor) {
     const imgEl = document.getElementById('office-map-img');
     if(imgEl) imgEl.src = config.image;
 
-    // 描画する親要素を取得（画像に重なるラッパー）
+    // 描画する親要素を取得
     const wrapper = document.getElementById('map-inner-wrapper'); 
     const container = document.getElementById('dynamic-map-container');
     const targetParent = wrapper || container;
@@ -990,33 +990,6 @@ function renderMap(floor) {
         div.style.left = area.left + "%";
         div.style.width = area.width + "%";
         div.style.height = area.height + "%";
-
-        // --- 色とホバー効果の設定 ---
-        
-        // デフォルトの色（configに設定がなければ薄いグレー）
-        const baseColor = area.color || "rgba(128, 128, 128, 0.3)";
-        
-        div.style.backgroundColor = baseColor;
-        div.style.border = "none";    // 枠線なし
-        div.style.cursor = "pointer"; // 指カーソル
-
-        // マウスが乗った時
-        div.onmouseenter = function() {
-            if (area.hoverColor) {
-                this.style.backgroundColor = area.hoverColor; // ホバー色に変更
-            } else {
-                this.style.opacity = "0.7";
-            }
-            // わかりやすく白い枠線をつける
-            this.style.border = "2px solid rgba(255, 255, 255, 0.8)";
-        };
-
-        // マウスが離れた時
-        div.onmouseleave = function() {
-            this.style.backgroundColor = baseColor; // 元の色に戻す
-            this.style.opacity = "1.0";
-            this.style.border = "none"; // 枠線を消す
-        };
 
         // 部屋名を表示
         div.innerText = area.name;
