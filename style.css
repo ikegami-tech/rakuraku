@@ -459,3 +459,15 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
     border-radius: 4px;
   }
 }
+/* ▼▼▼ 追加: 予約詳細の参加者リスト用スタイル ▼▼▼ */
+.detail-member-item {
+  padding: 8px 4px;         /* 上下に少し余白を入れて見やすく */
+  border-bottom: 1px solid #eee; /* 薄い区切り線を入れる */
+  font-size: 14px;          /* 読みやすいサイズ */
+  color: #333;
+}
+
+/* 最後の行だけ線がいらない場合 */
+.detail-member-item:last-child {
+  border-bottom: none;
+}
