@@ -64,7 +64,7 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   /* ▼重要：計算と合わせるための固定設定▼ */
   font-size: 11px; 
   line-height: 15px; /* 1行の高さを15pxに固定 */
-  padding: 2px;      
+  padding: 2px;       
   /* ▲ここまで▲ */
   
   color: #333; 
@@ -76,7 +76,11 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   white-space: normal; 
   overflow-wrap: anywhere; 
   word-break: break-all;
-  z-index: 100; 
+  
+  /* ▼▼▼ 修正: z-indexを下げて、時間軸の下に潜るようにする ▼▼▼ */
+  z-index: 5; /* 以前は100でした */
+  /* ▲▲▲ 修正ここまで ▲▲▲ */
+  
   cursor: pointer; 
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
   display: flex; 
@@ -85,7 +89,15 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   justify-content: flex-start; 
   text-align: center;
 }
-.v-booking-bar:hover { z-index: 200; box-shadow: 0 4px 10px rgba(0,0,0,0.4); opacity: 0.95; }
+
+.v-booking-bar:hover {
+  /* ▼▼▼ 修正: ホバー時も時間軸(z-index:20)より低くする ▼▼▼ */
+  z-index: 10; /* 以前は200でした */
+  /* ▲▲▲ 修正ここまで ▲▲▲ */
+  
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4); 
+  opacity: 0.95; 
+}
 .type-meeting { background: var(--meeting-bg); border-top: 4px solid var(--meeting-border); }
 .type-reception { background: var(--reception-bg); border-top: 4px solid var(--reception-border); }
 .type-zoom { background: var(--zoom-bg); border-top: 4px solid var(--zoom-border); }
