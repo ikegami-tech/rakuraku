@@ -28,14 +28,14 @@ const mapConfig = {
              { id: "Z 3", name: "Z 3", top: 0.0, left: 75.4, width: 6.0, height: 17.7, color: "rgba(0, 100, 255, 0.3)" },
              
              // ▼ 応接室：オレンジ系
-             { id: "応接室(10人)", name: "応接室(10人)", top: 0.0, left: 81.5, width: 18.2, height: 44.0, color: "rgba(255, 165, 0, 0.3)" },
+             { id: "応接室(10人)", name: "応接室(10人)", top: 0.0, left: 81.5, width: 18.2, height: 44.2, color: "rgba(255, 165, 0, 0.3)" },
              
              // ▼ ZOOMブース：青系
              { id: "Z 4", name: "Z 4", top: 44.5, left: 88.8, width: 11.1, height: 7.0, color: "rgba(0, 100, 255, 0.3)" },
              { id: "Z 5", name: "Z 5", top: 51.9, left: 88.8, width: 11.1, height: 7.0, color: "rgba(0, 100, 255, 0.3)" },
-             { id: "Z 6", name: "Z 6", top: 59.0, left: 88.8, width: 11.1, height: 7.0, color: "rgba(0, 100, 255, 0.3)" },
+             { id: "Z 6", name: "Z 6", top: 59.0, left: 88.8, width: 11.1, height: 7.2, color: "rgba(0, 100, 255, 0.3)" },
              { id: "Z 7", name: "Z 7", top: 66.4, left: 88.8, width: 11.1, height: 7.0, color: "rgba(0, 100, 255, 0.3)" },
-             { id: "Z 8", name: "Z 8", top: 73.5, left: 88.8, width: 11.1, height: 7.0, color: "rgba(0, 100, 255, 0.3)" },
+             { id: "Z 8", name: "Z 8", top: 73.5, left: 88.8, width: 11.1, height: 7.5, color: "rgba(0, 100, 255, 0.3)" },
         ]
     }
 };
