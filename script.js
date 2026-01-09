@@ -674,10 +674,7 @@ function renderLogs() {
     // 5. ページネーションコントロールの描画
     renderPaginationControls(totalPages, totalItems, startIndex + 1, Math.min(endIndex, totalItems));
 }
-// ▲▲▲ 貼り付けここまで ▲▲▲
-    // 5. ページネーションコントロールの描画
-    renderPaginationControls(totalPages, totalItems, startIndex + 1, Math.min(endIndex, totalItems));
-}
+
 
 // ページ送りボタン等の描画
 function renderPaginationControls(totalPages, totalItems, startCount, endCount) {
