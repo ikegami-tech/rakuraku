@@ -12,11 +12,11 @@ const mapConfig = {
 
             // ▼ 会議室：緑系 (rgba(0, 200, 80, 0.3))
             { id: "会議室2", name: "会議室2", top: 15.0, left: 79.0, width: 21.0, height: 22.5, color: "rgba(0, 200, 80, 0.3)" },
-            { id: "会議室1", name: "会議室1", top: 38.0, left: 79.0, width: 21.0, height: 15.0, color: "rgba(0, 200, 80, 0.3)" },
+            { id: "会議室1", name: "会議室1", top: 37.7, left: 79.0, width: 21.0, height: 14.5, color: "rgba(0, 200, 80, 0.3)" },
 
             // ▼ 応接室：オレンジ系 (rgba(255, 165, 0, 0.3))
-            { id: "応接室(8人)", name: "応接室(8人)", top: 71.5, left: 0.0, width: 22.5, height: 28.5, color: "rgba(255, 165, 0, 0.3)" },
-            { id: "応接室(6人)", name: "応接室(6人)", top: 76.5, left: 22.6, width: 20.0, height: 22.0, color: "rgba(255, 165, 0, 0.3)" },
+            { id: "応接室(8人)", name: "応接室(8人)", top: 70.7, left: 0.0, width: 22.5, height: 28.5, color: "rgba(255, 165, 0, 0.3)" },
+            { id: "応接室(6人)", name: "応接室(6人)", top: 76.5, left: 22.6, width: 20.0, height: 23.0, color: "rgba(255, 165, 0, 0.3)" },
         ]
     },
     6: {
