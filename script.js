@@ -1154,7 +1154,7 @@ function renderGroupButtons() {
       // 2. 「編集」ボタン（★追加）
       const editBtn = document.createElement('div');
       editBtn.className = 'group-chip';
-      editBtn.style.backgroundColor = isEditMode ? '#3498db' : '#95a5a6'; // 青 or グレー
+      editBtn.style.backgroundColor = isEditMode ? '#2980b9' : '#3498db';
       editBtn.style.color = 'white';
       editBtn.style.fontWeight = 'bold';
       editBtn.innerText = isEditMode ? "完了" : "✎ 編集";
@@ -1168,7 +1168,7 @@ function renderGroupButtons() {
       // 3. 「削除」ボタン
       const delBtn = document.createElement('div');
       delBtn.className = 'group-chip';
-      delBtn.style.backgroundColor = isDeleteMode ? '#e74c3c' : '#95a5a6'; // 赤 or グレー
+      delBtn.style.backgroundColor = isDeleteMode ? '#c0392b' : '#e74c3c';
       delBtn.style.color = 'white';
       delBtn.style.fontWeight = 'bold';
       delBtn.innerText = isDeleteMode ? "完了" : "× 削除";
