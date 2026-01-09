@@ -698,7 +698,7 @@ function renderPaginationControls(totalPages, totalItems, startCount, endCount) 
     // 情報表示 (例: 1 - 50 / 120件)
     const infoSpan = document.createElement('span');
     infoSpan.className = 'page-info';
-    infoSpan.innerText = ` ${startCount} - ${endCount} / ${totalItems}件 (P.${currentLogPage}/${totalPages}) `;
+    infoSpan.innerText = ` ${startCount} - ${endCount} / ${totalItems}件 `;
     container.appendChild(infoSpan);
 
     // 次へボタン
