@@ -1070,21 +1070,17 @@ function openDetailModal(res) {
   document.getElementById('detail-title').innerText = title;
   
   // 4. 参加者の表示
-  // ▼▼▼ 修正: 表示エリアを取得 ▼▼▼
   const memberContainer = document.getElementById('detail-members');
-  memberContainer.innerHTML = ""; // 一旦クリア
+  memberContainer.innerHTML = ""; // 初期化
 
   let pIdsStr = getVal(res, ['participantIds', 'participant_ids', '参加者', 'メンバー']);
   
-  // データ形式エラーチェック
   if (String(pIdsStr).includes('e+')) {
       memberContainer.innerHTML = '<span style="color:red;">⚠️データ形式エラー: 編集ボタンから保存し直してください</span>';
   } else if (pIdsStr) {
-      // IDリストを分割（カンマ区切り、余分なクォーテーション除去）
       const cleanIdsStr = String(pIdsStr).replace(/['"]/g, "");
       const resIds = cleanIdsStr.split(/[,、\s]+/).map(id => id.trim());
       
-      // IDを名前に変換
       const names = resIds.map(id => {
           if(!id) return "";
           const u = masterData.users.find(user => {
@@ -1095,10 +1091,9 @@ function openDetailModal(res) {
       }).filter(n => n !== "");
       
       if(names.length > 0) {
-          // ▼▼▼ 修正: 名前を1行ずつのリストHTMLとして生成 ▼▼▼
+          // 1人ずつdivタグで囲んでリスト化
           const html = names.map(name => `<div class="detail-member-item">${name}</div>`).join('');
           memberContainer.innerHTML = html;
-          // ▲▲▲ 修正ここまで ▲▲▲
       } else {
           memberContainer.innerText = "-";
       }
