@@ -1124,20 +1124,6 @@ function openDetailModal(res) {
       memberContainer.innerHTML = '<div style="padding:5px;">-</div>';
   }
   
-  // 5. 備考の表示
-  let rawNote = getVal(res, ['note', 'description', '備考', 'メモ']) || '';
-  let cleanNote = rawNote.replace(/【変更履歴】.*/g, '').replace(/^\s*[\r\n]/gm, '').trim();
-  document.getElementById('detail-note').innerText = cleanNote;
-
-  // 「編集する」ボタン
-  document.getElementById('btn-go-edit').onclick = function() {
-      closeDetailModal();        
-      openModal(currentDetailRes); 
-  };
-
-  modal.style.display = 'flex';
-}
-
 function closeDetailModal() {
   document.getElementById('detailModal').style.display = 'none';
 }
