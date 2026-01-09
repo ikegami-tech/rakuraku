@@ -389,19 +389,19 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   font-weight: bold;
   color: #555;
 }
-/* ▼▼▼ スマホ表示時の修正（リスト調整 ＆ 備考欄拡大） ▼▼▼ */
+/* ▼▼▼ スマホ表示時の修正（全項目まとめ ＋ 予約詳細の参加者スクロール） ▼▼▼ */
 @media (max-width: 600px) {
   /* 1. 左右のリストを縦並びにするエリア */
   .shuttle-container {
-    flex-direction: column; /* 縦並び */
-    height: auto;           /* 高さを固定せず中身に合わせる */
-    gap: 15px;              /* ボックス間の隙間 */
+    flex-direction: column;
+    height: auto;
+    gap: 15px;
   }
 
   /* 2. 候補者・参加予定者の各ボックス */
   .shuttle-box {
-    height: 200px; /* 高さを200pxに固定（スクロールバーが出るようにする） */
-    flex: none;    /* 勝手に伸び縮みしない */
+    height: 200px;
+    flex: none;
   }
 
   /* 3. グループボタンの表示エリア */
@@ -419,12 +419,22 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
     touch-action: manipulation;
   }
 
-/* 5. 備考欄（テキストエリア）を大きくする */
-  /* !important をつけて確実に高さを確保します */
+  /* 5. 備考欄（テキストエリア）を大きくする */
   textarea {
-    height: 120px !important; /* 高さを強制的に120pxにする */
-    padding: 10px !important; /* 文字と枠の間隔 */
-    line-height: 1.5;         /* 行間を広げて読みやすく */
-    font-size: 16px;          /* スマホでズームされない適切な文字サイズ */
+    height: 120px !important;
+    padding: 10px !important;
+    line-height: 1.5;
+    font-size: 16px;
+  }
+
+  /* 6. ★追加: 予約詳細の「参加者」をスクロール表示にする */
+  #detail-members {
+    display: block;        /* ブロック要素にして高さ制限を効かせる */
+    max-height: 100px;     /* 高さを制限（約4-5行分） */
+    overflow-y: auto;      /* あふれたらスクロール */
+    border-bottom: none;   /* 見た目の微調整 */
+    padding: 5px;          /* 内側の余白 */
+    background-color: #fafafa; /* 背景色をつけて範囲をわかりやすく */
+    border-radius: 4px;
   }
 }
