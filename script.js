@@ -1094,15 +1094,13 @@ function openDetailModal(res) {
       }).filter(n => n !== "");
       
       if(names.length > 0) {
-          // ▼▼▼ リスト表示の生成 ▼▼▼
+          // ▼▼▼ ここでリスト（divタグ）を作成 ▼▼▼
           const html = names.map(name => `<div class="detail-member-item">${name}</div>`).join('');
           memberContainer.innerHTML = html;
       } else {
-          // 誰もいない場合
           memberContainer.innerHTML = '<div class="detail-member-item">-</div>';
       }
   } else {
-      // データがない場合
       memberContainer.innerHTML = '<div class="detail-member-item">-</div>';
   }
   
