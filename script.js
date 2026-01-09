@@ -1071,16 +1071,19 @@ function openDetailModal(res) {
   
   // 4. 参加者の表示
   const memberContainer = document.getElementById('detail-members');
-  memberContainer.innerHTML = ""; // 初期化
+  memberContainer.innerHTML = ""; // 一旦クリア
 
   let pIdsStr = getVal(res, ['participantIds', 'participant_ids', '参加者', 'メンバー']);
   
+  // データ形式エラーチェック
   if (String(pIdsStr).includes('e+')) {
-      memberContainer.innerHTML = '<span style="color:red;">⚠️データ形式エラー: 編集ボタンから保存し直してください</span>';
+      memberContainer.innerHTML = '<div style="color:red; padding:5px;">⚠️データエラー: 編集から保存し直してください</div>';
   } else if (pIdsStr) {
+      // IDリストを分割（カンマ、読点、スペース等で区切る）
       const cleanIdsStr = String(pIdsStr).replace(/['"]/g, "");
       const resIds = cleanIdsStr.split(/[,、\s]+/).map(id => id.trim());
       
+      // IDを名前に変換
       const names = resIds.map(id => {
           if(!id) return "";
           const u = masterData.users.find(user => {
@@ -1091,14 +1094,14 @@ function openDetailModal(res) {
       }).filter(n => n !== "");
       
       if(names.length > 0) {
-          // 1人ずつdivタグで囲んでリスト化
+          // ▼▼▼ 修正: 名前を1行ずつのリストHTMLとして生成 ▼▼▼
           const html = names.map(name => `<div class="detail-member-item">${name}</div>`).join('');
           memberContainer.innerHTML = html;
       } else {
-          memberContainer.innerText = "-";
+          memberContainer.innerHTML = '<div class="detail-member-item">-</div>';
       }
   } else {
-      memberContainer.innerText = "-";
+      memberContainer.innerHTML = '<div class="detail-member-item">-</div>';
   }
   // 5. 備考の表示
   let rawNote = getVal(res, ['note', 'description', '備考', 'メモ']) || '';
