@@ -12,11 +12,11 @@ const mapConfig = {
 
             // ▼ 会議室：緑系 (rgba(0, 200, 80, 0.3))
             { id: "会議室2", name: "会議室2", top: 15.0, left: 79.0, width: 21.0, height: 22.5, color: "rgba(0, 200, 80, 0.3)" },
-            { id: "会議室1", name: "会議室1", top: 37.7, left: 79.0, width: 21.0, height: 14.5, color: "rgba(0, 200, 80, 0.3)" },
+            { id: "会議室1", name: "会議室1", top: 38.0, left: 79.0, width: 21.0, height: 15.0, color: "rgba(0, 200, 80, 0.3)" },
 
             // ▼ 応接室：オレンジ系 (rgba(255, 165, 0, 0.3))
-            { id: "応接室(8人)", name: "応接室(8人)", top: 70.7, left: 0.0, width: 22.5, height: 28.5, color: "rgba(255, 165, 0, 0.3)" },
-            { id: "応接室(6人)", name: "応接室(6人)", top: 76.5, left: 22.6, width: 20.0, height: 23.0, color: "rgba(255, 165, 0, 0.3)" },
+            { id: "応接室(8人)", name: "応接室(8人)", top: 71.5, left: 0.0, width: 22.5, height: 28.5, color: "rgba(255, 165, 0, 0.3)" },
+            { id: "応接室(6人)", name: "応接室(6人)", top: 76.5, left: 22.6, width: 20.0, height: 22.0, color: "rgba(255, 165, 0, 0.3)" },
         ]
     },
     6: {
@@ -130,31 +130,31 @@ async function loadAllData(isUpdate = false) {
 }
 
 function initUI() {
-    // 1. 時間軸の枠組みだけ準備
-    renderTimeAxis('time-axis-all');
-    renderTimeAxis('time-axis-map');
+  // 1. 時間軸の枠組みだけ準備
+  renderTimeAxis('time-axis-all');
+  renderTimeAxis('time-axis-map');
+  
+  // 2. 部屋選択プルダウンの生成
+  const roomSelect = document.getElementById('input-room');
+  if (roomSelect) {
+    roomSelect.innerHTML = "";
+    masterData.rooms.forEach(r => {
+      const op = document.createElement('option');
+      op.value = r.roomId;
+      op.innerText = r.roomName;
+      roomSelect.appendChild(op);
+    });
+  }
 
-    // 2. 部屋選択プルダウンの生成
-    const roomSelect = document.getElementById('input-room');
-    if (roomSelect) {
-        roomSelect.innerHTML = "";
-        masterData.rooms.forEach(r => {
-            const op = document.createElement('option');
-            op.value = r.roomId;
-            op.innerText = r.roomName;
-            roomSelect.appendChild(op);
-        });
-    }
+  // 3. グループボタンの生成
+  renderGroupButtons();
+  
+  // 4. 各画面の変数を初期化（描画はまだしない）
+  currentFloor = 7;
+  currentTimelineFloor = 7;
 
-    // 3. グループボタンの生成
-    renderGroupButtons();
-
-    // 4. 各画面の変数を初期化
-    currentFloor = 7;
-    currentTimelineFloor = 7;
-
-    // 5. ▼▼▼ 修正: 確実にマップタブを表示状態にする ▼▼▼
-    switchTab('map-view');
+  // 5. 最初に表示するタブを指定（この関数の中で描画がトリガーされます）
+  switchTab('map-view');
 }
 // ▼▼▼ 【追加】画面遷移せずにデータを更新する関数 ▼▼▼
 function refreshUI() {
@@ -269,43 +269,46 @@ function renderShuttleLists(filterText = "") {
 }
 
 function switchTab(tabName) {
-    // 1. すべてのタブと画面を非アクティブにする
-    document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  // 1. すべてのタブと画面を非アクティブにする
+  document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  
+  // 2. 選択された画面を表示する（CSSで display: block になる）
+  const targetView = document.getElementById('view-' + tabName);
+  if(targetView) targetView.classList.add('active');
+  
+  // 3. ナビゲーションボタンの見た目を更新
+  const tabs = document.querySelectorAll('.nav-item');
+  // インデックスはHTMLの並び順 (0:マップ, 1:一覧, 2:履歴)
+  if(tabName === 'map-view' && tabs[0]) tabs[0].classList.add('active');
+  if(tabName === 'timeline' && tabs[1]) tabs[1].classList.add('active');
+  if(tabName === 'logs' && tabs[2]) tabs[2].classList.add('active');
 
-    // 2. 選択された画面を表示する
-    const targetView = document.getElementById('view-' + tabName);
-    if(targetView) targetView.classList.add('active');
-
-    // 3. ナビゲーションボタンの見た目を更新
-    const tabs = document.querySelectorAll('.nav-item');
-    if(tabName === 'map-view' && tabs[0]) tabs[0].classList.add('active');
-    if(tabName === 'timeline' && tabs[1]) tabs[1].classList.add('active');
-    if(tabName === 'logs' && tabs[2]) tabs[2].classList.add('active');
-
-    // ▼▼▼ 【重要修正】マップ画像の表示遅延処理 ▼▼▼
-    if (tabName === 'map-view') {
-        // 画面が表示（display:flex）された直後は画像の高さ計算などがうまくいかない場合があるため
-        // 50ミリ秒だけ待ってから描画関数(switchFloor)を呼び出すことで表示バグを防ぐ
-        setTimeout(() => {
-            switchFloor(currentFloor); 
-        }, 50);
-
-    } else if (tabName === 'timeline') {
-        // 一覧画面の表示更新
-        setTimeout(() => {
-            document.querySelectorAll('#view-timeline .floor-tab').forEach(tab => tab.classList.remove('active'));
-            const activeTab = document.getElementById(`timeline-tab-${currentTimelineFloor}f`);
-            if(activeTab) activeTab.classList.add('active');
-
-            renderVerticalTimeline('all');
-        }, 0);
-
-    } else if (tabName === 'logs') {
-        // 履歴画面の表示更新
-        renderLogs();
-    }
+  // ▼▼▼ 【重要修正】画面が表示された後に、中身を描画する ▼▼▼
+  
+  if (tabName === 'map-view') {
+      // マップ画面の場合：描画ズレを防ぐため、ほんの少し待ってから描画
+      setTimeout(() => {
+          switchFloor(currentFloor); 
+      }, 50);
+      
+  } else if (tabName === 'timeline') {
+      // 一覧画面の場合：画面幅を正しく取得させるため、setTimeout(0)で実行
+      setTimeout(() => {
+          // タブの見た目も同期
+          document.querySelectorAll('#view-timeline .floor-tab').forEach(tab => tab.classList.remove('active'));
+          const activeTab = document.getElementById(`timeline-tab-${currentTimelineFloor}f`);
+          if(activeTab) activeTab.classList.add('active');
+          
+          renderVerticalTimeline('all');
+      }, 0);
+      
+  } else if (tabName === 'logs') {
+      // 履歴画面の場合
+      renderLogs();
+  }
 }
+
 let hourRowHeights = {}; 
 
 function drawTimeAxis(containerId) {
@@ -969,202 +972,226 @@ function switchTimelineFloor(floor) {
 // ▼▼▼ 【追加】詳細モーダル関連の処理 ▼▼▼
 let currentDetailRes = null;
 
-/* --- 1. 詳細表示用モーダル（閲覧専用） --- */
 function openDetailModal(res) {
-    currentDetailRes = res;
-    const modal = document.getElementById('detailModal');
+  currentDetailRes = res;
+  const modal = document.getElementById('detailModal');
+  
+  // 1. 日時の表示
+  const s = new Date(res._startTime);
+  const e = new Date(res._endTime);
+  const dateStr = `${s.getMonth()+1}/${s.getDate()}`;
+  const timeStr = `${pad(s.getHours())}:${pad(s.getMinutes())} - ${pad(e.getHours())}:${pad(e.getMinutes())}`;
+  document.getElementById('detail-time').innerText = `${dateStr} ${timeStr}`;
+  
+  // 2. 部屋名の表示
+  const room = masterData.rooms.find(r => String(r.roomId) === String(res._resourceId));
+  document.getElementById('detail-room').innerText = room ? room.roomName : res._resourceId;
+  
+  // 3. 用件の表示
+  const title = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '(なし)';
+  document.getElementById('detail-title').innerText = title;
+  
+  // 4. 参加者の表示（▼▼▼ 修正: 変な数字になっている場合の対策を追加 ▼▼▼）
+  let pNames = "-";
+  let pIdsStr = getVal(res, ['participantIds', 'participant_ids', '参加者', 'メンバー']);
+  
+  // もしデータが指数表記(5.04...e+41)のように壊れていたらエラーを表示
+  if (String(pIdsStr).includes('e+')) {
+      pNames = "⚠️データ形式エラー: 編集ボタンから参加者を登録し直してください";
+  } else if (pIdsStr) {
+      // カンマ区切りなどで分割して処理
+      // (万が一スペースがなくても対応できるよう、正規表現で分割します)
+      const resIds = String(pIdsStr).split(/,\s*/).map(id => id.trim()).sort();
+      
+      const matchedGroup = masterData.groups.find(grp => {
+          if (!grp.memberIds) return false;
+          const grpIds = grp.memberIds.split(',').map(id => id.trim()).sort();
+          return JSON.stringify(resIds) === JSON.stringify(grpIds);
+      });
 
-    // 日時
-    const s = new Date(res._startTime);
-    const e = new Date(res._endTime);
-    const dateStr = `${s.getMonth() + 1}/${s.getDate()}`;
-    const timeStr = `${pad(s.getHours())}:${pad(s.getMinutes())} - ${pad(e.getHours())}:${pad(e.getMinutes())}`;
-    document.getElementById('detail-time').innerText = `${dateStr} ${timeStr}`;
+      if (matchedGroup) {
+          pNames = matchedGroup.groupName;
+      } else {
+          const names = resIds.map(id => {
+              if(!id) return "";
+              const u = masterData.users.find(user => {
+                  const uIdStr = String(user.userId).trim();
+                  return uIdStr === id || (!isNaN(uIdStr) && !isNaN(id) && Number(uIdStr) === Number(id));
+              });
+              return u ? u.userName : id;
+          }).filter(n => n !== "");
+          
+          if(names.length > 0) pNames = names.join(', ');
+      }
+  }
+  document.getElementById('detail-members').innerText = pNames;
+  
+  // 5. 備考の表示（▼▼▼ 修正: 【変更履歴】を含む行を消して表示する ▼▼▼）
+  let rawNote = getVal(res, ['note', 'description', '備考', 'メモ']) || '';
+  // 「【変更履歴】」から始まる行をすべて削除して表示
+  let cleanNote = rawNote.replace(/【変更履歴】.*/g, '').replace(/^\s*[\r\n]/gm, '').trim();
+  
+  document.getElementById('detail-note').innerText = cleanNote;
 
-    // 部屋
-    const room = masterData.rooms.find(r => String(r.roomId) === String(res._resourceId));
-    document.getElementById('detail-room').innerText = room ? room.roomName : res._resourceId;
+  // 「編集する」ボタン
+  document.getElementById('btn-go-edit').onclick = function() {
+      closeDetailModal();        
+      openModal(currentDetailRes); 
+  };
 
-    // 用件
-    const title = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '(なし)';
-    document.getElementById('detail-title').innerText = title;
+  modal.style.display = 'flex';
+}
+function closeDetailModal() {
+  document.getElementById('detailModal').style.display = 'none';
+}
+/* =========================================
+   ▼▼▼ グループ管理機能（完全クリア＆共有版） ▼▼▼
+   ========================================= */
 
-    // 参加者（名前変換ロジック入り）
-    let pNames = "-";
-    let pIdsStr = getVal(res, ['participantIds', 'participant_ids', '参加者', 'メンバー']);
+// グループ作成モーダル用の一時的なID保存セット
+let groupCreateSelectedIds = new Set();
+// 削除モードかどうかのフラグ
+let isDeleteMode = false;
 
-    if (String(pIdsStr).includes('e+')) {
-        pNames = "⚠️データ形式エラー: 編集ボタンから参加者を登録し直してください";
-    } else if (pIdsStr) {
-        const resIds = String(pIdsStr).split(/,\s*/).map(id => id.trim()).sort();
+// script.js の renderGroupButtons 関数をこれに置き換えてください
 
-        // グループ名チェック
-        const matchedGroup = masterData.groups.find(grp => {
-            if (!grp.memberIds) return false;
-            const grpIds = grp.memberIds.split(',').map(id => id.trim()).sort();
-            return JSON.stringify(resIds) === JSON.stringify(grpIds);
-        });
+function renderGroupButtons() {
+  const container = document.getElementById('group-buttons-area');
+  container.innerHTML = "";
+  const serverGroups = masterData.groups || [];
 
-        if (matchedGroup) {
-            pNames = matchedGroup.groupName;
-        } else {
-            // ID正規化関数
-            const normalize = (str) => String(str).replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0)).trim();
-            
-            const names = resIds.map(id => {
-                if (!id) return "";
-                const searchId = normalize(id);
-                // ユーザー検索
-                const u = masterData.users.find(user => normalize(user.userId) === searchId);
-                return u ? u.userName : id;
-            }).filter(n => n !== "");
+  serverGroups.forEach(grp => {
+      // GASからは { groupId, groupName, memberIds, ... } が返ってきています
+      createGroupButton(container, grp.groupName, grp.memberIds, true, grp.groupId);
+  });
 
-            if (names.length > 0) pNames = names.join(', ');
+  // 2. 「＋新規作成」ボタン（これを押すとモーダルが開く）
+  const addBtn = document.createElement('div');
+  addBtn.className = 'group-chip';
+  addBtn.style.backgroundColor = '#4caf50'; // 緑色
+  addBtn.style.color = 'white';
+  addBtn.style.fontWeight = 'bold';
+  addBtn.innerText = "＋新規作成";
+  addBtn.onclick = openGroupModal;
+  container.appendChild(addBtn);
+
+  // 3. 「ー削除」ボタン（共有グループがある場合のみ表示）
+  if (serverGroups.length > 0) {
+      const delBtn = document.createElement('div');
+      delBtn.className = 'group-chip';
+      delBtn.style.backgroundColor = isDeleteMode ? '#e74c3c' : '#95a5a6'; // 赤 or グレー
+      delBtn.style.color = 'white';
+      delBtn.style.fontWeight = 'bold';
+      delBtn.innerText = isDeleteMode ? "完了" : "ー削除";
+      delBtn.onclick = () => {
+          isDeleteMode = !isDeleteMode;
+          renderGroupButtons(); // 再描画してバツ印を表示/非表示
+      };
+      container.appendChild(delBtn);
+  }
+}
+function createGroupButton(container, name, ids, isCustom, groupId) {
+    const btn = document.createElement('div');
+    btn.className = 'group-chip';
+    btn.innerText = name;
+    
+    // クリック時の動作
+    btn.onclick = () => {
+        // --- ここから修正 ---
+        if (isDeleteMode) {
+            if (isCustom) {
+                // 削除モード中に自作グループを押した場合、削除確認を出す
+                deleteSharedGroup(groupId, name);
+            } else {
+                // 「全員」などシステム固定のものは削除できない旨を伝える
+                alert("この項目はシステム固定のため削除できません。");
+            }
+            return;
         }
-    }
-    document.getElementById('detail-members').innerText = pNames;
-
-    // 備考
-    let rawNote = getVal(res, ['note', 'description', '備考', 'メモ']) || '';
-    let cleanNote = rawNote.replace(/【変更履歴】.*/g, '').replace(/^\s*[\r\n]/gm, '').trim();
-    document.getElementById('detail-note').innerText = cleanNote;
-
-    // 「編集する」ボタンの動作設定
-    document.getElementById('btn-go-edit').onclick = function() {
-        closeDetailModal();
-        openModal(currentDetailRes); // 編集用モーダルを開く
+        // 通常モード時は参加者をセット
+        selectGroupMembers(ids);
+        // --- ここまで修正 ---
     };
 
-    modal.style.display = 'flex';
-}
-
-function closeDetailModal() {
-    document.getElementById('detailModal').style.display = 'none';
-}
-
-
-/* --- 2. 編集・新規作成用モーダル（入力フォーム） --- */
-function openModal(res = null, defaultRoomId = null, clickHour = null) {
-    const modal = document.getElementById('bookingModal');
-    modal.style.display = 'flex';
-
-    selectedParticipantIds.clear();
-    originalParticipantIds.clear();
-    document.getElementById('shuttle-search-input').value = "";
-
-    // 時間表示エリア
-    let timeDisplayEl = document.getElementById('modal-time-display');
-    if (!timeDisplayEl) {
-        const header = document.getElementById('modal-title');
-        timeDisplayEl = document.createElement('div');
-        timeDisplayEl.id = 'modal-time-display';
-        timeDisplayEl.style.cssText = "font-size: 1.1rem; color: #27ae60; font-weight: bold; margin-bottom: 15px; text-align:center; background:#e8f5e9; padding:8px; border-radius:4px;";
-        header.parentNode.insertBefore(timeDisplayEl, header.nextSibling);
+    // 削除モードかつカスタム(共有)グループの場合の見た目
+    if (isDeleteMode && isCustom) {
+        // 削除対象であることを視覚的に目立たせる（赤枠の破線など）
+        btn.style.opacity = "1.0"; 
+        btn.style.border = "2px dashed #c0392b"; 
+        btn.style.color = "#c0392b";
+        btn.style.backgroundColor = "#fdeaea"; // 薄い赤背景
+        btn.innerText = name; 
     }
-    timeDisplayEl.innerText = "";
 
-    const startInput = document.getElementById('input-start');
-    const endInput = document.getElementById('input-end');
-    if (startInput) { startInput.min = "09:00"; startInput.max = "18:00"; }
-    if (endInput) { endInput.min = "09:00"; endInput.max = "18:00"; }
+    container.appendChild(btn);
+}
+// ★修正: 新しいグループをサーバー(GAS)に保存する処理
+async function saveNewGroup() {
+    const name = document.getElementById('new-group-name').value.trim();
+    if (!name) {
+        alert("グループ名を入力してください");
+        return;
+    }
+    if (groupCreateSelectedIds.size === 0) {
+        alert("メンバーを1人以上選択してください");
+        return;
+    }
 
-    // === 編集モード ===
-    if (res) {
-        document.getElementById('modal-title').innerText = "予約編集";
-        document.getElementById('edit-res-id').value = res.id;
+    const idsStr = Array.from(groupCreateSelectedIds).join(',');
 
-        const rId = res._resourceId || res.resourceId || res.roomId;
-        document.getElementById('input-room').value = rId;
+    // API呼び出し用のパラメータ
+    const params = {
+        action: 'createGroup',
+        groupName: name,
+        memberIds: idsStr,
+        operatorName: currentUser ? currentUser.userName : 'Unknown'
+    };
 
-        const startObj = new Date(res._startTime || res.startTime);
-        const endObj = new Date(res._endTime || res.endTime);
-
-        const y = startObj.getFullYear();
-        const m = ('0' + (startObj.getMonth() + 1)).slice(-2);
-        const d = ('0' + startObj.getDate()).slice(-2);
-        document.getElementById('input-date').value = `${y}-${m}-${d}`;
-
-        const sh = ('0' + startObj.getHours()).slice(-2);
-        const sm = ('0' + startObj.getMinutes()).slice(-2);
-        const eh = ('0' + endObj.getHours()).slice(-2);
-        const em = ('0' + endObj.getMinutes()).slice(-2);
-        document.getElementById('input-start').value = `${sh}:${sm}`;
-        document.getElementById('input-end').value = `${eh}:${em}`;
-
-        document.getElementById('input-title').value = getVal(res, ['title', 'subject', '件名', 'タイトル', '用件', 'name']);
-        document.getElementById('input-note').value = getVal(res, ['note', 'description', '備考', 'メモ', '詳細', 'body']);
-
-        // 参加者復元（ここにも名前変換ロジック適用）
-        const pIds = getVal(res, ['participantIds', 'participant_ids', '参加者', 'メンバー']);
-        if (pIds) {
-            let idList = [];
-            if (Array.isArray(pIds)) idList = pIds;
-            else if (typeof pIds === 'string') idList = pIds.split(',');
-            else if (typeof pIds === 'number') idList = [pIds];
-
-            const normalize = (str) => String(str).replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0)).trim();
-
-            idList.forEach(rawId => {
-                if (rawId !== null && rawId !== undefined && String(rawId).trim() !== "") {
-                    const targetId = normalize(String(rawId).trim());
-                    const user = masterData.users.find(u => normalize(u.userId) === targetId);
-                    const finalId = user ? String(user.userId).trim() : String(rawId).trim();
-                    
-                    selectedParticipantIds.add(finalId);
-                    originalParticipantIds.add(finalId);
-                }
-            });
-        }
-        document.getElementById('btn-delete').style.display = 'inline-block';
-
-    // === 新規作成モード ===
+    const result = await callAPI(params);
+    
+    if (result.status === 'success') {
+        alert(`グループ「${name}」を作成し、共有しました`);
+        closeGroupModal();
+        isDeleteMode = false;
+        // データを再読み込みして全画面に反映（trueを渡して画面遷移を防ぐ）
+        loadAllData(true);
     } else {
-        document.getElementById('modal-title').innerText = "新規予約";
-        document.getElementById('edit-res-id').value = "";
-        if (defaultRoomId) document.getElementById('input-room').value = defaultRoomId;
-
-        let currentTabDate = "";
-        if (document.getElementById('view-timeline') && document.getElementById('view-timeline').classList.contains('active')) {
-            currentTabDate = document.getElementById('timeline-date').value;
-        } else {
-            currentTabDate = document.getElementById('map-date').value;
-        }
-
-        if (!currentTabDate) {
-            const now = new Date();
-            const y = now.getFullYear();
-            const mm = ('0' + (now.getMonth() + 1)).slice(-2);
-            const dd = ('0' + now.getDate()).slice(-2);
-            currentTabDate = `${y}-${mm}-${dd}`;
-        }
-        document.getElementById('input-date').value = currentTabDate;
-
-        const sHour = clickHour ? clickHour : 9;
-        document.getElementById('input-start').value = `${pad(sHour)}:00`;
-        document.getElementById('input-end').value = `${pad(sHour + 1)}:00`;
-
-        document.getElementById('input-title').value = "";
-        document.getElementById('input-note').value = "";
-        document.getElementById('btn-delete').style.display = 'none';
+        alert("保存エラー: " + result.message);
     }
-
-    renderShuttleLists();
-
-    // イベントリスナー設定
-    const inputs = ['input-date', 'input-start', 'input-end'];
-    inputs.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) {
-            el.oninput = updateModalDisplay;
-            el.onchange = updateModalDisplay;
-        }
-    });
-    updateModalDisplay();
 }
 
-function closeModal() { 
-    document.getElementById('bookingModal').style.display = 'none'; 
+// ★修正: サーバー(GAS)からグループを削除する処理
+async function deleteSharedGroup(groupId, groupName) {
+    if(!confirm(`共有グループ「${groupName}」を本当に削除しますか？\n（全社員の画面から消えます）`)) return;
+
+    const params = {
+        action: 'deleteGroup',
+        groupId: groupId
+    };
+
+    const result = await callAPI(params);
+
+    if (result.status === 'success') {
+        alert("削除しました");
+        // 最新データを読み直して表示を更新
+        loadAllData(true);
+    } else {
+        alert("削除エラー: " + result.message);
+    }
 }
+// --- グループ作成モーダル関連（不足分を追加） ---
+function openGroupModal() {
+    document.getElementById('groupCreateModal').style.display = 'flex';
+    document.getElementById('new-group-name').value = "";
+    document.getElementById('group-shuttle-search').value = "";
+    groupCreateSelectedIds.clear();
+    renderGroupCreateShuttle();
+}
+
+function closeGroupModal() {
+    document.getElementById('groupCreateModal').style.display = 'none';
+}
+
 function renderGroupCreateShuttle() {
     const filterText = document.getElementById('group-shuttle-search').value.toLowerCase();
     const leftList = document.getElementById('group-create-candidates');
@@ -1195,6 +1222,7 @@ function renderGroupCreateShuttle() {
         }
     });
 }
+// ▼▼▼ 【追加】モーダルの上部表示を更新する関数 ▼▼▼
 // ▼▼▼ 【修正版】モーダルの上部表示を更新する関数 ▼▼▼
 function updateModalDisplay() {
     // 要素の取得
