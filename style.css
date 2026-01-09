@@ -154,7 +154,17 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   border: 1px solid #eee;
   border-radius: 4px;
 }
-.group-chip { background: #e0e0e0; border: 1px solid #ccc; border-radius: 15px; padding: 4px 10px; font-size: 0.8rem; cursor: pointer; user-select: none; transition: background 0.2s; }
+.group-chip {
+  background: #e0e0e0;
+  border: 1px solid #ccc;
+  border-radius: 12px; /* 丸みを少し小さく */
+  padding: 3px 8px;    /* 余白を削減 */
+  font-size: 0.75rem;  /* 文字を少し小さく */
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s;
+  display: inline-block; /* 崩れ防止 */
+}
 .group-chip:hover { background: #d5d5d5; }
 .shuttle-container { display: flex; gap: 10px; margin-top: 5px; height: 200px; }
 .shuttle-box { flex: 1; border: 1px solid #ddd; border-radius: 4px; display: flex; flex-direction: column; background: #fafafa; }
@@ -388,13 +398,11 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   }
 
   /* 個別のボタンを指で押しやすいサイズにする */
-  .group-chip {
-    display: inline-block; /* 崩れ防止 */
-    padding: 12px 16px;    /* 上下左右の余白を増やしてボタンを大きく */
-    font-size: 14px;       /* 文字を少し大きく */
-    margin: 3px;           /* ボタン同士がくっつきすぎないようにする */
-    
-    /* タップ時の反応を良くする視覚調整 */
+ .group-chip {
+    display: inline-block;
+    padding: 6px 10px; /* ★小さく調整済み */
+    font-size: 12px;   /* ★小さく調整済み */
+    margin: 2px;       
     touch-action: manipulation;
   }
 }
