@@ -1083,9 +1083,7 @@ function renderMap(floor) {
         targetParent.appendChild(div);
     });
     
-// ▼▼▼ 【追加】一覧画面の階切り替え機能 ▼▼▼
-function switchTimelineFloor(floor) {
-    currentTimelineFloor = floor;
+
     
     // タブの見た目を切り替え
     document.querySelectorAll('#view-timeline .floor-tab').forEach(tab => tab.classList.remove('active'));
