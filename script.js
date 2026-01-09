@@ -1149,25 +1149,7 @@ function openDetailModal(res) {
 function closeDetailModal() {
   document.getElementById('detailModal').style.display = 'none';
 }
-// ▲▲▲ ここまでコピー ▲▲▲
-
-  // 5. 備考の表示
-  let rawNote = getVal(res, ['note', 'description', '備考', 'メモ']) || '';
-  let cleanNote = rawNote.replace(/【変更履歴】.*/g, '').replace(/^\s*[\r\n]/gm, '').trim();
-  document.getElementById('detail-note').innerText = cleanNote;
-
-  // 「編集する」ボタン
-  document.getElementById('btn-go-edit').onclick = function() {
-      closeDetailModal();        
-      openModal(currentDetailRes); 
-  };
-
-  modal.style.display = 'flex';
-}
-function closeDetailModal() {
-  document.getElementById('detailModal').style.display = 'none';
-}
-/* =========================================
+=======================================
    ▼▼▼ グループ管理機能（完全クリア＆共有版） ▼▼▼
    ========================================= */
 
