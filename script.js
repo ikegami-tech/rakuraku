@@ -1082,11 +1082,7 @@ function renderMap(floor) {
         // 画面に追加
         targetParent.appendChild(div);
     });
-
-    // マップ下のタイムラインを一旦隠す（部屋を選び直したため）
-    const timelineSection = document.getElementById('map-timeline-section');
-    if(timelineSection) timelineSection.style.display = 'none';
-}
+    
 // ▼▼▼ 【追加】一覧画面の階切り替え機能 ▼▼▼
 function switchTimelineFloor(floor) {
     currentTimelineFloor = floor;
