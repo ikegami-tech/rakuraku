@@ -1047,7 +1047,7 @@ function switchTimelineFloor(floor) {
     // タイムラインを再描画
     renderVerticalTimeline('all');
 }
-// ▼▼▼ 【追加】詳細モーダル関連の処理 ▼▼▼
+// ▼▼▼ 【修正版】詳細モーダル関連の処理 ▼▼▼
 let currentDetailRes = null;
 
 function openDetailModal(res) {
@@ -1069,19 +1069,22 @@ function openDetailModal(res) {
   const title = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '(なし)';
   document.getElementById('detail-title').innerText = title;
   
-  // 4. 参加者の表示（★ここを修正: グループ名変換をやめ、常に名前を表示）
-  let pNames = "-";
+  // 4. 参加者の表示（リスト形式・スクロール対応）
+  // ★ここから修正箇所
+  const membersContainer = document.getElementById('detail-members');
+  membersContainer.innerHTML = ""; // 一旦クリア
+
   let pIdsStr = getVal(res, ['participantIds', 'participant_ids', '参加者', 'メンバー']);
   
   // データ形式エラーチェック
   if (String(pIdsStr).includes('e+')) {
-      pNames = "⚠️データ形式エラー: 編集ボタンから参加者を登録し直してください";
+      membersContainer.innerHTML = "<div class='detail-member-item' style='color:red;'>⚠️データ形式エラー: 編集ボタンから修正してください</div>";
   } else if (pIdsStr) {
       // IDリストを分割（カンマ区切り、余分なクォーテーション除去）
       const cleanIdsStr = String(pIdsStr).replace(/['"]/g, "");
       const resIds = cleanIdsStr.split(/,\s*/).map(id => id.trim());
       
-      // IDを名前に変換
+      // IDを名前に変換してリストを作成
       const names = resIds.map(id => {
           if(!id) return "";
           const u = masterData.users.find(user => {
@@ -1089,12 +1092,26 @@ function openDetailModal(res) {
               return uIdStr === id || (!isNaN(uIdStr) && !isNaN(id) && Number(uIdStr) === Number(id));
           });
           return u ? u.userName : id;
-      }).filter(n => n !== "");
-      
-      if(names.length > 0) pNames = names.join(', ');
+      }).filter(n => n !== ""); // 空文字を除外
+
+      if(names.length > 0) {
+          // 1名ずつdivを作成して追加
+          names.forEach(name => {
+              const div = document.createElement('div');
+              div.className = 'detail-member-item'; // CSSクラスを適用
+              div.innerText = name;
+              membersContainer.appendChild(div);
+          });
+      } else {
+          // 名前が見つからなかった場合
+          membersContainer.innerHTML = "<div class='detail-member-item'>-</div>";
+      }
+  } else {
+      // 参加者がいない場合
+      membersContainer.innerHTML = "<div class='detail-member-item'>-</div>";
   }
-  document.getElementById('detail-members').innerText = pNames;
-  
+  // ★ここまで修正箇所（最後の innerText = pNames は削除しました）
+
   // 5. 備考の表示
   let rawNote = getVal(res, ['note', 'description', '備考', 'メモ']) || '';
   let cleanNote = rawNote.replace(/【変更履歴】.*/g, '').replace(/^\s*[\r\n]/gm, '').trim();
