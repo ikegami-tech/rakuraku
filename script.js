@@ -7,8 +7,8 @@ const mapConfig = {
         image: IMG_7F, 
         areas: [
             // ▼ ZOOMブース：青系 (rgba(0, 100, 255, 0.3))
-            { id: "Z(角)", name: "Z(角)", top: 11.0, left: 0.0, width: 12.0, height: 7.2, color: "rgba(0, 100, 255, 0.3)" },
-            { id: "Z(中)", name: "Z(中)", top: 0.0, left: 56.0, width: 12.0, height: 7.0, color: "rgba(0, 100, 255, 0.3)" },
+            { id: "ZOOM(角)", name: "ZOOM(角)", top: 11.0, left: 0.0, width: 12.0, height: 7.2, color: "rgba(0, 100, 255, 0.3)" },
+            { id: "ZOOM(中)", name: "ZOOM(中)", top: 0.0, left: 56.0, width: 12.0, height: 7.0, color: "rgba(0, 100, 255, 0.3)" },
 
             // ▼ 会議室：緑系 (rgba(0, 200, 80, 0.3))
             { id: "会議室2", name: "会議室2", top: 15.0, left: 79.0, width: 21.0, height: 22.5, color: "rgba(0, 200, 80, 0.3)" },
@@ -23,19 +23,19 @@ const mapConfig = {
         image: IMG_6F,
         areas: [
              // ▼ ZOOMブース：青系
-             { id: "Z 1", name: "Z 1", top: 0.0, left: 63.4, width: 6.0, height: 17.7, color: "rgba(0, 100, 255, 0.3)" },
-             { id: "Z 2", name: "Z 2", top: 0.0, left: 69.3, width: 6.0, height: 17.7, color: "rgba(0, 100, 255, 0.3)" },
-             { id: "Z 3", name: "Z 3", top: 0.0, left: 75.4, width: 6.0, height: 17.7, color: "rgba(0, 100, 255, 0.3)" },
+             { id: "ZOOM 1", name: "ZOOM 1", top: 0.0, left: 63.4, width: 6.0, height: 17.7, color: "rgba(0, 100, 255, 0.3)" },
+             { id: "ZOOM 2", name: "ZOOM 2", top: 0.0, left: 69.3, width: 6.0, height: 17.7, color: "rgba(0, 100, 255, 0.3)" },
+             { id: "ZOOM 3", name: "ZOOM 3", top: 0.0, left: 75.4, width: 6.0, height: 17.7, color: "rgba(0, 100, 255, 0.3)" },
              
              // ▼ 応接室：オレンジ系
              { id: "応接室(10人)", name: "応接室(10人)", top: 0.0, left: 81.5, width: 18.2, height: 43.8, color: "rgba(255, 165, 0, 0.3)" },
              
              // ▼ ZOOMブース：青系
-             { id: "Z 4", name: "Z 4", top: 44.5, left: 88.5, width: 11.2, height: 6.6, color: "rgba(0, 100, 255, 0.3)" },
-             { id: "Z 5", name: "Z 5", top: 51.9, left: 88.6, width: 10.9, height: 6.4, color: "rgba(0, 100, 255, 0.3)" },
-             { id: "Z 6", name: "Z 6", top: 59.0, left: 88.8, width: 10.7, height: 7.3, color: "rgba(0, 100, 255, 0.3)" },
-             { id: "Z 7", name: "Z 7", top: 66.4, left: 88.6, width: 11.1, height: 7.0, color: "rgba(0, 100, 255, 0.3)" },
-             { id: "Z 8", name: "Z 8", top: 73.5, left: 88.8, width: 10.9, height: 7.1, color: "rgba(0, 100, 255, 0.3)" },
+             { id: "ZOOM 4", name: "ZOOM 4", top: 44.5, left: 88.5, width: 11.2, height: 6.6, color: "rgba(0, 100, 255, 0.3)" },
+             { id: "ZOOM 5", name: "ZOOM 5", top: 51.9, left: 88.6, width: 10.9, height: 6.4, color: "rgba(0, 100, 255, 0.3)" },
+             { id: "ZOOM 6", name: "ZOOM 6", top: 59.0, left: 88.8, width: 10.7, height: 7.3, color: "rgba(0, 100, 255, 0.3)" },
+             { id: "ZOOM 7", name: "ZOOM 7", top: 66.4, left: 88.6, width: 11.1, height: 7.0, color: "rgba(0, 100, 255, 0.3)" },
+             { id: "ZOOM 8", name: "ZOOM 8", top: 73.5, left: 88.8, width: 10.9, height: 7.1, color: "rgba(0, 100, 255, 0.3)" },
         ]
     }
 };
@@ -1069,25 +1069,19 @@ function openDetailModal(res) {
   const title = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '(なし)';
   document.getElementById('detail-title').innerText = title;
   
-  // 4. 参加者の表示（強制スクロール対応版）
-  const memberContainer = document.getElementById('detail-members');
-  memberContainer.innerHTML = ""; // クリア
-
-  // スタイルリセット
-  memberContainer.style.padding = "0";
-  memberContainer.style.height = "auto";
-  memberContainer.style.maxHeight = "none";
-  memberContainer.style.overflowY = "visible";
-  memberContainer.style.border = "none";
-
+  // 4. 参加者の表示（★ここを修正: グループ名変換をやめ、常に名前を表示）
+  let pNames = "-";
   let pIdsStr = getVal(res, ['participantIds', 'participant_ids', '参加者', 'メンバー']);
   
+  // データ形式エラーチェック
   if (String(pIdsStr).includes('e+')) {
-      memberContainer.innerHTML = '<div style="color:red; padding:5px;">⚠️データエラー</div>';
+      pNames = "⚠️データ形式エラー: 編集ボタンから参加者を登録し直してください";
   } else if (pIdsStr) {
+      // IDリストを分割（カンマ区切り、余分なクォーテーション除去）
       const cleanIdsStr = String(pIdsStr).replace(/['"]/g, "");
-      const resIds = cleanIdsStr.split(/[,、\s]+/).map(id => id.trim());
+      const resIds = cleanIdsStr.split(/,\s*/).map(id => id.trim());
       
+      // IDを名前に変換
       const names = resIds.map(id => {
           if(!id) return "";
           const u = masterData.users.find(user => {
@@ -1097,37 +1091,27 @@ function openDetailModal(res) {
           return u ? u.userName : id;
       }).filter(n => n !== "");
       
-      if(names.length > 0) {
-          // ▼ リスト作成とスクロール枠の生成 ▼
-          const listHtml = names.map(name => 
-              `<div style="padding: 8px 12px; border-bottom: 1px solid #eee; font-size: 14px; color: #333;">${name}</div>`
-          ).join('');
-
-          memberContainer.innerHTML = `
-            <div style="
-                display: block;
-                width: 100%;
-                max-height: 180px; 
-                overflow-y: auto; 
-                border: 1px solid #ccc; 
-                border-radius: 4px; 
-                background: #fff;
-                margin-top: 5px;
-                box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
-            ">
-                ${listHtml}
-            </div>`;
-      } else {
-          memberContainer.innerHTML = '<div style="padding:5px;">-</div>';
-      }
-  } else {
-      memberContainer.innerHTML = '<div style="padding:5px;">-</div>';
+      if(names.length > 0) pNames = names.join(', ');
   }
+  document.getElementById('detail-members').innerText = pNames;
   
+  // 5. 備考の表示
+  let rawNote = getVal(res, ['note', 'description', '備考', 'メモ']) || '';
+  let cleanNote = rawNote.replace(/【変更履歴】.*/g, '').replace(/^\s*[\r\n]/gm, '').trim();
+  document.getElementById('detail-note').innerText = cleanNote;
+
+  // 「編集する」ボタン
+  document.getElementById('btn-go-edit').onclick = function() {
+      closeDetailModal();        
+      openModal(currentDetailRes); 
+  };
+
+  modal.style.display = 'flex';
+}
 function closeDetailModal() {
   document.getElementById('detailModal').style.display = 'none';
 }
-=======================================
+/* =========================================
    ▼▼▼ グループ管理機能（完全クリア＆共有版） ▼▼▼
    ========================================= */
 
