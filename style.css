@@ -448,30 +448,41 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
     font-size: 16px;
   }
 
-/* ▼▼▼ 予約詳細：参加者リスト（スクロール対応） ▼▼▼ */
+/* ▼▼▼ 予約詳細：参加者リストのスクロール表示スタイル ▼▼▼ */
+
+/* 参加者を表示する枠（tdタグ）のスタイル */
 #detail-members {
-  display: block !important;       /* ブロック要素にする */
-  width: 100% !important;
+  /* display: block にして高さを指定できるようにする */
+  display: block !important; 
+  width: 100%;
   
-  /* ★高さ制限: ここで高さを決めます。150pxで約5行分です */
-  max-height: 150px !important;    
-  overflow-y: auto !important;     /* 枠を超えたらスクロールバーを出す */
+  /* 1行約35px × 5.5行 ≒ 190px (5-6人表示用) */
+  max-height: 190px; 
+  overflow-y: auto; /* 枠を超えたらスクロール */
   
-  border: 1px solid #ccc;          /* 枠線をつける */
-  border-radius: 4px;
   background-color: #fff;
-  padding: 0 !important;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 0 !important; /* 内側の余白は個別のアイテムで調整 */
   margin-top: 5px;
 }
 
-/* リスト内の各行（1人分）のデザイン */
+/* 1名ずつの行のデザイン */
 .detail-member-item {
-  padding: 8px 10px;               /* 名前周りの余白 */
-  border-bottom: 1px solid #eee;   /* 薄い区切り線 */
-  font-size: 14px;
+  padding: 8px 12px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 0.9rem;
   color: #333;
+  line-height: 1.4;
 }
 
+/* 最後の行の下線は消す */
 .detail-member-item:last-child {
   border-bottom: none;
+}
+
+/* テーブルのヘッダー（左側の項目名）を上揃えにする */
+.detail-table th {
+  vertical-align: top;
+  padding-top: 12px; /* 枠線との位置合わせ */
 }
