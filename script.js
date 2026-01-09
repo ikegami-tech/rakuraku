@@ -1069,7 +1069,7 @@ function openDetailModal(res) {
   const title = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '(なし)';
   document.getElementById('detail-title').innerText = title;
   
-  // 4. 参加者の表示
+  // 4. 参加者の表示（リスト形式・スクロール対応）
   const memberContainer = document.getElementById('detail-members');
   memberContainer.innerHTML = ""; // 一旦クリア
 
@@ -1098,14 +1098,14 @@ function openDetailModal(res) {
           const html = names.map(name => `<div class="detail-member-item">${name}</div>`).join('');
           memberContainer.innerHTML = html;
       } else {
+          // 誰もいない場合
           memberContainer.innerHTML = '<div class="detail-member-item">-</div>';
       }
   } else {
+      // データがない場合
       memberContainer.innerHTML = '<div class="detail-member-item">-</div>';
   }
   
-  // ★重要：ここに以前あった「innerText = pNames」という行を削除しました！★
-
   // 5. 備考の表示
   let rawNote = getVal(res, ['note', 'description', '備考', 'メモ']) || '';
   let cleanNote = rawNote.replace(/【変更履歴】.*/g, '').replace(/^\s*[\r\n]/gm, '').trim();
