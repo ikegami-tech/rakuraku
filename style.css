@@ -144,13 +144,14 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   flex-wrap: wrap;
   margin-bottom: 10px;
   
-  /* ▼▼▼ 追加: 高さ制限とスクロールバーの設定 ▼▼▼ */
-  max-height: 120px; /* ボタンが3〜4行分くらい見える高さに制限 */
-  overflow-y: auto;  /* それ以上増えたら縦スクロールを表示 */
+  /* ▼▼▼ 修正: 高さの設定を強化 ▼▼▼ */
+  max-height: 120px; /* 最大の高さ（これを超えるとスクロール） */
+  min-height: 80px;  /* ★追加: 最低でもこの高さ（約2行分）は常に広げておく */
+  overflow-y: auto;
+  /* ▲▲▲ 修正ここまで ▲▲▲ */
   
-  /* ▼▼▼ 追加: 見た目の調整（枠線など） ▼▼▼ */
   padding: 5px;
-  border: 1px solid #eee; /* 薄い枠線でエリアを明確化 */
+  border: 1px solid #eee;
   border-radius: 4px;
 }
 .group-chip { background: #e0e0e0; border: 1px solid #ccc; border-radius: 15px; padding: 4px 10px; font-size: 0.8rem; cursor: pointer; user-select: none; transition: background 0.2s; }
