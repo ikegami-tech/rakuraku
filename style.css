@@ -144,9 +144,9 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   flex-wrap: wrap;
   margin-bottom: 10px;
   
-  /* ▼▼▼ 修正: 高さの設定を強化 ▼▼▼ */
-  max-height: 120px; /* 最大の高さ（これを超えるとスクロール） */
-  min-height: 80px;  /* ★追加: 最低でもこの高さ（約2行分）は常に広げておく */
+  /* ▼▼▼ 修正: 高さの設定を調整 ▼▼▼ */
+  max-height: 120px; /* 最大高さはそのまま */
+  min-height: 40px;  /* ★修正: 1行でもフィットするように小さくする（以前は80px） */
   overflow-y: auto;
   /* ▲▲▲ 修正ここまで ▲▲▲ */
   
