@@ -170,8 +170,8 @@
 
 <div id="groupCreateModal" class="modal">
   <div class="modal-content" style="max-width: 600px;">
-    <h3 style="margin-top:0;">グループ作成</h3>
-    
+    <h3 style="margin-top:0;" id="group-modal-title">グループ作成</h3>
+    <input type="hidden" id="edit-group-id">
     <label>グループ名</label>
     <input type="text" id="new-group-name" placeholder="例: プロジェクトAチーム">
     
@@ -192,7 +192,7 @@
 
     <div style="display:flex; gap:10px; margin-top:20px; justify-content: flex-end;">
       <button type="button" onclick="closeGroupModal()" style="background:#999; color:white;">キャンセル</button>
-      <button type="button" class="btn-primary" onclick="saveNewGroup()">登録</button>
+      <button type="button" class="btn-primary" onclick="saveNewGroup()">保存</button>
     </div>
   </div>
 </div>
