@@ -1069,46 +1069,35 @@ function openDetailModal(res) {
   const title = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '(なし)';
   document.getElementById('detail-title').innerText = title;
   
-  // 4. 参加者の表示（▼▼▼ 修正: 変な数字になっている場合の対策を追加 ▼▼▼）
+  // 4. 参加者の表示（★ここを修正: グループ名変換をやめ、常に名前を表示）
   let pNames = "-";
   let pIdsStr = getVal(res, ['participantIds', 'participant_ids', '参加者', 'メンバー']);
   
-  // もしデータが指数表記(5.04...e+41)のように壊れていたらエラーを表示
+  // データ形式エラーチェック
   if (String(pIdsStr).includes('e+')) {
       pNames = "⚠️データ形式エラー: 編集ボタンから参加者を登録し直してください";
   } else if (pIdsStr) {
-      // カンマ区切りなどで分割して処理
-      // (万が一スペースがなくても対応できるよう、正規表現で分割します)
-      const resIds = String(pIdsStr).split(/,\s*/).map(id => id.trim()).sort();
+      // IDリストを分割（カンマ区切り、余分なクォーテーション除去）
+      const cleanIdsStr = String(pIdsStr).replace(/['"]/g, "");
+      const resIds = cleanIdsStr.split(/,\s*/).map(id => id.trim());
       
-      const matchedGroup = masterData.groups.find(grp => {
-          if (!grp.memberIds) return false;
-          const grpIds = grp.memberIds.split(',').map(id => id.trim()).sort();
-          return JSON.stringify(resIds) === JSON.stringify(grpIds);
-      });
-
-      if (matchedGroup) {
-          pNames = matchedGroup.groupName;
-      } else {
-          const names = resIds.map(id => {
-              if(!id) return "";
-              const u = masterData.users.find(user => {
-                  const uIdStr = String(user.userId).trim();
-                  return uIdStr === id || (!isNaN(uIdStr) && !isNaN(id) && Number(uIdStr) === Number(id));
-              });
-              return u ? u.userName : id;
-          }).filter(n => n !== "");
-          
-          if(names.length > 0) pNames = names.join(', ');
-      }
+      // IDを名前に変換
+      const names = resIds.map(id => {
+          if(!id) return "";
+          const u = masterData.users.find(user => {
+              const uIdStr = String(user.userId).trim();
+              return uIdStr === id || (!isNaN(uIdStr) && !isNaN(id) && Number(uIdStr) === Number(id));
+          });
+          return u ? u.userName : id;
+      }).filter(n => n !== "");
+      
+      if(names.length > 0) pNames = names.join(', ');
   }
   document.getElementById('detail-members').innerText = pNames;
   
-  // 5. 備考の表示（▼▼▼ 修正: 【変更履歴】を含む行を消して表示する ▼▼▼）
+  // 5. 備考の表示
   let rawNote = getVal(res, ['note', 'description', '備考', 'メモ']) || '';
-  // 「【変更履歴】」から始まる行をすべて削除して表示
   let cleanNote = rawNote.replace(/【変更履歴】.*/g, '').replace(/^\s*[\r\n]/gm, '').trim();
-  
   document.getElementById('detail-note').innerText = cleanNote;
 
   // 「編集する」ボタン
