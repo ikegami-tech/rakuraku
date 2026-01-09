@@ -1050,60 +1050,7 @@ function switchTimelineFloor(floor) {
 // ▼▼▼ 【追加】詳細モーダル関連の処理 ▼▼▼
 let currentDetailRes = null;
 
-function openDetailModal(res) {
-  currentDetailRes = res;
-  const modal = document.getElementById('detailModal');
-  
-  // 1. 日時の表示
-  const s = new Date(res._startTime);
-  const e = new Date(res._endTime);
-  const dateStr = `${s.getMonth()+1}/${s.getDate()}`;
-  const timeStr = `${pad(s.getHours())}:${pad(s.getMinutes())} - ${pad(e.getHours())}:${pad(e.getMinutes())}`;
-  document.getElementById('detail-time').innerText = `${dateStr} ${timeStr}`;
-  
-  // 2. 部屋名の表示
-  const room = masterData.rooms.find(r => String(r.roomId) === String(res._resourceId));
-  document.getElementById('detail-room').innerText = room ? room.roomName : res._resourceId;
-  
-  // 3. 用件の表示
-  const title = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '(なし)';
-  document.getElementById('detail-title').innerText = title;
-  
-  // 4. 参加者の表示（リスト形式・スクロール対応）
-  const memberContainer = document.getElementById('detail-members');
-  memberContainer.innerHTML = ""; // 一旦クリア
 
-  let pIdsStr = getVal(res, ['participantIds', 'participant_ids', '参加者', 'メンバー']);
-  
-  // データ形式エラーチェック
-  if (String(pIdsStr).includes('e+')) {
-      memberContainer.innerHTML = '<div style="color:red; padding:5px;">⚠️データエラー: 編集から保存し直してください</div>';
-  } else if (pIdsStr) {
-      // IDリストを分割
-      const cleanIdsStr = String(pIdsStr).replace(/['"]/g, "");
-      const resIds = cleanIdsStr.split(/[,、\s]+/).map(id => id.trim());
-      
-      // IDを名前に変換
-      const names = resIds.map(id => {
-          if(!id) return "";
-          const u = masterData.users.find(user => {
-              const uIdStr = String(user.userId).trim();
-              return uIdStr === id || (!isNaN(uIdStr) && !isNaN(id) && Number(uIdStr) === Number(id));
-          });
-          return u ? u.userName : id;
-      }).filter(n => n !== "");
-      
-      if(names.length > 0) {
-          // ▼▼▼ ここでリスト（divタグ）を作成 ▼▼▼
-          const html = names.map(name => `<div class="detail-member-item">${name}</div>`).join('');
-          memberContainer.innerHTML = html;
-      } else {
-          memberContainer.innerHTML = '<div class="detail-member-item">-</div>';
-      }
-  } else {
-      memberContainer.innerHTML = '<div class="detail-member-item">-</div>';
-  }
-  
   // 5. 備考の表示
   let rawNote = getVal(res, ['note', 'description', '備考', 'メモ']) || '';
   let cleanNote = rawNote.replace(/【変更履歴】.*/g, '').replace(/^\s*[\r\n]/gm, '').trim();
