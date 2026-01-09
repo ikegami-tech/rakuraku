@@ -419,8 +419,12 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
     touch-action: manipulation;
   }
 
-  /* 5. 備考欄（テキストエリア）を大きくする */
+/* 5. 備考欄（テキストエリア）を大きくする */
+  /* !important をつけて確実に高さを確保します */
   textarea {
-    height: 100px; /* ★追加: デフォルトより高くして入力をしやすくする */
+    height: 120px !important; /* 高さを強制的に120pxにする */
+    padding: 10px !important; /* 文字と枠の間隔 */
+    line-height: 1.5;         /* 行間を広げて読みやすく */
+    font-size: 16px;          /* スマホでズームされない適切な文字サイズ */
   }
 }
