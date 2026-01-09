@@ -378,3 +378,22 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   font-weight: bold;
   color: #555;
 }
+/* ▼▼▼ スマホ表示時のグループボタン修正 ▼▼▼ */
+@media (max-width: 600px) {
+  /* グループボタンの表示エリアを広げる */
+  .group-container {
+    max-height: 250px; /* PC版(120px)より広くして一覧性を高める */
+    padding: 8px;      /* 枠の内側に余白を作る */
+  }
+
+  /* 個別のボタンを指で押しやすいサイズにする */
+  .group-chip {
+    display: inline-block; /* 崩れ防止 */
+    padding: 12px 16px;    /* 上下左右の余白を増やしてボタンを大きく */
+    font-size: 14px;       /* 文字を少し大きく */
+    margin: 3px;           /* ボタン同士がくっつきすぎないようにする */
+    
+    /* タップ時の反応を良くする視覚調整 */
+    touch-action: manipulation;
+  }
+}
