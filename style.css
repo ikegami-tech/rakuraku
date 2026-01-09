@@ -278,8 +278,8 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
 }
 
 .map-click-area:hover {
-  background: rgba(39, 174, 96, 0.3);
-  border: 2px solid #27ae60;
+  background: rgba(39, 174, 96, 0.5) !important; 
+  border: 2px solid #27ae60 !important;
   
   /* ▼ マウスを乗せた時も黒文字のままにする */
   color: #333;
