@@ -483,25 +483,3 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
 .detail-member-item:last-child {
   border-bottom: none;
 }
-/* ▼▼▼ 参加者設定ヘッダーのレイアウト ▼▼▼ */
-.group-header {
-  display: flex;
-  justify-content: space-between; /* 左右に配置 */
-  align-items: center;
-  margin-top: 10px;
-  margin-bottom: 5px;
-}
-
-/* ヘッダー内に配置する操作ボタン専用スタイル */
-#group-action-area {
-  display: flex;
-  gap: 5px;
-}
-
-/* ヘッダー内のボタンは少し小さくする */
-#group-action-area .group-chip {
-  font-size: 0.7rem;
-  padding: 2px 8px;
-  margin: 0;
-  height: auto;
-}
