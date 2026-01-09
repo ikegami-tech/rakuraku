@@ -544,24 +544,154 @@ function changeDate(days, inputId) {
     else if(inputId === 'map-date') renderVerticalTimeline('map');
 }
 
+// ▼▼▼ 履歴表示機能（検索・ページ送り・1000件対応版） ▼▼▼
 function renderLogs() {
     const tbody = document.getElementById('log-tbody');
+    const pagination = document.getElementById('log-pagination');
+    const searchInput = document.getElementById('log-search-input');
+    
     tbody.innerHTML = "";
+    pagination.innerHTML = "";
 
-    if (!masterData.logs || masterData.logs.length === 0) return;
+    if (!masterData.logs || masterData.logs.length === 0) {
+        tbody.innerHTML = "<tr><td colspan='4'>履歴はありません</td></tr>";
+        return;
+    }
 
-    const logs = [...masterData.logs].reverse().slice(0, 20);
+    // 1. 全データを新しい順にする
+    let allLogs = [...masterData.logs].reverse();
 
-    // IDから名前を解決するヘルパー
+    // 2. 検索フィルタリング
+    const filterText = searchInput ? searchInput.value.toLowerCase().trim() : "";
+    if (filterText) {
+        allLogs = allLogs.filter(log => {
+            // 検索対象の文字列を結合
+            const searchStr = `${log.operatorName} ${log.action} ${log.resourceName} ${log.timeRange}`.toLowerCase();
+            return searchStr.includes(filterText);
+        });
+        // 検索時はページを1に戻す（ただし、ページボタン操作時は戻さない判定が必要ですが、簡易的に検索時はリセットします）
+        // ※oninputで呼ばれた場合のみリセットしたいが、今回は検索文字が変わったらページ1に戻る仕様とします。
+    }
+
+    // 3. 最大1000件に制限
+    if (allLogs.length > 1000) {
+        allLogs = allLogs.slice(0, 1000);
+    }
+
+    // 4. ページネーション計算
+    const ITEMS_PER_PAGE = 50;
+    const totalPages = Math.ceil(allLogs.length / ITEMS_PER_PAGE) || 1;
+    
+    // 現在のページが範囲外なら調整
+    if (currentLogPage > totalPages) currentLogPage = totalPages;
+    if (currentLogPage < 1) currentLogPage = 1;
+
+    const startIndex = (currentLogPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    const currentLogs = allLogs.slice(startIndex, endIndex);
+
+    // --- ヘルパー関数定義 ---
     const resolveName = (id) => {
         const targetIdStr = String(id).trim();
+        const normalize = (str) => String(str).replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0)).trim();
+        const normTarget = normalize(targetIdStr);
+        
         const u = masterData.users.find(user => {
-            const uIdStr = String(user.userId).trim();
-            return uIdStr === targetIdStr || (!isNaN(uIdStr) && !isNaN(targetIdStr) && Number(uIdStr) === Number(targetIdStr));
+            const uId = String(user.userId).trim();
+            return uId === targetIdStr || normalize(uId) === normTarget;
         });
         return u ? u.userName : id;
     };
 
+    const formatRange = (rangeStr) => {
+        if (!rangeStr || !rangeStr.includes(' - ')) return rangeStr;
+        const parts = rangeStr.split(' - ');
+        if (!parts[0] || !parts[1]) return rangeStr;
+        const sDate = new Date(parts[0]);
+        const eDate = new Date(parts[1]);
+        if (isNaN(sDate.getTime()) || isNaN(eDate.getTime())) return rangeStr;
+        return `${sDate.getMonth() + 1}/${sDate.getDate()} ${pad(sDate.getHours())}:${pad(sDate.getMinutes())} - ${pad(eDate.getHours())}:${pad(eDate.getMinutes())}`;
+    };
+
+    // 5. 行の描画
+    currentLogs.forEach(log => {
+        const tr = document.createElement('tr');
+        
+        let rawResName = log.resourceName || '-';
+        let roomDisplay = rawResName;
+        let detailLines = "";
+
+        if (rawResName.includes('\n')) {
+            const parts = rawResName.split('\n');
+            const roomIdPart = parts[0].trim();
+            detailLines = parts.slice(1).join('<br>');
+            const roomObj = masterData.rooms.find(r => String(r.roomId) === String(roomIdPart));
+            roomDisplay = roomObj ? roomObj.roomName : roomIdPart;
+        } else {
+            const roomObj = masterData.rooms.find(r => String(r.roomId) === String(rawResName));
+            if (roomObj) roomDisplay = roomObj.roomName;
+        }
+
+        if (detailLines) {
+            detailLines = detailLines.replace(/(\d+)/g, (match) => resolveName(match));
+        }
+
+        let timeDisplay = log.timeRange || '';
+        if (timeDisplay.includes('→')) {
+            const ranges = timeDisplay.split('→');
+            const oldTime = formatRange(ranges[0].trim());
+            const newTime = formatRange(ranges[1].trim());
+            timeDisplay = `${oldTime} <br><span style="color:#e67e22; font-weight:bold;">↓</span><br> ${newTime}`;
+        } else {
+            timeDisplay = formatRange(timeDisplay);
+        }
+
+        const detailHtml = `<strong>${roomDisplay}</strong>${detailLines ? `<br><span style="font-size:0.85em; color:#666;">${detailLines}</span>` : ''}<br><span style="font-size:0.8em; color:#999;">${timeDisplay}</span>`;
+
+        tr.innerHTML = `
+            <td>${formatDate(new Date(log.timestamp))}</td>
+            <td>${log.operatorName}</td>
+            <td>${log.action}</td>
+            <td>${detailHtml}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+
+    // 6. ページ送りボタンの描画
+    if (totalPages > 1) {
+        // 前へボタン
+        const prevBtn = document.createElement('button');
+        prevBtn.className = `page-btn ${currentLogPage === 1 ? 'disabled' : ''}`;
+        prevBtn.innerText = "< 前へ";
+        prevBtn.onclick = () => changeLogPage(-1);
+        pagination.appendChild(prevBtn);
+
+        // ページ情報 (例: 1 / 5)
+        const info = document.createElement('span');
+        info.className = 'page-info';
+        info.innerText = `${currentLogPage} / ${totalPages}`;
+        pagination.appendChild(info);
+
+        // 次へボタン
+        const nextBtn = document.createElement('button');
+        nextBtn.className = `page-btn ${currentLogPage === totalPages ? 'disabled' : ''}`;
+        nextBtn.innerText = "次へ >";
+        nextBtn.onclick = () => changeLogPage(1);
+        pagination.appendChild(nextBtn);
+    }
+}
+
+// ページ切り替え用関数
+function changeLogPage(delta) {
+    // 検索ボックスの入力値が変わっていないことを前提にページだけ切り替える
+    // ※ renderLogs内でページ範囲チェックを行うため、ここでは単に加算して再描画する
+    currentLogPage += delta;
+    renderLogs();
+    
+    // 画面上部へスクロールしないと見にくい場合があるので、テーブルの上部へスクロール
+    const wrapper = document.querySelector('.log-wrapper');
+    if(wrapper) wrapper.scrollTop = 0;
+}
     // 日時フォーマットのヘルパー
     // (例: "2023/10/01 10:00 - 2023/10/01 11:00" → "10/1 10:00 - 11:00")
     const formatRange = (rangeStr) => {
