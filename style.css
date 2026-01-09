@@ -447,7 +447,7 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
     line-height: 1.5;
     font-size: 16px;
   }
-
+｝
 /* ▼▼▼ 参加者リストのスクロールボックス化（修正版） ▼▼▼ */
 
 /* 参加者が入る箱（tdタグ）のスタイル */
