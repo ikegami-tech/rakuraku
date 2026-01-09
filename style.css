@@ -448,14 +448,12 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
     font-size: 16px;
   }
 
-  /* ▼▼▼ 予約詳細：参加者リスト（スクロール対応版） ▼▼▼ */
-
-/* ▼▼▼ 予約詳細：参加者リスト（スクロール対応版） ▼▼▼ */
+/* ▼▼▼ 予約詳細：参加者リスト（スクロール対応版・強制適用） ▼▼▼ */
 #detail-members {
   display: block !important;
   width: 100% !important;
-  max-height: 180px !important; /* ここで高さを制限 */
-  overflow-y: auto !important;  /* ここでスクロールを有効化 */
+  max-height: 180px !important; /* 高さ制限 */
+  overflow-y: auto !important;  /* スクロール有効化 */
   border: 1px solid #ddd;
   border-radius: 4px;
   background-color: #fff;
