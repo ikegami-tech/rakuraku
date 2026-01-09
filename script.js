@@ -1079,7 +1079,7 @@ function openDetailModal(res) {
   if (String(pIdsStr).includes('e+')) {
       memberContainer.innerHTML = '<div style="color:red; padding:5px;">⚠️データエラー: 編集から保存し直してください</div>';
   } else if (pIdsStr) {
-      // IDリストを分割（カンマ、読点、スペース等で区切る）
+      // IDリストを分割
       const cleanIdsStr = String(pIdsStr).replace(/['"]/g, "");
       const resIds = cleanIdsStr.split(/[,、\s]+/).map(id => id.trim());
       
@@ -1094,7 +1094,7 @@ function openDetailModal(res) {
       }).filter(n => n !== "");
       
       if(names.length > 0) {
-          // ▼▼▼ 修正: 名前を1行ずつのリストHTMLとして生成 ▼▼▼
+          // ▼▼▼ リスト表示の生成 ▼▼▼
           const html = names.map(name => `<div class="detail-member-item">${name}</div>`).join('');
           memberContainer.innerHTML = html;
       } else {
@@ -1103,6 +1103,9 @@ function openDetailModal(res) {
   } else {
       memberContainer.innerHTML = '<div class="detail-member-item">-</div>';
   }
+  
+  // ★重要：ここに以前あった「innerText = pNames」という行を削除しました！★
+
   // 5. 備考の表示
   let rawNote = getVal(res, ['note', 'description', '備考', 'メモ']) || '';
   let cleanNote = rawNote.replace(/【変更履歴】.*/g, '').replace(/^\s*[\r\n]/gm, '').trim();
