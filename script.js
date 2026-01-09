@@ -1050,6 +1050,106 @@ function switchTimelineFloor(floor) {
 // ▼▼▼ 【追加】詳細モーダル関連の処理 ▼▼▼
 let currentDetailRes = null;
 
+function openDetailModal(res) {
+  currentDetailRes = res;
+  const modal = document.getElementById('detailModal');
+  
+  // 1. 日時の表示
+  const s = new Date(res._startTime);
+  const e = new Date(res._endTime);
+  const dateStr = `${s.getMonth()+1}/${s.getDate()}`;
+  const timeStr = `${pad(s.getHours())}:${pad(s.getMinutes())} - ${pad(e.getHours())}:${pad(e.getMinutes())}`;
+  document.getElementById('detail-time').innerText = `${dateStr} ${timeStr}`;
+  
+  // 2. 部屋名の表示
+  const room = masterData.rooms.find(r => String(r.roomId) === String(res._resourceId));
+  document.getElementById('detail-room').innerText = room ? room.roomName : res._resourceId;
+  
+  // 3. 用件の表示
+  const title = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '(なし)';
+  document.getElementById('detail-title').innerText = title;
+  
+  // 4. 参加者の表示（リスト形式・スクロール対応）
+  const memberContainer = document.getElementById('detail-members');
+  memberContainer.innerHTML = ""; // 初期化
+
+  // 以前のCSS干渉を防ぐためのスタイルリセット
+  memberContainer.style.padding = "0";
+  memberContainer.style.height = "auto";
+  memberContainer.style.maxHeight = "none";
+  memberContainer.style.overflowY = "visible";
+  memberContainer.style.border = "none";
+
+  let pIdsStr = getVal(res, ['participantIds', 'participant_ids', '参加者', 'メンバー']);
+  
+  if (String(pIdsStr).includes('e+')) {
+      memberContainer.innerHTML = '<div style="color:red; padding:5px;">⚠️データエラー</div>';
+  } else if (pIdsStr) {
+      // IDリストを分割
+      const cleanIdsStr = String(pIdsStr).replace(/['"]/g, "");
+      const resIds = cleanIdsStr.split(/[,、\s]+/).map(id => id.trim());
+      
+      // IDを名前に変換
+      const names = resIds.map(id => {
+          if(!id) return "";
+          const u = masterData.users.find(user => {
+              const uIdStr = String(user.userId).trim();
+              return uIdStr === id || (!isNaN(uIdStr) && !isNaN(id) && Number(uIdStr) === Number(id));
+          });
+          return u ? u.userName : id;
+      }).filter(n => n !== "");
+      
+      if(names.length > 0) {
+          // ▼▼▼ 名前リストのHTMLを作成 ▼▼▼
+          const listHtml = names.map(name => 
+              `<div style="
+                  padding: 8px 12px; 
+                  border-bottom: 1px solid #eee; 
+                  font-size: 14px; 
+                  color: #333;
+               ">${name}</div>`
+          ).join('');
+
+          // ▼▼▼ 「スクロールする箱」の中にリストを入れる（高さ180px制限） ▼▼▼
+          memberContainer.innerHTML = `
+            <div style="
+                display: block;
+                width: 100%;
+                max-height: 180px; 
+                overflow-y: auto; 
+                border: 1px solid #ccc; 
+                border-radius: 4px; 
+                background: #fff;
+                margin-top: 5px;
+                box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+            ">
+                ${listHtml}
+            </div>`;
+      } else {
+          memberContainer.innerHTML = '<div style="padding:5px;">-</div>';
+      }
+  } else {
+      memberContainer.innerHTML = '<div style="padding:5px;">-</div>';
+  }
+  
+  // 5. 備考の表示
+  let rawNote = getVal(res, ['note', 'description', '備考', 'メモ']) || '';
+  let cleanNote = rawNote.replace(/【変更履歴】.*/g, '').replace(/^\s*[\r\n]/gm, '').trim();
+  document.getElementById('detail-note').innerText = cleanNote;
+
+  // 「編集する」ボタン
+  document.getElementById('btn-go-edit').onclick = function() {
+      closeDetailModal();        
+      openModal(currentDetailRes); 
+  };
+
+  modal.style.display = 'flex';
+}
+
+function closeDetailModal() {
+  document.getElementById('detailModal').style.display = 'none';
+}
+// ▲▲▲ ここまでコピー ▲▲▲
 
   // 5. 備考の表示
   let rawNote = getVal(res, ['note', 'description', '備考', 'メモ']) || '';
