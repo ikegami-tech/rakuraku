@@ -88,14 +88,22 @@
 
   <div id="view-logs" class="view-container">
     <div class="log-wrapper">
-      <h3>操作履歴 (最新20件)</h3>
+      
+      <div class="log-header-area">
+          <h3>操作履歴 (最大1000件)</h3>
+          <div class="log-search-box">
+              <input type="text" id="log-search-input" placeholder="履歴を検索..." oninput="renderLogs()">
+          </div>
+      </div>
+
       <table class="log-table">
         <thead><tr><th>日時</th><th>操作者</th><th>操作</th><th>詳細</th></tr></thead>
         <tbody id="log-tbody"></tbody>
       </table>
+
+      <div id="log-pagination" class="pagination-container"></div>
     </div>
   </div>
-</div>
 
 <div id="detailModal" class="modal">
   <div class="modal-content" style="max-width: 500px;">
