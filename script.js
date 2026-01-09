@@ -1119,6 +1119,7 @@ function closeDetailModal() {
 let groupCreateSelectedIds = new Set();
 // 削除モードかどうかのフラグ
 let isDeleteMode = false;
+let isEditMode = false; // ★追加
 
 // script.js の renderGroupButtons 関数をこれに置き換えてください
 
@@ -1128,31 +1129,53 @@ function renderGroupButtons() {
   const serverGroups = masterData.groups || [];
 
   serverGroups.forEach(grp => {
-      // GASからは { groupId, groupName, memberIds, ... } が返ってきています
+      // 既存グループボタンの生成
       createGroupButton(container, grp.groupName, grp.memberIds, true, grp.groupId);
   });
 
-  // 2. 「＋新規作成」ボタン（これを押すとモーダルが開く）
+  // 1. 「＋新規作成」ボタン
   const addBtn = document.createElement('div');
   addBtn.className = 'group-chip';
-  addBtn.style.backgroundColor = '#4caf50'; // 緑色
+  addBtn.style.backgroundColor = '#4caf50'; // 緑
   addBtn.style.color = 'white';
   addBtn.style.fontWeight = 'bold';
   addBtn.innerText = "＋新規作成";
-  addBtn.onclick = openGroupModal;
+  // 編集・削除モード中は押せないようにする（あるいはモード解除）
+  addBtn.style.opacity = (isDeleteMode || isEditMode) ? "0.3" : "1.0";
+  addBtn.onclick = () => {
+      if(isDeleteMode || isEditMode) return;
+      openGroupModal(); // 新規作成として開く
+  };
   container.appendChild(addBtn);
 
-  // 3. 「ー削除」ボタン（共有グループがある場合のみ表示）
+  // 共有グループがある場合のみ操作ボタンを表示
   if (serverGroups.length > 0) {
+      
+      // 2. 「編集」ボタン（★追加）
+      const editBtn = document.createElement('div');
+      editBtn.className = 'group-chip';
+      editBtn.style.backgroundColor = isEditMode ? '#3498db' : '#95a5a6'; // 青 or グレー
+      editBtn.style.color = 'white';
+      editBtn.style.fontWeight = 'bold';
+      editBtn.innerText = isEditMode ? "完了" : "✎ 編集";
+      editBtn.onclick = () => {
+          isEditMode = !isEditMode;
+          isDeleteMode = false; // 削除モードは解除
+          renderGroupButtons(); // 再描画
+      };
+      container.appendChild(editBtn);
+
+      // 3. 「削除」ボタン
       const delBtn = document.createElement('div');
       delBtn.className = 'group-chip';
       delBtn.style.backgroundColor = isDeleteMode ? '#e74c3c' : '#95a5a6'; // 赤 or グレー
       delBtn.style.color = 'white';
       delBtn.style.fontWeight = 'bold';
-      delBtn.innerText = isDeleteMode ? "完了" : "ー削除";
+      delBtn.innerText = isDeleteMode ? "完了" : "× 削除";
       delBtn.onclick = () => {
           isDeleteMode = !isDeleteMode;
-          renderGroupButtons(); // 再描画してバツ印を表示/非表示
+          isEditMode = false;   // 編集モードは解除
+          renderGroupButtons(); // 再描画
       };
       container.appendChild(delBtn);
   }
@@ -1164,30 +1187,39 @@ function createGroupButton(container, name, ids, isCustom, groupId) {
     
     // クリック時の動作
     btn.onclick = () => {
-        // --- ここから修正 ---
+        // ▼ 削除モード時
         if (isDeleteMode) {
             if (isCustom) {
-                // 削除モード中に自作グループを押した場合、削除確認を出す
                 deleteSharedGroup(groupId, name);
             } else {
-                // 「全員」などシステム固定のものは削除できない旨を伝える
                 alert("この項目はシステム固定のため削除できません。");
             }
             return;
         }
-        // 通常モード時は参加者をセット
+        // ▼ 編集モード時（★追加）
+        if (isEditMode) {
+            if (isCustom) {
+                // 編集用モーダルを開く関数を呼ぶ
+                openGroupModal(groupId, name, ids);
+            } else {
+                alert("この項目はシステム固定のため編集できません。");
+            }
+            return;
+        }
+
+        // ▼ 通常モード時（参加者セット）
         selectGroupMembers(ids);
-        // --- ここまで修正 ---
     };
 
-    // 削除モードかつカスタム(共有)グループの場合の見た目
+    // 見た目の調整
     if (isDeleteMode && isCustom) {
-        // 削除対象であることを視覚的に目立たせる（赤枠の破線など）
-        btn.style.opacity = "1.0"; 
+        // 削除モード: 赤枠
         btn.style.border = "2px dashed #c0392b"; 
         btn.style.color = "#c0392b";
-        btn.style.backgroundColor = "#fdeaea"; // 薄い赤背景
-        btn.innerText = name; 
+        btn.style.backgroundColor = "#fdeaea";
+    } else if (isEditMode && isCustom) {
+        // 編集モード: 青枠（クラス適用）
+        btn.classList.add('edit-mode-style');
     }
 
     container.appendChild(btn);
@@ -1246,15 +1278,87 @@ async function deleteSharedGroup(groupId, groupName) {
         alert("削除エラー: " + result.message);
     }
 }
-// --- グループ作成モーダル関連（不足分を追加） ---
-function openGroupModal() {
+// 引数を追加して、編集時はデータを受け取るようにする
+function openGroupModal(groupId = null, groupName = "", memberIds = "") {
     document.getElementById('groupCreateModal').style.display = 'flex';
-    document.getElementById('new-group-name').value = "";
-    document.getElementById('group-shuttle-search').value = "";
+    
+    const titleEl = document.getElementById('group-modal-title');
+    const nameInput = document.getElementById('new-group-name');
+    const idInput = document.getElementById('edit-group-id');
+    const searchInput = document.getElementById('group-shuttle-search');
+
+    searchInput.value = "";
     groupCreateSelectedIds.clear();
+
+    if (groupId) {
+        // === 編集モード ===
+        titleEl.innerText = "グループ編集";
+        idInput.value = groupId; // IDをセット
+        nameInput.value = groupName;
+
+        // 既存メンバーをセットに復元
+        if (memberIds) {
+            // カンマやスペースで区切ってID化
+            const ids = String(memberIds).split(/[,、\s]+/).map(s => s.trim());
+            ids.forEach(id => {
+               // ユーザーが存在するか確認してから追加
+               const u = masterData.users.find(user => String(user.userId) === id);
+               if(u) groupCreateSelectedIds.add(String(u.userId));
+            });
+        }
+    } else {
+        // === 新規作成モード ===
+        titleEl.innerText = "グループ作成";
+        idInput.value = ""; // 空にする
+        nameInput.value = "";
+    }
+
     renderGroupCreateShuttle();
 }
 
+// 保存処理（新規・更新共通）
+async function saveNewGroup() {
+    const id = document.getElementById('edit-group-id').value; // IDがあるか確認
+    const name = document.getElementById('new-group-name').value.trim();
+    
+    if (!name) {
+        alert("グループ名を入力してください");
+        return;
+    }
+    if (groupCreateSelectedIds.size === 0) {
+        alert("メンバーを1人以上選択してください");
+        return;
+    }
+
+    const idsStr = Array.from(groupCreateSelectedIds).join(',');
+
+    // IDがあれば「更新」、なければ「新規作成」
+    const action = id ? 'updateGroup' : 'createGroup';
+
+    const params = {
+        action: action,
+        groupId: id, // 新規の時は無視される
+        groupName: name,
+        memberIds: idsStr,
+        operatorName: currentUser ? currentUser.userName : 'Unknown'
+    };
+
+    const result = await callAPI(params);
+    
+    if (result.status === 'success') {
+        const msg = id ? `グループ「${name}」を更新しました` : `グループ「${name}」を作成しました`;
+        alert(msg);
+        closeGroupModal();
+        
+        // モードを解除
+        isEditMode = false;
+        isDeleteMode = false;
+        
+        loadAllData(true); // 再読み込み
+    } else {
+        alert("保存エラー: " + result.message);
+    }
+}
 function closeGroupModal() {
     document.getElementById('groupCreateModal').style.display = 'none';
 }
