@@ -1142,63 +1142,7 @@ let isEditMode = false; // ★追加
 
 // script.js の renderGroupButtons 関数をこれに置き換えてください
 
-function renderGroupButtons() {
-  const container = document.getElementById('group-buttons-area');
-  container.innerHTML = "";
-  const serverGroups = masterData.groups || [];
-
-  serverGroups.forEach(grp => {
-      // 既存グループボタンの生成
-      createGroupButton(container, grp.groupName, grp.memberIds, true, grp.groupId);
-  });
-
-  // 1. 「＋新規作成」ボタン
-  const addBtn = document.createElement('div');
-  addBtn.className = 'group-chip';
-  addBtn.style.backgroundColor = '#4caf50'; // 緑
-  addBtn.style.color = 'white';
-  addBtn.style.fontWeight = 'bold';
-  addBtn.innerText = "＋新規作成";
-  // 編集・削除モード中は押せないようにする（あるいはモード解除）
-  addBtn.style.opacity = (isDeleteMode || isEditMode) ? "0.3" : "1.0";
-  addBtn.onclick = () => {
-      if(isDeleteMode || isEditMode) return;
-      openGroupModal(); // 新規作成として開く
-  };
-  container.appendChild(addBtn);
-
-  // 共有グループがある場合のみ操作ボタンを表示
-  if (serverGroups.length > 0) {
-      
-      // 2. 「編集」ボタン（★追加）
-      const editBtn = document.createElement('div');
-      editBtn.className = 'group-chip';
-      editBtn.style.backgroundColor = isEditMode ? '#2980b9' : '#3498db';
-      editBtn.style.color = 'white';
-      editBtn.style.fontWeight = 'bold';
-      editBtn.innerText = isEditMode ? "完了" : "✎ 編集";
-      editBtn.onclick = () => {
-          isEditMode = !isEditMode;
-          isDeleteMode = false; // 削除モードは解除
-          renderGroupButtons(); // 再描画
-      };
-      container.appendChild(editBtn);
-
-      // 3. 「削除」ボタン
-      const delBtn = document.createElement('div');
-      delBtn.className = 'group-chip';
-      delBtn.style.backgroundColor = isDeleteMode ? '#c0392b' : '#e74c3c';
-      delBtn.style.color = 'white';
-      delBtn.style.fontWeight = 'bold';
-      delBtn.innerText = isDeleteMode ? "完了" : "× 削除";
-      delBtn.onclick = () => {
-          isDeleteMode = !isDeleteMode;
-          isEditMode = false;   // 編集モードは解除
-          renderGroupButtons(); // 再描画
-      };
-      container.appendChild(delBtn);
-  }
-}
+isDeleteMode = !isDeleteMode
 function createGroupButton(container, name, ids, isCustom, groupId) {
     const btn = document.createElement('div');
     btn.className = 'group-chip';
