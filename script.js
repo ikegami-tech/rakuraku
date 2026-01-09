@@ -7,16 +7,16 @@ const mapConfig = {
         image: IMG_7F, 
         areas: [
             // ▼ ZOOMブース：青系 (rgba(0, 100, 255, 0.3))
-            { id: "Z(角)", name: "Z(角)", top: 11.0, left: 0.0, width: 12.0, height: 7.2, color: "rgba(0, 100, 255, 0.3)" },
+            { id: "Z(角)", name: "Z(角)", top: 11.1, left: 0.0, width: 12.0, height: 7.1, color: "rgba(0, 100, 255, 0.3)" },
             { id: "Z(中)", name: "Z(中)", top: 0.0, left: 56.0, width: 12.0, height: 7.0, color: "rgba(0, 100, 255, 0.3)" },
 
             // ▼ 会議室：緑系 (rgba(0, 200, 80, 0.3))
             { id: "会議室2", name: "会議室2", top: 15.0, left: 79.0, width: 21.0, height: 22.5, color: "rgba(0, 200, 80, 0.3)" },
-            { id: "会議室1", name: "会議室1", top: 38.0, left: 79.0, width: 21.0, height: 15.0, color: "rgba(0, 200, 80, 0.3)" },
+            { id: "会議室1", name: "会議室1", top: 37.0, left: 79.0, width: 21.0, height: 15.0, color: "rgba(0, 200, 80, 0.3)" },
 
             // ▼ 応接室：オレンジ系 (rgba(255, 165, 0, 0.3))
-            { id: "応接室(8人)", name: "応接室(8人)", top: 71.5, left: 0.0, width: 22.5, height: 28.5, color: "rgba(255, 165, 0, 0.3)" },
-            { id: "応接室(6人)", name: "応接室(6人)", top: 76.5, left: 22.6, width: 20.0, height: 22.0, color: "rgba(255, 165, 0, 0.3)" },
+            { id: "応接室(8人)", name: "応接室(8人)", top: 71.0, left: 0.0, width: 22.5, height: 28.5, color: "rgba(255, 165, 0, 0.3)" },
+            { id: "応接室(6人)", name: "応接室(6人)", top: 76.5, left: 22.6, width: 20.0, height: 23.0, color: "rgba(255, 165, 0, 0.3)" },
         ]
     },
     6: {
