@@ -563,6 +563,118 @@ function changeLogPage(direction) {
     currentLogPage += direction;
     renderLogs();
 }
+function renderLogs() {
+    const tbody = document.getElementById('log-tbody');
+    tbody.innerHTML = "";
+    
+    // データがない場合は終了
+    if (!masterData.logs || masterData.logs.length === 0) {
+        document.getElementById('log-pagination').innerHTML = "データがありません";
+        return;
+    }
+
+    // 1. 全データを新しい順（降順）に並べ替え
+    let allLogs = [...masterData.logs].reverse(); 
+
+    // 2. 検索フィルタリング
+    const filterText = document.getElementById('log-search-input').value.toLowerCase().trim();
+    
+    if (filterText) {
+        allLogs = allLogs.filter(log => {
+            const dateStr = formatDate(new Date(log.timestamp));
+            let roomName = log.resourceName || "";
+            const roomObj = masterData.rooms.find(r => String(r.roomId) === String(log.resourceId || log.resourceName));
+            if (roomObj) roomName = roomObj.roomName;
+
+            return (
+                dateStr.includes(filterText) ||
+                (log.operatorName && log.operatorName.toLowerCase().includes(filterText)) ||
+                (log.action && log.action.toLowerCase().includes(filterText)) ||
+                (roomName && roomName.toLowerCase().includes(filterText)) ||
+                (log.details && log.details.toLowerCase().includes(filterText))
+            );
+        });
+    }
+
+    // 3. ページネーション計算
+    const totalItems = allLogs.length;
+    const totalPages = Math.ceil(totalItems / LOGS_PER_PAGE) || 1;
+
+    if (currentLogPage < 1) currentLogPage = 1;
+    if (currentLogPage > totalPages) currentLogPage = totalPages;
+
+    const startIndex = (currentLogPage - 1) * LOGS_PER_PAGE;
+    const endIndex = startIndex + LOGS_PER_PAGE;
+    
+    const displayLogs = allLogs.slice(startIndex, endIndex);
+
+    // ヘルパー関数
+    const resolveName = (id) => {
+        const targetIdStr = String(id).trim();
+        const u = masterData.users.find(user => {
+            const uIdStr = String(user.userId).trim();
+            return uIdStr === targetIdStr || (!isNaN(uIdStr) && !isNaN(targetIdStr) && Number(uIdStr) === Number(targetIdStr));
+        });
+        return u ? u.userName : id;
+    };
+
+    const formatRange = (rangeStr) => {
+        if (!rangeStr || !rangeStr.includes(' - ')) return rangeStr;
+        const parts = rangeStr.split(' - ');
+        if (!parts[0] || !parts[1]) return rangeStr;
+        const sDate = new Date(parts[0]);
+        const eDate = new Date(parts[1]);
+        if (isNaN(sDate.getTime()) || isNaN(eDate.getTime())) return rangeStr;
+        return `${sDate.getMonth() + 1}/${sDate.getDate()} ${pad(sDate.getHours())}:${pad(sDate.getMinutes())} - ${pad(eDate.getHours())}:${pad(eDate.getMinutes())}`;
+    };
+
+    // 4. 行（tr）の生成と描画
+    displayLogs.forEach(log => {
+        const tr = document.createElement('tr');
+        let rawResName = log.resourceName || '-';
+        let roomDisplay = rawResName;
+        let detailLines = "";
+
+        if (rawResName.includes('\n')) {
+            const parts = rawResName.split('\n');
+            const roomIdPart = parts[0].trim();
+            detailLines = parts.slice(1).join('<br>');
+            const roomObj = masterData.rooms.find(r => String(r.roomId) === String(roomIdPart));
+            roomDisplay = roomObj ? roomObj.roomName : roomIdPart;
+        } else {
+            const roomObj = masterData.rooms.find(r => String(r.roomId) === String(rawResName));
+            if (roomObj) roomDisplay = roomObj.roomName;
+        }
+
+        if (detailLines) {
+            detailLines = detailLines.replace(/(\d+)/g, (match) => resolveName(match));
+        }
+
+        let timeDisplay = log.timeRange || '';
+        if (timeDisplay.includes('→')) {
+            const ranges = timeDisplay.split('→');
+            const oldTime = formatRange(ranges[0].trim());
+            const newTime = formatRange(ranges[1].trim());
+            timeDisplay = `${oldTime} <br><span style="color:#e67e22; font-weight:bold;">↓</span><br> ${newTime}`;
+        } else {
+            timeDisplay = formatRange(timeDisplay);
+        }
+
+        const detailHtml = `<strong>${roomDisplay}</strong>${detailLines ? `<br><span style="font-size:0.85em; color:#666;">${detailLines}</span>` : ''}<br><span style="font-size:0.8em; color:#999;">${timeDisplay}</span>`;
+
+        tr.innerHTML = `
+            <td>${formatDate(new Date(log.timestamp))}</td>
+            <td>${log.operatorName}</td>
+            <td>${log.action}</td>
+            <td>${detailHtml}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+
+    // 5. ページネーションコントロールの描画
+    renderPaginationControls(totalPages, totalItems, startIndex + 1, Math.min(endIndex, totalItems));
+}
+// ▲▲▲ 貼り付けここまで ▲▲▲
     // 5. ページネーションコントロールの描画
     renderPaginationControls(totalPages, totalItems, startIndex + 1, Math.min(endIndex, totalItems));
 }
