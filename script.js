@@ -1069,11 +1069,11 @@ function openDetailModal(res) {
   const title = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '(なし)';
   document.getElementById('detail-title').innerText = title;
   
-  // 4. 参加者の表示（リスト形式・スクロール対応）
+  // 4. 参加者の表示（強制スクロール対応版）
   const memberContainer = document.getElementById('detail-members');
-  memberContainer.innerHTML = ""; // 初期化
+  memberContainer.innerHTML = ""; // クリア
 
-  // 以前のCSS干渉を防ぐためのスタイルリセット
+  // スタイルリセット
   memberContainer.style.padding = "0";
   memberContainer.style.height = "auto";
   memberContainer.style.maxHeight = "none";
@@ -1085,11 +1085,9 @@ function openDetailModal(res) {
   if (String(pIdsStr).includes('e+')) {
       memberContainer.innerHTML = '<div style="color:red; padding:5px;">⚠️データエラー</div>';
   } else if (pIdsStr) {
-      // IDリストを分割
       const cleanIdsStr = String(pIdsStr).replace(/['"]/g, "");
       const resIds = cleanIdsStr.split(/[,、\s]+/).map(id => id.trim());
       
-      // IDを名前に変換
       const names = resIds.map(id => {
           if(!id) return "";
           const u = masterData.users.find(user => {
@@ -1100,17 +1098,11 @@ function openDetailModal(res) {
       }).filter(n => n !== "");
       
       if(names.length > 0) {
-          // ▼▼▼ 名前リストのHTMLを作成 ▼▼▼
+          // ▼ リスト作成とスクロール枠の生成 ▼
           const listHtml = names.map(name => 
-              `<div style="
-                  padding: 8px 12px; 
-                  border-bottom: 1px solid #eee; 
-                  font-size: 14px; 
-                  color: #333;
-               ">${name}</div>`
+              `<div style="padding: 8px 12px; border-bottom: 1px solid #eee; font-size: 14px; color: #333;">${name}</div>`
           ).join('');
 
-          // ▼▼▼ 「スクロールする箱」の中にリストを入れる（高さ180px制限） ▼▼▼
           memberContainer.innerHTML = `
             <div style="
                 display: block;
