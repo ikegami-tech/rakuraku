@@ -389,22 +389,28 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   font-weight: bold;
   color: #555;
 }
-/* ▼▼▼ スマホ表示時の修正（リスト高さ拡張 ＆ ボタン調整） ▼▼▼ */
+/* ▼▼▼ スマホ表示時の修正（リストのスクロール化 ＆ レイアウト崩れ防止） ▼▼▼ */
 @media (max-width: 600px) {
-  /* 1. 参加者選択リスト（左右のボックス）の表示調整 */
+  /* 1. 左右のリストを縦並びにするエリア */
   .shuttle-container {
-    flex-direction: column; /* 縦並びにする */
-    height: 500px;          /* ★修正: 300pxだと狭いので500pxに広げる */
-    gap: 15px;              /* ★追加: 上下のボックスの間に隙間を作る */
+    flex-direction: column; /* 縦並び */
+    height: auto;           /* ★修正: 高さを固定せず、中身（ボックス）に任せる */
+    gap: 15px;              /* ボックス間の隙間 */
   }
 
-  /* 2. グループボタンの表示エリア */
+  /* 2. 候補者・参加予定者の各ボックス */
+  .shuttle-box {
+    height: 200px; /* ★追加: 高さを200pxに固定（これでスクロールバーが出ます） */
+    flex: none;    /* ★追加: 勝手に伸び縮みしないように固定 */
+  }
+
+  /* 3. グループボタンの表示エリア（前回と同じ） */
   .group-container {
     max-height: 250px;
     padding: 8px;
   }
 
-  /* 3. グループボタン単体のサイズ（押しやすくコンパクトに） */
+  /* 4. グループボタン単体のサイズ（前回と同じ） */
   .group-chip {
     display: inline-block;
     padding: 6px 10px;
