@@ -1069,17 +1069,20 @@ function openDetailModal(res) {
   const title = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '(なし)';
   document.getElementById('detail-title').innerText = title;
   
-  // 4. 参加者の表示（★ここを修正: グループ名変換をやめ、常に名前を表示）
-  let pNames = "-";
+  // 4. 参加者の表示
+  // ▼▼▼ 修正: 表示エリアを取得 ▼▼▼
+  const memberContainer = document.getElementById('detail-members');
+  memberContainer.innerHTML = ""; // 一旦クリア
+
   let pIdsStr = getVal(res, ['participantIds', 'participant_ids', '参加者', 'メンバー']);
   
   // データ形式エラーチェック
   if (String(pIdsStr).includes('e+')) {
-      pNames = "⚠️データ形式エラー: 編集ボタンから参加者を登録し直してください";
+      memberContainer.innerHTML = '<span style="color:red;">⚠️データ形式エラー: 編集ボタンから保存し直してください</span>';
   } else if (pIdsStr) {
       // IDリストを分割（カンマ区切り、余分なクォーテーション除去）
       const cleanIdsStr = String(pIdsStr).replace(/['"]/g, "");
-      const resIds = cleanIdsStr.split(/,\s*/).map(id => id.trim());
+      const resIds = cleanIdsStr.split(/[,、\s]+/).map(id => id.trim());
       
       // IDを名前に変換
       const names = resIds.map(id => {
@@ -1091,10 +1094,17 @@ function openDetailModal(res) {
           return u ? u.userName : id;
       }).filter(n => n !== "");
       
-      if(names.length > 0) pNames = names.join(', ');
+      if(names.length > 0) {
+          // ▼▼▼ 修正: 名前を1行ずつのリストHTMLとして生成 ▼▼▼
+          const html = names.map(name => `<div class="detail-member-item">${name}</div>`).join('');
+          memberContainer.innerHTML = html;
+          // ▲▲▲ 修正ここまで ▲▲▲
+      } else {
+          memberContainer.innerText = "-";
+      }
+  } else {
+      memberContainer.innerText = "-";
   }
-  document.getElementById('detail-members').innerText = pNames;
-  
   // 5. 備考の表示
   let rawNote = getVal(res, ['note', 'description', '備考', 'メモ']) || '';
   let cleanNote = rawNote.replace(/【変更履歴】.*/g, '').replace(/^\s*[\r\n]/gm, '').trim();
