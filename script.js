@@ -544,93 +544,62 @@ function changeDate(days, inputId) {
     else if(inputId === 'map-date') renderVerticalTimeline('map');
 }
 
-function renderLogs() {
-    const tbody = document.getElementById('log-tbody');
-    tbody.innerHTML = "";
+/* =========================================
+   ▼▼▼ 履歴表示・ページネーション修正版 ▼▼▼
+   ========================================= */
 
-    if (!masterData.logs || masterData.logs.length === 0) return;
+// ページネーション用変数
+let currentLogPage = 1;
+const LOGS_PER_PAGE = 50; // 1ページあたりの表示数
 
-    const logs = [...masterData.logs].reverse().slice(0, 20);
+// 検索ボックス入力時に呼ばれる関数（ページを1に戻す）
+function searchLogs() {
+    currentLogPage = 1;
+    renderLogs();
+}
 
-    // IDから名前を解決するヘルパー
-    const resolveName = (id) => {
-        const targetIdStr = String(id).trim();
-        const u = masterData.users.find(user => {
-            const uIdStr = String(user.userId).trim();
-            return uIdStr === targetIdStr || (!isNaN(uIdStr) && !isNaN(targetIdStr) && Number(uIdStr) === Number(targetIdStr));
-        });
-        return u ? u.userName : id;
-    };
+// ページ切り替え用関数
+function changeLogPage(direction) {
+    currentLogPage += direction;
+    renderLogs();
+}
+    // 5. ページネーションコントロールの描画
+    renderPaginationControls(totalPages, totalItems, startIndex + 1, Math.min(endIndex, totalItems));
+}
 
-    // 日時フォーマットのヘルパー
-    // (例: "2023/10/01 10:00 - 2023/10/01 11:00" → "10/1 10:00 - 11:00")
-    const formatRange = (rangeStr) => {
-        if (!rangeStr || !rangeStr.includes(' - ')) return rangeStr;
-        const parts = rangeStr.split(' - ');
-        if (!parts[0] || !parts[1]) return rangeStr;
+// ページ送りボタン等の描画
+function renderPaginationControls(totalPages, totalItems, startCount, endCount) {
+    const container = document.getElementById('log-pagination');
+    container.innerHTML = "";
 
-        const sDate = new Date(parts[0]);
-        const eDate = new Date(parts[1]);
+    if (totalItems === 0) {
+        container.innerText = "一致する履歴はありません";
+        return;
+    }
 
-        // 日付が無効な場合はそのまま返す
-        if (isNaN(sDate.getTime()) || isNaN(eDate.getTime())) return rangeStr;
+    // 前へボタン
+    const prevBtn = document.createElement('button');
+    prevBtn.className = 'page-btn';
+    prevBtn.innerText = "< 前へ";
+    prevBtn.disabled = (currentLogPage === 1);
+    if (currentLogPage === 1) prevBtn.classList.add('disabled');
+    prevBtn.onclick = () => changeLogPage(-1);
+    container.appendChild(prevBtn);
 
-        return `${sDate.getMonth() + 1}/${sDate.getDate()} ${pad(sDate.getHours())}:${pad(sDate.getMinutes())} - ${pad(eDate.getHours())}:${pad(eDate.getMinutes())}`;
-    };
+    // 情報表示 (例: 1 - 50 / 120件)
+    const infoSpan = document.createElement('span');
+    infoSpan.className = 'page-info';
+    infoSpan.innerText = ` ${startCount} - ${endCount} / ${totalItems}件 (P.${currentLogPage}/${totalPages}) `;
+    container.appendChild(infoSpan);
 
-    logs.forEach(log => {
-        const tr = document.createElement('tr');
-
-        let rawResName = log.resourceName || '-';
-        let roomDisplay = rawResName;
-        let detailLines = "";
-
-        if (rawResName.includes('\n')) {
-            const parts = rawResName.split('\n');
-            const roomIdPart = parts[0].trim();
-            detailLines = parts.slice(1).join('<br>');
-
-            const roomObj = masterData.rooms.find(r => String(r.roomId) === String(roomIdPart));
-            roomDisplay = roomObj ? roomObj.roomName : roomIdPart;
-        } else {
-            const roomObj = masterData.rooms.find(r => String(r.roomId) === String(rawResName));
-            if (roomObj) roomDisplay = roomObj.roomName;
-        }
-
-        if (detailLines) {
-            detailLines = detailLines.replace(/(\d+)/g, (match) => {
-                return resolveName(match);
-            });
-        }
-
-        // --- ここが修正ポイント（変更前後の表示対応） ---
-        let timeDisplay = log.timeRange || '';
-
-        // "→"が含まれている場合（変更ログの場合）
-        if (timeDisplay.includes('→')) {
-            const ranges = timeDisplay.split('→');
-            // 前後の日付をそれぞれきれいに整形して矢印でつなぐ
-            const oldTime = formatRange(ranges[0].trim());
-            const newTime = formatRange(ranges[1].trim());
-            
-            // 見やすくするために改行と矢印を入れる
-            timeDisplay = `${oldTime} <br><span style="color:#e67e22; font-weight:bold;">↓</span><br> ${newTime}`;
-        } else {
-            // 通常の予約（矢印がない場合）
-            timeDisplay = formatRange(timeDisplay);
-        }
-        // ---------------------------------------------
-
-        const detailHtml = `<strong>${roomDisplay}</strong>${detailLines ? `<br><span style="font-size:0.85em; color:#666;">${detailLines}</span>` : ''}<br><span style="font-size:0.8em; color:#999;">${timeDisplay}</span>`;
-
-        tr.innerHTML = `
-      <td>${formatDate(new Date(log.timestamp))}</td>
-      <td>${log.operatorName}</td>
-      <td>${log.action}</td>
-      <td>${detailHtml}</td>
-    `;
-        tbody.appendChild(tr);
-    });
+    // 次へボタン
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'page-btn';
+    nextBtn.innerText = "次へ >";
+    nextBtn.disabled = (currentLogPage === totalPages);
+    if (currentLogPage === totalPages) nextBtn.classList.add('disabled');
+    nextBtn.onclick = () => changeLogPage(1);
+    container.appendChild(nextBtn);
 }
 function getVal(obj, keys) {
     if(!obj) return "";
@@ -1222,7 +1191,6 @@ function renderGroupCreateShuttle() {
         }
     });
 }
-// ▼▼▼ 【追加】モーダルの上部表示を更新する関数 ▼▼▼
 // ▼▼▼ 【修正版】モーダルの上部表示を更新する関数 ▼▼▼
 function updateModalDisplay() {
     // 要素の取得
