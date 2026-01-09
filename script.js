@@ -130,31 +130,31 @@ async function loadAllData(isUpdate = false) {
 }
 
 function initUI() {
-  // 1. 時間軸の枠組みだけ準備
-  renderTimeAxis('time-axis-all');
-  renderTimeAxis('time-axis-map');
-  
-  // 2. 部屋選択プルダウンの生成
-  const roomSelect = document.getElementById('input-room');
-  if (roomSelect) {
-    roomSelect.innerHTML = "";
-    masterData.rooms.forEach(r => {
-      const op = document.createElement('option');
-      op.value = r.roomId;
-      op.innerText = r.roomName;
-      roomSelect.appendChild(op);
-    });
-  }
+    // 1. 時間軸の枠組みだけ準備
+    renderTimeAxis('time-axis-all');
+    renderTimeAxis('time-axis-map');
 
-  // 3. グループボタンの生成
-  renderGroupButtons();
-  
-  // 4. 各画面の変数を初期化（描画はまだしない）
-  currentFloor = 7;
-  currentTimelineFloor = 7;
+    // 2. 部屋選択プルダウンの生成
+    const roomSelect = document.getElementById('input-room');
+    if (roomSelect) {
+        roomSelect.innerHTML = "";
+        masterData.rooms.forEach(r => {
+            const op = document.createElement('option');
+            op.value = r.roomId;
+            op.innerText = r.roomName;
+            roomSelect.appendChild(op);
+        });
+    }
 
-  // 5. 最初に表示するタブを指定（この関数の中で描画がトリガーされます）
-  switchTab('map-view');
+    // 3. グループボタンの生成
+    renderGroupButtons();
+
+    // 4. 各画面の変数を初期化
+    currentFloor = 7;
+    currentTimelineFloor = 7;
+
+    // 5. ▼▼▼ 修正: 確実にマップタブを表示状態にする ▼▼▼
+    switchTab('map-view');
 }
 // ▼▼▼ 【追加】画面遷移せずにデータを更新する関数 ▼▼▼
 function refreshUI() {
@@ -269,46 +269,43 @@ function renderShuttleLists(filterText = "") {
 }
 
 function switchTab(tabName) {
-  // 1. すべてのタブと画面を非アクティブにする
-  document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-  
-  // 2. 選択された画面を表示する（CSSで display: block になる）
-  const targetView = document.getElementById('view-' + tabName);
-  if(targetView) targetView.classList.add('active');
-  
-  // 3. ナビゲーションボタンの見た目を更新
-  const tabs = document.querySelectorAll('.nav-item');
-  // インデックスはHTMLの並び順 (0:マップ, 1:一覧, 2:履歴)
-  if(tabName === 'map-view' && tabs[0]) tabs[0].classList.add('active');
-  if(tabName === 'timeline' && tabs[1]) tabs[1].classList.add('active');
-  if(tabName === 'logs' && tabs[2]) tabs[2].classList.add('active');
+    // 1. すべてのタブと画面を非アクティブにする
+    document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
 
-  // ▼▼▼ 【重要修正】画面が表示された後に、中身を描画する ▼▼▼
-  
-  if (tabName === 'map-view') {
-      // マップ画面の場合：描画ズレを防ぐため、ほんの少し待ってから描画
-      setTimeout(() => {
-          switchFloor(currentFloor); 
-      }, 50);
-      
-  } else if (tabName === 'timeline') {
-      // 一覧画面の場合：画面幅を正しく取得させるため、setTimeout(0)で実行
-      setTimeout(() => {
-          // タブの見た目も同期
-          document.querySelectorAll('#view-timeline .floor-tab').forEach(tab => tab.classList.remove('active'));
-          const activeTab = document.getElementById(`timeline-tab-${currentTimelineFloor}f`);
-          if(activeTab) activeTab.classList.add('active');
-          
-          renderVerticalTimeline('all');
-      }, 0);
-      
-  } else if (tabName === 'logs') {
-      // 履歴画面の場合
-      renderLogs();
-  }
+    // 2. 選択された画面を表示する
+    const targetView = document.getElementById('view-' + tabName);
+    if(targetView) targetView.classList.add('active');
+
+    // 3. ナビゲーションボタンの見た目を更新
+    const tabs = document.querySelectorAll('.nav-item');
+    if(tabName === 'map-view' && tabs[0]) tabs[0].classList.add('active');
+    if(tabName === 'timeline' && tabs[1]) tabs[1].classList.add('active');
+    if(tabName === 'logs' && tabs[2]) tabs[2].classList.add('active');
+
+    // ▼▼▼ 【重要修正】マップ画像の表示遅延処理 ▼▼▼
+    if (tabName === 'map-view') {
+        // 画面が表示（display:flex）された直後は画像の高さ計算などがうまくいかない場合があるため
+        // 50ミリ秒だけ待ってから描画関数(switchFloor)を呼び出すことで表示バグを防ぐ
+        setTimeout(() => {
+            switchFloor(currentFloor); 
+        }, 50);
+
+    } else if (tabName === 'timeline') {
+        // 一覧画面の表示更新
+        setTimeout(() => {
+            document.querySelectorAll('#view-timeline .floor-tab').forEach(tab => tab.classList.remove('active'));
+            const activeTab = document.getElementById(`timeline-tab-${currentTimelineFloor}f`);
+            if(activeTab) activeTab.classList.add('active');
+
+            renderVerticalTimeline('all');
+        }, 0);
+
+    } else if (tabName === 'logs') {
+        // 履歴画面の表示更新
+        renderLogs();
+    }
 }
-
 let hourRowHeights = {}; 
 
 function drawTimeAxis(containerId) {
