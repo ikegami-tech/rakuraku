@@ -165,6 +165,12 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   transition: background 0.2s;
   display: inline-block; /* 崩れ防止 */
 }
+/* 編集モード時のスタイル */
+.edit-mode-style {
+  border: 2px dashed #3498db !important; /* 青い破線 */
+  background-color: #eaf6fd !important;  /* 薄い青背景 */
+  color: #2980b9 !important;
+}
 .group-chip:hover { background: #d5d5d5; }
 .shuttle-container { display: flex; gap: 10px; margin-top: 5px; height: 200px; }
 .shuttle-box { flex: 1; border: 1px solid #ddd; border-radius: 4px; display: flex; flex-direction: column; background: #fafafa; }
