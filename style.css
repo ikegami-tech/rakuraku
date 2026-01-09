@@ -389,33 +389,38 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   font-weight: bold;
   color: #555;
 }
-/* ▼▼▼ スマホ表示時の修正（リストのスクロール化 ＆ レイアウト崩れ防止） ▼▼▼ */
+/* ▼▼▼ スマホ表示時の修正（リスト調整 ＆ 備考欄拡大） ▼▼▼ */
 @media (max-width: 600px) {
   /* 1. 左右のリストを縦並びにするエリア */
   .shuttle-container {
     flex-direction: column; /* 縦並び */
-    height: auto;           /* ★修正: 高さを固定せず、中身（ボックス）に任せる */
+    height: auto;           /* 高さを固定せず中身に合わせる */
     gap: 15px;              /* ボックス間の隙間 */
   }
 
   /* 2. 候補者・参加予定者の各ボックス */
   .shuttle-box {
-    height: 200px; /* ★追加: 高さを200pxに固定（これでスクロールバーが出ます） */
-    flex: none;    /* ★追加: 勝手に伸び縮みしないように固定 */
+    height: 200px; /* 高さを200pxに固定（スクロールバーが出るようにする） */
+    flex: none;    /* 勝手に伸び縮みしない */
   }
 
-  /* 3. グループボタンの表示エリア（前回と同じ） */
+  /* 3. グループボタンの表示エリア */
   .group-container {
     max-height: 250px;
     padding: 8px;
   }
 
-  /* 4. グループボタン単体のサイズ（前回と同じ） */
+  /* 4. グループボタン単体のサイズ */
   .group-chip {
     display: inline-block;
     padding: 6px 10px;
     font-size: 12px;
     margin: 2px;
     touch-action: manipulation;
+  }
+
+  /* 5. 備考欄（テキストエリア）を大きくする */
+  textarea {
+    height: 100px; /* ★追加: デフォルトより高くして入力をしやすくする */
   }
 }
