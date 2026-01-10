@@ -517,3 +517,21 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
 .detail-member-item:last-child {
   border-bottom: none;
 }
+/* ▼▼▼ マップ検索画面だけの特別スタイル（横並び表示） ▼▼▼ */
+
+/* マップ検索画面内の予約バー */
+#rooms-container-map .v-booking-bar {
+  flex-direction: row !important;       /* 強制的に横並び */
+  justify-content: flex-start !important; /* 左寄せ */
+  align-items: center !important;       /* 上下中央 */
+  padding: 0 5px !important;            /* 左右に余白 */
+  text-align: left !important;          /* 文字左寄せ */
+  gap: 0;                               /* JSでマージンをつけているのでgapは0でOK */
+}
+
+/* マップ検索画面内の文字調整 */
+#rooms-container-map .v-booking-bar span {
+  white-space: nowrap;      /* 改行禁止 */
+  overflow: hidden;         /* はみ出したら隠す */
+  text-overflow: ellipsis;  /* ...を表示 */
+}
