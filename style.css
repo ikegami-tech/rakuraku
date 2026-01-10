@@ -33,7 +33,7 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
 .calendar-scroll-area { flex: 1; overflow: auto; position: relative; background: white; display: flex; }
 
 /* 時間軸・グリッド共通設定（ズレ防止の要） */
-/* ▼▼▼ 修正: 時間軸のz-indexを上げて、タップ状態の予約枠(20)よりも常に手前に表示させる ▼▼▼ */
+/* ▼▼▼ 修正: 時間軸を最前面(50)に固定して、予約枠が絶対に重ならないようにする ▼▼▼ */
 .time-axis-col { width: 50px; flex-shrink: 0; background: #fff; border-right: 1px solid #ddd; position: sticky; left: 0; z-index: 50; }
 .time-axis-header { height: 40px; border-bottom: 1px solid #ddd; background: #f9f9f9; position: sticky; top: 0; z-index: 60; }
 
