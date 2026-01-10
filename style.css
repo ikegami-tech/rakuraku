@@ -69,14 +69,6 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   position: relative; /* 30分線を表示するために必要 */
 }
 
-
-/* style.css */
-
-/* style.css */
-
-/* ▼▼▼ マップ検索画面のタイムライン調整 ▼▼▼ */
-
-/* マップ画面の中にあるタイムラインエリアだけ、内部スクロールさせずに全表示する */
 #map-timeline-section .calendar-scroll-area {
   height: auto !important;      /* 高さを中身に合わせて自動で伸ばす */
   min-height: 0 !important;     /* 最小高さの制限もなくす */
@@ -636,4 +628,31 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+/* ▼▼▼ 【緊急修正】重なり順と罫線消えの修正 ▼▼▼ */
+
+/* 1. 前回の修正（箱に閉じ込める設定）を強制リセットして、罫線復活させる */
+.rooms-container {
+  position: static !important;
+  z-index: auto !important;
+}
+
+/* 2. 時間軸（左列）を「最強(500)」にして、予約枠(20)に絶対に負けないようにする */
+.time-axis-col {
+  z-index: 500 !important;
+}
+
+/* 3. 左上の角（時間軸ヘッダー）はさらに上(600)にする */
+.time-axis-header {
+  z-index: 600 !important;
+}
+
+/* 4. 部屋名ヘッダーは予約枠より強く、時間軸より弱く(400)する */
+.room-header {
+  z-index: 400 !important;
+}
+
+/* 5. 罫線が見えにくい場合のため、色を少し濃くする（念のため） */
+.grid-slot {
+  border-bottom: 1px solid #ccc !important;
 }
