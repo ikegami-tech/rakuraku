@@ -600,3 +600,40 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   overflow: hidden;
   text-overflow: ellipsis;
 }
+/* ==============================================
+   【スマホ・マップ検索用】予約バー表示修正
+   ・時間と要件を左寄せにする
+   ・入りきらない文字は「...」で省略する
+   ============================================== */
+@media (max-width: 600px) {
+  /* 1. バー全体の配置設定 */
+  #rooms-container-map .v-booking-bar {
+    flex-direction: row !important;         /* 横並び */
+    justify-content: flex-start !important; /* 左寄せ（重要） */
+    align-items: center !important;         /* 上下中央 */
+    padding: 0 8px !important;              /* 左右に少し余白を入れる */
+  }
+
+  /* 2. 内部のテキスト（時間・要件共通）の設定 */
+  #rooms-container-map .v-booking-bar > div,
+  #rooms-container-map .v-booking-bar > span {
+    text-align: left !important;         /* 文字左寄せ */
+    white-space: nowrap !important;      /* 改行禁止（...を出すために必須） */
+    overflow: hidden !important;         /* はみ出し部分を隠す */
+    text-overflow: ellipsis !important;  /* 末尾を...にする */
+  }
+
+  /* 3. 左側の「時間」部分の設定 */
+  /* （HTML構造上、最初のdivが時間だと仮定しています） */
+  #rooms-container-map .v-booking-bar > div:first-child {
+    flex-shrink: 0 !important;           /* 時間の幅は縮めさせない */
+    margin-right: 10px !important;       /* 要件との間に隙間を作る */
+    width: auto !important;
+  }
+
+  /* 4. 右側の「要件」部分の設定 */
+  #rooms-container-map .v-booking-bar > div:last-child {
+    flex: 1 !important;                  /* 残りの幅を目一杯使う */
+    min-width: 0 !important;             /* これがないとFlexbox内で「...」が効かない魔法の記述 */
+  }
+}
