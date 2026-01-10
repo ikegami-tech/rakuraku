@@ -93,22 +93,12 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
 }
 
 .v-booking-bar:hover {
-  /* ▼ 最前面に表示（他の予約や時間軸より手前に出す） */
-  z-index: 1000 !important;
-
-  /* ▼ 高さを制限解除し、文字量に合わせて自動で広げる */
-  height: auto !important;
-  min-height: fit-content !important; /* 中身が少なくてもフィットさせる */
+  /* ▼▼▼ 修正: ホバー時も時間軸(z-index:20)より低くする ▼▼▼ */
+  z-index: 10; /* 以前は200でした */
+  /* ▲▲▲ 修正ここまで ▲▲▲ */
   
-  /* ▼ はみ出した文字を表示する */
-  overflow: visible !important;
-  
-  /* ▼ 読みやすくするためのデザイン調整 */
-  box-shadow: 0 8px 20px rgba(0,0,0,0.5); /* 影を濃くして浮き上がり感を出す */
-  opacity: 1.0; /* 透明度をなくす */
-  
-  /* 背景色が透けないように微調整（必要に応じて） */
-  background-color: inherit; 
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4); 
+  opacity: 0.95; 
 }
   
   box-shadow: 0 4px 10px rgba(0,0,0,0.4); 
