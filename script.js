@@ -926,7 +926,7 @@ async function saveBooking() {
       return;
   }
 
- // ▼▼▼ 修正: 開始時刻の縛りをやめて、「利用時間が15分未満」ならエラーにする ▼▼▼
+  // ▼▼▼ 修正: 利用時間が15分未満ならエラーにする ▼▼▼
   
   // 1. 時間文字列を「分」に変換して差分を計算
   const startParts = start.split(':');
@@ -941,8 +941,7 @@ async function saveBooking() {
       alert("最低でも15分以上の日時を設定してください。");
       return;
   }
-  const dateSlash = date.replace(/-/g, '/');
-  // ...（以下、元のコードのまま）
+  // ▲▲▲ 修正ここまで ▲▲▲
 
   const dateSlash = date.replace(/-/g, '/');
   const startTime = `${dateSlash} ${start}`;
@@ -969,25 +968,6 @@ async function saveBooking() {
   const result = await callAPI(params);
   if(result.status === 'success') {
     alert("保存しました");
-    closeModal();
-    // ▼▼▼ 修正: true を渡して画面遷移を防ぐ ▼▼▼
-    loadAllData(true);
-  } else {
-    alert("エラー: " + result.message);
-  }
-}
-async function deleteBooking() {
-  if(!confirm("削除しますか？")) return;
-  const id = document.getElementById('edit-res-id').value;
-  const params = {
-    action: 'deleteReservation',
-    reservationId: id,
-    operatorId: currentUser.userId,
-    operatorName: currentUser.userName
-  };
-  const result = await callAPI(params);
-  if(result.status === 'success') {
-    alert("削除しました");
     closeModal();
     // ▼▼▼ 修正: true を渡して画面遷移を防ぐ ▼▼▼
     loadAllData(true);
