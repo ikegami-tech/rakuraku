@@ -32,97 +32,166 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
 .date-controller { text-align: center; padding: 10px; background: #f9f9f9; border-bottom: 1px solid #ddd; display: flex; gap: 10px; justify-content: center; flex-shrink: 0; }
 .calendar-scroll-area { flex: 1; overflow: auto; position: relative; background: white; display: flex; }
 
-/* 時間軸・グリッド共通設定（ズレ防止の要） */
-/* ▼▼▼ 修正: 時間軸を最前面(50)に固定して、予約枠が絶対に重ならないようにする ▼▼▼ */
+/* =========================================================
+   カレンダー・グリッドエリア（統合・整理済み決定版）
+   ※ ズーム時の罫線消失対策（Gap法 + Box-shadow法）適用済み
+   ========================================================= */
+
+/* --- 時間軸（左側） --- */
 .time-axis-col { 
   width: 50px; 
   flex-shrink: 0; 
   background: #fff; 
-  border-right: 1px solid #ddd; 
+  /* 右側の境界線 */
+  border-right: 1px solid #ccc; 
+  
   position: sticky; 
   left: 0; 
-  z-index: 50; /* ←ここが50になっていること */
-}.time-axis-header { height: 40px; border-bottom: 1px solid #ddd; background: #f9f9f9; position: sticky; top: 0; z-index: 60; }
+  /* 予約枠(z-index:5〜20)より確実に上にする */
+  z-index: 500; 
+}
+
+.time-axis-header { 
+  height: 40px; 
+  /* 下線はbox-shadowに統一 */
+  box-shadow: inset 0 -1px 0 0 #ccc;
+  background: #f9f9f9; 
+  position: sticky; 
+  top: 0; 
+  /* 一番手前に表示 */
+  z-index: 600; 
+}
 
 .time-label {
-  border-bottom: 1px solid #eee; /* 線を薄く表示 */
-  font-size: 0.7rem; color: #888;
-  text-align: right; padding-right: 5px; padding-top: 5px;
+  /* ボーダーではなく影で線を描画（ズーム対策） */
+  box-shadow: inset 0 -1px 0 0 #ccc;
+  border-bottom: none;
+  
+  font-size: 0.7rem; 
+  color: #888;
+  text-align: right; 
+  padding-right: 5px; 
+  padding-top: 5px;
   width: 100%;
 }
 
+/* --- 部屋コンテナ（縦線の描画元） --- */
 .rooms-container { 
+  /* Flexboxで横並び */
   display: flex; 
   min-width: fit-content; 
   flex-grow: 1; 
-  /* ▼▼▼ 追加：予約バーの強さをこの箱の中に閉じ込める設定 ▼▼▼ */
-  position: relative;
+  position: relative; 
   z-index: 1; 
+
+  /* 【ズーム対策: 縦線】背景色を線の色とし、gapで隙間を空けて線を見せる */
+  background-color: #ccc; 
+  gap: 1px; 
+  border: 1px solid #ccc; /* 外枠 */
 }
-.room-col { flex: 1 0 120px; min-width: 120px; border-right: 1px solid #eee; position: relative; display: flex; flex-direction: column; }
-/* ▼▼▼ 修正: ヘッダーのz-indexを上げて、スクロール時に予約枠(20)の上に固定表示させる ▼▼▼ */
-.room-header { height: 40px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; background: #fafafa; border-bottom: 1px solid #ddd; position: sticky; top: 0; z-index: 40; padding: 0 5px; text-align: center; word-break: break-all; }
-.room-grid-body { position: relative; background: transparent; }
+
+/* --- 各部屋の列 --- */
+.room-col { 
+  flex: 1 0 120px; 
+  min-width: 120px; 
+  position: relative; 
+  display: flex; 
+  flex-direction: column; 
+  
+  /* gapの隙間から親のグレー背景が見えるので、自身の右ボーダーは不要 */
+  border-right: none; 
+  /* 背景を白にして親のグレーを隠す */
+  background-color: #fff; 
+}
+
+.room-header { 
+  height: 40px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  font-size: 0.8rem; 
+  font-weight: bold; 
+  background: #fafafa; 
+  
+  /* 下線はbox-shadowで統一 */
+  box-shadow: inset 0 -1px 0 0 #ccc;
+  border-bottom: none;
+
+  position: sticky; 
+  top: 0; 
+  z-index: 400; /* 時間軸より下、予約枠より上 */
+  padding: 0 5px; 
+  text-align: center; 
+  word-break: break-all; 
+}
+
+.room-grid-body { 
+  position: relative; 
+  background: transparent; 
+}
+
+/* --- 30分枠（横線の描画元） --- */
 .grid-slot { 
-  border-bottom: 1px solid #eee; /* 時間軸と同じ線 */
+  /* 【ズーム対策: 横線】内側の影で線を描画（borderだと消えるため） */
+  box-shadow: inset 0 -1px 0 0 #ccc;
+  border-bottom: none;
+  
   width: 100%; 
-  position: relative; /* 30分線を表示するために必要 */
+  position: relative; 
 }
 
+/* --- マップビュー用のスクロール調整 --- */
 #map-timeline-section .calendar-scroll-area {
-  height: auto !important;      /* 高さを中身に合わせて自動で伸ばす */
-  min-height: 0 !important;     /* 最小高さの制限もなくす */
-  overflow: visible !important; /* スクロールバーを出さない */
-  display: flex !important;     /* 横並びレイアウトは維持 */
+  height: auto !important;      
+  min-height: 0 !important;     
+  overflow: visible !important; 
+  display: flex !important;     
 }
 
-.v-booking-bar {
-  transition: all 0.1s ease-in-out;
-}
-
-.v-booking-bar:hover {
-  /* 1. 少しだけ手前に表示する */
-  z-index: 20;
-
-  /* 2. 影を濃くして、浮き上がっているように見せる */
-  box-shadow: 0 5px 10px rgba(0,0,0,0.3);
-
-  /* 3. 少しだけ色を濃くして「選択中」であることを強調する */
-  filter: brightness(0.95);
-
-  /* ※重要: height や top などのサイズ・場所に関わる設定は書きません */
-}
+/* --- 予約バー（スタイル統合） --- */
 .v-booking-bar {
   position: absolute; 
   left: 2px; 
   right: 2px; 
   border-radius: 4px;
   
-  /* ▼▼▼ 修正: Flexboxを使って文字を常にど真ん中に配置する ▼▼▼ */
+  /* テキスト配置 */
   display: flex;
-  flex-direction: column; /* 縦並び（時間→件名） */
-  justify-content: center; /* 【重要】縦方向の中央寄せ（これで長いバーでも真ん中に来ます） */
-  align-items: center;     /* 横方向の中央寄せ */
+  flex-direction: column; 
+  justify-content: center; 
+  align-items: center;     
   
-  /* ▼ 文字サイズと行間の調整 */
-  font-size: 10px;    /* 少し小さくして入りやすくする */
-  line-height: 1.1;   /* 行間を詰める */
-  padding: 2px;       
-  
+  /* 見た目 */
+  font-size: 10px;    
+  line-height: 1.1;   
+  padding: 2px;        
   color: #333; 
   
-  /* 枠からはみ出た文字の処理 */
+  /* はみ出し対策 */
   overflow: hidden; 
   white-space: normal; 
   overflow-wrap: anywhere; 
   word-break: break-all;
   
+  /* 重なり順とアニメーション */
   z-index: 5; 
   cursor: pointer; 
   box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   text-align: center;
+  transition: all 0.1s ease-in-out;
+
+  /* ズーム対策による1pxのズレ補正 */
+  margin-top: -1px;
 }
 
+/* ホバー時の挙動 */
+.v-booking-bar:hover {
+  z-index: 20;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+  filter: brightness(0.95);
+}
+
+/* --- 予約タイプ別の色設定 --- */
 .type-meeting { background: var(--meeting-bg); border-top: 4px solid var(--meeting-border); }
 .type-reception { background: var(--reception-bg); border-top: 4px solid var(--reception-border); }
 .type-zoom { background: var(--zoom-bg); border-top: 4px solid var(--zoom-border); }
@@ -628,92 +697,4 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-/* ▼▼▼ 【緊急修正】重なり順と罫線消えの修正 ▼▼▼ */
-
-/* 1. 前回の修正（箱に閉じ込める設定）を強制リセットして、罫線復活させる */
-.rooms-container {
-  position: static !important;
-  z-index: auto !important;
-}
-
-/* 2. 時間軸（左列）を「最強(500)」にして、予約枠(20)に絶対に負けないようにする */
-.time-axis-col {
-  z-index: 500 !important;
-}
-
-/* 3. 左上の角（時間軸ヘッダー）はさらに上(600)にする */
-.time-axis-header {
-  z-index: 600 !important;
-}
-
-/* 4. 部屋名ヘッダーは予約枠より強く、時間軸より弱く(400)する */
-.room-header {
-  z-index: 400 !important;
-}
-
-/* 5. 罫線が見えにくい場合のため、色を少し濃くする（念のため） */
-.grid-slot {
-  border-bottom: 1px solid #ccc !important;
-}
-/* ==============================================
-   【ズーム対応・罫線消失防止パッチ】
-   既存のborderによる線を廃止し、背景色とGap（隙間）、
-   およびBox-shadow（影）による描画へ変更します。
-   ============================================== */
-
-/* 1. 縦の線（部屋の区切り）の修正 */
-.rooms-container {
-  /* 親要素の背景色を「線の色」にします（少し濃い目のグレー推奨） */
-  background-color: #ccc !important;
-  
-  /* 部屋と部屋の間に物理的な1pxの隙間を作ります */
-  /* これにより、ズームしても線（背景色）が潰れにくくなります */
-  gap: 1px !important;
-  
-  /* Flexboxであることを明示（gapを効かせるため） */
-  display: flex !important;
-  
-  /* 外枠も背景色と合わせる */
-  border: 1px solid #ccc !important;
-}
-
-.room-col {
-  /* 今までの右側の線を消します */
-  border-right: none !important;
-  
-  /* 背景色を白に指定（親のグレー背景を隠し、gap部分だけグレーに見せる） */
-  background-color: #fff !important;
-}
-
-/* 2. 横の線（時間の区切り）の修正 */
-/* border-bottom はズーム時に高さ計算の端数で消えやすいため、box-shadowに変更します */
-.grid-slot {
-  /* 既存のボーダーを削除 */
-  border-bottom: none !important;
-  
-  /* 「内側に1pxの影」をつけることで線に見せます */
-  /* inset(内側) 横0 縦-1px ぼかし0 広がり0 色 */
-  box-shadow: inset 0 -1px 0 0 #ccc !important;
-  
-  /* ※ box-sizing: border-box なので高さ計算への悪影響もありません */
-}
-
-/* 3. 左側の時間軸のデザイン合わせ */
-.time-axis-col {
-  /* 区切り線の色を統一 */
-  border-right: 1px solid #ccc !important;
-}
-
-.time-label {
-  /* 時間軸のメモリ線もbox-shadowに合わせて統一 */
-  border-bottom: none !important;
-  box-shadow: inset 0 -1px 0 0 #ccc !important;
-}
-
-/* 4. （念のため）予約バーの配置補正 */
-/* 線の描画方法を変えたことで1px程度のズレが気になる場合用 */
-.v-booking-bar {
-  /* 予約枠が線の上にきれいに乗るように微調整（必要に応じて調整してください） */
-  margin-top: -1px; 
 }
