@@ -46,8 +46,8 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
 
 .rooms-container { display: flex; min-width: fit-content; flex-grow: 1; }
 .room-col { flex: 1 0 120px; min-width: 120px; border-right: 1px solid #eee; position: relative; display: flex; flex-direction: column; }
-.room-header { height: 40px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; background: #fafafa; border-bottom: 1px solid #ddd; position: sticky; top: 0; z-index: 10; padding: 0 5px; text-align: center; word-break: break-all; }
-
+/* ▼▼▼ 修正: ヘッダーのz-indexを上げて、スクロール時に予約枠(20)の上に固定表示させる ▼▼▼ */
+.room-header { height: 40px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; background: #fafafa; border-bottom: 1px solid #ddd; position: sticky; top: 0; z-index: 40; padding: 0 5px; text-align: center; word-break: break-all; }
 .room-grid-body { position: relative; background: transparent; }
 .grid-slot { 
   border-bottom: 1px solid #eee; /* 時間軸と同じ線 */
