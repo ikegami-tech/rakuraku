@@ -519,16 +519,16 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
 }
 /* ▼▼▼ マップ検索画面だけの特別スタイル ▼▼▼ */
 #rooms-container-map .v-booking-bar {
-  flex-direction: row !important;         /* 横並び */
-  justify-content: flex-start !important; /* ★ここを「左詰め」に戻します */
-  align-items: center !important;         /* 上下中央 */
-  padding: 0 5px !important;              /* バー自体の余白 */
+  flex-direction: row !important;       /* 横並び */
+  justify-content: center !important;   /* ★ここを「中央寄せ」にします */
+  align-items: center !important;       /* 上下中央 */
+  padding: 0 5px !important;            /* 左右の余白 */
   text-align: left !important;
-  gap: 0;                                 /* JSで調整するので0にします */
+  gap: 0;
 }
 
 #rooms-container-map .v-booking-bar span,
-#rooms-container-map .v-booking-bar div { /* divも対象に追加 */
+#rooms-container-map .v-booking-bar div {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
