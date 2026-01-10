@@ -90,16 +90,6 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   text-align: center;
 }
 
-/* ホバー時の設定（前回修正した拡大表示も残しておきます） */
-.v-booking-bar:hover {
-  z-index: 1000 !important;
-  height: auto !important;
-  min-height: fit-content !important;
-  overflow: visible !important;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.5);
-  opacity: 1.0;
-  background-color: inherit; 
-}
 .type-meeting { background: var(--meeting-bg); border-top: 4px solid var(--meeting-border); }
 .type-reception { background: var(--reception-bg); border-top: 4px solid var(--reception-border); }
 .type-zoom { background: var(--zoom-bg); border-top: 4px solid var(--zoom-border); }
