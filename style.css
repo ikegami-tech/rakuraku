@@ -5,7 +5,7 @@
   --reception-bg: #e8f5e9; --reception-border: #4caf50;
   --zoom-bg: #fff3e0; --zoom-border: #ff9800;
   /* 最低限の高さ */
-  --base-hour-height: 50px;
+  --base-hour-height: 100px;
 }
 
 body { font-family: "Helvetica Neue", Arial, sans-serif; margin: 0; background: #eef1f5; color: #333; height: 100vh; display: flex; flex-direction: column; }
@@ -49,8 +49,20 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
 
 .room-grid-body { position: relative; background: transparent; }
 .grid-slot { 
-  border-bottom: 1px solid #eee; /* 時間軸と同じ線にする */
+  border-bottom: 1px solid #eee; /* 時間軸と同じ線 */
   width: 100%; 
+  position: relative; /* 30分線を表示するために必要 */
+}
+
+/* ▼ 30分ごとの補助線（点線）を追加 */
+.grid-slot::after {
+  content: "";
+  position: absolute;
+  top: 50%;     /* ちょうど真ん中に配置 */
+  left: 0;
+  width: 100%;
+  border-bottom: 1px dashed #f9f9f9; /* 薄い点線 */
+  pointer-events: none; /* クリックの邪魔にならないように */
 }
 
 /* style.css */
