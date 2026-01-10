@@ -916,7 +916,7 @@ async function saveBooking() {
   const title = document.getElementById('input-title').value;
   const note = document.getElementById('input-note').value;
   
- if (start >= end) {
+  if (start >= end) {
       alert("開始時間は終了時間より前に設定してください。");
       return;
   }
@@ -925,6 +925,18 @@ async function saveBooking() {
       alert("利用時間は 7:00 〜 21:00 の範囲で設定してください。");
       return;
   }
+
+  // ▼▼▼ 追加: 15分単位かどうかのチェック ▼▼▼
+  const sMin = parseInt(start.split(':')[1], 10);
+  const eMin = parseInt(end.split(':')[1], 10);
+  if (sMin % 15 !== 0 || eMin % 15 !== 0) {
+      alert("時間は15分単位（00, 15, 30, 45）で設定してください。");
+      return;
+  }
+  // ▲▲▲ 追加ここまで ▲▲▲
+
+  const dateSlash = date.replace(/-/g, '/');
+  // ...（以下、元のコードのまま）
 
   const dateSlash = date.replace(/-/g, '/');
   const startTime = `${dateSlash} ${start}`;
