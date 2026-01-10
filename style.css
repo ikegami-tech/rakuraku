@@ -455,7 +455,41 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
     touch-action: manipulation;
   }
 
-  /* 5. 備考欄（テキストエリア）を大きくする */
+  /* ▼▼▼ 【今回追加】スマホの日付表示・切替ボタンの修正 ▼▼▼ */
+  
+  /* 日付コントローラー（枠全体）の設定 */
+  .date-controller {
+    display: flex !important;
+    flex-wrap: nowrap !important;        /* 折り返し禁止 */
+    justify-content: space-between !important; /* 両端と中央に配置 */
+    align-items: center !important;
+    gap: 5px !important;                 /* ボタンとの隙間を少し狭く */
+    padding: 5px 10px !important;        /* 上下5px, 左右10px */
+    width: 100% !important;              /* 横幅いっぱい */
+  }
+
+  /* 「<」と「>」ボタンの設定 */
+  .date-controller button {
+    flex: 0 0 44px !important;           /* 幅を44pxに固定して縮まないようにする */
+    width: 44px !important;
+    height: 36px !important;             /* 高さも程よく固定 */
+    padding: 0 !important;               /* 内側の余白をなくす */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* 真ん中の日付入力欄の設定 */
+  .date-controller input[type="date"] {
+    flex: 1 !important;                  /* 残りの幅をすべて使う */
+    min-width: 0 !important;             /* 幅がつぶれるのを防ぐおまじない */
+    width: 100% !important;
+    text-align: center !important;       /* 文字を中央寄せ */
+    font-size: 16px !important;          /* 文字サイズ調整（スマホで見やすく） */
+    margin: 0 !important;
+    padding: 5px 0 !important;
+  }
+
   textarea {
     height: 120px !important;
     padding: 10px !important;
