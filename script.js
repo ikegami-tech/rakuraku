@@ -530,14 +530,11 @@ function renderVerticalTimeline(mode) {
 
           let heightPx = bottomPx - topPx; // const ではなく let に変更
 
-          // その時間の1時間あたりの高さを基準に、15分分の高さ(px)を計算
-          const minHeightPx = hourRowHeights[sHour] * (15 / 60);
-          
-          // もし計算した高さが最小値より小さければ、強制的に広げる
-          if (heightPx < minHeightPx) {
-              heightPx = minHeightPx;
+          const ABSOLUTE_MIN_HEIGHT = 36; // 2行(時間+件名)がきれいに収まる高さ(px)
+
+          if (heightPx < ABSOLUTE_MIN_HEIGHT) {
+              heightPx = ABSOLUTE_MIN_HEIGHT;
           }
-          // ▲▲▲ 修正ここまで ▲▲▲
 
           const bar = document.createElement('div');
           bar.className = `v-booking-bar type-${room.type}`;
