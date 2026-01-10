@@ -54,16 +54,6 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   position: relative; /* 30分線を表示するために必要 */
 }
 
-/* ▼ 30分ごとの補助線（点線）を追加 */
-.grid-slot::after {
-  content: "";
-  position: absolute;
-  top: 50%;     /* ちょうど真ん中に配置 */
-  left: 0;
-  width: 100%;
-  border-bottom: 1px dashed #f9f9f9; /* 薄い点線 */
-  pointer-events: none; /* クリックの邪魔にならないように */
-}
 
 /* style.css */
 
