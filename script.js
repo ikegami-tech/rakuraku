@@ -527,8 +527,17 @@ function renderVerticalTimeline(mode) {
           } else {
               bottomPx = hourTops[eHour] + (hourRowHeights[eHour] * (eMin / 60));
           }
+
+          let heightPx = bottomPx - topPx; // const ではなく let に変更
+
+          // その時間の1時間あたりの高さを基準に、15分分の高さ(px)を計算
+          const minHeightPx = hourRowHeights[sHour] * (15 / 60);
           
-          const heightPx = bottomPx - topPx;
+          // もし計算した高さが最小値より小さければ、強制的に広げる
+          if (heightPx < minHeightPx) {
+              heightPx = minHeightPx;
+          }
+          // ▲▲▲ 修正ここまで ▲▲▲
 
           const bar = document.createElement('div');
           bar.className = `v-booking-bar type-${room.type}`;
