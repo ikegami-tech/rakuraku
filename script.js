@@ -528,12 +528,13 @@ function renderVerticalTimeline(mode) {
               bottomPx = hourTops[eHour] + (hourRowHeights[eHour] * (eMin / 60));
           }
 
-          let heightPx = bottomPx - topPx; // const ではなく let に変更
+         let heightPx = bottomPx - topPx; 
 
-          const minHeightPx = hourRowHeights[sHour] * (15 / 60);
+          // ▼▼▼ 修正: 最小高さを「厳密に15分相当」に設定する ▼▼▼
+          const minHeightPx = hourRowHeights[sHour] * (15 / 60); // 100px * 0.25 = 25px
 
-          if (heightPx < ABSOLUTE_MIN_HEIGHT) {
-              heightPx = ABSOLUTE_MIN_HEIGHT;
+          if (heightPx < minHeightPx) {
+              heightPx = minHeightPx;
           }
 
           const bar = document.createElement('div');
