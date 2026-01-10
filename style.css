@@ -57,52 +57,48 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
 
 /* style.css */
 
+/* style.css */
+
 .v-booking-bar {
   position: absolute; 
   left: 2px; 
   right: 2px; 
   border-radius: 4px;
   
-  /* ▼重要：計算と合わせるための固定設定▼ */
-  font-size: 11px; 
-  line-height: 15px; /* 1行の高さを15pxに固定 */
+  /* ▼▼▼ 修正: Flexboxを使って文字を常にど真ん中に配置する ▼▼▼ */
+  display: flex;
+  flex-direction: column; /* 縦並び（時間→件名） */
+  justify-content: center; /* 【重要】縦方向の中央寄せ（これで長いバーでも真ん中に来ます） */
+  align-items: center;     /* 横方向の中央寄せ */
+  
+  /* ▼ 文字サイズと行間の調整 */
+  font-size: 10px;    /* 少し小さくして入りやすくする */
+  line-height: 1.1;   /* 行間を詰める */
   padding: 2px;       
-  /* ▲ここまで▲ */
   
   color: #333; 
   
-  /* ▼変更点：ここを visible から hidden に変更します ▼ */
-  overflow: hidden; /* 枠からはみ出た文字をカットする */
-  /* ▲変更点▲ */
-
+  /* 枠からはみ出た文字の処理 */
+  overflow: hidden; 
   white-space: normal; 
   overflow-wrap: anywhere; 
   word-break: break-all;
   
-  /* ▼▼▼ 修正: z-indexを下げて、時間軸の下に潜るようにする ▼▼▼ */
-  z-index: 5; /* 以前は100でした */
-  /* ▲▲▲ 修正ここまで ▲▲▲ */
-  
+  z-index: 5; 
   cursor: pointer; 
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  display: flex; 
-  flex-direction: column; 
-  align-items: center; 
-  justify-content: flex-start; 
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   text-align: center;
 }
 
+/* ホバー時の設定（前回修正した拡大表示も残しておきます） */
 .v-booking-bar:hover {
-  /* ▼▼▼ 修正: ホバー時も時間軸(z-index:20)より低くする ▼▼▼ */
-  z-index: 10; /* 以前は200でした */
-  /* ▲▲▲ 修正ここまで ▲▲▲ */
-  
-  box-shadow: 0 4px 10px rgba(0,0,0,0.4); 
-  opacity: 0.95; 
-}
-  
-  box-shadow: 0 4px 10px rgba(0,0,0,0.4); 
-  opacity: 0.95; 
+  z-index: 1000 !important;
+  height: auto !important;
+  min-height: fit-content !important;
+  overflow: visible !important;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+  opacity: 1.0;
+  background-color: inherit; 
 }
 .type-meeting { background: var(--meeting-bg); border-top: 4px solid var(--meeting-border); }
 .type-reception { background: var(--reception-bg); border-top: 4px solid var(--reception-border); }
