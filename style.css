@@ -462,7 +462,29 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
     line-height: 1.5;
     font-size: 16px;
   }
-｝
+} /* ← ★ここを半角の「}」に修正しました */
+
+/* ▼▼▼ 参加者設定ヘッダーのレイアウト（ボタン横並び用） ▼▼▼ */
+.group-header {
+  display: flex;
+  justify-content: space-between; /* 左右に配置 */
+  align-items: center;
+  margin-top: 10px;
+  margin-bottom: 5px;
+}
+
+#group-action-area {
+  display: flex;
+  gap: 5px;
+}
+
+#group-action-area .group-chip {
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  margin: 0;
+  height: auto;
+}
+
 /* ▼▼▼ 参加者リストのスクロールボックス化（修正版） ▼▼▼ */
 
 /* 参加者が入る箱（tdタグ）のスタイル */
