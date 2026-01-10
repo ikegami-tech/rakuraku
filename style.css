@@ -522,7 +522,7 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
 /* マップ検索画面内の予約バー */
 #rooms-container-map .v-booking-bar {
   flex-direction: row !important;       /* 強制的に横並び */
-  justify-content: flex-start !important; /* 左寄せ */
+  justify-content: center !important; /* 左寄せ */
   align-items: center !important;       /* 上下中央 */
   padding: 0 5px !important;            /* 左右に余白 */
   text-align: left !important;          /* 文字左寄せ */
