@@ -545,15 +545,15 @@ function renderVerticalTimeline(mode) {
           
           let displayTitle = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '予約';
 
-         // ▼▼▼ 修正: 全体を中央に寄せつつ、時間と用件をきれいに並べる ▼▼▼
+         // ▼▼▼ 修正: バーの中心を基準に、左右に文字を配置して縦位置を完全固定する ▼▼▼
           if (mode === 'map') {
               // マップ画面用
               bar.innerHTML = `
-                <div style="width: 50px; text-align: center; flex-shrink: 0; font-weight: bold;">
+                <div style="flex: 1; text-align: right; padding-right: 10px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                   ${pad(start.getHours())}:${pad(start.getMinutes())}
                 </div>
                 
-                <div style="text-align: left; padding-left: 10px; font-weight: bold; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 100%;">
+                <div style="flex: 1; text-align: left; padding-left: 10px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                   ${displayTitle}
                 </div>
               `;
