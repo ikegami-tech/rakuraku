@@ -545,10 +545,21 @@ function renderVerticalTimeline(mode) {
           
           let displayTitle = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '予約';
 
-          bar.innerHTML = `
-            <span style="font-weight:bold;">${pad(start.getHours())}:${pad(start.getMinutes())}</span><br>
-            <span style="font-weight:bold;">${displayTitle}</span>
-          `;
+          // ▼▼▼ 修正: マップ画面なら横並び、一覧画面なら縦並びにする ▼▼▼
+          if (mode === 'map') {
+              // マップ画面用（横並び・改行なし・隙間あり）
+              bar.innerHTML = `
+                <span style="font-weight:bold; margin-right: 8px;">${pad(start.getHours())}:${pad(start.getMinutes())}</span>
+                <span style="font-weight:bold;">${displayTitle}</span>
+              `;
+          } else {
+              // 一覧画面用（今まで通り・縦並び・改行あり）
+              bar.innerHTML = `
+                <span style="font-weight:bold;">${pad(start.getHours())}:${pad(start.getMinutes())}</span><br>
+                <span style="font-weight:bold;">${displayTitle}</span>
+              `;
+          }
+          // ▲▲▲ 修正ここまで ▲▲▲
           
           bar.onclick = (e) => { 
               e.stopPropagation(); 
