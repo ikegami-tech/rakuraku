@@ -455,7 +455,29 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
     margin: 2px;
     touch-action: manipulation;
   }
+/* ▼▼▼ フォームのレイアウト用クラス（新規追加） ▼▼▼ */
 
+/* PC・タブレット: 横並びで表示 */
+.form-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px; /* 下に余白 */
+}
+
+/* 内部のグループ（ラベル+入力欄）は等幅で広げる */
+.form-row > div {
+  flex: 1;
+}
+
+/* ▼ スマホ用設定の中に追加（既存の @media ブロックの中に追記してください） */
+@media (max-width: 600px) {
+  /* ...（既存のコード）... */
+
+  /* ★フォームを縦並びにする設定 */
+  .form-row {
+    flex-direction: column !important; /* 縦並びに強制変更 */
+    gap: 10px !important;
+  }
   /* ▼▼▼ 【今回追加】スマホの日付表示・切替ボタンの修正 ▼▼▼ */
   
   /* 日付コントローラー（枠全体）の設定 */
