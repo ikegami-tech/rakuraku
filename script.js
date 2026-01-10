@@ -547,9 +547,10 @@ function renderVerticalTimeline(mode) {
 
           // ▼▼▼ 修正: マップ画面なら横並び、一覧画面なら縦並びにする ▼▼▼
           if (mode === 'map') {
-              // マップ画面用（横並び・改行なし・隙間あり）
+              // マップ画面用（横並び・改行なし・CSSのgapで間隔調整）
+              // ★spanタグ内の margin-right: 8px; を削除しました
               bar.innerHTML = `
-                <span style="font-weight:bold; margin-right: 8px;">${pad(start.getHours())}:${pad(start.getMinutes())}</span>
+                <span style="font-weight:bold;">${pad(start.getHours())}:${pad(start.getMinutes())}</span>
                 <span style="font-weight:bold;">${displayTitle}</span>
               `;
           } else {
