@@ -59,14 +59,10 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
 
 /* style.css */
 
-/* ▼▼▼ 予約バーのホバー効果（形を変えずに強調する） ▼▼▼ */
-
-/* 基本のバーにアニメーション設定を追加（滑らかに変化させるため） */
 .v-booking-bar {
   transition: all 0.1s ease-in-out;
 }
 
-/* マウスを乗せた時の設定 */
 .v-booking-bar:hover {
   /* 1. 少しだけ手前に表示する */
   z-index: 20;
