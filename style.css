@@ -59,6 +59,26 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
 
 /* style.css */
 
+/* ▼▼▼ 予約バーのホバー効果（形を変えずに強調する） ▼▼▼ */
+
+/* 基本のバーにアニメーション設定を追加（滑らかに変化させるため） */
+.v-booking-bar {
+  transition: all 0.1s ease-in-out;
+}
+
+/* マウスを乗せた時の設定 */
+.v-booking-bar:hover {
+  /* 1. 少しだけ手前に表示する */
+  z-index: 20;
+
+  /* 2. 影を濃くして、浮き上がっているように見せる */
+  box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+
+  /* 3. 少しだけ色を濃くして「選択中」であることを強調する */
+  filter: brightness(0.95);
+
+  /* ※重要: height や top などのサイズ・場所に関わる設定は書きません */
+}
 .v-booking-bar {
   position: absolute; 
   left: 2px; 
@@ -471,24 +491,4 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
 /* 最後の行の下線は消す */
 .detail-member-item:last-child {
   border-bottom: none;
-}
-/* ▼▼▼ 予約バーのホバー効果（形を変えずに強調する） ▼▼▼ */
-
-/* 基本のバーにアニメーション設定を追加（滑らかに変化させるため） */
-.v-booking-bar {
-  transition: all 0.1s ease-in-out;
-}
-
-/* マウスを乗せた時の設定 */
-.v-booking-bar:hover {
-  /* 1. 少しだけ手前に表示する */
-  z-index: 20;
-
-  /* 2. 影を濃くして、浮き上がっているように見せる */
-  box-shadow: 0 5px 10px rgba(0,0,0,0.3);
-
-  /* 3. 少しだけ色を濃くして「選択中」であることを強調する */
-  filter: brightness(0.95);
-
-  /* ※重要: height や top などのサイズ・場所に関わる設定は書きません */
 }
