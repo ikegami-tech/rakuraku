@@ -530,7 +530,7 @@ function renderVerticalTimeline(mode) {
 
           let heightPx = bottomPx - topPx; // const ではなく let に変更
 
-          const ABSOLUTE_MIN_HEIGHT = 36; // 2行(時間+件名)がきれいに収まる高さ(px)
+          const minHeightPx = hourRowHeights[sHour] * (15 / 60);
 
           if (heightPx < ABSOLUTE_MIN_HEIGHT) {
               heightPx = ABSOLUTE_MIN_HEIGHT;
