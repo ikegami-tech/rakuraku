@@ -53,6 +53,13 @@ let currentMapRoomId = null;
 window.onload = () => {
   document.getElementById('timeline-date').valueAsDate = new Date();
   document.getElementById('map-date').valueAsDate = new Date();
+
+  // ▼▼▼ 追加: 時間入力を15分単位（900秒）に設定する ▼▼▼
+  const startInput = document.getElementById('input-start');
+  const endInput = document.getElementById('input-end');
+  if (startInput) startInput.step = 900;
+  if (endInput) endInput.step = 900;
+  // ▲▲▲ 追加ここまで ▲▲▲
 };
 
 async function callAPI(params) {
