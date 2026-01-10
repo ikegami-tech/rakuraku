@@ -462,6 +462,27 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
     line-height: 1.5;
     font-size: 16px;
   }
+  .map-click-area {
+    /* 文字サイズをかなり小さくする */
+    font-size: 10px !important; 
+    
+    /* 行間を詰める */
+    line-height: 1.0 !important;
+    
+    /* 余白をなくして文字スペースを確保 */
+    padding: 0 1px !important;
+    
+    /* 文字の折り返し設定（重要） */
+    white-space: normal !important;        /* 改行を許可 */
+    word-break: break-all !important;      /* 単語の途中でも改行する */
+    overflow-wrap: break-word !important;  
+    
+    /* 中央揃えの強制 */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
 } /* ← ★ここを半角の「}」に修正しました */
 
 /* ▼▼▼ 参加者設定ヘッダーのレイアウト（ボタン横並び用） ▼▼▼ */
