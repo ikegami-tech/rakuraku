@@ -59,6 +59,16 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
 
 /* style.css */
 
+/* ▼▼▼ マップ検索画面のタイムライン調整 ▼▼▼ */
+
+/* マップ画面の中にあるタイムラインエリアだけ、内部スクロールさせずに全表示する */
+#map-timeline-section .calendar-scroll-area {
+  height: auto !important;      /* 高さを中身に合わせて自動で伸ばす */
+  min-height: 0 !important;     /* 最小高さの制限もなくす */
+  overflow: visible !important; /* スクロールバーを出さない */
+  display: flex !important;     /* 横並びレイアウトは維持 */
+}
+
 .v-booking-bar {
   transition: all 0.1s ease-in-out;
 }
