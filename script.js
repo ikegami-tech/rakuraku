@@ -54,12 +54,12 @@ window.onload = () => {
   document.getElementById('timeline-date').valueAsDate = new Date();
   document.getElementById('map-date').valueAsDate = new Date();
 
-  // ▼▼▼ 追加: 時間入力を15分単位（900秒）に設定する ▼▼▼
+  // ▼▼▼ 修正: 入力自体は1分単位で自由にできるように戻す（step=60） ▼▼▼
   const startInput = document.getElementById('input-start');
   const endInput = document.getElementById('input-end');
-  if (startInput) startInput.step = 900;
-  if (endInput) endInput.step = 900;
-  // ▲▲▲ 追加ここまで ▲▲▲
+  if (startInput) startInput.step = 60; // 900から60に変更、または行ごと削除
+  if (endInput) endInput.step = 60;   // 900から60に変更、または行ごと削除
+  // ▲▲▲ 修正ここまで ▲▲▲
 };
 
 async function callAPI(params) {
@@ -926,15 +926,21 @@ async function saveBooking() {
       return;
   }
 
-  // ▼▼▼ 追加: 15分単位かどうかのチェック ▼▼▼
-  const sMin = parseInt(start.split(':')[1], 10);
-  const eMin = parseInt(end.split(':')[1], 10);
-  if (sMin % 15 !== 0 || eMin % 15 !== 0) {
-      alert("時間は15分単位（00, 15, 30, 45）で設定してください。");
+ // ▼▼▼ 修正: 開始時刻の縛りをやめて、「利用時間が15分未満」ならエラーにする ▼▼▼
+  
+  // 1. 時間文字列を「分」に変換して差分を計算
+  const startParts = start.split(':');
+  const endParts = end.split(':');
+  const startMinutes = parseInt(startParts[0]) * 60 + parseInt(startParts[1]);
+  const endMinutes = parseInt(endParts[0]) * 60 + parseInt(endParts[1]);
+  
+  const duration = endMinutes - startMinutes;
+
+  // 2. 15分未満ならアラート
+  if (duration < 15) {
+      alert("最低でも15分以上の日時を設定してください。");
       return;
   }
-  // ▲▲▲ 追加ここまで ▲▲▲
-
   const dateSlash = date.replace(/-/g, '/');
   // ...（以下、元のコードのまま）
 
