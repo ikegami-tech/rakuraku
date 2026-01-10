@@ -546,7 +546,7 @@ function renderVerticalTimeline(mode) {
           let displayTitle = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '予約';
 
           bar.innerHTML = `
-            <span style="font-weight:bold;">${pad(start.getHours())}:${pad(start.getMinutes())}</span><br>
+            <span style="font-weight:bold; margin-right: 10px;">${pad(start.getHours())}:${pad(start.getMinutes())}</span>
             <span style="font-weight:bold;">${displayTitle}</span>
           `;
           
