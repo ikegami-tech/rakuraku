@@ -485,23 +485,20 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   height: auto;
 }
 
-/* ▼▼▼ 参加者リストのスクロールボックス化（修正版） ▼▼▼ */
-
-/* 参加者が入る箱（tdタグ）のスタイル */
 #detail-members {
   /* テーブルセルではなくブロック要素として扱う（高さ制限を効かせるため必須） */
   display: block !important;
   width: 100% !important;
   
   /* ★ここが高さ設定です。約35px(1行) × 6人 ≒ 210px */
-  max-height: 210px !important; 
+  max-height: 210px !important;
   
   /* 枠を超えたらスクロールバーを出す設定 */
   overflow-y: auto !important;
   
-  background-color: #fff;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  background-color: transparent; /* 背景を透明にする */
+  border: none;                  /* 枠線をなしにする */
+  border-radius: 0;              /* 角丸も不要なら0に */
   padding: 0 !important;
   margin-top: 5px;
 }
