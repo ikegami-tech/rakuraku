@@ -42,7 +42,7 @@ const mapConfig = {
 
 const START_HOUR = 7;
 const END_HOUR = 22;
-const BASE_HOUR_HEIGHT = 50; 
+const BASE_HOUR_HEIGHT = 100; 
 
 let currentUser = null;
 let masterData = { rooms: [], users: [], reservations: [], logs: [], groups: [] };
@@ -462,19 +462,43 @@ function renderVerticalTimeline(mode) {
         body.appendChild(slot);
     }
     
+    // --- 既存の body.onclick を以下に置き換えてください ---
     body.onclick = (e) => {
        if (e.target.closest('.v-booking-bar')) return;
+       
+       // 空きスロットまたは背景をクリックした場合
        if(e.target.classList.contains('grid-slot') || e.target === body) {
            const rect = body.getBoundingClientRect();
-           const clickY = e.clientY - rect.top;
+           const clickY = e.clientY - rect.top; // 親要素の上端からのクリック位置(px)
+           
            let clickedHour = -1;
+           let clickedMin = 0; // デフォルトは0分
+
+           // どの時間枠(Hour)をクリックしたか判定
            for(let h=START_HOUR; h<END_HOUR; h++) {
-               if (clickY >= hourTops[h] && clickY < hourTops[h+1]) {
+               const top = hourTops[h];
+               // 次の時間のTop、または現在枠のTop+高さ
+               const bottom = hourTops[h+1] !== undefined ? hourTops[h+1] : (top + hourRowHeights[h]);
+
+               if (clickY >= top && clickY < bottom) {
                    clickedHour = h;
+                   
+                   // ▼ 30分判定ロジック ▼
+                   const height = bottom - top;
+                   const relativeY = clickY - top; // 枠内でのクリック位置
+                   
+                   // 枠の半分より下をクリックしたら「30分」とみなす
+                   if (relativeY >= height / 2) {
+                       clickedMin = 30;
+                   }
                    break;
                }
            }
-           if(clickedHour !== -1) openModal(null, room.roomId, clickedHour);
+           
+           if(clickedHour !== -1) {
+                // 分(0 or 30)も渡す
+                openModal(null, room.roomId, clickedHour, clickedMin);
+           }
        }
     };
 
@@ -720,7 +744,8 @@ function getVal(obj, keys) {
     return ""; 
 }
 
-function openModal(res = null, defaultRoomId = null, clickHour = null) {
+// ▼ 引数に clickMin = 0 を追加
+function openModal(res = null, defaultRoomId = null, clickHour = null, clickMin = 0) {
   const modal = document.getElementById('bookingModal');
   modal.style.display = 'flex';
   
@@ -728,7 +753,7 @@ function openModal(res = null, defaultRoomId = null, clickHour = null) {
   originalParticipantIds.clear(); 
   document.getElementById('shuttle-search-input').value = "";
   
-  // 上部の時間表示エリアを作成・取得
+  // 上部の時間表示エリア
   let timeDisplayEl = document.getElementById('modal-time-display');
   if (!timeDisplayEl) {
       const header = document.getElementById('modal-title');
@@ -737,12 +762,11 @@ function openModal(res = null, defaultRoomId = null, clickHour = null) {
       timeDisplayEl.style.cssText = "font-size: 1.1rem; color: #27ae60; font-weight: bold; margin-bottom: 15px; text-align:center; background:#e8f5e9; padding:8px; border-radius:4px;";
       header.parentNode.insertBefore(timeDisplayEl, header.nextSibling);
   }
-  // 一旦クリア
   timeDisplayEl.innerText = "";
 
- const startInput = document.getElementById('input-start');
+  const startInput = document.getElementById('input-start');
   const endInput = document.getElementById('input-end');
-  // ▼ 07:00 〜 21:00 に変更
+  // 時間制限 (7:00-21:00)
   if(startInput) { startInput.min = "07:00"; startInput.max = "21:00"; }
   if(endInput)   { endInput.min = "07:00"; endInput.max = "21:00"; }
 
@@ -757,13 +781,11 @@ function openModal(res = null, defaultRoomId = null, clickHour = null) {
     const startObj = new Date(res._startTime || res.startTime);
     const endObj = new Date(res._endTime || res.endTime);
     
-    // 日付入力欄
     const y = startObj.getFullYear();
     const m = ('0' + (startObj.getMonth() + 1)).slice(-2);
     const d = ('0' + startObj.getDate()).slice(-2);
     document.getElementById('input-date').value = `${y}-${m}-${d}`;
 
-    // 時間入力欄
     const sh = ('0' + startObj.getHours()).slice(-2);
     const sm = ('0' + startObj.getMinutes()).slice(-2);
     const eh = ('0' + endObj.getHours()).slice(-2);
@@ -771,7 +793,6 @@ function openModal(res = null, defaultRoomId = null, clickHour = null) {
     document.getElementById('input-start').value = `${sh}:${sm}`;
     document.getElementById('input-end').value = `${eh}:${em}`;
     
-    // タイトル・備考
     document.getElementById('input-title').value = getVal(res, ['title', 'subject', '件名', 'タイトル', '用件', 'name']);
     document.getElementById('input-note').value = getVal(res, ['note', 'description', '備考', 'メモ', '詳細', 'body']);
     
@@ -820,9 +841,21 @@ function openModal(res = null, defaultRoomId = null, clickHour = null) {
     }
     document.getElementById('input-date').value = currentTabDate;
 
-    const sHour = clickHour ? clickHour : 9;
-    document.getElementById('input-start').value = `${pad(sHour)}:00`;
-    document.getElementById('input-end').value = `${pad(sHour+1)}:00`;
+    // ▼▼▼ 時間計算ロジックの修正 ▼▼▼
+    const sHour = clickHour !== null ? clickHour : 9;
+    const sMin  = clickMin; // 0 または 30
+
+    // 終了時間を「開始時間 + 30分」に設定
+    let eHour = sHour;
+    let eMin = sMin + 30;
+    if (eMin >= 60) {
+        eHour += 1;
+        eMin -= 60;
+    }
+
+    document.getElementById('input-start').value = `${pad(sHour)}:${pad(sMin)}`;
+    document.getElementById('input-end').value = `${pad(eHour)}:${pad(eMin)}`;
+    // ▲▲▲ 修正ここまで ▲▲▲
     
     document.getElementById('input-title').value = "";
     document.getElementById('input-note').value = "";
@@ -831,21 +864,15 @@ function openModal(res = null, defaultRoomId = null, clickHour = null) {
   
   renderShuttleLists();
 
-  // ▼▼▼ 【修正】イベントリスナーの登録強化 ▼▼▼
-  // 以前の onchange だけだと反応しないことがあるため、addEventListener を使用
   const inputs = ['input-date', 'input-start', 'input-end'];
   inputs.forEach(id => {
       const el = document.getElementById(id);
       if(el) {
-          // 重複登録を防ぐため、念のため古いリスナーを削除する記述を入れることもありますが、
-          // モーダルを開くたびに上書きでも動作上は問題ありません。
-          // ここではシンプルに 'input' (入力中) と 'change' (確定後) の両方を監視します。
           el.oninput = updateModalDisplay;
           el.onchange = updateModalDisplay;
       }
   });
 
-  // 最後に一度実行して表示を合わせる
   updateModalDisplay();
 }
     function closeModal() { document.getElementById('bookingModal').style.display = 'none'; }
