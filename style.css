@@ -483,9 +483,21 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
     justify-content: center !important;
     text-align: center !important;
   }
-} /* ← ★ここを半角の「}」に修正しました */
 
-/* ▼▼▼ 参加者設定ヘッダーのレイアウト（ボタン横並び用） ▼▼▼ */
+  #rooms-container-map .v-booking-bar {
+    justify-content: flex-start !important; /* 左寄せ */
+    padding-left: 5px !important;           /* 左に少し余白 */
+  }
+
+  #rooms-container-map .v-booking-bar div {
+    flex: none !important;         /* 50%分割（flex:1）を解除 */
+    width: auto !important;        /* 中身に合わせて幅を決める */
+    text-align: left !important;   /* 文字を左寄せ */
+    padding: 0 !important;         /* 既存の余白をリセット */
+    margin-right: 8px !important;  /* 時間と用件の間に隙間を作る */
+  }
+} 
+
 .group-header {
   display: flex;
   justify-content: space-between; /* 左右に配置 */
