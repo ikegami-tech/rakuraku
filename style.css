@@ -32,166 +32,90 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
 .date-controller { text-align: center; padding: 10px; background: #f9f9f9; border-bottom: 1px solid #ddd; display: flex; gap: 10px; justify-content: center; flex-shrink: 0; }
 .calendar-scroll-area { flex: 1; overflow: auto; position: relative; background: white; display: flex; }
 
-/* =========================================================
-   カレンダー・グリッドエリア（統合・整理済み決定版）
-   ※ ズーム時の罫線消失対策（Gap法 + Box-shadow法）適用済み
-   ========================================================= */
-
-/* --- 時間軸（左側） --- */
-.time-axis-col { 
-  width: 50px; 
-  flex-shrink: 0; 
-  background: #fff; 
-  /* 右側の境界線 */
-  border-right: 1px solid #ccc; 
-  
-  position: sticky; 
-  left: 0; 
-  /* 予約枠(z-index:5〜20)より確実に上にする */
-  z-index: 500; 
-}
-
-.time-axis-header { 
-  height: 40px; 
-  /* 下線はbox-shadowに統一 */
-  box-shadow: inset 0 -1px 0 0 #ccc;
-  background: #f9f9f9; 
-  position: sticky; 
-  top: 0; 
-  /* 一番手前に表示 */
-  z-index: 600; 
-}
+/* 時間軸・グリッド共通設定（ズレ防止の要） */
+.time-axis-col { width: 50px; flex-shrink: 0; background: #fff; border-right: 1px solid #ddd; position: sticky; left: 0; z-index: 20; }
+.time-axis-header { height: 40px; border-bottom: 1px solid #ddd; background: #f9f9f9; position: sticky; top: 0; z-index: 30; }
 
 .time-label {
-  /* ボーダーではなく影で線を描画（ズーム対策） */
-  box-shadow: inset 0 -1px 0 0 #ccc;
-  border-bottom: none;
-  
-  font-size: 0.7rem; 
-  color: #888;
-  text-align: right; 
-  padding-right: 5px; 
-  padding-top: 5px;
+  border-bottom: 1px solid #eee; /* 線を薄く表示 */
+  font-size: 0.7rem; color: #888;
+  text-align: right; padding-right: 5px; padding-top: 5px;
   width: 100%;
 }
 
-/* --- 部屋コンテナ（縦線の描画元） --- */
-.rooms-container { 
-  /* Flexboxで横並び */
-  display: flex; 
-  min-width: fit-content; 
-  flex-grow: 1; 
-  position: relative; 
-  z-index: 1; 
+.rooms-container { display: flex; min-width: fit-content; flex-grow: 1; }
+.room-col { flex: 1 0 120px; min-width: 120px; border-right: 1px solid #eee; position: relative; display: flex; flex-direction: column; }
+.room-header { height: 40px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; background: #fafafa; border-bottom: 1px solid #ddd; position: sticky; top: 0; z-index: 10; padding: 0 5px; text-align: center; word-break: break-all; }
 
-  /* 【ズーム対策: 縦線】背景色を線の色とし、gapで隙間を空けて線を見せる */
-  background-color: #ccc; 
-  gap: 1px; 
-  border: 1px solid #ccc; /* 外枠 */
-}
-
-/* --- 各部屋の列 --- */
-.room-col { 
-  flex: 1 0 120px; 
-  min-width: 120px; 
-  position: relative; 
-  display: flex; 
-  flex-direction: column; 
-  
-  /* gapの隙間から親のグレー背景が見えるので、自身の右ボーダーは不要 */
-  border-right: none; 
-  /* 背景を白にして親のグレーを隠す */
-  background-color: #fff; 
-}
-
-.room-header { 
-  height: 40px; 
-  display: flex; 
-  align-items: center; 
-  justify-content: center; 
-  font-size: 0.8rem; 
-  font-weight: bold; 
-  background: #fafafa; 
-  
-  /* 下線はbox-shadowで統一 */
-  box-shadow: inset 0 -1px 0 0 #ccc;
-  border-bottom: none;
-
-  position: sticky; 
-  top: 0; 
-  z-index: 400; /* 時間軸より下、予約枠より上 */
-  padding: 0 5px; 
-  text-align: center; 
-  word-break: break-all; 
-}
-
-.room-grid-body { 
-  position: relative; 
-  background: transparent; 
-}
-
-/* --- 30分枠（横線の描画元） --- */
+.room-grid-body { position: relative; background: transparent; }
 .grid-slot { 
-  /* 【ズーム対策: 横線】内側の影で線を描画（borderだと消えるため） */
-  box-shadow: inset 0 -1px 0 0 #ccc;
-  border-bottom: none;
-  
+  border-bottom: 1px solid #eee; /* 時間軸と同じ線 */
   width: 100%; 
-  position: relative; 
+  position: relative; /* 30分線を表示するために必要 */
 }
 
-/* --- マップビュー用のスクロール調整 --- */
+
+/* style.css */
+
+/* style.css */
+
+/* ▼▼▼ マップ検索画面のタイムライン調整 ▼▼▼ */
+
+/* マップ画面の中にあるタイムラインエリアだけ、内部スクロールさせずに全表示する */
 #map-timeline-section .calendar-scroll-area {
-  height: auto !important;      
-  min-height: 0 !important;     
-  overflow: visible !important; 
-  display: flex !important;     
+  height: auto !important;      /* 高さを中身に合わせて自動で伸ばす */
+  min-height: 0 !important;     /* 最小高さの制限もなくす */
+  overflow: visible !important; /* スクロールバーを出さない */
+  display: flex !important;     /* 横並びレイアウトは維持 */
 }
 
-/* --- 予約バー（スタイル統合） --- */
+.v-booking-bar {
+  transition: all 0.1s ease-in-out;
+}
+
+.v-booking-bar:hover {
+  /* 1. 少しだけ手前に表示する */
+  z-index: 20;
+
+  /* 2. 影を濃くして、浮き上がっているように見せる */
+  box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+
+  /* 3. 少しだけ色を濃くして「選択中」であることを強調する */
+  filter: brightness(0.95);
+
+  /* ※重要: height や top などのサイズ・場所に関わる設定は書きません */
+}
 .v-booking-bar {
   position: absolute; 
   left: 2px; 
   right: 2px; 
   border-radius: 4px;
   
-  /* テキスト配置 */
+  /* ▼▼▼ 修正: Flexboxを使って文字を常にど真ん中に配置する ▼▼▼ */
   display: flex;
-  flex-direction: column; 
-  justify-content: center; 
-  align-items: center;     
+  flex-direction: column; /* 縦並び（時間→件名） */
+  justify-content: center; /* 【重要】縦方向の中央寄せ（これで長いバーでも真ん中に来ます） */
+  align-items: center;     /* 横方向の中央寄せ */
   
-  /* 見た目 */
-  font-size: 10px;    
-  line-height: 1.1;   
-  padding: 2px;        
+  /* ▼ 文字サイズと行間の調整 */
+  font-size: 10px;    /* 少し小さくして入りやすくする */
+  line-height: 1.1;   /* 行間を詰める */
+  padding: 2px;       
+  
   color: #333; 
   
-  /* はみ出し対策 */
+  /* 枠からはみ出た文字の処理 */
   overflow: hidden; 
   white-space: normal; 
   overflow-wrap: anywhere; 
   word-break: break-all;
   
-  /* 重なり順とアニメーション */
   z-index: 5; 
   cursor: pointer; 
   box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   text-align: center;
-  transition: all 0.1s ease-in-out;
-
-  /* ズーム対策による1pxのズレ補正 */
-  margin-top: -1px;
 }
 
-/* ホバー時の挙動 */
-.v-booking-bar:hover {
-  z-index: 20;
-  box-shadow: 0 5px 10px rgba(0,0,0,0.3);
-  filter: brightness(0.95);
-}
-
-/* --- 予約タイプ別の色設定 --- */
 .type-meeting { background: var(--meeting-bg); border-top: 4px solid var(--meeting-border); }
 .type-reception { background: var(--reception-bg); border-top: 4px solid var(--reception-border); }
 .type-zoom { background: var(--zoom-bg); border-top: 4px solid var(--zoom-border); }
@@ -530,29 +454,7 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
     margin: 2px;
     touch-action: manipulation;
   }
-/* ▼▼▼ フォームのレイアウト用クラス（新規追加） ▼▼▼ */
 
-/* PC・タブレット: 横並びで表示 */
-.form-row {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 10px; /* 下に余白 */
-}
-
-/* 内部のグループ（ラベル+入力欄）は等幅で広げる */
-.form-row > div {
-  flex: 1;
-}
-
-/* ▼ スマホ用設定の中に追加（既存の @media ブロックの中に追記してください） */
-@media (max-width: 600px) {
-  /* ...（既存のコード）... */
-
-  /* ★フォームを縦並びにする設定 */
-  .form-row {
-    flex-direction: column !important; /* 縦並びに強制変更 */
-    gap: 10px !important;
-  }
   /* ▼▼▼ 【今回追加】スマホの日付表示・切替ボタンの修正 ▼▼▼ */
   
   /* 日付コントローラー（枠全体）の設定 */
