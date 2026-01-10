@@ -656,3 +656,64 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
 .grid-slot {
   border-bottom: 1px solid #ccc !important;
 }
+/* ==============================================
+   【ズーム対応・罫線消失防止パッチ】
+   既存のborderによる線を廃止し、背景色とGap（隙間）、
+   およびBox-shadow（影）による描画へ変更します。
+   ============================================== */
+
+/* 1. 縦の線（部屋の区切り）の修正 */
+.rooms-container {
+  /* 親要素の背景色を「線の色」にします（少し濃い目のグレー推奨） */
+  background-color: #ccc !important;
+  
+  /* 部屋と部屋の間に物理的な1pxの隙間を作ります */
+  /* これにより、ズームしても線（背景色）が潰れにくくなります */
+  gap: 1px !important;
+  
+  /* Flexboxであることを明示（gapを効かせるため） */
+  display: flex !important;
+  
+  /* 外枠も背景色と合わせる */
+  border: 1px solid #ccc !important;
+}
+
+.room-col {
+  /* 今までの右側の線を消します */
+  border-right: none !important;
+  
+  /* 背景色を白に指定（親のグレー背景を隠し、gap部分だけグレーに見せる） */
+  background-color: #fff !important;
+}
+
+/* 2. 横の線（時間の区切り）の修正 */
+/* border-bottom はズーム時に高さ計算の端数で消えやすいため、box-shadowに変更します */
+.grid-slot {
+  /* 既存のボーダーを削除 */
+  border-bottom: none !important;
+  
+  /* 「内側に1pxの影」をつけることで線に見せます */
+  /* inset(内側) 横0 縦-1px ぼかし0 広がり0 色 */
+  box-shadow: inset 0 -1px 0 0 #ccc !important;
+  
+  /* ※ box-sizing: border-box なので高さ計算への悪影響もありません */
+}
+
+/* 3. 左側の時間軸のデザイン合わせ */
+.time-axis-col {
+  /* 区切り線の色を統一 */
+  border-right: 1px solid #ccc !important;
+}
+
+.time-label {
+  /* 時間軸のメモリ線もbox-shadowに合わせて統一 */
+  border-bottom: none !important;
+  box-shadow: inset 0 -1px 0 0 #ccc !important;
+}
+
+/* 4. （念のため）予約バーの配置補正 */
+/* 線の描画方法を変えたことで1px程度のズレが気になる場合用 */
+.v-booking-bar {
+  /* 予約枠が線の上にきれいに乗るように微調整（必要に応じて調整してください） */
+  margin-top: -1px; 
+}
