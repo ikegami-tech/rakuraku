@@ -91,33 +91,31 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   right: 2px; 
   border-radius: 4px;
   
-  /* ▼▼▼ 修正: 横並びに変更 ▼▼▼ */
+  /* ▼▼▼ 修正: Flexboxを使って文字を常にど真ん中に配置する ▼▼▼ */
   display: flex;
-  flex-direction: row;         /* ★縦(column)から横(row)へ変更 */
-  justify-content: flex-start; /* ★中央(center)から左寄せ(flex-start)へ変更 */
-  align-items: center;         /* 上下中央寄せ */
-  gap: 8px;                    /* ★時間とタイトルの間に隙間を作る */
-  padding: 0 5px;              /* ★枠の左右に余白を入れる */
+  flex-direction: column; /* 縦並び（時間→件名） */
+  justify-content: center; /* 【重要】縦方向の中央寄せ（これで長いバーでも真ん中に来ます） */
+  align-items: center;     /* 横方向の中央寄せ */
   
   /* ▼ 文字サイズと行間の調整 */
-  font-size: 11px;    /* ★横並びなら少し大きくても入るので11pxに（お好みで） */
-  line-height: 1.1;
-  /* padding: 2px;  ←上のpaddingと重複するので削除 */
+  font-size: 10px;    /* 少し小さくして入りやすくする */
+  line-height: 1.1;   /* 行間を詰める */
+  padding: 2px;       
   
   color: #333; 
   
   /* 枠からはみ出た文字の処理 */
   overflow: hidden; 
-  white-space: nowrap;      /* ★勝手に改行されないようにする */
-  text-overflow: ellipsis;  /* ★入り切らない場合は「...」にする */
-  /* overflow-wrap: anywhere; ←横並びの場合は不要なので無効化 */
-  /* word-break: break-all;   ←横並びの場合は不要なので無効化 */
+  white-space: normal; 
+  overflow-wrap: anywhere; 
+  word-break: break-all;
   
   z-index: 5; 
   cursor: pointer; 
   box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-  text-align: left; /* ★左寄せ */
+  text-align: center;
 }
+
 .type-meeting { background: var(--meeting-bg); border-top: 4px solid var(--meeting-border); }
 .type-reception { background: var(--reception-bg); border-top: 4px solid var(--reception-border); }
 .type-zoom { background: var(--zoom-bg); border-top: 4px solid var(--zoom-border); }
