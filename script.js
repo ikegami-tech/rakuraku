@@ -412,8 +412,7 @@ function renderVerticalTimeline(mode) {
       }
   });
 
-  // ▼▼▼ 【重要修正】高さの合計（currentTop）を先に計算します ▼▼▼
-  // これを先にやらないと、時間軸の高さを設定するときにエラーになります
+  // 高さの合計（currentTop）を計算
   const hourTops = {};
   let currentTop = 0;
   for(let h=START_HOUR; h<END_HOUR; h++) {
@@ -421,25 +420,22 @@ function renderVerticalTimeline(mode) {
       currentTop += hourRowHeights[h];
   }
   hourTops[END_HOUR] = currentTop;
-  // ▲▲▲ 計算ここまで ▲▲▲
 
   // 時間軸を描画
   drawTimeAxis(timeAxisId);
   
-  // ▼▼▼ 時間軸のスタイル設定（z-indexと高さ確保） ▼▼▼
+  // 時間軸のスタイル設定
   const axisContainer = document.getElementById(timeAxisId);
   if (axisContainer) {
       axisContainer.style.position = "sticky";
       axisContainer.style.left = "0";
       axisContainer.style.zIndex = "9999";    // 最前面に固定
-      axisContainer.style.background = "#fff"; // 透けないように白背景
+      axisContainer.style.background = "#fff"; 
       axisContainer.style.borderRight = "1px solid #ddd";
-
-      // ★ここで計算済みの高さを使って、背景が途切れないようにする
+      // 計算済みの高さを使って背景を確保
       axisContainer.style.minHeight = (currentTop + 40) + "px"; 
   }
   
-  // 部屋コンテナをクリアして描画開始
   container.innerHTML = "";
   
   targetRooms.forEach(room => {
@@ -447,20 +443,33 @@ function renderVerticalTimeline(mode) {
     col.className = 'room-col';
     if(mode === 'single') col.style.width = "100%"; 
 
-    // 部屋の列自体のレベルを下げる（時間軸の下に潜り込ませる）
     col.style.position = "relative";
     col.style.zIndex = "1"; 
     
-    // ヘッダー設定
+    // ▼▼▼ 【ここを修正・追加】ヘッダーを固定表示にする設定 ▼▼▼
     const header = document.createElement('div');
     header.className = 'room-header';
     header.innerText = room.roomName;
+    
+    // JSで直接スタイルを指定して固定（sticky）させる
+    header.style.position = "sticky";  // ★スクロールしても張り付く
+    header.style.top = "0";            // ★一番上に固定
+    header.style.zIndex = "50";        // ★予約バー(5)より手前、時間軸(9999)より奥
+    header.style.background = "#fafafa"; // ★透けないように背景色を指定
+    header.style.borderBottom = "1px solid #ddd";
+
+    // 中央寄せなどのスタイルも念のためJSで指定
+    header.style.display = "flex";
+    header.style.alignItems = "center";
+    header.style.justifyContent = "center";
+    
     header.style.height = "40px";       
     header.style.minHeight = "40px";
     header.style.flexShrink = "0";
     header.style.overflow = "hidden";   
     header.style.whiteSpace = "nowrap"; 
     col.appendChild(header);
+    // ▲▲▲ 追加ここまで ▲▲▲
     
     const body = document.createElement('div');
     body.className = 'room-grid-body';
@@ -473,7 +482,6 @@ function renderVerticalTimeline(mode) {
         body.appendChild(slot);
     }
     
-    // クリックイベント
     body.onclick = (e) => {
        if (e.target.closest('.v-booking-bar')) return;
        
@@ -507,7 +515,6 @@ function renderVerticalTimeline(mode) {
 
     const reservations = allRelevantReservations.filter(res => String(res._resourceId) === String(room.roomId));
     
-    // 予約バーの描画ループ
     reservations.forEach(res => {
       const start = new Date(res._startTime);
       const end = new Date(res._endTime);
@@ -544,7 +551,6 @@ function renderVerticalTimeline(mode) {
           bar.style.top = (topPx + 1) + "px";
           bar.style.height = (heightPx - 2) + "px"; 
 
-          // 予約枠のレベルを固定
           bar.style.zIndex = "5";
           
           let displayTitle = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '予約';
