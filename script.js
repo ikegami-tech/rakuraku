@@ -330,6 +330,8 @@ function renderVerticalTimeline(mode) {
 
   if (mode === 'all') {
       container = document.getElementById('rooms-container-all');
+      if(container) container.style.overflow = "visible"; 
+      if(container) container.style.contain = "none";
       dateInputId = 'timeline-date';
       timeAxisId = 'time-axis-all';
       
