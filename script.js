@@ -326,7 +326,6 @@ function renderTimeAxis(containerId) {
 
 function renderVerticalTimeline(mode) {
   let container, dateInputId, targetRooms;
-  // timeAxisId は今回使いません（内部で生成します）
 
   if (mode === 'all') {
       container = document.getElementById('rooms-container-all');
@@ -348,14 +347,16 @@ function renderVerticalTimeline(mode) {
       return;
   }
   
-  // ▼ コンテナの初期化（4パネル構成用）
+  // ▼▼▼ コンテナの初期化（重要） ▼▼▼
   container.innerHTML = "";
-  container.style.overflow = "hidden"; // 大枠はスクロールさせない
-  container.style.display = "flex";
-  container.style.flexDirection = "column";
-  container.style.height = "100%";
-  // 親要素の制限解除（念のため）
-  container.style.contain = "none";
+  // 大枠はスクロールさせない（中身のパネルに任せる）
+  container.style.cssText = `
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden; 
+      contain: content;
+  `;
 
   if (!targetRooms || targetRooms.length === 0) {
       container.innerHTML = "<div style='padding:20px;'>部屋データが見つかりません。</div>";
@@ -369,9 +370,11 @@ function renderVerticalTimeline(mode) {
   for(let h=START_HOUR; h<END_HOUR; h++) hourRowHeights[h] = BASE_HOUR_HEIGHT;
 
   // 幅計算
+  const TIME_AXIS_WIDTH = 50; // 時間軸の幅(px)
   const totalWidth = container.clientWidth > 0 ? container.clientWidth : window.innerWidth;
   const colCount = targetRooms.length > 0 ? targetRooms.length : 1;
-  let colWidth = Math.floor((totalWidth - 50) / colCount); // 50pxは時間軸分
+  // 時間軸の分を引いて計算
+  let colWidth = Math.floor((totalWidth - TIME_AXIS_WIDTH) / colCount); 
   if (colWidth < 120) colWidth = 120; // 最小幅確保
 
   let calculatedChars = Math.floor((colWidth - 10) / 12);
@@ -421,28 +424,44 @@ function renderVerticalTimeline(mode) {
 
 
   // =========================================================
-  //  ▼▼▼ 4パネル構成の構築 ▼▼▼
+  //  ▼▼▼ 4パネル構成の構築（田の字型レイアウト） ▼▼▼
   // =========================================================
 
-  // --- 1. 上段エリア（固定コーナー ＋ ヘッダー） ---
+  // [1] 上段エリア（高さ固定）
   const topRow = document.createElement('div');
-  topRow.style.cssText = `display:flex; height:40px; flex-shrink:0; overflow:hidden; border-bottom:1px solid #ddd; background:#fafafa;`;
+  topRow.style.cssText = `
+      display: flex; 
+      height: 40px; 
+      flex-shrink: 0; 
+      overflow: hidden; 
+      border-bottom: 1px solid #ddd; 
+      background: #fafafa;
+  `;
   container.appendChild(topRow);
 
-  // [A] 左上固定コーナー
+  // [1-A] 左上コーナー（完全固定）
   const cornerDiv = document.createElement('div');
-  cornerDiv.style.cssText = `width:50px; flex-shrink:0; border-right:1px solid #ddd; background:#f4f4f4; z-index:20;`;
+  cornerDiv.style.cssText = `
+      width: ${TIME_AXIS_WIDTH}px; 
+      flex-shrink: 0; 
+      border-right: 1px solid #ddd; 
+      background: #f4f4f4; 
+      z-index: 20;
+  `;
   topRow.appendChild(cornerDiv);
 
-  // [B] ヘッダービューポート（横スクロールのみ連動）
+  // [1-B] ヘッダービューポート（横スクロールのみ連動）
   const headerViewport = document.createElement('div');
-  headerViewport.style.cssText = `flex-grow:1; overflow:hidden; display:flex;`;
+  headerViewport.style.cssText = `
+      flex-grow: 1; 
+      overflow: hidden; /* スクロールバーは出さない */
+      display: flex;
+  `;
   topRow.appendChild(headerViewport);
 
   // ヘッダー中身
   const headerContent = document.createElement('div');
-  headerContent.style.cssText = `display:flex; height:100%;`;
-  // 各部屋ヘッダー生成
+  headerContent.style.cssText = `display: flex; height: 100%;`;
   targetRooms.forEach(room => {
       const cell = document.createElement('div');
       cell.innerText = room.roomName;
@@ -460,25 +479,40 @@ function renderVerticalTimeline(mode) {
   headerViewport.appendChild(headerContent);
 
 
-  // --- 2. 下段エリア（時間軸 ＋ メイングリッド） ---
+  // [2] 下段エリア（残りの高さを埋める）
   const bottomRow = document.createElement('div');
-  bottomRow.style.cssText = `display:flex; flex-grow:1; overflow:hidden; position:relative;`;
+  bottomRow.style.cssText = `
+      display: flex; 
+      flex-grow: 1; 
+      overflow: hidden; 
+      position: relative;
+      height: 0; /* Flexboxで伸ばすために必要 */
+      min-height: 0;
+  `;
   container.appendChild(bottomRow);
 
-  // [C] 時間軸ビューポート（縦スクロールのみ連動）
+  // [2-A] 時間軸ビューポート（縦スクロールのみ連動）
   const timeViewport = document.createElement('div');
-  timeViewport.style.cssText = `width:50px; flex-shrink:0; overflow:hidden; border-right:1px solid #ddd; background:#fff; z-index:10;`;
+  timeViewport.style.cssText = `
+      width: ${TIME_AXIS_WIDTH}px; 
+      flex-shrink: 0; 
+      overflow: hidden; /* スクロールバーは出さない */
+      border-right: 1px solid #ddd; 
+      background: #fff; 
+      z-index: 10;
+  `;
   bottomRow.appendChild(timeViewport);
 
   // 時間軸中身
   const timeContent = document.createElement('div');
-  timeContent.style.cssText = `width:100%;`; // 高さは中身なり
+  timeContent.style.cssText = `width: 100%;`;
   for (let i = START_HOUR; i < END_HOUR; i++) {
       const h = hourRowHeights[i];
       const cell = document.createElement('div');
       cell.innerText = i + ":00";
       cell.style.cssText = `
-          height: ${h}px; border-bottom: 1px solid #eee;
+          height: ${h}px; 
+          border-bottom: 1px solid #eee;
           text-align: right; padding: 5px 5px 0 0;
           font-size: 0.7rem; color: #888; box-sizing: border-box;
       `;
@@ -487,15 +521,21 @@ function renderVerticalTimeline(mode) {
   timeViewport.appendChild(timeContent);
 
 
-  // [D] メイングリッドビューポート（ここがスクロールの親玉）
+  // [2-B] メイングリッドビューポート（ここがスクロールの親玉）
   const gridViewport = document.createElement('div');
   gridViewport.className = 'calendar-scroll-area';
-  gridViewport.style.cssText = `flex-grow:1; overflow:auto; position:relative;`;
+  // overflow: auto でスクロールバーを出す
+  gridViewport.style.cssText = `
+      flex-grow: 1; 
+      overflow: auto; 
+      position: relative;
+      background: #fff;
+  `;
   bottomRow.appendChild(gridViewport);
 
   // グリッド中身（全体サイズ確保用）
   const gridContent = document.createElement('div');
-  gridContent.style.cssText = `display:flex; height:${currentTop}px;`;
+  gridContent.style.cssText = `display: flex; height: ${currentTop}px;`;
   
   targetRooms.forEach(room => {
       const col = document.createElement('div');
@@ -528,11 +568,7 @@ function renderVerticalTimeline(mode) {
          if (e.target.closest('.v-booking-bar')) return;
          // gridViewport内での相対位置を計算
          const rect = col.getBoundingClientRect();
-         // ここでは col自体がスクロールしない(gridViewportがする)ので、単純にクリックYと要素Topの差分でOK
-         // ただしスクロールされている分を考慮する必要があるが、getBoundingClientRectはビューポート相対なので、
-         // e.clientY - rect.top は「見えている範囲内でのY」になる。
-         // 実際に必要なのは「絶対的なY」なので、e.offsetY を使うのが安全。
-         // (colは relative なので、offsetY は col 上端からの距離になる)
+         // ここでは e.offsetY が要素内でのY座標になる
          const layerY = e.offsetY; 
          
          let clickedHour = -1;
@@ -593,15 +629,19 @@ function renderVerticalTimeline(mode) {
 
 
   // =========================================================
-  //  ▼▼▼ スクロール完全同期処理 ▼▼▼
+  //  ▼▼▼ スクロール完全同期処理（ここがキモです） ▼▼▼
   // =========================================================
   
   // 右下のメインエリア（gridViewport）がスクロールされたら...
   gridViewport.onscroll = () => {
       // 1. 上のヘッダーを横に動かす
-      headerViewport.scrollLeft = gridViewport.scrollLeft;
+      if (headerViewport.scrollLeft !== gridViewport.scrollLeft) {
+          headerViewport.scrollLeft = gridViewport.scrollLeft;
+      }
       // 2. 左の時間軸を縦に動かす
-      timeViewport.scrollTop = gridViewport.scrollTop;
+      if (timeViewport.scrollTop !== gridViewport.scrollTop) {
+          timeViewport.scrollTop = gridViewport.scrollTop;
+      }
   };
 }
 function formatDateToNum(d) {
