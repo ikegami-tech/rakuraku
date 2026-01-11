@@ -330,8 +330,6 @@ function renderVerticalTimeline(mode) {
 
   if (mode === 'all') {
       container = document.getElementById('rooms-container-all');
-      if(container) container.style.overflow = "visible"; 
-      if(container) container.style.contain = "none";
       dateInputId = 'timeline-date';
       timeAxisId = 'time-axis-all';
       
@@ -452,23 +450,12 @@ function renderVerticalTimeline(mode) {
     // 部屋の列自体のレベルを下げる（時間軸の下に潜り込ませる）
     col.style.position = "relative";
     col.style.zIndex = "1"; 
-    col.style.overflow = "visible";  // はみ出しを許可する（これが hidden だと固定されません）
-    col.style.contain = "none";      // ブラウザの最適化による固定解除を防ぐ   
     
-   // ヘッダー設定
+    // ヘッダー設定
     const header = document.createElement('div');
     header.className = 'room-header';
     header.innerText = room.roomName;
-    
-    // ▼▼▼ 追加：ヘッダーを上部に固定する設定 ▼▼▼
-    header.style.position = "sticky";     // スクロールしても追従させる
-    header.style.top = "0";               // 上端に張り付かせる
-    header.style.zIndex = "10";           // 予約バーより手前に表示する
-    header.style.backgroundColor = "#fff"; // 透けないように背景を白にする
-    header.style.borderBottom = "1px solid #ccc"; // 下線を引いて見やすくする
-    // ▲▲▲ 追加ここまで ▲▲▲
-
-    header.style.height = "40px";        
+    header.style.height = "40px";       
     header.style.minHeight = "40px";
     header.style.flexShrink = "0";
     header.style.overflow = "hidden";   
@@ -588,51 +575,6 @@ function renderVerticalTimeline(mode) {
     col.appendChild(body);
     container.appendChild(col);
   });
-   // ▼▼▼ ここから：修正版コード（ヘッダー固定 ＆ 画面内スクロール） ▼▼▼
-    
-    // 1. コンテナの設定（スクロールバーを復活させる）
-    if (container) {
-        // ★重要：はみ出し設定を「自動（スクロール）」に戻す
-        container.style.overflow = "auto";
-        
-        // ★重要：高さを画面内に収まるように制限する
-        // これがないと、コンテナが縦に伸びきってしまい、ヘッダー固定が効きません
-        // "calc(100vh - 200px)" は「画面全体の高さ - 上部のメニュー等の高さ」です
-        container.style.height = "calc(100vh - 180px)"; 
-        
-        // 横幅も画面幅に収める
-        container.style.width = "100%";
-        
-        // Flexboxの設定（横並び崩れ防止）
-        container.style.display = "flex";
-        container.style.flexWrap = "nowrap"; // 折り返し禁止
-    }
-
-    // 2. ヘッダーをコンテナ内で固定する設定
-    const allHeaders = container.querySelectorAll('.room-header');
-    allHeaders.forEach(h => {
-        h.style.position = "-webkit-sticky"; // Safari用
-        h.style.position = "sticky";
-        h.style.top = "0";             // コンテナの一番上に張り付く
-        h.style.zIndex = "10";         // 予約バーより手前に
-        h.style.display = "block";
-        
-        // 背景色（線が透けないように白く塗る）
-        h.style.backgroundColor = "#fff"; 
-        
-        // 見た目の調整（枠線など）
-        h.style.borderBottom = "2px solid #ddd";
-        h.style.boxShadow = "0 2px 4px rgba(0,0,0,0.1)"; // 少し影をつけると浮いて見えて分かりやすいです
-    });
-
-    // 3. 各列（col）の設定（念のため再適用）
-    // 列自体に overflow: hidden があると sticky が効かないため解除
-    const allCols = container.querySelectorAll('.room-col');
-    allCols.forEach(col => {
-        col.style.overflow = "visible";
-    });
-
-    // ▲▲▲ 修正版ここまで ▲▲▲
 }
 function formatDateToNum(d) {
   if (isNaN(d.getTime())) return ""; 
