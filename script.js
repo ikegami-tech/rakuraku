@@ -427,7 +427,8 @@ function renderVerticalTimeline(mode) {
   // 時間軸のスタイル設定
   const axisContainer = document.getElementById(timeAxisId);
   if (axisContainer) {
-      axisContainer.style.position = "sticky";
+      axisContainer.style.position = "sticky"; // 標準
+      axisContainer.style.position = "-webkit-sticky"; // Safari用
       axisContainer.style.left = "0";
       axisContainer.style.zIndex = "9999";
       axisContainer.style.background = "#fff"; 
@@ -438,15 +439,16 @@ function renderVerticalTimeline(mode) {
   // 部屋コンテナをクリアして描画開始
   container.innerHTML = "";
   
-  // ★重要修正：containerへの overflow: visible は削除しました（これが悪影響だった可能性大）
+  // ▼▼▼ 【重要】コンテナの制限を解除（固定表示を有効にするため） ▼▼▼
+  container.style.overflow = "visible";
+  // ▲▲▲ 追加ここまで ▲▲▲
   
   targetRooms.forEach(room => {
     const col = document.createElement('div');
     col.className = 'room-col';
     if(mode === 'single') col.style.width = "100%"; 
 
-    // ▼▼▼ 列（col）の設定 ▼▼▼
-    // ここは visible にしないと、stickyヘッダーが親要素内で止まってしまいます
+    // ▼▼▼ 列の制限を解除し、レイヤー順序を設定 ▼▼▼
     col.style.overflow = "visible"; 
     col.style.position = "relative";
     col.style.zIndex = "1"; 
@@ -456,17 +458,15 @@ function renderVerticalTimeline(mode) {
     header.className = 'room-header';
     header.innerText = room.roomName;
     
-    // ▼▼▼ ヘッダーの固定設定 ▼▼▼
-    header.style.position = "sticky";  
-    header.style.top = "0px";          
-    header.style.zIndex = "50";        
-    header.style.background = "#fafafa"; 
+    // ▼▼▼ ヘッダーの強力な固定設定 ▼▼▼
+    header.style.position = "-webkit-sticky"; // Safari用
+    header.style.position = "sticky";         // 標準
+    header.style.top = "0px";                 // 画面最上部に固定
+    header.style.zIndex = "999";              // ★予約バー(5)より圧倒的に上に
+    header.style.background = "#fafafa";      // 背景色（透け防止）
     header.style.borderBottom = "1px solid #ddd";
     
-    // ★描画を安定させるためのおまじない（レイヤーを分離）
-    header.style.transform = "translateZ(0)";
-
-    // レイアウト調整
+    // レイアウト
     header.style.display = "flex";
     header.style.alignItems = "center";
     header.style.justifyContent = "center";
@@ -481,6 +481,7 @@ function renderVerticalTimeline(mode) {
     const body = document.createElement('div');
     body.className = 'room-grid-body';
     body.style.height = currentTop + "px"; 
+    // bodyにはz-indexを設定せず、header(999)の下になるようにする
 
     for(let h=START_HOUR; h<END_HOUR; h++) {
         const slot = document.createElement('div');
@@ -559,6 +560,7 @@ function renderVerticalTimeline(mode) {
           bar.style.top = (topPx + 1) + "px";
           bar.style.height = (heightPx - 2) + "px"; 
 
+          // 予約枠のレベルを固定（ヘッダー999より下）
           bar.style.zIndex = "5";
           
           let displayTitle = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '予約';
