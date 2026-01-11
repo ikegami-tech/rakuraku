@@ -588,49 +588,51 @@ function renderVerticalTimeline(mode) {
     col.appendChild(body);
     container.appendChild(col);
   });
-    // ▼▼▼ ここから：強制修正コードを追加 ▼▼▼
+   // ▼▼▼ ここから：修正版コード（ヘッダー固定 ＆ 画面内スクロール） ▼▼▼
     
-    // 1. コンテナ自体の制限を解除する（最重要）
-    // これを行うと、ブラウザのウィンドウ全体で横スクロールするようになりますが、縦固定は効くようになります
+    // 1. コンテナの設定（スクロールバーを復活させる）
     if (container) {
-        container.style.overflow = "visible";
-        container.style.overflowX = "visible"; // 横スクロール設定を強制解除
-        container.style.overflowY = "visible";
-        container.style.contain = "none";
+        // ★重要：はみ出し設定を「自動（スクロール）」に戻す
+        container.style.overflow = "auto";
+        
+        // ★重要：高さを画面内に収まるように制限する
+        // これがないと、コンテナが縦に伸びきってしまい、ヘッダー固定が効きません
+        // "calc(100vh - 200px)" は「画面全体の高さ - 上部のメニュー等の高さ」です
+        container.style.height = "calc(100vh - 180px)"; 
+        
+        // 横幅も画面幅に収める
+        container.style.width = "100%";
+        
+        // Flexboxの設定（横並び崩れ防止）
+        container.style.display = "flex";
+        container.style.flexWrap = "nowrap"; // 折り返し禁止
     }
 
-    // 2. もし画面上部にメニューバーがある場合、隠れないように位置をずらす
-    // （もしヘッダーが「あるはずなのに見えない」場合は、ここの数値を 50 や 60 に変えてください）
-    const STICKY_TOP_OFFSET = "0px"; 
-
-    // すべてのヘッダーに対して、強力な固定設定を再適用
+    // 2. ヘッダーをコンテナ内で固定する設定
     const allHeaders = container.querySelectorAll('.room-header');
     allHeaders.forEach(h => {
         h.style.position = "-webkit-sticky"; // Safari用
         h.style.position = "sticky";
-        h.style.top = STICKY_TOP_OFFSET;
-        h.style.zIndex = "999"; // 他の要素より手前に
-        h.style.display = "block"; // 消えていないか確認
-        h.style.visibility = "visible"; // 透明になっていないか確認
-        // 背景色がないと透けるので白く塗る
-        h.style.background = "#fff"; 
-        h.style.borderBottom = "2px solid #ddd"; // 境界線を強調
+        h.style.top = "0";             // コンテナの一番上に張り付く
+        h.style.zIndex = "10";         // 予約バーより手前に
+        h.style.display = "block";
+        
+        // 背景色（線が透けないように白く塗る）
+        h.style.backgroundColor = "#fff"; 
+        
+        // 見た目の調整（枠線など）
+        h.style.borderBottom = "2px solid #ddd";
+        h.style.boxShadow = "0 2px 4px rgba(0,0,0,0.1)"; // 少し影をつけると浮いて見えて分かりやすいです
     });
 
-    // 3. 親要素を遡って、stickyを殺している「犯人（overflow設定）」を無効化する
-    let ancestor = container.parentElement;
-    while (ancestor && ancestor.tagName !== "BODY") {
-        const style = window.getComputedStyle(ancestor);
-        // overflow が hidden, scroll, auto のいずれかの場合
-        if (style.overflow !== "visible" || style.overflowX !== "visible" || style.overflowY !== "visible") {
-            // console.log("犯人を発見しました: ", ancestor); // デバッグ用
-            ancestor.style.overflow = "visible";
-            ancestor.style.overflowX = "visible";
-            ancestor.style.overflowY = "visible";
-        }
-        ancestor = ancestor.parentElement;
-    }
-    // ▲▲▲ 追加ここまで ▲▲▲
+    // 3. 各列（col）の設定（念のため再適用）
+    // 列自体に overflow: hidden があると sticky が効かないため解除
+    const allCols = container.querySelectorAll('.room-col');
+    allCols.forEach(col => {
+        col.style.overflow = "visible";
+    });
+
+    // ▲▲▲ 修正版ここまで ▲▲▲
 }
 function formatDateToNum(d) {
   if (isNaN(d.getTime())) return ""; 
