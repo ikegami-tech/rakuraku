@@ -788,3 +788,34 @@ textarea#input-note::placeholder {
     line-height: 1.5 !important;   /* 入力文字と同じ行間に合わせる */
   }
 }
+/* ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
+   【診断結果による修正】
+   Stickyヘッダーを無効化している親要素の制限を解除します
+   ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
+
+/* 診断ツールで「犯人」と特定された要素 */
+#view-timeline, .view-container {
+    /* overflow: hidden だと中身のstickyが動かなくなります */
+    overflow: visible !important; 
+    height: 100% !important; /* 高さを維持 */
+}
+
+/* ついでにその親（アプリ全体枠）も念のため解除 */
+#app-screen {
+    overflow: visible !important;
+}
+
+/* 部屋の列（ここも重要） */
+.room-col {
+    overflow: visible !important;
+    contain: none !important; /* ブラウザの描画最適化を無効化 */
+}
+
+/* スクロールエリアの設定補正 */
+/* overflow: auto は維持しないとスクロールできなくなりますが、
+   親のhiddenが取れればstickyは効くようになります */
+.calendar-scroll-area {
+    /* 念のためz-indexスタッキングコンテキストを作成しないようにする */
+    transform: none !important; 
+    contain: none !important;
+}
