@@ -638,46 +638,46 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   }
 }
 /* ==============================================
-   ▼▼▼ 【追加修正】スマホでの入力欄レイアウト崩れ防止 ▼▼▼
+   ▼▼▼ 【再修正版】スマホでの入力欄レイアウト崩れ防止 ▼▼▼
    ============================================== */
 
-/* 1. 基本のレイアウト設定（PC・スマホ共通） */
-/* ラベルと入力欄の間に少し隙間を作る */
-.form-row label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-}
-
-/* 入力欄が親要素からはみ出さないようにする設定 */
-input, select, textarea {
-  width: 100%;         /* 親要素の幅いっぱいに */
-  max-width: 100%;     /* それ以上は広がらないように制限 */
-  box-sizing: border-box; /* 枠線や余白を含めて幅を計算する（重要） */
-}
-
-
-/* 2. PC画面（幅601px以上）での横並び設定 */
-@media (min-width: 601px) {
-  .form-row {
-    display: flex;       /* 横並びにする */
-    gap: 15px;           /* 入力欄同士の間隔 */
-  }
-}
-
-
-/* 3. スマホ画面（幅600px以下）での強制縦並び設定 */
+/* スマホ画面（幅600px以下）向けの強力な上書き設定 */
 @media (max-width: 600px) {
-  /* 入力欄のまとまり（.form-row）を縦積みに変更 */
-  .form-row {
-    display: block !important; /* Flexboxを解除して通常のブロック表示に */
-    margin-bottom: 0;
+
+  /* 1. 横並びのコンテナ(.form-row)を強制的に「縦積みブロック」に変更 */
+  /* #bookingModal をつけることで優先度を上げています */
+  #bookingModal .form-row {
+    display: block !important;    /* Flexboxを解除してブロック要素に */
+    width: 100% !important;       /* 幅を画面一杯にする */
+    margin: 0 !important;         /* 余計な余白をリセット */
   }
 
-  /* 各入力欄の囲み（HTML側の style="flex:1" を打ち消す） */
-  .form-row > div {
-    flex: none !important;  /* 横並びの比率設定を無効化 */
-    width: 100% !important; /* 横幅いっぱいに広げる */
-    margin-bottom: 15px;    /* 下に余白を作って次の入力欄と離す */
+  /* 2. 各入力欄を囲んでいるdivのスタイルを強制リセット */
+  /* ここで HTMLの style="flex:1" を完全に打ち消します */
+  #bookingModal .form-row > div {
+    display: block !important;      /* ブロック要素にする */
+    flex: none !important;          /* Flexの設定を無効化 */
+    width: 100% !important;         /* 横幅を親要素一杯(100%)にする */
+    max-width: 100% !important;     /* はみ出し防止 */
+    margin: 0 0 15px 0 !important;  /* 下にだけ15pxの余白を開ける */
+    padding: 0 !important;          /* 余計な内側の余白を削除 */
+  }
+
+  /* 3. ラベルを確実に「入力欄の上」に表示 */
+  #bookingModal .form-row label {
+    display: block !important;
+    margin-bottom: 8px !important; /* ラベルと入力欄の間隔 */
+    width: 100% !important;
+  }
+
+  /* 4. select(プルダウン)やinput要素自体を親幅一杯に広げる */
+  #bookingModal .form-row select,
+  #bookingModal .form-row input[type="date"],
+  #bookingModal .form-row input[type="time"] {
+    display: block !important;     /* ブロック表示 */
+    width: 100% !important;        /* 親要素の幅(100%)に合わせる */
+    box-sizing: border-box !important; /* 枠線を含めて幅を計算する */
+    height: auto !important;       /* 高さは自動または指定があればそれに従う */
+    margin: 0 !important;          /* 余計なマージンを削除 */
   }
 }
