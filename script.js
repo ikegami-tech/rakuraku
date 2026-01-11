@@ -355,27 +355,32 @@ function renderVerticalTimeline(mode) {
       return;
   }
 
-  // 2. コンテナのスタイルを初期化（スクロールと固定表示のための重要設定）
+  // 2. 予約コンテナのスタイル設定（バグ対策強化版）
   if (container) {
       container.innerHTML = ""; // クリア
       
-      // ★重要：ここが崩れ防止とヘッダー固定の要です
-      // 画面の高さから上部メニュー分(約180px)を引いた高さを固定し、その中でスクロールさせます
       container.style.height = "calc(100vh - 180px)"; 
-      container.style.overflowY = "auto";  // 縦スクロールを許可
-      container.style.overflowX = "auto";  // 横スクロールを許可
-      container.style.display = "flex";    // 横並び配置
-      container.style.flexWrap = "nowrap"; // 折り返しなし
-      container.style.width = "100%";      // 幅は親に合わせる
-      container.style.alignItems = "flex-start"; 
+      container.style.overflowY = "auto";  
+      container.style.overflowX = "auto";  
       
-      // Macなどでスクロールバーが隠れる問題を防止
+      // ▼▼▼ 追加：スクロール連鎖防止（重要） ▼▼▼
+      // これにより、ドラッグで端に行っても画面全体（body）が動くのを防ぎます
+      container.style.overscrollBehavior = "contain"; 
+      
+      container.style.display = "flex";    
+      container.style.flexWrap = "nowrap"; 
+      container.style.width = "100%";      
+      container.style.alignItems = "flex-start"; 
       container.style.position = "relative";
+      
+      // ▼▼▼ 追加：ドラッグ時の誤選択防止 ▼▼▼
+      // これが無いと、ドラッグ時にテキスト選択が走ってガタつくことがあります
+      container.style.userSelect = "none"; 
+      container.style.webkitUserSelect = "none";
   }
 
   const rawDateVal = document.getElementById(dateInputId).value; 
-  const targetDateNum = formatDateToNum(new Date(rawDateVal)); 
-  
+  const targetDateNum = formatDateToNum(new Date(rawDateVal));
   // 高さの初期化
   for(let h=START_HOUR; h<END_HOUR; h++) hourRowHeights[h] = BASE_HOUR_HEIGHT;
 
