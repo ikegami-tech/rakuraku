@@ -175,17 +175,18 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   gap: 8px;               /* ボタンの間隔 */
   margin-bottom: 10px;
 
-  /* ★高さの設定 */
-  min-height: 100px;      /* 最初から2列以上の高さを確保 */
-  max-height: 200px;      /* これ以上はスクロール */
-  overflow-y: auto;       /* 縦スクロール */
+  /* ★高さの自動調整設定（ここがポイント） */
+  height: auto !important;       /* 中身に合わせて高さを自動で広げる */
+  max-height: none !important;   /* 高さの上限をなくす */
+  overflow: visible !important;  /* スクロールバーを出さない */
+  min-height: 40px;              /* ボタンがない時でも最低限の高さは確保 */
 
   /* ★枠線なし設定 */
-  border: none;           /* 枠線を消す */
-  padding: 5px 0;         /* 枠がないので横の余白は0に */
+  border: none;           
+  padding: 5px 0;         
   background: transparent;
 
-  /* ボタンの配置（縦に伸びないようにする） */
+  /* ボタンの配置 */
   align-items: flex-start;
   align-content: flex-start;
 }
