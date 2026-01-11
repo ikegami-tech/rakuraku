@@ -429,14 +429,19 @@ function renderVerticalTimeline(mode) {
   if (axisContainer) {
       axisContainer.style.position = "sticky";
       axisContainer.style.left = "0";
-      axisContainer.style.zIndex = "9999";    // 最前面に固定
+      axisContainer.style.zIndex = "9999";
       axisContainer.style.background = "#fff"; 
       axisContainer.style.borderRight = "1px solid #ddd";
       // 計算済みの高さを使って背景を確保
       axisContainer.style.minHeight = (currentTop + 40) + "px"; 
   }
   
+  // 部屋コンテナをクリアして描画開始
   container.innerHTML = "";
+  
+  // ▼▼▼ 【追加】コンテナ自体のオーバーフローを可視化（固定表示の邪魔をさせない） ▼▼▼
+  container.style.overflow = "visible";
+  // ▲▲▲ 追加ここまで ▲▲▲
   
   targetRooms.forEach(room => {
     const col = document.createElement('div');
@@ -446,19 +451,23 @@ function renderVerticalTimeline(mode) {
     col.style.position = "relative";
     col.style.zIndex = "1"; 
     
-    // ▼▼▼ 【ここを修正・追加】ヘッダーを固定表示にする設定 ▼▼▼
+    // ▼▼▼ 【追加】列自体のオーバーフローも可視化（これが最も重要） ▼▼▼
+    col.style.overflow = "visible";
+    // ▲▲▲ 追加ここまで ▲▲▲
+    
+    // ヘッダー設定
     const header = document.createElement('div');
     header.className = 'room-header';
     header.innerText = room.roomName;
     
     // JSで直接スタイルを指定して固定（sticky）させる
-    header.style.position = "sticky";  // ★スクロールしても張り付く
-    header.style.top = "0";            // ★一番上に固定
-    header.style.zIndex = "50";        // ★予約バー(5)より手前、時間軸(9999)より奥
-    header.style.background = "#fafafa"; // ★透けないように背景色を指定
+    header.style.position = "sticky";  
+    header.style.top = "0px";          // 単位(px)を明記
+    header.style.zIndex = "50";        
+    header.style.background = "#fafafa"; 
     header.style.borderBottom = "1px solid #ddd";
 
-    // 中央寄せなどのスタイルも念のためJSで指定
+    // 中央寄せなどのスタイル
     header.style.display = "flex";
     header.style.alignItems = "center";
     header.style.justifyContent = "center";
@@ -469,7 +478,6 @@ function renderVerticalTimeline(mode) {
     header.style.overflow = "hidden";   
     header.style.whiteSpace = "nowrap"; 
     col.appendChild(header);
-    // ▲▲▲ 追加ここまで ▲▲▲
     
     const body = document.createElement('div');
     body.className = 'room-grid-body';
@@ -482,6 +490,7 @@ function renderVerticalTimeline(mode) {
         body.appendChild(slot);
     }
     
+    // クリックイベント
     body.onclick = (e) => {
        if (e.target.closest('.v-booking-bar')) return;
        
@@ -515,6 +524,7 @@ function renderVerticalTimeline(mode) {
 
     const reservations = allRelevantReservations.filter(res => String(res._resourceId) === String(room.roomId));
     
+    // 予約バーの描画ループ
     reservations.forEach(res => {
       const start = new Date(res._startTime);
       const end = new Date(res._endTime);
