@@ -685,58 +685,7 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
     white-space: nowrap;         /* 文字の折り返し防止 */
   }
 }
-/* ==============================================
-   ▼▼▼ 【再修正版】グループボタンの変形防止・高さ調整 ▼▼▼
-   ============================================== */
 
-.group-container {
-  /* 1. レイアウト */
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 10px;
-
-  /* 2. 高さの設定（スクロール機能あり） */
-  height: auto !important;
-  max-height: 250px !important; /* 表示エリアは広く確保 */
-  min-height: 40px !important;  /* 最低限の高さ */
-  overflow-y: auto !important;  /* スクロールバーを表示 */
-
-  /* 3. 外枠なし */
-  border: none !important;
-  background: transparent;
-  padding: 5px 0;
-
-  /* 4. 【重要】ボタンの縦伸び防止設定 */
-  /* これがないとボタンがエリアの高さに合わせて巨大化してしまいます */
-  align-items: flex-start !important;   /* ボタンを上詰めで配置し、縦に伸ばさない */
-  align-content: flex-start !important; /* 行全体も上詰めで配置 */
-}
-/* ==============================================
-   ▼▼▼ 【スマホ専用修正】グループボタンエリア ▼▼▼
-   ============================================== */
-
-@media (max-width: 600px) {
-  .group-container {
-    /* 1. 外枠を確実に消す */
-    border: none !important;
-    background: transparent !important;
-
-    /* 2. 表示エリアの高さを広げる（約2倍の250pxへ） */
-    max-height: 250px !important;  /* ここで高さを決定 */
-    height: auto !important;       /* 中身に合わせて伸縮 */
-    overflow-y: auto !important;   /* 数が多いときはスクロール */
-    
-    /* 3. ボタンの縦伸び（巨大化）を防止 */
-    align-items: flex-start !important;   /* ボタンを上詰めで配置 */
-    align-content: flex-start !important; /* 行全体を上詰めで配置 */
-    
-    /* 4. その他の調整 */
-    min-height: 60px !important;   /* ボタンがなくても最低限の高さ確保 */
-    padding: 0 !important;         /* 枠が消えたので余計な内側余白を削除 */
-    margin-bottom: 20px !important;/* 下の項目との間隔を確保 */
-  }
-}
 /* ==============================================
    ▼▼▼ 【修正】備考欄（入力例）の表示修正 ▼▼▼
    ============================================== */
