@@ -428,15 +428,32 @@ function renderVerticalTimeline(mode) {
   }
   hourTops[END_HOUR] = currentTop;
 
-  // 4. 時間軸の描画と固定設定
-  // 時間軸もコンテナと一緒に動かないよう、Sticky設定を確実に適用
   drawTimeAxis(timeAxisId);
   const axisContainer = document.getElementById(timeAxisId);
-  if (axisContainer) {
-      // 既存のstyleを維持しつつ、高さだけ同期
-      // 注意：今回はcontainer内部スクロールにするため、時間軸の同期には本来構造変更が必要ですが
-      // 簡易対応として時間軸の高さをグリッドに合わせます
-      axisContainer.style.minHeight = (currentTop + 40) + "px"; 
+  
+  if (axisContainer && container) {
+      // (A) 時間軸の高さを右側の予約枠と強制的に合わせる
+      axisContainer.style.height = container.style.height; // calc(100vh - 180px)
+      axisContainer.style.overflow = "hidden"; // スクロールバーは隠す
+      axisContainer.style.display = "block";
+      
+      // (B) 右側がスクロールされたら、左側も同じ位置へスクロールさせる（同期）
+      container.onscroll = () => {
+          axisContainer.scrollTop = container.scrollTop;
+      };
+      // 初期位置も同期
+      axisContainer.scrollTop = container.scrollTop;
+
+      // (C) 時間軸のトップ（空白部分）もヘッダー同様に固定する
+      const axisHeader = axisContainer.querySelector('.time-axis-header');
+      if(axisHeader) {
+          axisHeader.style.position = "sticky";
+          axisHeader.style.top = "0";
+          axisHeader.style.backgroundColor = "#fff"; // 透けないように白背景
+          axisHeader.style.zIndex = "20";
+          axisHeader.style.borderBottom = "1px solid #ddd"; // 右側の線と合わせる
+          axisHeader.style.boxSizing = "border-box";
+      }
   }
   
   // 5. 部屋ごとの列（Column）生成
