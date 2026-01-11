@@ -761,29 +761,31 @@ textarea#input-note::placeholder {
   }
 }
 /* ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
-   時間軸の最前面固定・重なり順の強制修正
+   時間軸と予約枠の重なり順を強制的に整理する
    ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
-/* 1. 時間軸（左の列）を「レベル500」にする */
-.time-axis-col {
-    z-index: 500 !important;      /* 予約枠(Lv20)より圧倒的に高くする */
-    position: sticky !important;  /* 固定配置を強制 */
-    left: 0 !important;
-    background: #fff !important;  /* 背景を白にして透けないようにする */
+/* 1. 部屋の列（親）をレベル1にする */
+/* これにより、中の予約枠(Lv5)は「Lv1グループの中のLv5」扱いになります */
+.room-col {
+    z-index: 1 !important;
+    position: relative !important;
+    /* 背景を透明にして下の線が見えるようにする */
+    background: transparent !important; 
 }
 
-/* 2. 時間軸のヘッダー（左上の角）を「レベル510」にする */
+/* 2. 時間軸（親）をレベル500にする */
+/* 「Lv500グループ」は「Lv1グループ」より圧倒的に手前になります */
+.time-axis-col {
+    z-index: 500 !important;
+    position: sticky !important;
+    left: 0 !important;
+    background: #fff !important; /* 透けないように白背景を強制 */
+}
+
+/* 3. ヘッダーも同様に手前に */
 .time-axis-header {
-    z-index: 510 !important;      /* 列よりもさらに上 */
+    z-index: 510 !important;
     position: sticky !important;
     top: 0 !important;
     background: #f9f9f9 !important;
-}
-
-/* 3. 【重要】部屋の列全体を「レベル1」に下げる */
-/* これにより、中の予約枠がいくら頑張ってもレベル1グループの中の話になり、
-   レベル500の時間軸には絶対に勝てなくなります */
-.room-col {
-    z-index: 1 !important;
-    position: relative !important; 
 }
