@@ -358,6 +358,7 @@ function renderVerticalTimeline(mode) {
   const rawDateVal = document.getElementById(dateInputId).value; 
   const targetDateNum = formatDateToNum(new Date(rawDateVal)); 
   
+  // 高さの初期化
   for(let h=START_HOUR; h<END_HOUR; h++) hourRowHeights[h] = BASE_HOUR_HEIGHT;
 
   const totalWidth = container.clientWidth > 0 ? container.clientWidth : window.innerWidth;
@@ -384,7 +385,7 @@ function renderVerticalTimeline(mode) {
       return isTargetRoom && (resDateNum === targetDateNum);
   });
 
-  // 高さ計算
+  // 予約に基づいて高さを計算
   allRelevantReservations.forEach(res => {
       const start = new Date(res._startTime);
       const sHour = start.getHours();
@@ -411,27 +412,8 @@ function renderVerticalTimeline(mode) {
       }
   });
 
-  // 時間軸を描画
-  drawTimeAxis(timeAxisId);
-  
-  // ▼▼▼ 【ここを修正・追加】時間軸要素のスタイルをJSで最強にする ▼▼▼
-  const axisContainer = document.getElementById(timeAxisId);
-  if (axisContainer) {
-      axisContainer.style.position = "sticky";
-      axisContainer.style.left = "0";
-      axisContainer.style.zIndex = "9999"; 
-      axisContainer.style.background = "#fff"; 
-      axisContainer.style.borderRight = "1px solid #ddd";
-      
-      // ★★★ これを追加してください（ここが重要） ★★★
-      // 時間軸の背景が途切れないように、全体の高さ（ヘッダー40px + 中身）を強制的に確保します
-      axisContainer.style.minHeight = (currentTop + 40) + "px"; 
-      axisContainer.style.height = "auto";
-  }
-  // ▲▲▲ 修正ここまで ▲▲▲
-
-  container.innerHTML = "";
-  
+  // ▼▼▼ 【重要修正】高さの合計（currentTop）を先に計算します ▼▼▼
+  // これを先にやらないと、時間軸の高さを設定するときにエラーになります
   const hourTops = {};
   let currentTop = 0;
   for(let h=START_HOUR; h<END_HOUR; h++) {
@@ -439,24 +421,43 @@ function renderVerticalTimeline(mode) {
       currentTop += hourRowHeights[h];
   }
   hourTops[END_HOUR] = currentTop;
+  // ▲▲▲ 計算ここまで ▲▲▲
 
+  // 時間軸を描画
+  drawTimeAxis(timeAxisId);
+  
+  // ▼▼▼ 時間軸のスタイル設定（z-indexと高さ確保） ▼▼▼
+  const axisContainer = document.getElementById(timeAxisId);
+  if (axisContainer) {
+      axisContainer.style.position = "sticky";
+      axisContainer.style.left = "0";
+      axisContainer.style.zIndex = "9999";    // 最前面に固定
+      axisContainer.style.background = "#fff"; // 透けないように白背景
+      axisContainer.style.borderRight = "1px solid #ddd";
+
+      // ★ここで計算済みの高さを使って、背景が途切れないようにする
+      axisContainer.style.minHeight = (currentTop + 40) + "px"; 
+  }
+  
+  // 部屋コンテナをクリアして描画開始
+  container.innerHTML = "";
+  
   targetRooms.forEach(room => {
     const col = document.createElement('div');
     col.className = 'room-col';
     if(mode === 'single') col.style.width = "100%"; 
 
-    // ▼▼▼ 【ここを修正・追加】部屋の列のレベルを下げる ▼▼▼
+    // 部屋の列自体のレベルを下げる（時間軸の下に潜り込ませる）
     col.style.position = "relative";
-    col.style.zIndex = "1"; // 時間軸(9999)には絶対に勝てないようにする
-    // ▲▲▲ 修正ここまで ▲▲▲
+    col.style.zIndex = "1"; 
     
-    // ▼▼▼ 修正: ヘッダーの高さ固定を強化（minHeight, flexShrinkを追加） ▼▼▼
+    // ヘッダー設定
     const header = document.createElement('div');
     header.className = 'room-header';
     header.innerText = room.roomName;
     header.style.height = "40px";       
-    header.style.minHeight = "40px";    // これを追加（押しつぶされ防止）
-    header.style.flexShrink = "0";      // これを追加（縮小禁止）
+    header.style.minHeight = "40px";
+    header.style.flexShrink = "0";
     header.style.overflow = "hidden";   
     header.style.whiteSpace = "nowrap"; 
     col.appendChild(header);
@@ -472,32 +473,25 @@ function renderVerticalTimeline(mode) {
         body.appendChild(slot);
     }
     
-    // --- 既存の body.onclick を以下に置き換えてください ---
+    // クリックイベント
     body.onclick = (e) => {
        if (e.target.closest('.v-booking-bar')) return;
        
-       // 空きスロットまたは背景をクリックした場合
        if(e.target.classList.contains('grid-slot') || e.target === body) {
            const rect = body.getBoundingClientRect();
-           const clickY = e.clientY - rect.top; // 親要素の上端からのクリック位置(px)
+           const clickY = e.clientY - rect.top; 
            
            let clickedHour = -1;
-           let clickedMin = 0; // デフォルトは0分
+           let clickedMin = 0; 
 
-           // どの時間枠(Hour)をクリックしたか判定
            for(let h=START_HOUR; h<END_HOUR; h++) {
                const top = hourTops[h];
-               // 次の時間のTop、または現在枠のTop+高さ
                const bottom = hourTops[h+1] !== undefined ? hourTops[h+1] : (top + hourRowHeights[h]);
 
                if (clickY >= top && clickY < bottom) {
                    clickedHour = h;
-                   
-                   // ▼ 30分判定ロジック ▼
                    const height = bottom - top;
-                   const relativeY = clickY - top; // 枠内でのクリック位置
-                   
-                   // 枠の半分より下をクリックしたら「30分」とみなす
+                   const relativeY = clickY - top; 
                    if (relativeY >= height / 2) {
                        clickedMin = 30;
                    }
@@ -506,7 +500,6 @@ function renderVerticalTimeline(mode) {
            }
            
            if(clickedHour !== -1) {
-                // 分(0 or 30)も渡す
                 openModal(null, room.roomId, clickedHour, clickedMin);
            }
        }
@@ -514,7 +507,7 @@ function renderVerticalTimeline(mode) {
 
     const reservations = allRelevantReservations.filter(res => String(res._resourceId) === String(room.roomId));
     
-    // 表示ループ
+    // 予約バーの描画ループ
     reservations.forEach(res => {
       const start = new Date(res._startTime);
       const end = new Date(res._endTime);
@@ -538,10 +531,8 @@ function renderVerticalTimeline(mode) {
               bottomPx = hourTops[eHour] + (hourRowHeights[eHour] * (eMin / 60));
           }
 
-         let heightPx = bottomPx - topPx; 
-
-          // ▼▼▼ 修正: 最小高さを「厳密に15分相当」に設定する ▼▼▼
-          const minHeightPx = hourRowHeights[sHour] * (15 / 60); // 100px * 0.25 = 25px
+          let heightPx = bottomPx - topPx; 
+          const minHeightPx = hourRowHeights[sHour] * (15 / 60);
 
           if (heightPx < minHeightPx) {
               heightPx = minHeightPx;
@@ -553,31 +544,27 @@ function renderVerticalTimeline(mode) {
           bar.style.top = (topPx + 1) + "px";
           bar.style.height = (heightPx - 2) + "px"; 
 
-          // ▼▼▼ 【ここを修正・追加】予約枠のZ-indexを低めに設定 ▼▼▼
+          // 予約枠のレベルを固定
           bar.style.zIndex = "5";
-          // ▲▲▲ 修正ここまで ▲▲▲
           
           let displayTitle = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '予約';
 
-         // ▼▼▼ 修正: バーの中心を基準に、左右に文字を配置して縦位置を完全固定する ▼▼▼
           if (mode === 'map') {
-              // マップ画面用
               bar.innerHTML = `
                 <div style="flex: 1; text-align: right; padding-right: 10px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                   ${pad(start.getHours())}:${pad(start.getMinutes())}
                 </div>
-                
                 <div style="flex: 1; text-align: left; padding-left: 10px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                   ${displayTitle}
                 </div>
               `;
           } else {
-              // 一覧画面用（今まで通り）
               bar.innerHTML = `
                 <span style="font-weight:bold;">${pad(start.getHours())}:${pad(start.getMinutes())}</span><br>
                 <span style="font-weight:bold;">${displayTitle}</span>
               `;
           }
+        
           bar.onclick = (e) => { 
               e.stopPropagation(); 
               openDetailModal(res); 
