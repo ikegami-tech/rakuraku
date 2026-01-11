@@ -637,3 +637,47 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
     min-width: 0 !important;             /* これがないとFlexbox内で「...」が効かない魔法の記述 */
   }
 }
+/* ==============================================
+   ▼▼▼ 【追加修正】スマホでの入力欄レイアウト崩れ防止 ▼▼▼
+   ============================================== */
+
+/* 1. 基本のレイアウト設定（PC・スマホ共通） */
+/* ラベルと入力欄の間に少し隙間を作る */
+.form-row label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+/* 入力欄が親要素からはみ出さないようにする設定 */
+input, select, textarea {
+  width: 100%;         /* 親要素の幅いっぱいに */
+  max-width: 100%;     /* それ以上は広がらないように制限 */
+  box-sizing: border-box; /* 枠線や余白を含めて幅を計算する（重要） */
+}
+
+
+/* 2. PC画面（幅601px以上）での横並び設定 */
+@media (min-width: 601px) {
+  .form-row {
+    display: flex;       /* 横並びにする */
+    gap: 15px;           /* 入力欄同士の間隔 */
+  }
+}
+
+
+/* 3. スマホ画面（幅600px以下）での強制縦並び設定 */
+@media (max-width: 600px) {
+  /* 入力欄のまとまり（.form-row）を縦積みに変更 */
+  .form-row {
+    display: block !important; /* Flexboxを解除して通常のブロック表示に */
+    margin-bottom: 0;
+  }
+
+  /* 各入力欄の囲み（HTML側の style="flex:1" を打ち消す） */
+  .form-row > div {
+    flex: none !important;  /* 横並びの比率設定を無効化 */
+    width: 100% !important; /* 横幅いっぱいに広げる */
+    margin-bottom: 15px;    /* 下に余白を作って次の入力欄と離す */
+  }
+}
