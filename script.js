@@ -326,7 +326,7 @@ function renderTimeAxis(containerId) {
 
 function renderVerticalTimeline(mode) {
   let container, dateInputId, targetRooms;
-  // 今回は timeAxisId は、下のスクロールエリア内に生成するため、個別IDとしては使いません
+  // timeAxisId は今回使いません（内部で生成します）
 
   if (mode === 'all') {
       container = document.getElementById('rooms-container-all');
@@ -348,13 +348,14 @@ function renderVerticalTimeline(mode) {
       return;
   }
   
-  // コンテナ初期化
+  // ▼ コンテナの初期化（4パネル構成用）
   container.innerHTML = "";
-  // コンテナ自体はスクロールさせない（中のエリアに任せる）
-  container.style.overflow = "hidden"; 
+  container.style.overflow = "hidden"; // 大枠はスクロールさせない
   container.style.display = "flex";
   container.style.flexDirection = "column";
   container.style.height = "100%";
+  // 親要素の制限解除（念のため）
+  container.style.contain = "none";
 
   if (!targetRooms || targetRooms.length === 0) {
       container.innerHTML = "<div style='padding:20px;'>部屋データが見つかりません。</div>";
@@ -364,12 +365,13 @@ function renderVerticalTimeline(mode) {
   const rawDateVal = document.getElementById(dateInputId).value; 
   const targetDateNum = formatDateToNum(new Date(rawDateVal)); 
   
-  // 高さ計算
+  // 高さ初期化
   for(let h=START_HOUR; h<END_HOUR; h++) hourRowHeights[h] = BASE_HOUR_HEIGHT;
 
+  // 幅計算
   const totalWidth = container.clientWidth > 0 ? container.clientWidth : window.innerWidth;
   const colCount = targetRooms.length > 0 ? targetRooms.length : 1;
-  let colWidth = Math.floor(totalWidth / colCount);
+  let colWidth = Math.floor((totalWidth - 50) / colCount); // 50pxは時間軸分
   if (colWidth < 120) colWidth = 120; // 最小幅確保
 
   let calculatedChars = Math.floor((colWidth - 10) / 12);
@@ -389,7 +391,7 @@ function renderVerticalTimeline(mode) {
       return isTargetRoom && (resDateNum === targetDateNum);
   });
 
-  // 高さ自動調整計算
+  // 高さ自動調整
   allRelevantReservations.forEach(res => {
       const start = new Date(res._startTime);
       const sHour = start.getHours();
@@ -419,155 +421,118 @@ function renderVerticalTimeline(mode) {
 
 
   // =========================================================
-  //  ▼▼▼ ここから構造分離ロジック ▼▼▼
+  //  ▼▼▼ 4パネル構成の構築 ▼▼▼
   // =========================================================
 
-  // 1. 【上段】ヘッダー専用エリアを作成
-  const headerRow = document.createElement('div');
-  headerRow.style.cssText = `
-      display: flex;
-      flex-shrink: 0;
-      height: 40px;
-      overflow: hidden; /* 横スクロールはJSで制御するため隠す */
-      background: #fafafa;
-      border-bottom: 2px solid #ddd;
-      z-index: 20;
-  `;
-  container.appendChild(headerRow);
+  // --- 1. 上段エリア（固定コーナー ＋ ヘッダー） ---
+  const topRow = document.createElement('div');
+  topRow.style.cssText = `display:flex; height:40px; flex-shrink:0; overflow:hidden; border-bottom:1px solid #ddd; background:#fafafa;`;
+  container.appendChild(topRow);
 
-  // 1-A. 左上の空白（時間軸の上にくる部分）
-  const cornerObj = document.createElement('div');
-  cornerObj.style.cssText = `
-      width: 50px;
-      flex-shrink: 0;
-      background: #f9f9f9;
-      border-right: 1px solid #ddd;
-      border-bottom: 1px solid #ddd;
-      z-index: 21; /* ヘッダーよりさらに上 */
-  `;
-  headerRow.appendChild(cornerObj);
+  // [A] 左上固定コーナー
+  const cornerDiv = document.createElement('div');
+  cornerDiv.style.cssText = `width:50px; flex-shrink:0; border-right:1px solid #ddd; background:#f4f4f4; z-index:20;`;
+  topRow.appendChild(cornerDiv);
 
-  // 1-B. 各部屋のヘッダーを作成
-  // 横スクロール連動用コンテナ
-  const headerScrollInner = document.createElement('div');
-  headerScrollInner.style.cssText = `
-      display: flex;
-      flex-grow: 1;
-      /* ここは overflow:visible にして親の overflow:hidden に任せる */
-  `;
-  headerRow.appendChild(headerScrollInner);
+  // [B] ヘッダービューポート（横スクロールのみ連動）
+  const headerViewport = document.createElement('div');
+  headerViewport.style.cssText = `flex-grow:1; overflow:hidden; display:flex;`;
+  topRow.appendChild(headerViewport);
 
+  // ヘッダー中身
+  const headerContent = document.createElement('div');
+  headerContent.style.cssText = `display:flex; height:100%;`;
+  // 各部屋ヘッダー生成
   targetRooms.forEach(room => {
-      const hDiv = document.createElement('div');
-      hDiv.innerText = room.roomName;
-      // スタイルは下のボディと完全に一致させる
-      hDiv.style.cssText = `
-          flex: 1 0 120px;
-          min-width: 120px;
-          height: 40px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
+      const cell = document.createElement('div');
+      cell.innerText = room.roomName;
+      cell.style.cssText = `
+          flex: 0 0 ${colWidth}px; /* 幅固定 */
+          width: ${colWidth}px;
+          height: 100%;
+          display: flex; align-items: center; justify-content: center;
           border-right: 1px solid #eee;
-          font-weight: bold;
-          font-size: 0.8rem;
-          white-space: nowrap;
-          overflow: hidden;
+          font-weight: bold; font-size: 0.8rem;
+          white-space: nowrap; overflow: hidden;
       `;
-      headerScrollInner.appendChild(hDiv);
+      headerContent.appendChild(cell);
   });
+  headerViewport.appendChild(headerContent);
 
 
-  // 2. 【下段】スクロールエリア（時間軸＋予約グリッド）を作成
-  const scrollBody = document.createElement('div');
-  scrollBody.className = 'calendar-scroll-area'; // 既存CSSクラスも利用
-  scrollBody.style.cssText = `
-      display: flex;
-      flex-grow: 1;
-      overflow: auto; /* ここで縦横スクロールさせる */
-      position: relative;
-  `;
-  container.appendChild(scrollBody);
+  // --- 2. 下段エリア（時間軸 ＋ メイングリッド） ---
+  const bottomRow = document.createElement('div');
+  bottomRow.style.cssText = `display:flex; flex-grow:1; overflow:hidden; position:relative;`;
+  container.appendChild(bottomRow);
 
-  // 2-A. 時間軸（左側固定）
-  const timeAxisCol = document.createElement('div');
-  timeAxisCol.style.cssText = `
-      width: 50px;
-      flex-shrink: 0;
-      background: #fff;
-      border-right: 1px solid #ddd;
-      position: sticky;
-      left: 0;
-      z-index: 10; /* 予約バーより上 */
-  `;
-  
-  // 時間軸の中身生成
+  // [C] 時間軸ビューポート（縦スクロールのみ連動）
+  const timeViewport = document.createElement('div');
+  timeViewport.style.cssText = `width:50px; flex-shrink:0; overflow:hidden; border-right:1px solid #ddd; background:#fff; z-index:10;`;
+  bottomRow.appendChild(timeViewport);
+
+  // 時間軸中身
+  const timeContent = document.createElement('div');
+  timeContent.style.cssText = `width:100%;`; // 高さは中身なり
   for (let i = START_HOUR; i < END_HOUR; i++) {
-      const height = hourRowHeights[i] || BASE_HOUR_HEIGHT;
-      const div = document.createElement('div');
-      div.className = 'time-label';
-      div.innerText = i + ":00";
-      div.style.height = height + "px";
-      div.style.borderBottom = "1px solid #eee";
-      div.style.textAlign = "right";
-      div.style.paddingRight = "5px";
-      div.style.paddingTop = "5px";
-      div.style.fontSize = "0.7rem";
-      div.style.color = "#888";
-      timeAxisCol.appendChild(div);
+      const h = hourRowHeights[i];
+      const cell = document.createElement('div');
+      cell.innerText = i + ":00";
+      cell.style.cssText = `
+          height: ${h}px; border-bottom: 1px solid #eee;
+          text-align: right; padding: 5px 5px 0 0;
+          font-size: 0.7rem; color: #888; box-sizing: border-box;
+      `;
+      timeContent.appendChild(cell);
   }
-  scrollBody.appendChild(timeAxisCol);
+  timeViewport.appendChild(timeContent);
 
 
-  // 2-B. 予約グリッドエリア
-  const gridContainer = document.createElement('div');
-  gridContainer.style.cssText = `
-      display: flex;
-      flex-grow: 1;
-      position: relative;
-  `;
-  scrollBody.appendChild(gridContainer);
+  // [D] メイングリッドビューポート（ここがスクロールの親玉）
+  const gridViewport = document.createElement('div');
+  gridViewport.className = 'calendar-scroll-area';
+  gridViewport.style.cssText = `flex-grow:1; overflow:auto; position:relative;`;
+  bottomRow.appendChild(gridViewport);
 
-  // 部屋ごとの列を作成
+  // グリッド中身（全体サイズ確保用）
+  const gridContent = document.createElement('div');
+  gridContent.style.cssText = `display:flex; height:${currentTop}px;`;
+  
   targetRooms.forEach(room => {
       const col = document.createElement('div');
-      col.className = 'room-col-body'; // クラス名変更
-      // 幅設定はヘッダーと完全に一致させる
+      col.className = 'room-col-body';
       col.style.cssText = `
-          flex: 1 0 120px;
-          min-width: 120px;
+          flex: 0 0 ${colWidth}px;
+          width: ${colWidth}px;
+          height: 100%;
           border-right: 1px solid #eee;
           position: relative;
-          height: ${currentTop}px; /* 全体の高さを確定 */
       `;
       
-      // グリッド線（背景）
-      const bgLayer = document.createElement('div');
-      bgLayer.style.position = "absolute";
-      bgLayer.style.width = "100%";
-      bgLayer.style.top = "0";
-      bgLayer.style.left = "0";
-      
-      let accumTop = 0;
+      // グリッド背景線
+      let accH = 0;
       for(let h=START_HOUR; h<END_HOUR; h++) {
           const slot = document.createElement('div');
           slot.className = 'grid-slot';
-          slot.style.height = hourRowHeights[h] + "px";
-          slot.style.borderBottom = "1px solid #eee";
-          slot.style.boxSizing = "border-box";
-          bgLayer.appendChild(slot);
-          accumTop += hourRowHeights[h];
+          slot.style.cssText = `
+              height: ${hourRowHeights[h]}px; 
+              border-bottom: 1px solid #eee; 
+              box-sizing: border-box;
+              width: 100%; position: absolute; top: ${accH}px; left: 0;
+          `;
+          col.appendChild(slot);
+          accH += hourRowHeights[h];
       }
-      col.appendChild(bgLayer);
 
-      // クリックイベント設定（背景レイヤーに対して）
+      // クリックイベント
       col.onclick = (e) => {
-         // バーをクリックした場合は無視
          if (e.target.closest('.v-booking-bar')) return;
-         
+         // gridViewport内での相対位置を計算
          const rect = col.getBoundingClientRect();
-         const clickY = e.clientY - rect.top + scrollBody.scrollTop; // スクロール分を考慮しないといけないが、relative基準なのでrect.topでOKか確認
-         // colはrelativeなので e.offsetY が使える可能性が高い
+         // ここでは col自体がスクロールしない(gridViewportがする)ので、単純にクリックYと要素Topの差分でOK
+         // ただしスクロールされている分を考慮する必要があるが、getBoundingClientRectはビューポート相対なので、
+         // e.clientY - rect.top は「見えている範囲内でのY」になる。
+         // 実際に必要なのは「絶対的なY」なので、e.offsetY を使うのが安全。
+         // (colは relative なので、offsetY は col 上端からの距離になる)
          const layerY = e.offsetY; 
          
          let clickedHour = -1;
@@ -586,7 +551,7 @@ function renderVerticalTimeline(mode) {
          if(clickedHour !== -1) openModal(null, room.roomId, clickedHour, clickedMin);
       };
 
-      // 予約バーの描画
+      // 予約バー描画
       const reservations = allRelevantReservations.filter(res => String(res._resourceId) === String(room.roomId));
       reservations.forEach(res => {
           const start = new Date(res._startTime);
@@ -613,7 +578,6 @@ function renderVerticalTimeline(mode) {
               bar.style.zIndex = "5";
               
               let displayTitle = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '予約';
-              
               if (mode === 'map') {
                   bar.innerHTML = `<div style="flex:1;text-align:right;padding-right:10px;">${pad(start.getHours())}:${pad(start.getMinutes())}</div><div style="flex:1;text-align:left;padding-left:10px;">${displayTitle}</div>`;
               } else {
@@ -623,20 +587,21 @@ function renderVerticalTimeline(mode) {
               col.appendChild(bar);
           }
       });
-
-      gridContainer.appendChild(col);
+      gridContent.appendChild(col);
   });
+  gridViewport.appendChild(gridContent);
+
 
   // =========================================================
-  //  ▼▼▼ スクロール連動処理 ▼▼▼
+  //  ▼▼▼ スクロール完全同期処理 ▼▼▼
   // =========================================================
-  // 下のボディを横にスクロールしたら、上のヘッダーも同じだけ動かす
-  scrollBody.onscroll = () => {
-      // timeAxisCol (50px) 分はずれているので、gridContainerの親としてのスクロールを見る
-      // gridContainer自体はスクロールしない。scrollBodyがスクロールする。
-      // ただし、TimeAxisは sticky left:0 で固定されている。
-      // ヘッダーのスクロール位置 = ボディのスクロール位置
-      headerRow.scrollLeft = scrollBody.scrollLeft;
+  
+  // 右下のメインエリア（gridViewport）がスクロールされたら...
+  gridViewport.onscroll = () => {
+      // 1. 上のヘッダーを横に動かす
+      headerViewport.scrollLeft = gridViewport.scrollLeft;
+      // 2. 左の時間軸を縦に動かす
+      timeViewport.scrollTop = gridViewport.scrollTop;
   };
 }
 function formatDateToNum(d) {
