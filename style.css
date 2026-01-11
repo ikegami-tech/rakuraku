@@ -175,7 +175,7 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   margin-bottom: 10px;
   
   /* ▼▼▼ 修正: 高さの設定を調整 ▼▼▼ */
-  max-height: 120px; /* 最大高さはそのまま */
+  max-height: 200px; /* 最大高さはそのまま */
   min-height: 40px;  /* ★修正: 1行でもフィットするように小さくする（以前は80px） */
   overflow-y: auto;
   /* ▲▲▲ 修正ここまで ▲▲▲ */
