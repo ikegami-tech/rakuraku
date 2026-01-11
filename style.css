@@ -667,3 +667,25 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
     white-space: nowrap;         /* 文字の折り返し防止 */
   }
 }
+/* ==============================================
+   ▼▼▼ 【再修正】グループボタンエリアの高さ・枠線調整 ▼▼▼
+   ============================================== */
+
+.group-container {
+  /* 1. レイアウト */
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;             /* ボタンの間隔 */
+  margin-bottom: 10px;
+
+  /* 2. 高さの設定（★ここを修正） */
+  height: auto !important;      
+  min-height: 60px;             /* ボタンが少なくてもある程度の高さは確保 */
+  max-height: 250px !important; /* ★上限を120px→250pxに大幅拡張（これを超えたらスクロール） */
+  overflow-y: auto !important;  /* ★スクロール機能を維持 */
+
+  /* 3. 外枠のデザイン（★枠線なし） */
+  border: none !important;
+  background: transparent;
+  padding: 5px 0;               /* 上下の余白のみ確保 */
+}
