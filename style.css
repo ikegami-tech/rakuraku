@@ -637,3 +637,41 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
     min-width: 0 !important;             /* これがないとFlexbox内で「...」が効かない魔法の記述 */
   }
 }
+/* ==============================================
+   ▼▼▼ 【追加修正】スマホでの入力欄ズレ防止 ▼▼▼
+   ============================================== */
+
+/* 1. 基本の横並び設定（PC用）を明示的に定義 */
+.form-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px; /* 入力欄同士の隙間 */
+  margin-bottom: 10px;
+}
+
+/* 2. 入力フォーム自体の横幅暴走を止める */
+input, select, textarea {
+  max-width: 100%; /* 親要素からはみ出さないように制限 */
+  box-sizing: border-box; /* 枠線を含めたサイズ計算にする */
+}
+
+/* 3. スマホ画面（幅600px以下）での強制縦並び */
+@media (max-width: 600px) {
+  .form-row {
+    flex-direction: column !important; /* 強制的に縦積みにする */
+    gap: 0 !important;
+  }
+
+  /* フォームを囲んでいるdiv（style="flex:1"がついているやつ）の設定 */
+  .form-row > div {
+    flex: none !important;  /* 横並びの比率設定を解除 */
+    width: 100% !important; /* 横幅いっぱいに広げる */
+    margin-bottom: 10px;    /* 下に余白を作る */
+  }
+
+  /* ラベルと入力欄の距離感を調整 */
+  .form-row label {
+    margin-bottom: 5px;
+    display: inline-block;
+  }
+}
