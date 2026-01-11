@@ -169,20 +169,25 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
 .modal-content { background: white; padding: 20px; border-radius: 8px; width: 95%; max-width: 700px; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column;}
 .form-group label { font-weight: bold; font-size: 0.9rem; display: block; margin-top: 10px; }
 .group-container {
+  /* レイアウト設定 */
   display: flex;
-  gap: 5px;
-  flex-wrap: wrap;
+  flex-wrap: wrap;        /* 折り返しを許可 */
+  gap: 8px;               /* ボタンの間隔 */
   margin-bottom: 10px;
-  
-  /* ▼▼▼ 修正: 高さの設定を調整 ▼▼▼ */
-  max-height: 200px; /* 最大高さはそのまま */
-  min-height: 40px;  /* ★修正: 1行でもフィットするように小さくする（以前は80px） */
-  overflow-y: auto;
-  /* ▲▲▲ 修正ここまで ▲▲▲ */
-  
-  padding: 5px;
-  border: 1px solid #eee;
-  border-radius: 4px;
+
+  /* ★高さの設定 */
+  min-height: 100px;      /* 最初から2列以上の高さを確保 */
+  max-height: 200px;      /* これ以上はスクロール */
+  overflow-y: auto;       /* 縦スクロール */
+
+  /* ★枠線なし設定 */
+  border: none;           /* 枠線を消す */
+  padding: 5px 0;         /* 枠がないので横の余白は0に */
+  background: transparent;
+
+  /* ボタンの配置（縦に伸びないようにする） */
+  align-items: flex-start;
+  align-content: flex-start;
 }
 .group-chip {
   background: #e0e0e0;
@@ -782,31 +787,4 @@ textarea#input-note::placeholder {
     opacity: 1 !important;
     line-height: 1.5 !important;   /* 入力文字と同じ行間に合わせる */
   }
-}
-/* ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
-   グループボタンエリアの最終強制修正
-   これより上の記述をすべて上書きして、確実に2列表示にします
-   ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
-
-.group-container {
-    /* 1. 最低限の高さを「100px」に強制変更 */
-    /* これでボタンが少なくても最初から「2〜3列分のスペース」が確保されます */
-    min-height: 100px !important;
-
-    /* 2. 折り返し設定を強制 */
-    display: flex !important;
-    flex-wrap: wrap !important;
-
-    /* 3. ボタンを左上に詰めて配置（縦に引き伸ばさない） */
-    align-items: flex-start !important;
-    align-content: flex-start !important;
-
-    /* 4. スクロール設定の再確認 */
-    max-height: 200px !important; /* これを超えたらスクロール */
-    overflow-y: auto !important;
-
-    /* 5. デザイン調整 */
-    gap: 8px !important;
-    padding: 10px !important;
-    border: 1px solid #ccc !important;
 }
