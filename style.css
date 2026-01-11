@@ -789,33 +789,52 @@ textarea#input-note::placeholder {
   }
 }
 /* ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
-   【診断結果による修正】
-   Stickyヘッダーを無効化している親要素の制限を解除します
+   【最終決定版】Stickyヘッダーを動かすための強制リセット
+   親要素の「overflow: hidden」を解除し、スクロールを貫通させます
    ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
-/* 診断ツールで「犯人」と特定された要素 */
+/* 1. 診断で「犯人」と特定された要素の制限解除 */
 #view-timeline, .view-container {
-    /* overflow: hidden だと中身のstickyが動かなくなります */
-    overflow: visible !important; 
-    height: 100% !important; /* 高さを維持 */
+    overflow: visible !important;  /* これが hidden だとStickyは動きません */
+    height: auto !important;       /* 高さを固定せず中身に合わせる */
+    contain: none !important;      /* 描画最適化を解除 */
 }
 
-/* ついでにその親（アプリ全体枠）も念のため解除 */
+/* 2. その親要素（アプリ全体枠）も解除 */
 #app-screen {
     overflow: visible !important;
+    height: auto !important;
 }
 
-/* 部屋の列（ここも重要） */
+/* 3. スクロールエリア自体の制限も解除して、bodyスクロールに任せる */
+.calendar-scroll-area {
+    overflow: visible !important;
+    height: auto !important;
+    display: block !important; /* flexだと崩れることがあるため */
+}
+
+/* 4. 部屋の列（Stickyの親）の設定 */
 .room-col {
     overflow: visible !important;
-    contain: none !important; /* ブラウザの描画最適化を無効化 */
+    height: auto !important;
+    display: block !important; /* flexだと高さ計算が狂うことがあるためblock推奨 */
 }
 
-/* スクロールエリアの設定補正 */
-/* overflow: auto は維持しないとスクロールできなくなりますが、
-   親のhiddenが取れればstickyは効くようになります */
-.calendar-scroll-area {
-    /* 念のためz-indexスタッキングコンテキストを作成しないようにする */
-    transform: none !important; 
-    contain: none !important;
+/* 5. ヘッダーの固定設定（念押し） */
+.room-header {
+    position: -webkit-sticky !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 999 !important; /* 最前面へ */
+    background: #fafafa !important; /* 透け防止 */
+    display: flex !important; /* レイアウト維持 */
+    
+    /* 描画崩れ防止のおまじない */
+    transform: translateZ(0);
+}
+
+/* 6. body自体のスクロールを許可 */
+body {
+    overflow-y: auto !important;
+    height: auto !important;
 }
