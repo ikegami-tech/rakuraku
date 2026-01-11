@@ -33,8 +33,24 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
 .calendar-scroll-area { flex: 1; overflow: auto; position: relative; background: white; display: flex; }
 
 /* 時間軸・グリッド共通設定（ズレ防止の要） */
-.time-axis-col { width: 50px; flex-shrink: 0; background: #fff; border-right: 1px solid #ddd; position: sticky; left: 0; z-index: 20; }
-.time-axis-header { height: 40px; border-bottom: 1px solid #ddd; background: #f9f9f9; position: sticky; top: 0; z-index: 30; }
+/* 時間軸・グリッド共通設定（ズレ防止の要） */
+.time-axis-col { 
+    width: 50px; 
+    flex-shrink: 0; 
+    background: #fff; 
+    border-right: 1px solid #ddd; 
+    position: sticky; 
+    left: 0; 
+    z-index: 100 !important; /* ★ここを 100 に変更 */
+}
+.time-axis-header { 
+    height: 40px; 
+    border-bottom: 1px solid #ddd; 
+    background: #f9f9f9; 
+    position: sticky; 
+    top: 0; 
+    z-index: 110 !important; /* ★ここを 110 に変更 */
+}
 
 .time-label {
   border-bottom: 1px solid #eee; /* 線を薄く表示 */
