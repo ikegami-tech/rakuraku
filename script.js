@@ -419,9 +419,14 @@ function renderVerticalTimeline(mode) {
   if (axisContainer) {
       axisContainer.style.position = "sticky";
       axisContainer.style.left = "0";
-      axisContainer.style.zIndex = "9999"; // CSSより強い指定で最前面へ
-      axisContainer.style.background = "#fff"; // 透け防止
-      axisContainer.style.borderRight = "1px solid #ddd"; 
+      axisContainer.style.zIndex = "9999"; 
+      axisContainer.style.background = "#fff"; 
+      axisContainer.style.borderRight = "1px solid #ddd";
+      
+      // ★★★ これを追加してください（ここが重要） ★★★
+      // 時間軸の背景が途切れないように、全体の高さ（ヘッダー40px + 中身）を強制的に確保します
+      axisContainer.style.minHeight = (currentTop + 40) + "px"; 
+      axisContainer.style.height = "auto";
   }
   // ▲▲▲ 修正ここまで ▲▲▲
 
