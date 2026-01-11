@@ -488,12 +488,26 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
     padding: 5px 0 !important;
   }
 
+  /* ▼▼▼ ここを書き換え ▼▼▼ */
   textarea {
-    height: 120px !important;
+    /* 高さを固定せず、最低限の高さを指定して入力内容に応じて伸びるようにする */
+    height: auto !important;
+    min-height: 120px !important;
+    
     padding: 10px !important;
-    line-height: 1.5;
-    font-size: 16px;
+    font-size: 16px !important;      /* スマホで見やすい文字サイズ */
+    line-height: 1.5 !important;     /* 行間 */
+    margin-bottom: 20px !important;  /* 下のボタンとの隙間を確保 */
+    width: 100% !important;          /* 横幅いっぱい */
+    box-sizing: border-box !important;
   }
+
+  /* 入力例（プレースホルダー）の色をはっきりさせる */
+  textarea::placeholder {
+    color: #999;
+    opacity: 1;
+  }
+  /* ▲▲▲ 書き換えここまで ▲▲▲ */
   .map-click-area {
     /* 文字サイズをかなり小さくする */
     font-size: 10px !important; 
