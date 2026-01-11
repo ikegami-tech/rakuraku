@@ -717,3 +717,29 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
     margin-bottom: 20px !important;/* 下の項目との間隔を確保 */
   }
 }
+/* ==============================================
+   ▼▼▼ 【修正】備考欄（入力例）の表示修正 ▼▼▼
+   ============================================== */
+
+/* 備考欄（テキストエリア）のスタイルを強制的に整える */
+textarea#input-note {
+  display: block !important;
+  width: 100% !important;
+  height: auto !important;       /* 自動調整をベースに */
+  min-height: 100px !important;  /* 最低でも100pxの高さを確保 */
+  padding: 10px !important;      /* 内側の余白 */
+  margin-bottom: 15px !important;/* 下のボタンとの隙間 */
+  
+  box-sizing: border-box !important; /* 枠線を含めてサイズ計算 */
+  font-size: 16px !important;    /* 文字サイズ */
+  line-height: 1.5 !important;   /* 行間 */
+  color: #333 !important;        /* 文字色 */
+  background-color: #fff !important;
+}
+
+/* 入力例（プレースホルダー）の色と表示を確実に */
+textarea#input-note::placeholder {
+  color: #999 !important;        /* 薄いグレー */
+  opacity: 1 !important;         /* 透明度をなくす */
+  visibility: visible !important;
+}
