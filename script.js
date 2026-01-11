@@ -370,7 +370,6 @@ function renderVerticalTimeline(mode) {
   if (calculatedChars < 12) calculatedChars = 12; 
   const DYNAMIC_CHARS_PER_LINE = calculatedChars;
 
-  // 予約データのフィルタリング
   const allRelevantReservations = masterData.reservations.filter(res => {
       const startTimeVal = getVal(res, ['startTime', 'start_time', '開始日時', '開始', 'Start']);
       if (!startTimeVal) return false;
@@ -386,7 +385,7 @@ function renderVerticalTimeline(mode) {
       return isTargetRoom && (resDateNum === targetDateNum);
   });
 
-  // 予約に基づいて高さを計算
+  // 高さ計算
   allRelevantReservations.forEach(res => {
       const start = new Date(res._startTime);
       const sHour = start.getHours();
@@ -407,7 +406,6 @@ function renderVerticalTimeline(mode) {
       }
   });
 
-  // 高さの合計を計算
   const hourTops = {};
   let currentTop = 0;
   for(let h=START_HOUR; h<END_HOUR; h++) {
@@ -433,10 +431,10 @@ function renderVerticalTimeline(mode) {
       `;
   }
   
-  // ▼▼▼ 【ここから重要修正】コンテナと親要素の強制リセット ▼▼▼
+  // コンテナをクリア
   container.innerHTML = "";
   
-  // コンテナ自体のスタイル（はみ出し許可）
+  // コンテナ（部屋全体）の設定：はみ出しを許可してStickyを有効化
   container.style.cssText = `
     display: flex;
     min-width: fit-content;
@@ -446,13 +444,13 @@ function renderVerticalTimeline(mode) {
   `;
   if (mode === 'map') container.style.width = "100%";
 
-  // ループして部屋列を作成
+  // 部屋の列を作成
   targetRooms.forEach(room => {
     const col = document.createElement('div');
     col.className = 'room-col';
     if(mode === 'single') col.style.width = "100%"; 
 
-    // 列のスタイル（はみ出し許可＋高さ確保）
+    // 【重要】列のoverflowは visible にする（ヘッダー固定のため）
     col.style.cssText = `
         flex: 1 0 120px;
         min-width: 120px;
@@ -471,7 +469,7 @@ function renderVerticalTimeline(mode) {
     header.className = 'room-header';
     header.innerText = room.roomName;
     
-    // ▼▼▼ ヘッダーの固定スタイル（最強設定） ▼▼▼
+    // ヘッダー固定設定
     header.style.cssText = `
         position: -webkit-sticky !important;
         position: sticky !important;
@@ -487,7 +485,7 @@ function renderVerticalTimeline(mode) {
         flex-shrink: 0;
         overflow: hidden;
         white-space: nowrap;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* 浮いている感を出す */
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     `;
     
     col.appendChild(header);
@@ -564,35 +562,47 @@ function renderVerticalTimeline(mode) {
     container.appendChild(col);
   });
 
-  // ▼▼▼ 【ここが新機能】親要素のスタイル強制修正（Sticky阻害要因の排除） ▼▼▼
-  // 描画が終わった後に、DOMツリーを遡って「邪魔なoverflow設定」を剥がします
+  // ▼▼▼ 【ここを修正】画面スクロールを止めて、エリア内スクロールを復活させる ▼▼▼
   setTimeout(() => {
       try {
-          // 1. view-container (診断で犯人だった要素) を探す
-          const viewContainer = document.getElementById('view-timeline') || document.querySelector('.view-container');
-          if (viewContainer) {
-              viewContainer.style.setProperty('overflow', 'visible', 'important');
-              viewContainer.style.setProperty('height', 'auto', 'important');
-              console.log("JS修正: view-containerのoverflowを強制解除しました");
-          }
-
-          // 2. app-screen (さらに上の親) を探す
+          // 1. アプリ全体の枠（ここは hidden にして画面スクロールを阻止する）
           const appScreen = document.getElementById('app-screen');
           if (appScreen) {
-              appScreen.style.setProperty('overflow', 'visible', 'important');
-              appScreen.style.setProperty('height', 'auto', 'important');
+              appScreen.style.setProperty('overflow', 'hidden', 'important'); // ★ここをhiddenに戻す
+              appScreen.style.setProperty('height', '100vh', 'important');  // 高さ100%固定
           }
 
-          // 3. スクロールエリア自体の設定を再確認 (ここは auto であるべき)
+          // 2. タイムラインの親枠（ここも hidden で枠を固定）
+          const viewContainer = document.getElementById('view-timeline') || document.querySelector('.view-container');
+          if (viewContainer) {
+              viewContainer.style.setProperty('overflow', 'hidden', 'important'); // ★ここもhidden
+              viewContainer.style.setProperty('height', '100%', 'important');
+              viewContainer.style.display = 'flex';
+              viewContainer.style.flexDirection = 'column';
+          }
+
+          // 3. カレンダーのスクロールエリア（★ここだけ auto にしてスクロールさせる）
           const scrollArea = document.querySelector('.calendar-scroll-area');
           if (scrollArea) {
-              scrollArea.style.setProperty('overflow', 'auto', 'important');
+              scrollArea.style.setProperty('overflow-y', 'auto', 'important'); // ★縦スクロール許可
+              scrollArea.style.setProperty('overflow-x', 'auto', 'important'); // 横スクロール許可
+              scrollArea.style.setProperty('height', '100%', 'important');     // 高さ最大
+              scrollArea.style.setProperty('display', 'block', 'important');   // Flexだと崩れる場合があるのでBlock
               scrollArea.style.setProperty('position', 'relative', 'important');
+              // 描画レイヤーをここにする
+              scrollArea.style.contain = "layout size"; 
           }
+          
+          // 4. 親コンテナと列（Stickyを効かせるため visible のまま）
+          const roomsContainers = document.querySelectorAll('.rooms-container');
+          roomsContainers.forEach(rc => {
+             rc.style.setProperty('overflow', 'visible', 'important');
+          });
+          
       } catch(e) {
           console.error("Style fix error:", e);
       }
-  }, 50); // わずかに遅らせて実行することでCSSの適用後に行う
+  }, 50);
 }
 function formatDateToNum(d) {
   if (isNaN(d.getTime())) return ""; 
