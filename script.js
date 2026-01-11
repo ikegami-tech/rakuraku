@@ -350,6 +350,15 @@ function renderVerticalTimeline(mode) {
       return;
   }
   
+  // ▼▼▼ 1. まずコンテナの中身とスタイルを完全にリセット（削除） ▼▼▼
+  if (container) {
+      container.innerHTML = ""; // 中身を全削除
+      // Stickyを効かせるために親枠の制限を解除
+      container.style.overflow = "visible"; 
+      container.style.contain = "none";
+  }
+  // ▲▲▲ リセットここまで ▲▲▲
+
   if (!targetRooms || targetRooms.length === 0) {
       container.innerHTML = "<div style='padding:20px;'>部屋データが見つかりません。</div>";
       return;
@@ -412,8 +421,7 @@ function renderVerticalTimeline(mode) {
       }
   });
 
-  // ▼▼▼ 【重要修正】高さの合計（currentTop）を先に計算します ▼▼▼
-  // これを先にやらないと、時間軸の高さを設定するときにエラーになります
+  // 高さの合計を計算
   const hourTops = {};
   let currentTop = 0;
   for(let h=START_HOUR; h<END_HOUR; h++) {
@@ -421,45 +429,56 @@ function renderVerticalTimeline(mode) {
       currentTop += hourRowHeights[h];
   }
   hourTops[END_HOUR] = currentTop;
-  // ▲▲▲ 計算ここまで ▲▲▲
 
   // 時間軸を描画
   drawTimeAxis(timeAxisId);
   
-  // ▼▼▼ 時間軸のスタイル設定（z-indexと高さ確保） ▼▼▼
+  // 時間軸の設定（JSで強力に固定）
   const axisContainer = document.getElementById(timeAxisId);
   if (axisContainer) {
+      // 既存のスタイルを一度クリアしてから適用
+      axisContainer.style.cssText = ""; 
       axisContainer.style.position = "sticky";
       axisContainer.style.left = "0";
-      axisContainer.style.zIndex = "9999";    // 最前面に固定
-      axisContainer.style.background = "#fff"; // 透けないように白背景
+      axisContainer.style.zIndex = "9999";
+      axisContainer.style.background = "#fff";
       axisContainer.style.borderRight = "1px solid #ddd";
-
-      // ★ここで計算済みの高さを使って、背景が途切れないようにする
-      axisContainer.style.minHeight = (currentTop + 40) + "px"; 
+      axisContainer.style.minHeight = (currentTop + 40) + "px";
   }
   
-  // 部屋コンテナをクリアして描画開始
-  container.innerHTML = "";
-  
+  // ▼▼▼ 2. 部屋の列を再作成（Recreate） ▼▼▼
   targetRooms.forEach(room => {
     const col = document.createElement('div');
     col.className = 'room-col';
     if(mode === 'single') col.style.width = "100%"; 
 
-    // 部屋の列自体のレベルを下げる（時間軸の下に潜り込ませる）
+    // Stickyを効かせるために overflow: visible を JSで強制適用
+    col.style.overflow = "visible";
     col.style.position = "relative";
-    col.style.zIndex = "1"; 
+    col.style.display = "flex";
+    col.style.flexDirection = "column";
+    col.style.zIndex = "1";
     
-    // ヘッダー設定
+    // ヘッダー作成
     const header = document.createElement('div');
     header.className = 'room-header';
     header.innerText = room.roomName;
+    
+    // ▼▼▼ 3. ヘッダーに固定設定を注入 ▼▼▼
+    header.style.position = "sticky";  // ★これが重要
+    header.style.top = "0";            // ★一番上に固定
+    header.style.zIndex = "1000";      // ★最前面
+    header.style.background = "#fafafa"; 
+    header.style.borderBottom = "1px solid #ddd";
     header.style.height = "40px";       
     header.style.minHeight = "40px";
     header.style.flexShrink = "0";
-    header.style.overflow = "hidden";   
+    header.style.display = "flex";
+    header.style.alignItems = "center";
+    header.style.justifyContent = "center";
+    header.style.overflow = "hidden";
     header.style.whiteSpace = "nowrap"; 
+    
     col.appendChild(header);
     
     const body = document.createElement('div');
@@ -507,7 +526,6 @@ function renderVerticalTimeline(mode) {
 
     const reservations = allRelevantReservations.filter(res => String(res._resourceId) === String(room.roomId));
     
-    // 予約バーの描画ループ
     reservations.forEach(res => {
       const start = new Date(res._startTime);
       const end = new Date(res._endTime);
@@ -543,8 +561,6 @@ function renderVerticalTimeline(mode) {
           
           bar.style.top = (topPx + 1) + "px";
           bar.style.height = (heightPx - 2) + "px"; 
-
-          // 予約枠のレベルを固定
           bar.style.zIndex = "5";
           
           let displayTitle = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '予約';
