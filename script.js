@@ -412,19 +412,19 @@ function renderVerticalTimeline(mode) {
   });
 
   // 時間軸を描画
-  // 時間軸を描画
-    drawTimeAxis(timeAxisId);
-    
-    // ▼▼▼ 【追加修正 1】 時間軸の要素を取得し、JSで直接スタイルを最強にする ▼▼▼
-    const axisContainer = document.getElementById(timeAxisId);
-    if (axisContainer) {
-        // CSSファイルよりも強い「インラインスタイル」で設定
-        axisContainer.style.position = "sticky";
-        axisContainer.style.left = "0";
-        axisContainer.style.zIndex = "9999"; // 圧倒的に高い数値にする
-        axisContainer.style.background = "#fff"; // 背景を白くして透けないように
-        axisContainer.style.borderRight = "2px solid #ddd"; // 境界線をしっかり引く
-    }
+  drawTimeAxis(timeAxisId);
+  
+  // ▼▼▼ 【ここを修正・追加】時間軸要素のスタイルをJSで最強にする ▼▼▼
+  const axisContainer = document.getElementById(timeAxisId);
+  if (axisContainer) {
+      axisContainer.style.position = "sticky";
+      axisContainer.style.left = "0";
+      axisContainer.style.zIndex = "9999"; // CSSより強い指定で最前面へ
+      axisContainer.style.background = "#fff"; // 透け防止
+      axisContainer.style.borderRight = "1px solid #ddd"; 
+  }
+  // ▲▲▲ 修正ここまで ▲▲▲
+
   container.innerHTML = "";
   
   const hourTops = {};
@@ -439,6 +439,11 @@ function renderVerticalTimeline(mode) {
     const col = document.createElement('div');
     col.className = 'room-col';
     if(mode === 'single') col.style.width = "100%"; 
+
+    // ▼▼▼ 【ここを修正・追加】部屋の列のレベルを下げる ▼▼▼
+    col.style.position = "relative";
+    col.style.zIndex = "1"; // 時間軸(9999)には絶対に勝てないようにする
+    // ▲▲▲ 修正ここまで ▲▲▲
     
     // ▼▼▼ 修正: ヘッダーの高さ固定を強化（minHeight, flexShrinkを追加） ▼▼▼
     const header = document.createElement('div');
@@ -542,6 +547,10 @@ function renderVerticalTimeline(mode) {
           
           bar.style.top = (topPx + 1) + "px";
           bar.style.height = (heightPx - 2) + "px"; 
+
+          // ▼▼▼ 【ここを修正・追加】予約枠のZ-indexを低めに設定 ▼▼▼
+          bar.style.zIndex = "5";
+          // ▲▲▲ 修正ここまで ▲▲▲
           
           let displayTitle = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '予約';
 
@@ -564,8 +573,6 @@ function renderVerticalTimeline(mode) {
                 <span style="font-weight:bold;">${displayTitle}</span>
               `;
           }
-          // ▲▲▲ 修正ここまで ▲▲▲
-        
           bar.onclick = (e) => { 
               e.stopPropagation(); 
               openDetailModal(res); 
