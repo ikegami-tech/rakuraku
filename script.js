@@ -427,61 +427,80 @@ function renderVerticalTimeline(mode) {
   // 時間軸のスタイル設定
   const axisContainer = document.getElementById(timeAxisId);
   if (axisContainer) {
-      axisContainer.style.position = "sticky"; // 標準
-      axisContainer.style.position = "-webkit-sticky"; // Safari用
-      axisContainer.style.left = "0";
-      axisContainer.style.zIndex = "9999";
-      axisContainer.style.background = "#fff"; 
-      axisContainer.style.borderRight = "1px solid #ddd";
-      axisContainer.style.minHeight = (currentTop + 40) + "px"; 
+      // cssTextを使って強力に上書き
+      axisContainer.style.cssText = `
+        position: -webkit-sticky;
+        position: sticky;
+        left: 0;
+        z-index: 9999;
+        background: #fff;
+        border-right: 1px solid #ddd;
+        min-height: ${(currentTop + 40)}px;
+      `;
   }
   
-  // 部屋コンテナをクリアして描画開始
+  // 部屋コンテナをクリア
   container.innerHTML = "";
   
-  // ▼▼▼ 【重要】コンテナの制限を解除（固定表示を有効にするため） ▼▼▼
-  container.style.overflow = "visible";
-  // ▲▲▲ 追加ここまで ▲▲▲
-  
+  // ▼▼▼ 【重要修正】コンテナのスタイルを強力にリセット ▼▼▼
+  // overflow: visible と contain: none で固定表示の阻害要因を消します
+  container.style.cssText = `
+    display: flex;
+    min-width: fit-content;
+    flex-grow: 1;
+    overflow: visible !important;
+    contain: none !important;
+  `;
+  if (mode === 'map') container.style.width = "100%";
+
   targetRooms.forEach(room => {
     const col = document.createElement('div');
     col.className = 'room-col';
     if(mode === 'single') col.style.width = "100%"; 
 
-    // ▼▼▼ 列の制限を解除し、レイヤー順序を設定 ▼▼▼
-    col.style.overflow = "visible"; 
-    col.style.position = "relative";
-    col.style.zIndex = "1"; 
+    // ▼▼▼ 【重要修正】列（col）のスタイルも強力に設定 ▼▼▼
+    // position: relativeがないと中のabsolute配置が崩れますが、stickyのためにoverflowはvisible必須です
+    col.style.cssText = `
+        flex: 1 0 120px;
+        min-width: 120px;
+        border-right: 1px solid #eee;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        overflow: visible !important;
+        contain: none !important;
+        z-index: 1;
+    `;
     
     // ヘッダー設定
     const header = document.createElement('div');
     header.className = 'room-header';
     header.innerText = room.roomName;
     
-    // ▼▼▼ ヘッダーの強力な固定設定 ▼▼▼
-    header.style.position = "-webkit-sticky"; // Safari用
-    header.style.position = "sticky";         // 標準
-    header.style.top = "0px";                 // 画面最上部に固定
-    header.style.zIndex = "999";              // ★予約バー(5)より圧倒的に上に
-    header.style.background = "#fafafa";      // 背景色（透け防止）
-    header.style.borderBottom = "1px solid #ddd";
-    
-    // レイアウト
-    header.style.display = "flex";
-    header.style.alignItems = "center";
-    header.style.justifyContent = "center";
-    header.style.height = "40px";       
-    header.style.minHeight = "40px";
-    header.style.flexShrink = "0";
-    header.style.overflow = "hidden";   
-    header.style.whiteSpace = "nowrap"; 
+    // ▼▼▼ 【重要修正】ヘッダーの固定設定 ▼▼▼
+    header.style.cssText = `
+        position: -webkit-sticky !important;
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 1000 !important;
+        background: #fafafa !important;
+        border-bottom: 1px solid #ddd;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 40px;
+        min-height: 40px;
+        flex-shrink: 0;
+        overflow: hidden;
+        white-space: nowrap;
+        transform: translateZ(0); /* 描画安定化 */
+    `;
     
     col.appendChild(header);
     
     const body = document.createElement('div');
     body.className = 'room-grid-body';
     body.style.height = currentTop + "px"; 
-    // bodyにはz-indexを設定せず、header(999)の下になるようにする
 
     for(let h=START_HOUR; h<END_HOUR; h++) {
         const slot = document.createElement('div');
@@ -560,7 +579,6 @@ function renderVerticalTimeline(mode) {
           bar.style.top = (topPx + 1) + "px";
           bar.style.height = (heightPx - 2) + "px"; 
 
-          // 予約枠のレベルを固定（ヘッダー999より下）
           bar.style.zIndex = "5";
           
           let displayTitle = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '予約';
