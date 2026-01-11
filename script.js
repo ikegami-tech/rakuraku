@@ -885,6 +885,12 @@ function openModal(res = null, defaultRoomId = null, clickHour = null, clickMin 
   });
 
   updateModalDisplay();
+    // ▼▼▼▼▼▼ ここから追加 ▼▼▼▼▼▼
+  // モーダル表示時に一番上までスクロールを戻す
+  if (modal) modal.scrollTop = 0;
+  const modalContent = modal.querySelector('.modal-content'); // もし中身のクラス名が違う場合は調整
+  if (modalContent) modalContent.scrollTop = 0;
+  // ▲▲▲▲▲▲ ここまで追加 ▲▲▲▲▲▲
 }
     function closeModal() { document.getElementById('bookingModal').style.display = 'none'; }
 
