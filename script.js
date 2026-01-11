@@ -451,11 +451,20 @@ function renderVerticalTimeline(mode) {
     col.style.position = "relative";
     col.style.zIndex = "1"; 
     
-    // ヘッダー設定
+   // ヘッダー設定
     const header = document.createElement('div');
     header.className = 'room-header';
     header.innerText = room.roomName;
-    header.style.height = "40px";       
+    
+    // ▼▼▼ 追加：ヘッダーを上部に固定する設定 ▼▼▼
+    header.style.position = "sticky";     // スクロールしても追従させる
+    header.style.top = "0";               // 上端に張り付かせる
+    header.style.zIndex = "10";           // 予約バーより手前に表示する
+    header.style.backgroundColor = "#fff"; // 透けないように背景を白にする
+    header.style.borderBottom = "1px solid #ccc"; // 下線を引いて見やすくする
+    // ▲▲▲ 追加ここまで ▲▲▲
+
+    header.style.height = "40px";        
     header.style.minHeight = "40px";
     header.style.flexShrink = "0";
     header.style.overflow = "hidden";   
