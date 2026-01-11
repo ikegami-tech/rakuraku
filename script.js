@@ -852,19 +852,21 @@ function openModal(res = null, defaultRoomId = null, clickHour = null, clickMin 
     }
     document.getElementById('input-date').value = currentTabDate;
 
-    // ▼▼▼ 時間計算ロジックの修正 ▼▼▼
-   const sHour = clickHour !== null ? clickHour : 9;
+    // ▼▼▼ openModal 関数内の時間計算ロジックを以下のように書き換えてください ▼▼▼
+
+    const sHour = clickHour !== null ? clickHour : 9;
     const sMin  = clickMin; // 0 または 30
 
-    // 終了時間を「開始時間 + 1時間」に設定
-    // 上半分(00分)なら → 1時間後の00分
-    // 下半分(30分)なら → 1時間後の30分 となります
+    // 終了時間は、クリックした位置に関わらず「次の時間の00分」に設定します
+    // 例: 9:00 (上半分) をクリック → 10:00 終了
+    // 例: 9:30 (下半分) をクリック → 10:00 終了
     let eHour = sHour + 1;
-    let eMin = sMin;
+    let eMin = 0;
 
     document.getElementById('input-start').value = `${pad(sHour)}:${pad(sMin)}`;
     document.getElementById('input-end').value = `${pad(eHour)}:${pad(eMin)}`;
-    // ▲▲▲ 修正ここまで ▲▲▲
+    
+// ▲▲▲ 修正ここまで ▲▲▲
     
     document.getElementById('input-title').value = "";
     document.getElementById('input-note').value = "";
