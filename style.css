@@ -668,24 +668,29 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   }
 }
 /* ==============================================
-   ▼▼▼ 【再修正】グループボタンエリアの高さ・枠線調整 ▼▼▼
+   ▼▼▼ 【再修正版】グループボタンの変形防止・高さ調整 ▼▼▼
    ============================================== */
 
 .group-container {
   /* 1. レイアウト */
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;             /* ボタンの間隔 */
+  gap: 8px;
   margin-bottom: 10px;
 
-  /* 2. 高さの設定（★ここを修正） */
-  height: auto !important;      
-  min-height: 60px;             /* ボタンが少なくてもある程度の高さは確保 */
-  max-height: 250px !important; /* ★上限を120px→250pxに大幅拡張（これを超えたらスクロール） */
-  overflow-y: auto !important;  /* ★スクロール機能を維持 */
+  /* 2. 高さの設定（スクロール機能あり） */
+  height: auto !important;
+  max-height: 250px !important; /* 表示エリアは広く確保 */
+  min-height: 40px !important;  /* 最低限の高さ */
+  overflow-y: auto !important;  /* スクロールバーを表示 */
 
-  /* 3. 外枠のデザイン（★枠線なし） */
+  /* 3. 外枠なし */
   border: none !important;
   background: transparent;
-  padding: 5px 0;               /* 上下の余白のみ確保 */
+  padding: 5px 0;
+
+  /* 4. 【重要】ボタンの縦伸び防止設定 */
+  /* これがないとボタンがエリアの高さに合わせて巨大化してしまいます */
+  align-items: flex-start !important;   /* ボタンを上詰めで配置し、縦に伸ばさない */
+  align-content: flex-start !important; /* 行全体も上詰めで配置 */
 }
