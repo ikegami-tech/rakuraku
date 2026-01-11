@@ -60,9 +60,37 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
 }
 
 .rooms-container { display: flex; min-width: fit-content; flex-grow: 1; }
-.room-col { flex: 1 0 120px; min-width: 120px; border-right: 1px solid #eee; position: relative; display: flex; flex-direction: column; }
-.room-header { height: 40px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; background: #fafafa; border-bottom: 1px solid #ddd; position: sticky; top: 0; z-index: 10; padding: 0 5px; text-align: center; word-break: break-all; }
+.room-col { 
+  flex: 1 0 120px; 
+  min-width: 120px; 
+  border-right: 1px solid #eee; 
+  position: relative; 
+  display: flex; 
+  flex-direction: column;
+  /* ★追加: ヘッダーの固定(sticky)を有効にするために必須 */
+  overflow: visible; 
+  /* ★追加: 時間軸(z-100)の下、予約バー(z-5)の親としての基準 */
+  z-index: 1; 
+}
 
+.room-header { 
+  height: 40px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  font-size: 0.8rem; 
+  font-weight: bold; 
+  background: #fafafa; 
+  border-bottom: 1px solid #ddd; 
+  /* ★固定表示の設定 */
+  position: sticky; 
+  top: 0; 
+  /* ★修正: 予約バー(z-5)より手前に表示するため数値を上げる */
+  z-index: 50; 
+  padding: 0 5px; 
+  text-align: center; 
+  word-break: break-all; 
+}
 .room-grid-body { position: relative; background: transparent; }
 .grid-slot { 
   border-bottom: 1px solid #eee; /* 時間軸と同じ線 */
