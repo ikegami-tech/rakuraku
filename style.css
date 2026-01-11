@@ -783,3 +783,30 @@ textarea#input-note::placeholder {
     line-height: 1.5 !important;   /* 入力文字と同じ行間に合わせる */
   }
 }
+/* ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
+   グループボタンエリアの最終強制修正
+   これより上の記述をすべて上書きして、確実に2列表示にします
+   ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
+
+.group-container {
+    /* 1. 最低限の高さを「100px」に強制変更 */
+    /* これでボタンが少なくても最初から「2〜3列分のスペース」が確保されます */
+    min-height: 100px !important;
+
+    /* 2. 折り返し設定を強制 */
+    display: flex !important;
+    flex-wrap: wrap !important;
+
+    /* 3. ボタンを左上に詰めて配置（縦に引き伸ばさない） */
+    align-items: flex-start !important;
+    align-content: flex-start !important;
+
+    /* 4. スクロール設定の再確認 */
+    max-height: 200px !important; /* これを超えたらスクロール */
+    overflow-y: auto !important;
+
+    /* 5. デザイン調整 */
+    gap: 8px !important;
+    padding: 10px !important;
+    border: 1px solid #ccc !important;
+}
