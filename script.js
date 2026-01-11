@@ -54,12 +54,10 @@ window.onload = () => {
   document.getElementById('timeline-date').valueAsDate = new Date();
   document.getElementById('map-date').valueAsDate = new Date();
 
-  // ▼▼▼ 修正: 入力自体は1分単位で自由にできるように戻す（step=60） ▼▼▼
   const startInput = document.getElementById('input-start');
   const endInput = document.getElementById('input-end');
   if (startInput) startInput.step = 60; // 900から60に変更、または行ごと削除
   if (endInput) endInput.step = 60;   // 900から60に変更、または行ごと削除
-  // ▲▲▲ 修正ここまで ▲▲▲
 };
 
 async function callAPI(params) {
@@ -121,8 +119,7 @@ async function loadAllData(isUpdate = false) {
     document.getElementById('loading').style.display = 'none';
     if (json.status === 'success') {
       masterData = json.data;
-      
-      // ▼▼▼ 修正: 更新モードなら画面遷移しない refreshUI を呼ぶ ▼▼▼
+
       if (isUpdate) {
           refreshUI();
       } else {
@@ -153,17 +150,14 @@ function initUI() {
     });
   }
 
-  // 3. グループボタンの生成
   renderGroupButtons();
   
-  // 4. 各画面の変数を初期化（描画はまだしない）
   currentFloor = 7;
   currentTimelineFloor = 7;
 
-  // 5. 最初に表示するタブを指定（この関数の中で描画がトリガーされます）
   switchTab('map-view');
 }
-// ▼▼▼ 【追加】画面遷移せずにデータを更新する関数 ▼▼▼
+
 function refreshUI() {
   // 1. 履歴の更新
   renderLogs();
@@ -198,46 +192,33 @@ function refreshUI() {
 
 
 function selectGroupMembers(idsStr) {
-  // データがない場合は何もしない
   if (idsStr === null || idsStr === undefined || idsStr === "") return;
-
-  // 1. 強力な分割処理
-  // 文字列に変換し、カンマ(,)、読点(、)、スペースなどで区切る
-  // これにより "101, 102" や "101 102" などの表記揺れを吸収します
   const rawIds = String(idsStr).split(/[,、\s]+/);
-
   const targetUsers = [];
   rawIds.forEach(rawId => {
-      // 2. IDのクリーニング
-      // 前後の空白や、万が一の引用符('や")を除去します
+
       const cleanIdStr = rawId.replace(/['"]/g, "").trim();
       
-      if (!cleanIdStr) return; // 空文字ならスキップ
+      if (!cleanIdStr) return; 
 
-      // 3. ユーザーの検索（IDの一致確認）
       const user = masterData.users.find(u => String(u.userId) === cleanIdStr);
       if (user) { targetUsers.push(user); }
   });
 
-  // 該当するユーザーがいなければ終了
   if (targetUsers.length === 0) {
       console.warn("グループメンバーが見つかりませんでした: ", idsStr);
       return;
   }
 
   // 4. 選択状態の切り替えロジック
-  // グループ全員がすでに「選択済み」かどうかを判定
   const isAllSelected = targetUsers.every(u => selectedParticipantIds.has(String(u.userId)));
 
   if (isAllSelected) {
-      // 全員選択済みなら → 全員解除（候補者一覧に戻す）
       targetUsers.forEach(u => selectedParticipantIds.delete(String(u.userId)));
   } else {
-      // まだ選択されていない人がいれば → 全員追加（参加予定者に移動）
       targetUsers.forEach(u => selectedParticipantIds.add(String(u.userId)));
   }
 
-  // リストの表示を更新（検索フィルタの状態を維持）
   renderShuttleLists(document.getElementById('shuttle-search-input').value);
 }
 
@@ -975,7 +956,37 @@ async function saveBooking() {
     alert("エラー: " + result.message);
   }
 }
+// ▼▼▼ この関数を追加してください ▼▼▼
+async function deleteBooking() {
+    const id = document.getElementById('edit-res-id').value;
 
+    if (!id) {
+        alert("削除対象の予約IDが見つかりません。");
+        return;
+    }
+
+    if (!confirm("本当にこの予約を削除しますか？")) {
+        return;
+    }
+
+    const params = {
+        action: 'deleteReservation',
+        reservationId: id,
+        operatorName: currentUser ? currentUser.userName : 'Unknown'
+    };
+
+    const result = await callAPI(params);
+
+    if (result.status === 'success') {
+        alert("予約を削除しました");
+        closeModal();
+        // 画面リロードなしでデータを再読み込み
+        loadAllData(true);
+    } else {
+        alert("削除エラー: " + result.message);
+    }
+}
+// ▲▲▲ 追加ここまで ▲▲▲
 function pad(n) { return n < 10 ? '0'+n : n; }
 function formatDate(d) { return `${d.getMonth()+1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}`; }
 function getRoomName(id) { const r = masterData.rooms.find(x => x.roomId === id); return r ? r.roomName : id; }
