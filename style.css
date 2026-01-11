@@ -788,3 +788,75 @@ textarea#input-note::placeholder {
     line-height: 1.5 !important;   /* 入力文字と同じ行間に合わせる */
   }
 }
+/* ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
+   Stickyヘッダー修正（最終調整版）
+   スクロールエリアの機能は維持しつつ、ヘッダー固定を有効化します
+   ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
+
+/* 1. スクロールエリアの設定（重要：ここは auto に戻します！） */
+/* これを visible にすると、ヘッダーが画面外に飛んでいってしまいます */
+.calendar-scroll-area {
+    overflow: auto !important;
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+    height: 100% !important;
+    /* 座標の基準点にする */
+    position: relative !important;
+    /* 描画レイヤーを独立させる */
+    contain: layout size !important; 
+    z-index: 0;
+}
+
+/* 2. 親コンテナ（部屋の列を束ねる枠）の制限解除 */
+/* ここで overflow: hidden があると固定されません */
+.rooms-container {
+    overflow: visible !important;
+    contain: none !important;
+    display: flex !important;
+}
+
+/* 3. 部屋の列（ヘッダーの親）の制限解除 */
+.room-col {
+    /* ここが hidden/auto だと、ヘッダーはこの列の中でしか動けなくなります */
+    overflow: visible !important;
+    contain: none !important;
+    position: relative !important;
+    display: flex !important;
+    flex-direction: column !important;
+    height: auto !important;
+    z-index: 1;
+}
+
+/* 4. 部屋名ヘッダーの固定設定 */
+.room-header {
+    /* 固定表示の有効化 */
+    position: -webkit-sticky !important;
+    position: sticky !important;
+    
+    /* スクロールエリアの上端に張り付く */
+    top: 0 !important;
+    
+    /* 重なり順：予約枠(5)より上、時間軸(9999)より下 */
+    /* ※時間軸より上にしたい場合は 10000 にしてください */
+    z-index: 500 !important; 
+    
+    /* デザイン補正 */
+    background: #fafafa !important;
+    border-bottom: 2px solid #ddd !important; /* 少し線を太くして境界を明確に */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05); /* 浮いている感を出す */
+    
+    /* 高さ確保 */
+    height: 40px !important;
+    min-height: 40px !important;
+    flex-shrink: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* 5. 邪魔な親要素（大枠）の制限解除 */
+/* 診断ツールで「犯人」だった場所です */
+.view-container, #view-timeline {
+    overflow: hidden !important; /* 大枠はhiddenでも、中のscroll-areaがautoならOKです */
+    /* ただし、もしこれでも動かない場合はここを visible に変えてみてください */
+}
