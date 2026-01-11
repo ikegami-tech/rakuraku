@@ -450,6 +450,8 @@ function renderVerticalTimeline(mode) {
     // 部屋の列自体のレベルを下げる（時間軸の下に潜り込ませる）
     col.style.position = "relative";
     col.style.zIndex = "1"; 
+    col.style.overflow = "visible";  // はみ出しを許可する（これが hidden だと固定されません）
+    col.style.contain = "none";      // ブラウザの最適化による固定解除を防ぐ   
     
    // ヘッダー設定
     const header = document.createElement('div');
