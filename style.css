@@ -760,3 +760,30 @@ textarea#input-note::placeholder {
     line-height: 1.5 !important;   /* 入力文字と同じ行間に合わせる */
   }
 }
+/* ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
+   時間軸の最前面固定・重なり順の強制修正
+   ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
+
+/* 1. 時間軸（左の列）を「レベル500」にする */
+.time-axis-col {
+    z-index: 500 !important;      /* 予約枠(Lv20)より圧倒的に高くする */
+    position: sticky !important;  /* 固定配置を強制 */
+    left: 0 !important;
+    background: #fff !important;  /* 背景を白にして透けないようにする */
+}
+
+/* 2. 時間軸のヘッダー（左上の角）を「レベル510」にする */
+.time-axis-header {
+    z-index: 510 !important;      /* 列よりもさらに上 */
+    position: sticky !important;
+    top: 0 !important;
+    background: #f9f9f9 !important;
+}
+
+/* 3. 【重要】部屋の列全体を「レベル1」に下げる */
+/* これにより、中の予約枠がいくら頑張ってもレベル1グループの中の話になり、
+   レベル500の時間軸には絶対に勝てなくなります */
+.room-col {
+    z-index: 1 !important;
+    position: relative !important; 
+}
