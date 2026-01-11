@@ -588,6 +588,49 @@ function renderVerticalTimeline(mode) {
     col.appendChild(body);
     container.appendChild(col);
   });
+    // ▼▼▼ ここから：強制修正コードを追加 ▼▼▼
+    
+    // 1. コンテナ自体の制限を解除する（最重要）
+    // これを行うと、ブラウザのウィンドウ全体で横スクロールするようになりますが、縦固定は効くようになります
+    if (container) {
+        container.style.overflow = "visible";
+        container.style.overflowX = "visible"; // 横スクロール設定を強制解除
+        container.style.overflowY = "visible";
+        container.style.contain = "none";
+    }
+
+    // 2. もし画面上部にメニューバーがある場合、隠れないように位置をずらす
+    // （もしヘッダーが「あるはずなのに見えない」場合は、ここの数値を 50 や 60 に変えてください）
+    const STICKY_TOP_OFFSET = "0px"; 
+
+    // すべてのヘッダーに対して、強力な固定設定を再適用
+    const allHeaders = container.querySelectorAll('.room-header');
+    allHeaders.forEach(h => {
+        h.style.position = "-webkit-sticky"; // Safari用
+        h.style.position = "sticky";
+        h.style.top = STICKY_TOP_OFFSET;
+        h.style.zIndex = "999"; // 他の要素より手前に
+        h.style.display = "block"; // 消えていないか確認
+        h.style.visibility = "visible"; // 透明になっていないか確認
+        // 背景色がないと透けるので白く塗る
+        h.style.background = "#fff"; 
+        h.style.borderBottom = "2px solid #ddd"; // 境界線を強調
+    });
+
+    // 3. 親要素を遡って、stickyを殺している「犯人（overflow設定）」を無効化する
+    let ancestor = container.parentElement;
+    while (ancestor && ancestor.tagName !== "BODY") {
+        const style = window.getComputedStyle(ancestor);
+        // overflow が hidden, scroll, auto のいずれかの場合
+        if (style.overflow !== "visible" || style.overflowX !== "visible" || style.overflowY !== "visible") {
+            // console.log("犯人を発見しました: ", ancestor); // デバッグ用
+            ancestor.style.overflow = "visible";
+            ancestor.style.overflowX = "visible";
+            ancestor.style.overflowY = "visible";
+        }
+        ancestor = ancestor.parentElement;
+    }
+    // ▲▲▲ 追加ここまで ▲▲▲
 }
 function formatDateToNum(d) {
   if (isNaN(d.getTime())) return ""; 
