@@ -427,52 +427,53 @@ function renderVerticalTimeline(mode) {
   // 時間軸のスタイル設定
   const axisContainer = document.getElementById(timeAxisId);
   if (axisContainer) {
-      // CSSに負けないようJSで強力に固定
       axisContainer.style.position = "sticky";
       axisContainer.style.left = "0";
-      axisContainer.style.zIndex = "9999";    // 最前面
+      axisContainer.style.zIndex = "9999";
       axisContainer.style.background = "#fff"; 
       axisContainer.style.borderRight = "1px solid #ddd";
-      // 背景が途切れないように高さを確保
       axisContainer.style.minHeight = (currentTop + 40) + "px"; 
   }
   
   // 部屋コンテナをクリアして描画開始
   container.innerHTML = "";
   
-  // ▼▼▼ 【重要】コンテナ自体のオーバーフローを可視化（固定表示の邪魔をさせない） ▼▼▼
-  container.style.overflow = "visible";
+  // ★重要修正：containerへの overflow: visible は削除しました（これが悪影響だった可能性大）
   
   targetRooms.forEach(room => {
     const col = document.createElement('div');
     col.className = 'room-col';
     if(mode === 'single') col.style.width = "100%"; 
 
-    // ▼▼▼ 【重要】列自体のオーバーフローを可視化（これが sticky を機能させる鍵） ▼▼▼
-    col.style.overflow = "visible";
-    col.style.position = "relative"; // 子要素の配置基準
-    col.style.zIndex = "1";          // 時間軸より下のレイヤー
+    // ▼▼▼ 列（col）の設定 ▼▼▼
+    // ここは visible にしないと、stickyヘッダーが親要素内で止まってしまいます
+    col.style.overflow = "visible"; 
+    col.style.position = "relative";
+    col.style.zIndex = "1"; 
     
     // ヘッダー設定
     const header = document.createElement('div');
     header.className = 'room-header';
     header.innerText = room.roomName;
     
-    // ▼▼▼ JSで直接スタイルを指定して固定（sticky）させる ▼▼▼
+    // ▼▼▼ ヘッダーの固定設定 ▼▼▼
     header.style.position = "sticky";  
-    header.style.top = "0px";          // 画面上部に固定
-    header.style.zIndex = "50";        // 予約枠より上
+    header.style.top = "0px";          
+    header.style.zIndex = "50";        
     header.style.background = "#fafafa"; 
     header.style.borderBottom = "1px solid #ddd";
+    
+    // ★描画を安定させるためのおまじない（レイヤーを分離）
+    header.style.transform = "translateZ(0)";
 
-    // デザイン調整
+    // レイアウト調整
     header.style.display = "flex";
     header.style.alignItems = "center";
     header.style.justifyContent = "center";
     header.style.height = "40px";       
     header.style.minHeight = "40px";
     header.style.flexShrink = "0";
-    // overflow:hidden は消さないが、text-overflowで制御
+    header.style.overflow = "hidden";   
     header.style.whiteSpace = "nowrap"; 
     
     col.appendChild(header);
@@ -488,7 +489,7 @@ function renderVerticalTimeline(mode) {
         body.appendChild(slot);
     }
     
-    // クリックイベント（予約枠クリック）
+    // クリックイベント
     body.onclick = (e) => {
        if (e.target.closest('.v-booking-bar')) return;
        
@@ -522,7 +523,6 @@ function renderVerticalTimeline(mode) {
 
     const reservations = allRelevantReservations.filter(res => String(res._resourceId) === String(room.roomId));
     
-    // 予約バーの描画ループ
     reservations.forEach(res => {
       const start = new Date(res._startTime);
       const end = new Date(res._endTime);
@@ -559,7 +559,6 @@ function renderVerticalTimeline(mode) {
           bar.style.top = (topPx + 1) + "px";
           bar.style.height = (heightPx - 2) + "px"; 
 
-          // 予約枠のレベルを固定（ヘッダーより下）
           bar.style.zIndex = "5";
           
           let displayTitle = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '予約';
