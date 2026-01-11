@@ -1282,7 +1282,7 @@ function createGroupButton(container, name, ids, isCustom, groupId) {
 
     container.appendChild(btn);
 }
-// ★修正: 新しいグループをサーバー(GAS)に保存する処理
+
 async function saveNewGroup() {
     const name = document.getElementById('new-group-name').value.trim();
     if (!name) {
@@ -1317,7 +1317,6 @@ async function saveNewGroup() {
     }
 }
 
-// ★修正: サーバー(GAS)からグループを削除する処理
 async function deleteSharedGroup(groupId, groupName) {
     if(!confirm(`共有グループ「${groupName}」を本当に削除しますか？\n（全社員の画面から消えます）`)) return;
 
@@ -1336,7 +1335,7 @@ async function deleteSharedGroup(groupId, groupName) {
         alert("削除エラー: " + result.message);
     }
 }
-// 引数を追加して、編集時はデータを受け取るようにする
+
 function openGroupModal(groupId = null, groupName = "", memberIds = "") {
     document.getElementById('groupCreateModal').style.display = 'flex';
     
@@ -1349,17 +1348,13 @@ function openGroupModal(groupId = null, groupName = "", memberIds = "") {
     groupCreateSelectedIds.clear();
 
     if (groupId) {
-        // === 編集モード ===
         titleEl.innerText = "グループ編集";
         idInput.value = groupId; // IDをセット
         nameInput.value = groupName;
 
-        // 既存メンバーをセットに復元
         if (memberIds) {
-            // カンマやスペースで区切ってID化
             const ids = String(memberIds).split(/[,、\s]+/).map(s => s.trim());
             ids.forEach(id => {
-               // ユーザーが存在するか確認してから追加
                const u = masterData.users.find(user => String(user.userId) === id);
                if(u) groupCreateSelectedIds.add(String(u.userId));
             });
@@ -1374,7 +1369,6 @@ function openGroupModal(groupId = null, groupName = "", memberIds = "") {
     renderGroupCreateShuttle();
 }
 
-// 保存処理（新規・更新共通）
 async function saveNewGroup() {
     const id = document.getElementById('edit-group-id').value; // IDがあるか確認
     const name = document.getElementById('new-group-name').value.trim();
@@ -1390,7 +1384,6 @@ async function saveNewGroup() {
 
     const idsStr = Array.from(groupCreateSelectedIds).join(',');
 
-    // IDがあれば「更新」、なければ「新規作成」
     const action = id ? 'updateGroup' : 'createGroup';
 
     const params = {
@@ -1407,12 +1400,11 @@ async function saveNewGroup() {
         const msg = id ? `グループ「${name}」を更新しました` : `グループ「${name}」を作成しました`;
         alert(msg);
         closeGroupModal();
-        
-        // モードを解除
+
         isEditMode = false;
         isDeleteMode = false;
         
-        loadAllData(true); // 再読み込み
+        loadAllData(true); 
     } else {
         alert("保存エラー: " + result.message);
     }
@@ -1451,19 +1443,15 @@ function renderGroupCreateShuttle() {
         }
     });
 }
-// ▼▼▼ 【修正版】モーダルの上部表示を更新する関数 ▼▼▼
+
 function updateModalDisplay() {
-    // 要素の取得
     const dateEl = document.getElementById('input-date');
     const startEl = document.getElementById('input-start');
     const endEl = document.getElementById('input-end');
     const displayEl = document.getElementById('modal-time-display');
-
-    // 要素が見つからない、または値が空の場合は何もしない
     if (!dateEl || !startEl || !endEl || !displayEl) return;
     if (!dateEl.value || !startEl.value || !endEl.value) return;
 
-    // 日付のパース (YYYY-MM-DD を M月D日 に)
     const parts = dateEl.value.split('-');
     const m = parseInt(parts[1], 10);
     const d = parseInt(parts[2], 10);
