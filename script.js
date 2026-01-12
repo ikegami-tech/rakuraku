@@ -437,16 +437,25 @@ function renderVerticalTimeline(mode) {
   const axisContainer = document.getElementById(timeAxisId);
   
   if (axisContainer && container) {
-      // (A) 時間軸の高さを右側の予約枠と強制的に合わせる
-      axisContainer.style.height = container.style.height; // calc(100vh - 180px)
-      axisContainer.style.overflow = "hidden"; // スクロールバーは隠す
+      // 高さ同期
+      axisContainer.style.height = container.style.height; 
+      axisContainer.style.overflow = "hidden"; // スクロールバー自体は隠す
       axisContainer.style.display = "block";
-      
-      // (B) 右側がスクロールされたら、左側も同じ位置へスクロールさせる（同期）
+      axisContainer.style.overscrollBehavior = "contain";
+
+      // (A) 右側(container)がスクロールされたら、左側(axis)も追従
       container.onscroll = () => {
           axisContainer.scrollTop = container.scrollTop;
       };
-      // 初期位置も同期
+      
+      // ▼▼▼ 追加：左側(axis)でホイール操作した時、右側(container)を動かす ▼▼▼
+      axisContainer.onwheel = (e) => {
+          // これにより、時間軸の上でもスクロールが可能になります
+          container.scrollTop += e.deltaY;
+      };
+      // ▲▲▲ 追加ここまで ▲▲▲
+
+      // 初期位置同期
       axisContainer.scrollTop = container.scrollTop;
 
       // (C) 時間軸のトップ（空白部分）もヘッダー同様に固定する
