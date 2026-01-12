@@ -1018,6 +1018,15 @@ async function saveBooking() {
   const end = document.getElementById('input-end').value;
   const title = document.getElementById('input-title').value;
   const note = document.getElementById('input-note').value;
+
+  // ▼▼▼ 追加: 時間形式チェック (テキスト入力になったため必須) ▼▼▼
+  // 半角数字:半角数字 になっているか確認する正規表現
+  const timePattern = /^([0-9]{1,2}):([0-9]{2})$/;
+  if (!timePattern.test(start) || !timePattern.test(end)) {
+      alert("時間は「09:00」のように半角数字とコロン(:)で入力してください。");
+      return;
+  }
+  // ▲▲▲ 追加ここまで ▲▲▲
   
   if (start >= end) {
       alert("開始時間は終了時間より前に設定してください。");
