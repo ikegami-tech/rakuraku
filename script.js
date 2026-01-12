@@ -328,7 +328,7 @@ function renderVerticalTimeline(mode) {
   let container, dateInputId, targetRooms;
   let timeAxisId;
 
-  // 1. モードによる対象コンテナの特定
+  // 1. モード設定
   if (mode === 'all') {
       container = document.getElementById('rooms-container-all');
       dateInputId = 'timeline-date';
@@ -355,16 +355,16 @@ function renderVerticalTimeline(mode) {
       return;
   }
 
-  // 2. 予約コンテナのスタイル設定（バグ対策強化版）
+  // 2. コンテナの初期設定
   if (container) {
-      container.innerHTML = ""; // クリア
+      container.innerHTML = ""; 
       
-      container.style.height = "calc(100vh - 180px)"; 
-      container.style.overflowY = "auto";  
-      container.style.overflowX = "auto";  
+      // ★高さ調整: 下のスクロールバーが見切れにくいように少し余裕を持つ(200px)
+      container.style.height = "calc(100vh - 200px)"; 
+      container.style.overflowY = "auto";  // 縦スクロール
+      container.style.overflowX = "auto";  // 横スクロール（左スクロール）
       
-      // ▼▼▼ 追加：スクロール連鎖防止（重要） ▼▼▼
-      // これにより、ドラッグで端に行っても画面全体（body）が動くのを防ぎます
+      // スクロール連鎖防止
       container.style.overscrollBehavior = "contain"; 
       
       container.style.display = "flex";    
@@ -373,20 +373,19 @@ function renderVerticalTimeline(mode) {
       container.style.alignItems = "flex-start"; 
       container.style.position = "relative";
       
-      // ▼▼▼ 追加：ドラッグ時の誤選択防止 ▼▼▼
-      // これが無いと、ドラッグ時にテキスト選択が走ってガタつくことがあります
+      // 誤操作防止
       container.style.userSelect = "none"; 
       container.style.webkitUserSelect = "none";
   }
 
   const rawDateVal = document.getElementById(dateInputId).value; 
-  const targetDateNum = formatDateToNum(new Date(rawDateVal));
-  // 高さの初期化
+  const targetDateNum = formatDateToNum(new Date(rawDateVal)); 
+  
+  // 高さ初期化
   for(let h=START_HOUR; h<END_HOUR; h++) hourRowHeights[h] = BASE_HOUR_HEIGHT;
 
-  // 3. 予約データのフィルタリングと高さ計算
-  const colCount = targetRooms.length > 0 ? targetRooms.length : 1;
-  const DYNAMIC_CHARS_PER_LINE = 12; // 固定値で安定させる
+  // 3. データのフィルタリングと高さ計算
+  const DYNAMIC_CHARS_PER_LINE = 12; 
 
   const allRelevantReservations = masterData.reservations.filter(res => {
       const startTimeVal = getVal(res, ['startTime', 'start_time', '開始日時', '開始', 'Start']);
@@ -409,7 +408,7 @@ function renderVerticalTimeline(mode) {
       
       let displayText = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '予約';
       const titleLines = Math.ceil(displayText.length / DYNAMIC_CHARS_PER_LINE) || 1;
-      const contentHeightPx = (titleLines * 15) + 25; // 少し余裕を持たせる
+      const contentHeightPx = (titleLines * 15) + 25; 
 
       let durationMin = (new Date(res._endTime) - new Date(res._startTime)) / 60000;
       if (durationMin < 15) durationMin = 15;
@@ -424,7 +423,6 @@ function renderVerticalTimeline(mode) {
       }
   });
 
-  // 高さ位置（Top）の計算
   const hourTops = {};
   let currentTop = 0;
   for(let h=START_HOUR; h<END_HOUR; h++) {
@@ -433,105 +431,100 @@ function renderVerticalTimeline(mode) {
   }
   hourTops[END_HOUR] = currentTop;
 
+  // ▼▼▼ 4. 時間軸のスクロール同期（修正箇所） ▼▼▼
   drawTimeAxis(timeAxisId);
   const axisContainer = document.getElementById(timeAxisId);
   
   if (axisContainer && container) {
-      // 高さ同期
+      // (A) スタイル設定
       axisContainer.style.height = container.style.height; 
-      axisContainer.style.overflow = "hidden"; // スクロールバー自体は隠す
+      axisContainer.style.overflow = "hidden"; // スクロールバーは消す
       axisContainer.style.display = "block";
       axisContainer.style.overscrollBehavior = "contain";
-
-      // (A) 右側(container)がスクロールされたら、左側(axis)も追従
+      
+      // (B) 右側(container) → 左側(axis) の同期
       container.onscroll = () => {
           axisContainer.scrollTop = container.scrollTop;
       };
-      axisContainer.addEventListener('wheel', (e) => {
-          e.preventDefault(); // ブラウザの「スクロール不可」判定をキャンセル
-          container.scrollTop += e.deltaY;
-          container.scrollLeft += e.deltaX; // 横スクロールも念の為同期
-      }, { passive: false }); // passive: false が重要
-      // ▼▼▼ 追加：左側(axis)でホイール操作した時、右側(container)を動かす ▼▼▼
+      
+      // (C) 左側(axis) → 右側(container) の操作連動
+      // ★修正：onwheelプロパティを使うことでイベントの重複登録（バグ）を防止
       axisContainer.onwheel = (e) => {
-          // これにより、時間軸の上でもスクロールが可能になります
-          container.scrollTop += e.deltaY;
+          e.preventDefault(); // 左側のスクロール操作を乗っ取る
+          container.scrollTop += e.deltaY; // 右側を縦スクロール
+          container.scrollLeft += e.deltaX; // 右側を横スクロール
       };
-      // ▲▲▲ 追加ここまで ▲▲▲
 
       // 初期位置同期
       axisContainer.scrollTop = container.scrollTop;
 
-      // (C) 時間軸のトップ（空白部分）もヘッダー同様に固定する
+      // 時間軸ヘッダーの固定
       const axisHeader = axisContainer.querySelector('.time-axis-header');
       if(axisHeader) {
           axisHeader.style.position = "sticky";
           axisHeader.style.top = "0";
-          axisHeader.style.backgroundColor = "#fff"; // 透けないように白背景
+          axisHeader.style.backgroundColor = "#fff"; 
           axisHeader.style.zIndex = "20";
-          axisHeader.style.borderBottom = "1px solid #ddd"; // 右側の線と合わせる
+          axisHeader.style.borderBottom = "1px solid #ddd"; 
           axisHeader.style.boxSizing = "border-box";
+          axisHeader.style.transform = "translateZ(0)";
       }
   }
+  // ▲▲▲ 修正ここまで ▲▲▲
   
-  // 5. 部屋ごとの列（Column）生成
+  // 5. 部屋列の生成
   targetRooms.forEach(room => {
     const col = document.createElement('div');
     col.className = 'room-col';
     
-    // スタイル設定：幅とスクロール挙動
-    col.style.minWidth = "150px"; // 最低幅を保証（潰れ防止）
-    col.style.flex = "1";         // 均等に広げる
+    col.style.minWidth = "150px"; 
+    col.style.flex = "1";         
     col.style.position = "relative";
-    col.style.borderRight = "1px solid #ddd"; // 列の区切り線
-    
-    // 重要：Stickyを効かせるためにoverflowはvisibleにする
+    col.style.borderRight = "1px solid #ddd"; 
     col.style.overflow = "visible"; 
 
-    // ヘッダー（部屋名）の生成と固定設定
+    // ヘッダー（部屋名）
     const header = document.createElement('div');
     header.className = 'room-header';
     header.innerText = room.roomName;
     
-    // ▼▼▼ ヘッダー固定のスタイル ▼▼▼
     header.style.position = "sticky";
-    header.style.top = "0";          // 一番上に固定
-    header.style.zIndex = "10";      // 予約バーより手前
-    header.style.backgroundColor = "#fff"; // 背景白
-    header.style.borderBottom = "1px solid #999"; // 下線
-    header.style.borderTop = "1px solid #ddd"; // 上線
+    header.style.top = "0";          
+    header.style.zIndex = "10";      
+    header.style.backgroundColor = "#fff"; 
+    header.style.borderBottom = "1px solid #999"; 
+    header.style.borderTop = "1px solid #ddd"; 
     header.style.height = "40px";       
-    header.style.lineHeight = "40px"; // 文字を上下中央に
+    header.style.lineHeight = "40px"; 
     header.style.textAlign = "center";
     header.style.fontWeight = "bold";
-    header.style.transform = "translateZ(0)"; // GPUアクセラレーションを有効化して固定を安定させる
-    header.style.willChange = "transform";    // ブラウザに固定要素であることを伝える
-    // ▲▲▲ 固定設定ここまで ▲▲▲
+    header.style.boxSizing = "border-box"; 
+    header.style.transform = "translateZ(0)";
+    header.style.willChange = "transform";
     
     col.appendChild(header);
     
-    // グリッド部分（背景の縞々）
+    // グリッド
     const body = document.createElement('div');
     body.className = 'room-grid-body';
     body.style.height = currentTop + "px"; 
-    body.style.position = "relative"; // 予約バーの基準位置
+    body.style.position = "relative"; 
 
     for(let h=START_HOUR; h<END_HOUR; h++) {
         const slot = document.createElement('div');
         slot.className = 'grid-slot';
         slot.style.height = hourRowHeights[h] + "px";
         slot.style.boxSizing = "border-box";
-        slot.style.borderBottom = "1px dotted #eee"; // 時間ごとの区切り
+        slot.style.borderBottom = "1px dotted #eee"; 
         body.appendChild(slot);
     }
     
-    // クリックイベント（予約作成）
+    // クリックイベント
     body.onclick = (e) => {
        if (e.target.closest('.v-booking-bar')) return;
        
        if(e.target.classList.contains('grid-slot') || e.target === body) {
            const rect = body.getBoundingClientRect();
-           // スクロールされている分を考慮してY座標計算（重要）
            const clickY = e.clientY - rect.top; 
            
            let clickedHour = -1;
@@ -558,6 +551,78 @@ function renderVerticalTimeline(mode) {
        }
     };
 
+    // 予約バー
+    const reservations = allRelevantReservations.filter(res => String(res._resourceId) === String(room.roomId));
+    
+    reservations.forEach(res => {
+      const start = new Date(res._startTime);
+      const end = new Date(res._endTime);
+      
+      let sHour = start.getHours();
+      let sMin = start.getMinutes();
+      let eHour = end.getHours();
+      let eMin = end.getMinutes();
+
+      if (sHour < START_HOUR) { sHour = START_HOUR; sMin = 0; }
+      if (eHour >= END_HOUR) { eHour = END_HOUR; eMin = 0; }
+      
+      if (sHour < END_HOUR && (sHour > START_HOUR || (sHour === START_HOUR && sMin >= 0))) {
+          
+          const topPx = hourTops[sHour] + (hourRowHeights[sHour] * (sMin / 60));
+          
+          let bottomPx = 0;
+          if (eHour === END_HOUR) {
+              bottomPx = hourTops[END_HOUR];
+          } else {
+              bottomPx = hourTops[eHour] + (hourRowHeights[eHour] * (eMin / 60));
+          }
+
+          let heightPx = bottomPx - topPx; 
+          const minHeightPx = hourRowHeights[sHour] * (15 / 60);
+
+          if (heightPx < minHeightPx) heightPx = minHeightPx;
+
+          const bar = document.createElement('div');
+          bar.className = `v-booking-bar type-${room.type}`;
+          
+          bar.style.top = (topPx + 1) + "px";
+          bar.style.height = (heightPx - 2) + "px"; 
+          bar.style.zIndex = "5";
+          bar.style.position = "absolute"; 
+          bar.style.left = "2px";
+          bar.style.width = "calc(100% - 4px)";
+          
+          let displayTitle = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '予約';
+
+          if (mode === 'map') {
+              bar.innerHTML = `
+                <div style="flex: 1; text-align: right; padding-right: 5px; font-weight: bold; overflow: hidden;">
+                  ${pad(start.getHours())}:${pad(start.getMinutes())}
+                </div>
+                <div style="flex: 2; text-align: left; padding-left: 5px; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                  ${displayTitle}
+                </div>
+              `;
+              bar.style.display = "flex";
+          } else {
+              bar.innerHTML = `
+                <span style="font-weight:bold; font-size:0.9em;">${pad(start.getHours())}:${pad(start.getMinutes())}</span>
+                <span style="font-weight:bold; font-size:0.9em;">${displayTitle}</span>
+              `;
+          }
+        
+          bar.onclick = (e) => { 
+              e.stopPropagation(); 
+              openDetailModal(res); 
+          };
+          body.appendChild(bar);
+      }
+    });
+    
+    col.appendChild(body);
+    container.appendChild(col);
+  });
+}
     // 予約バーの配置
     const reservations = allRelevantReservations.filter(res => String(res._resourceId) === String(room.roomId));
     
