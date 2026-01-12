@@ -632,7 +632,8 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   overflow-y: auto !important;
   
   background-color: transparent; /* 背景を透明にする */
-  border: none;                  /* 枠線をなしにする */
+  border: none;                   /* 一旦すべての線を消す */
+  border-bottom: 1px solid #eee;  /* その後、下線だけ上書きで引く */   
   border-radius: 0;              /* 角丸も不要なら0に */
   padding: 0 !important;
   margin-top: 5px;
