@@ -147,15 +147,18 @@
 
       <div style="flex: 1;">
   <label for="input-start" style="display:block; font-weight:bold; font-size:0.9rem; margin-bottom:5px;">開始</label>
-  <input type="time" id="input-start" list="time-list" step="60" style="width: 100%; box-sizing: border-box; padding: 8px; height: 36px; border: 1px solid #ccc; border-radius: 4px;">
+  <input type="text" id="input-start" list="time-list" placeholder="09:00" autocomplete="off" style="width: 100%; box-sizing: border-box; padding: 8px; height: 36px; border: 1px solid #ccc; border-radius: 4px; text-align: center;">
 </div>
 
 <div style="padding-bottom: 8px; font-weight: bold;">～</div>
 
 <div style="flex: 1;">
   <label for="input-end" style="display:block; font-weight:bold; font-size:0.9rem; margin-bottom:5px;">終了</label>
-  <input type="time" id="input-end" list="time-list" step="60" style="width: 100%; box-sizing: border-box; padding: 8px; height: 36px; border: 1px solid #ccc; border-radius: 4px;">
+  <input type="text" id="input-end" list="time-list" placeholder="10:00" autocomplete="off" style="width: 100%; box-sizing: border-box; padding: 8px; height: 36px; border: 1px solid #ccc; border-radius: 4px; text-align: center;">
 </div>
+
+<datalist id="time-list">
+  </datalist>
 
 <datalist id="time-list">
   <option value="07:00"></option>
