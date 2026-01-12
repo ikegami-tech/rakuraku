@@ -623,78 +623,7 @@ function renderVerticalTimeline(mode) {
     container.appendChild(col);
   });
 }
-    // 予約バーの配置
-    const reservations = allRelevantReservations.filter(res => String(res._resourceId) === String(room.roomId));
-    
-    reservations.forEach(res => {
-      const start = new Date(res._startTime);
-      const end = new Date(res._endTime);
-      
-      let sHour = start.getHours();
-      let sMin = start.getMinutes();
-      let eHour = end.getHours();
-      let eMin = end.getMinutes();
 
-      if (sHour < START_HOUR) { sHour = START_HOUR; sMin = 0; }
-      if (eHour >= END_HOUR) { eHour = END_HOUR; eMin = 0; }
-      
-      if (sHour < END_HOUR && (sHour > START_HOUR || (sHour === START_HOUR && sMin >= 0))) {
-          
-          const topPx = hourTops[sHour] + (hourRowHeights[sHour] * (sMin / 60));
-          
-          let bottomPx = 0;
-          if (eHour === END_HOUR) {
-              bottomPx = hourTops[END_HOUR];
-          } else {
-              bottomPx = hourTops[eHour] + (hourRowHeights[eHour] * (eMin / 60));
-          }
-
-          let heightPx = bottomPx - topPx; 
-          const minHeightPx = hourRowHeights[sHour] * (15 / 60);
-
-          if (heightPx < minHeightPx) heightPx = minHeightPx;
-
-          const bar = document.createElement('div');
-          bar.className = `v-booking-bar type-${room.type}`;
-          
-          bar.style.top = (topPx + 1) + "px";
-          bar.style.height = (heightPx - 2) + "px"; 
-          bar.style.zIndex = "5";
-          bar.style.position = "absolute"; // 親(body)に対して絶対配置
-          bar.style.left = "2px";
-          bar.style.width = "calc(100% - 4px)";
-          
-          let displayTitle = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '予約';
-
-          if (mode === 'map') {
-              bar.innerHTML = `
-                <div style="flex: 1; text-align: right; padding-right: 5px; font-weight: bold; overflow: hidden;">
-                  ${pad(start.getHours())}:${pad(start.getMinutes())}
-                </div>
-                <div style="flex: 2; text-align: left; padding-left: 5px; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                  ${displayTitle}
-                </div>
-              `;
-              bar.style.display = "flex";
-          } else {
-              bar.innerHTML = `
-                <span style="font-weight:bold; font-size:0.9em;">${pad(start.getHours())}:${pad(start.getMinutes())}</span>
-                <span style="font-weight:bold; font-size:0.9em;">${displayTitle}</span>
-              `;
-          }
-        
-          bar.onclick = (e) => { 
-              e.stopPropagation(); 
-              openDetailModal(res); 
-          };
-          body.appendChild(bar);
-      }
-    });
-    
-    col.appendChild(body);
-    container.appendChild(col);
-  });
-}
 function formatDateToNum(d) {
   if (isNaN(d.getTime())) return ""; 
   return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
