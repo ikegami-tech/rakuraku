@@ -671,12 +671,12 @@ function renderVerticalTimeline(mode) {
           bar.style.left = "2px";
           bar.style.width = "calc(100% - 4px)";
           
-          // ▼ タイトル変数の定義（ここが消えているとエラーになります）
           let displayTitle = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '予約';
 
-          // ▼ 時間表記の作成（開始-終了）
-          const startTimeStr = `${pad(start.getHours())}:${pad(start.getMinutes())}`;
-          const endTimeStr = `${pad(end.getHours())}:${pad(end.getMinutes())}`;
+          // ▼▼▼ 修正箇所：時間の pad() を外して 0埋めなし に変更 ▼▼▼
+          // 分(Minutes)は00などの表示が必要なため、pad()を残します
+          const startTimeStr = `${start.getHours()}:${pad(start.getMinutes())}`;
+          const endTimeStr = `${end.getHours()}:${pad(end.getMinutes())}`;
           const timeRangeStr = `${startTimeStr}-${endTimeStr}`;
 
           if (mode === 'map') {
