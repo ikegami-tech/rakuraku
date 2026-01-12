@@ -381,6 +381,19 @@ function renderVerticalTimeline(mode) {
   document.body.style.overflow = "hidden"; // ブラウザ全体のスクロールを消す
   if (container) {
       container.innerHTML = ""; 
+      
+      // ▼▼▼ 修正箇所：マップモードの時はスクロールバーを消して全表示する ▼▼▼
+      if (mode === 'map') {
+          container.style.height = "auto";       // 中身に合わせて高さを伸ばす
+          container.style.overflowY = "visible"; // 縦スクロールバーを消す
+          container.style.overflowX = "auto";    // 横スクロールは維持（念のため）
+      } else {
+          // 一覧（縦）モードの時は今まで通り固定高さでスクロール
+          container.style.height = "calc(100vh - 220px)";       
+          container.style.overflowY = "auto";
+          container.style.overflowX = "auto";
+      }
+      container.innerHTML = ""; 
       container.style.height = "calc(100vh - 220px)";      
       container.style.width = "100%"; 
       container.style.maxWidth = "100vw"; // 画面幅を超えないように制限     
