@@ -355,41 +355,49 @@ function renderVerticalTimeline(mode) {
       return;
   }
 
-  // ▼▼▼ ここが修正の肝（スクロールバー制御） ▼▼▼
+  // ▼▼▼ レイアウト崩れの根本修正（親要素から強制的に整える） ▼▼▼
   
-  // 1. 画面全体（body）のスクロールを消して、右端のバーを削除する
-  document.body.style.overflow = "hidden"; 
-  document.body.style.height = "100vh";
+  // 1. 画面全体を固定（スクロールさせない）
+  document.documentElement.style.height = "100%";
+  document.documentElement.style.overflow = "hidden";
+  document.body.style.height = "100%";
+  document.body.style.overflow = "hidden";
+  document.body.style.margin = "0";
 
-  // 2. コンテナの初期設定
+  // 2. 予約表が含まれる親画面（タブの中身）を縦方向のFlexboxにする
+  const viewParent = container.parentElement; 
+  if (viewParent) {
+      viewParent.style.height = "100vh"; // 画面いっぱいに広げる
+      viewParent.style.display = "flex";
+      viewParent.style.flexDirection = "column";
+      viewParent.style.overflow = "hidden";
+  }
+
+  // 3. コンテナの初期設定
   if (container) {
       container.innerHTML = ""; 
       
-      // ★高さ調整: 下のスクロールバーが確実に見えるよう、余裕（250px）を持たせる
-      // これで「画面内に」横スクロールバーが表示されるようになります
-      container.style.height = "calc(100vh - 250px)"; 
-      
+      // ★重要：高さ計算をやめて「残りスペース全部(flex: 1)」を使う設定に変更
+      // これでスクロールバーが画面最下部にピタッと張り付きます
+      container.style.flex = "1"; 
+      container.style.height = "auto"; 
       container.style.width = "100%"; 
-      container.style.maxWidth = "100vw"; // 画面幅を超えないようにする
       
-      container.style.overflowY = "auto";  // 縦スクロール（必要な時だけ）
-      container.style.overflowX = "auto";  // 横スクロール（必要な時だけ）
-      
+      container.style.overflowY = "auto";  // 縦スクロール
+      container.style.overflowX = "auto";  // 横スクロール
       container.style.overscrollBehavior = "contain"; 
-      container.style.boxSizing = "border-box";
       
       container.style.display = "flex";    
       container.style.flexWrap = "nowrap"; 
       container.style.alignItems = "flex-start"; 
       container.style.position = "relative";
       
-      // ドラッグ操作用のカーソル
       container.style.cursor = "grab"; 
       container.style.userSelect = "none"; 
       container.style.webkitUserSelect = "none";
   }
 
-  // ▼▼▼ ドラッグスクロール機能（マウスホールドで動かす） ▼▼▼
+  // ▼▼▼ ドラッグスクロール機能 ▼▼▼
   let isDown = false;
   let startX, startY, scrollLeft, scrollTop;
   let hasDragged = false; 
@@ -404,32 +412,23 @@ function renderVerticalTimeline(mode) {
           scrollLeft = container.scrollLeft;
           scrollTop = container.scrollTop;
       };
-      
       container.onmouseleave = () => { isDown = false; container.style.cursor = "grab"; };
-      
       container.onmouseup = () => {
           isDown = false;
           container.style.cursor = "grab";
-          // クリック判定との競合を防ぐため少し遅らせてフラグ解除
           setTimeout(() => { hasDragged = false; }, 50);
       };
-      
       container.onmousemove = (e) => {
           if (!isDown) return;
           e.preventDefault();
           const x = e.pageX - container.offsetLeft;
           const y = e.pageY - container.offsetTop;
-          
-          // 移動係数（数値を大きくすると少しの動きで大きくスクロールします）
-          const speed = 1.5; 
-          const walkX = (x - startX) * speed; 
-          const walkY = (y - startY) * speed; 
+          const walkX = (x - startX) * 1.5; 
+          const walkY = (y - startY) * 1.5; 
           
           if (Math.abs(walkX) > 5 || Math.abs(walkY) > 5) {
               hasDragged = true;
           }
-          
-          // ここでスクロール位置を更新（下のスクロールバーもこれに連動して動きます）
           container.scrollLeft = scrollLeft - walkX;
           container.scrollTop = scrollTop - walkY;
       };
@@ -482,7 +481,9 @@ function renderVerticalTimeline(mode) {
   const axisContainer = document.getElementById(timeAxisId);
   
   if (axisContainer && container) {
-      axisContainer.style.height = container.style.height; // 高さを合わせる
+      // 高さ自動調整
+      axisContainer.style.height = "auto"; 
+      axisContainer.style.flex = "1"; // コンテナと同じく伸縮させる
       axisContainer.style.overflow = "hidden"; 
       axisContainer.style.display = "block";
       axisContainer.style.overscrollBehavior = "contain";
@@ -516,15 +517,17 @@ function renderVerticalTimeline(mode) {
     const col = document.createElement('div');
     col.className = 'room-col';
     
-    // ★幅設定：最低200px確保することで、部屋数が多いときに確実に横スクロールを発生させる
+    // ★重要：縮小禁止(flex-shrink:0)を設定して、必ず横幅を確保させる
+    // これにより、画面幅より中身が大きくなり、確実にスクロールバーが出ます
     col.style.minWidth = "200px"; 
+    col.style.flexShrink = "0"; // ← これがないと勝手に縮んでスクロールバーが出ません
+    col.style.flexGrow = "1";
     
-    col.style.flex = "1";         
     col.style.position = "relative";
     col.style.borderRight = "1px solid #ddd"; 
     col.style.overflow = "visible"; 
 
-    // ヘッダー（上タブ）
+    // ヘッダー
     const header = document.createElement('div');
     header.className = 'room-header';
     header.innerText = room.roomName;
