@@ -1010,7 +1010,6 @@ async function saveBooking() {
 
   const result = await callAPI(params);
   if(result.status === 'success') {
-    alert("保存しました");
     closeModal();
     // ▼▼▼ 修正: true を渡して画面遷移を防ぐ ▼▼▼
     loadAllData(true);
