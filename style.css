@@ -1,17 +1,14 @@
-/* --- 基本スタイル --- */
+
 :root {
   --primary: #2c3e50; --accent: #27ae60; --danger: #c0392b;
   --meeting-bg: #e3f2fd; --meeting-border: #2196f3;
   --reception-bg: #e8f5e9; --reception-border: #4caf50;
   --zoom-bg: #fff3e0; --zoom-border: #ff9800;
-  /* 最低限の高さ */
   --base-hour-height: 100px;
 }
 
 body { font-family: "Helvetica Neue", Arial, sans-serif; margin: 0; background: #eef1f5; color: #333; height: 100vh; display: flex; flex-direction: column; }
-/* 全要素のサイズ計算を枠線込みにする（ズレ防止の重要設定） */
 * { box-sizing: border-box; }
-
 #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary); display: flex; justify-content: center; align-items: center; z-index: 2000; }
 .login-box { background: white; padding: 2rem; border-radius: 8px; width: 90%; max-width: 350px; text-align: center; }
 input, select, textarea { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px; }
@@ -31,9 +28,6 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
 /* タイムライン */
 .date-controller { text-align: center; padding: 10px; background: #f9f9f9; border-bottom: 1px solid #ddd; display: flex; gap: 10px; justify-content: center; flex-shrink: 0; }
 .calendar-scroll-area { flex: 1; overflow: auto; position: relative; background: white; display: flex; }
-
-/* 時間軸・グリッド共通設定（ズレ防止の要） */
-/* 時間軸・グリッド共通設定（ズレ防止の要） */
 .time-axis-col { 
     width: 50px; 
     flex-shrink: 0; 
@@ -51,14 +45,12 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
     top: 0; 
     z-index: 110 !important; /* ★ここを 110 に変更 */
 }
-
 .time-label {
   border-bottom: 1px solid #eee; /* 線を薄く表示 */
   font-size: 0.7rem; color: #888;
   text-align: right; padding-right: 5px; padding-top: 5px;
   width: 100%;
 }
-
 .rooms-container { display: flex; min-width: fit-content; flex-grow: 1; }
 .room-col { 
   flex: 1 0 120px; 
@@ -67,12 +59,9 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   position: relative; 
   display: flex; 
   flex-direction: column;
-  /* ★追加: ヘッダーの固定(sticky)を有効にするために必須 */
   overflow: visible; 
-  /* ★追加: 時間軸(z-100)の下、予約バー(z-5)の親としての基準 */
   z-index: 1; 
 }
-
 .room-header { 
   height: 40px; 
   display: flex; 
@@ -82,10 +71,8 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   font-weight: bold; 
   background: #fafafa; 
   border-bottom: 1px solid #ddd; 
-  /* ★固定表示の設定 */
   position: sticky; 
   top: 0; 
-  /* ★修正: 予約バー(z-5)より手前に表示するため数値を上げる */
   z-index: 50; 
   padding: 0 5px; 
   text-align: center; 
@@ -97,63 +84,37 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   width: 100%; 
   position: relative; /* 30分線を表示するために必要 */
 }
-
-
-/* style.css */
-
-/* style.css */
-
-/* ▼▼▼ マップ検索画面のタイムライン調整 ▼▼▼ */
-
-/* マップ画面の中にあるタイムラインエリアだけ、内部スクロールさせずに全表示する */
 #map-timeline-section .calendar-scroll-area {
   height: auto !important;      /* 高さを中身に合わせて自動で伸ばす */
   min-height: 0 !important;     /* 最小高さの制限もなくす */
   overflow: visible !important; /* スクロールバーを出さない */
   display: flex !important;     /* 横並びレイアウトは維持 */
 }
-
 .v-booking-bar {
   transition: all 0.1s ease-in-out;
 }
-
 .v-booking-bar:hover {
-  /* 1. 少しだけ手前に表示する */
   z-index: 20;
-
-  /* 2. 影を濃くして、浮き上がっているように見せる */
   box-shadow: 0 5px 10px rgba(0,0,0,0.3);
-
-  /* 3. 少しだけ色を濃くして「選択中」であることを強調する */
   filter: brightness(0.95);
-
-  /* ※重要: height や top などのサイズ・場所に関わる設定は書きません */
 }
 .v-booking-bar {
   position: absolute; 
   left: 2px; 
   right: 2px; 
   border-radius: 4px;
-  
-  /* ▼▼▼ 修正: Flexboxを使って文字を常にど真ん中に配置する ▼▼▼ */
   display: flex;
   flex-direction: column; /* 縦並び（時間→件名） */
   justify-content: center; /* 【重要】縦方向の中央寄せ（これで長いバーでも真ん中に来ます） */
   align-items: center;     /* 横方向の中央寄せ */
-  
-  /* ▼ 文字サイズと行間の調整 */
   font-size: 10px;    /* 少し小さくして入りやすくする */
   line-height: 1.1;   /* 行間を詰める */
   padding: 2px;       
-  
   color: #333; 
-  
-  /* 枠からはみ出た文字の処理 */
   overflow: hidden; 
   white-space: normal; 
   overflow-wrap: anywhere; 
   word-break: break-all;
-  
   z-index: 5; 
   cursor: pointer; 
   box-shadow: 0 1px 3px rgba(0,0,0,0.2);
@@ -163,79 +124,49 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
 .type-meeting { background: var(--meeting-bg); border-top: 4px solid var(--meeting-border); }
 .type-reception { background: var(--reception-bg); border-top: 4px solid var(--reception-border); }
 .type-zoom { background: var(--zoom-bg); border-top: 4px solid var(--zoom-border); }
-
-/* その他UI */
 .log-wrapper { overflow: auto; padding: 10px; }
-/* style.css の .log-table 関連部分を上書き */
-
 .log-table { 
   width: 100%; 
   border-collapse: collapse; 
   font-size: 0.8rem; 
   background: white; 
-  /* 固定レイアウト（幅崩れ防止）は維持 */
   table-layout: fixed; 
 }
-
 .log-table th, .log-table td { 
   padding: 8px; 
   border: 1px solid #eee; 
   text-align: left; 
-  
-  /* ▼変更点: 省略記号(...)の設定を削除しました */
-  /* white-space: nowrap;  ← これがあると改行されずに隠れてしまうので削除 */
   word-wrap: break-word; /* 長すぎる場合は折り返す */
 }
-
-/* 日時列（改行させたくないのでここだけnowrap指定） */
 .log-table th:nth-child(1), .log-table td:nth-child(1) { 
   width: 110px; 
   white-space: nowrap; 
 }
-
-/* 操作者列（名前が長い場合は改行してでも全部表示する） */
-/* 幅を80pxから100pxに広げて、なるべく改行しないように配慮 */
 .log-table th:nth-child(2), .log-table td:nth-child(2) { 
   width: 100px; 
 }
-
-/* 操作列 */
 .log-table th:nth-child(3), .log-table td:nth-child(3) { 
   width: 60px; 
   white-space: nowrap;
 }
-
-/* 詳細列（残りの幅すべて） */
 .log-table th:nth-child(4), .log-table td:nth-child(4) { 
   width: auto; 
 }
 .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 3000; }
 .modal-content { background: white; padding: 20px; border-radius: 8px; width: 95%; max-width: 700px; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column;}
 .form-group label { font-weight: bold; font-size: 0.9rem; display: block; margin-top: 10px; }
-/* ▼▼▼ 269行目付近の .group-container をこれに差し替えてください ▼▼▼ */
 .group-container {
-  /* レイアウト設定 */
   display: flex;
   flex-wrap: wrap;        /* ボタンの折り返しを許可 */
   gap: 8px;               /* ボタン同士の間隔 */
-  
-  /* 下の要素（リスト）との余白を確保 */
   margin-bottom: 15px;    
-
-  /* ★高さの自動調整（ここが修正のキモ） */
   height: auto !important;       /* 中身が増えたら枠も自動で伸びる */
   min-height: 40px;              /* ボタンがない時でも最低限の高さを確保 */
   max-height: none !important;   /* 高さの上限を撤廃（青天井にする） */
-  
-  /* ★スクロールバーを出さずに全て表示 */
   overflow: visible !important;  
-
-  /* デザイン（枠線なし） */
   border: none;
   background: transparent;
   padding: 5px 0;
-
-  /* 配置調整 */
   align-items: flex-start;
   align-content: flex-start;
   flex-shrink: 0; /* 枠が勝手に縮まないようにする */
@@ -251,7 +182,6 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   transition: background 0.2s;
   display: inline-block; /* 崩れ防止 */
 }
-/* 編集モード時のスタイル */
 .edit-mode-style {
   border: 2px dashed #3498db !important; /* 青い破線 */
   background-color: #eaf6fd !important;  /* 薄い青背景 */
@@ -286,25 +216,19 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
 }
 
 .map-container {
-  /* ここはあくまで「配置場所」としての枠にします */
   position: relative;
   width: 100%;
   height: auto;
   min-height: 50vh; /* 最低限の高さを確保 */
   flex-shrink: 0;
   margin: auto 0;
-  
   display: flex;
   justify-content: center;
   align-items: center; /* 中央寄せ */
-  
-  /* 背景やボーダーは削除（インナーラッパーに任せるため） */
   background: transparent;
   box-shadow: none;
   border: none;
 }
-
-/* ▼▼▼ 追加: 画像にピッタリ張り付くラッパー ▼▼▼ */
 .map-inner-wrapper {
   position: relative; /* 子要素(クリック範囲)の基準点になる */
   display: inline-block; /* 中身(画像)のサイズに合わせて伸縮する */
@@ -313,8 +237,6 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   line-height: 0; /* 画像下の隙間を消す */
   box-shadow: 0 4px 15px rgba(0,0,0,0.1); /* 影をつけるならここに */
 }
-
-/* 画像の設定をシンプルに */
 .map-image {
   display: block;
   width: 100%;    /* ラッパー幅いっぱいに */
@@ -332,15 +254,9 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   display: flex;
   align-items: center;
   justify-content: center;
-  
-  /* 文字設定 */
   font-weight: bold;
   font-size: 0.9rem;
-  
-  /* ▼ 黒文字に変更 */
   color: #333; 
-  
-  /* ▼ 文字の周りに白く「縁取り」をつけて読みやすくする */
   text-shadow: 
      1px  1px 0 #fff,
     -1px -1px 0 #fff,
@@ -352,11 +268,7 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
 .map-click-area:hover {
   background: rgba(39, 174, 96, 0.5) !important; 
   border: 2px solid #27ae60 !important;
-  
-  /* ▼ マウスを乗せた時も黒文字のままにする */
   color: #333;
-  
-  /* 影の設定も維持 */
   text-shadow: 
      1px  1px 0 #fff,
     -1px -1px 0 #fff,
@@ -369,7 +281,6 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   font-size: 0.8rem;
   text-align: center;
 }
-/* フロアセレクターのスタイル */
 .floor-selector {
     display: flex;
     gap: 5px; /* タブ同士の間隔 */
@@ -394,20 +305,15 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
     flex-grow: 0;
     margin-bottom: 0;
 }
-
-/* ▼ 選択中のスタイル（ここを強調） */
 .floor-tab.active {
     background-color: #2c3e50; /* 濃い紺色 */
     color: #ffffff;            /* 白文字 */
     transform: translateY(2px); /* 下の線とくっつける微調整 */
 }
-
-/* マウスを乗せたとき */
 .floor-tab:hover:not(.active) {
     background-color: #d5d5d5;
     color: #333;
 }
-/* ▼▼▼ 【追加】詳細表示用テーブルのスタイル ▼▼▼ */
 .detail-table {
   width: 100%;
   border-collapse: collapse;
@@ -426,26 +332,21 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   padding: 10px;
   border-bottom: 1px solid #eee;
 }
-/* 履歴画面のヘッダーエリア */
 .log-header-area {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 10px;
 }
-
 .log-header-area h3 {
   margin: 0;
 }
-
 .log-search-box input {
   padding: 8px;
   width: 200px;
   border: 1px solid #ccc;
   border-radius: 4px;
 }
-
-/* ページ送り（ページネーション） */
 .pagination-container {
   display: flex;
   justify-content: center;
@@ -454,7 +355,6 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   margin-top: 15px;
   padding-bottom: 20px;
 }
-
 .page-btn {
   padding: 6px 12px;
   background-color: #fff;
@@ -463,44 +363,33 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   cursor: pointer;
   user-select: none;
 }
-
 .page-btn:hover {
   background-color: #f0f0f0;
 }
-
 .page-btn.disabled {
   color: #ccc;
   cursor: not-allowed;
   background-color: #f9f9f9;
 }
-
 .page-info {
   font-size: 0.9rem;
   font-weight: bold;
   color: #555;
 }
-/* ▼▼▼ スマホ表示時の修正（全項目まとめ ＋ 予約詳細の参加者スクロール） ▼▼▼ */
 @media (max-width: 600px) {
-  /* 1. 左右のリストを縦並びにするエリア */
   .shuttle-container {
     flex-direction: column;
     height: auto;
     gap: 15px;
   }
-
-  /* 2. 候補者・参加予定者の各ボックス */
   .shuttle-box {
     height: 200px;
     flex: none;
   }
-
-  /* 3. グループボタンの表示エリア */
   .group-container {
     max-height: 250px;
     padding: 8px;
   }
-
-  /* 4. グループボタン単体のサイズ */
   .group-chip {
     display: inline-block;
     padding: 6px 10px;
@@ -508,10 +397,6 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
     margin: 2px;
     touch-action: manipulation;
   }
-
-  /* ▼▼▼ 【今回追加】スマホの日付表示・切替ボタンの修正 ▼▼▼ */
-  
-  /* 日付コントローラー（枠全体）の設定 */
   .date-controller {
     display: flex !important;
     flex-wrap: nowrap !important;        /* 折り返し禁止 */
@@ -521,8 +406,6 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
     padding: 5px 10px !important;        /* 上下5px, 左右10px */
     width: 100% !important;              /* 横幅いっぱい */
   }
-
-  /* 「<」と「>」ボタンの設定 */
   .date-controller button {
     flex: 0 0 44px !important;           /* 幅を44pxに固定して縮まないようにする */
     width: 44px !important;
@@ -532,8 +415,6 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
     justify-content: center;
     align-items: center;
   }
-
-  /* 真ん中の日付入力欄の設定 */
   .date-controller input[type="date"] {
     flex: 1 !important;                  /* 残りの幅をすべて使う */
     min-width: 0 !important;             /* 幅がつぶれるのを防ぐおまじない */
@@ -543,13 +424,9 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
     margin: 0 !important;
     padding: 5px 0 !important;
   }
-
-  /* ▼▼▼ ここを書き換え ▼▼▼ */
   textarea {
-    /* 高さを固定せず、最低限の高さを指定して入力内容に応じて伸びるようにする */
     height: auto !important;
     min-height: 120px !important;
-    
     padding: 10px !important;
     font-size: 16px !important;      /* スマホで見やすい文字サイズ */
     line-height: 1.5 !important;     /* 行間 */
@@ -557,29 +434,17 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
     width: 100% !important;          /* 横幅いっぱい */
     box-sizing: border-box !important;
   }
-
-  /* 入力例（プレースホルダー）の色をはっきりさせる */
   textarea::placeholder {
     color: #999;
     opacity: 1;
   }
-  /* ▲▲▲ 書き換えここまで ▲▲▲ */
   .map-click-area {
-    /* 文字サイズをかなり小さくする */
     font-size: 10px !important; 
-    
-    /* 行間を詰める */
     line-height: 1.0 !important;
-    
-    /* 余白をなくして文字スペースを確保 */
     padding: 0 1px !important;
-    
-    /* 文字の折り返し設定（重要） */
     white-space: normal !important;        /* 改行を許可 */
     word-break: break-all !important;      /* 単語の途中でも改行する */
     overflow-wrap: break-word !important;  
-    
-    /* 中央揃えの強制 */
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -590,7 +455,6 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
     justify-content: flex-start !important; /* 左寄せ */
     padding-left: 5px !important;           /* 左に少し余白 */
   }
-
   #rooms-container-map .v-booking-bar div {
     flex: none !important;         /* 50%分割（flex:1）を解除 */
     width: auto !important;        /* 中身に合わせて幅を決める */
@@ -599,7 +463,6 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
     margin-right: 8px !important;  /* 時間と用件の間に隙間を作る */
   }
 } 
-
 .group-header {
   display: flex;
   justify-content: space-between; /* 左右に配置 */
@@ -607,30 +470,21 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   margin-top: 10px;
   margin-bottom: 5px;
 }
-
 #group-action-area {
   display: flex;
   gap: 5px;
 }
-
 #group-action-area .group-chip {
   font-size: 0.7rem;
   padding: 2px 8px;
   margin: 0;
   height: auto;
 }
-
 #detail-members {
-  /* テーブルセルではなくブロック要素として扱う（高さ制限を効かせるため必須） */
   display: block !important;
   width: 100% !important;
-  
-  /* ★ここが高さ設定です。約35px(1行) × 6人 ≒ 210px */
   max-height: 210px !important;
-  
-  /* 枠を超えたらスクロールバーを出す設定 */
   overflow-y: auto !important;
-  
   background-color: transparent; /* 背景を透明にする */
   border: none;                   /* 一旦すべての線を消す */
   border-bottom: 1px solid #eee;  /* その後、下線だけ上書きで引く */   
@@ -638,8 +492,6 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   padding: 0 !important;
   margin-top: 5px;
 }
-
-/* 各参加者（1行分）のデザイン */
 .detail-member-item {
   padding: 8px 12px;
   border-bottom: 1px solid #eee;
@@ -648,12 +500,9 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   line-height: 1.4;
   text-align: left; /* 左寄せ */
 }
-
-/* 最後の行の下線は消す */
 .detail-member-item:last-child {
   border-bottom: none;
 }
-/* ▼▼▼ マップ検索画面だけの特別スタイル ▼▼▼ */
 #rooms-container-map .v-booking-bar {
   flex-direction: row !important;       /* 横並び */
   justify-content: center !important;   /* ★ここを「中央寄せ」にします */
@@ -662,28 +511,19 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   text-align: left !important;
   gap: 0;
 }
-
 #rooms-container-map .v-booking-bar span,
 #rooms-container-map .v-booking-bar div {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-/* ==============================================
-   【スマホ・マップ検索用】予約バー表示修正
-   ・時間と要件を左寄せにする
-   ・入りきらない文字は「...」で省略する
-   ============================================== */
 @media (max-width: 600px) {
-  /* 1. バー全体の配置設定 */
   #rooms-container-map .v-booking-bar {
     flex-direction: row !important;         /* 横並び */
     justify-content: flex-start !important; /* 左寄せ（重要） */
     align-items: center !important;         /* 上下中央 */
     padding: 0 8px !important;              /* 左右に少し余白を入れる */
   }
-
-  /* 2. 内部のテキスト（時間・要件共通）の設定 */
   #rooms-container-map .v-booking-bar > div,
   #rooms-container-map .v-booking-bar > span {
     text-align: left !important;         /* 文字左寄せ */
@@ -691,44 +531,24 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
     overflow: hidden !important;         /* はみ出し部分を隠す */
     text-overflow: ellipsis !important;  /* 末尾を...にする */
   }
-
-  /* 3. 左側の「時間」部分の設定 */
-  /* （HTML構造上、最初のdivが時間だと仮定しています） */
   #rooms-container-map .v-booking-bar > div:first-child {
     flex-shrink: 0 !important;           /* 時間の幅は縮めさせない */
     margin-right: 10px !important;       /* 要件との間に隙間を作る */
     width: auto !important;
   }
-
-  /* 4. 右側の「要件」部分の設定 */
   #rooms-container-map .v-booking-bar > div:last-child {
     flex: 1 !important;                  /* 残りの幅を目一杯使う */
     min-width: 0 !important;             /* これがないとFlexbox内で「...」が効かない魔法の記述 */
   }
 }
-/* ==============================================
-   ▼▼▼ 【修正】スマホでの部屋選択枠の幅調整 ▼▼▼
-   ============================================== */
-
 @media (max-width: 600px) {
-  /* 1. フレックスボックスの折り返しを許可
-      これで「部屋」と「日付」が横に入り切らない場合、自動的に縦に並びます。
-  */
   #bookingModal .form-row {
     flex-wrap: wrap !important; 
   }
-
-  /* 2. 親枠（flex:1がついているdiv）の設定
-      無理に縮小させず、必要な幅を確保させます。
-  */
   #bookingModal .form-row > div {
     flex: auto !important; /* 1ではなくautoにすることで中身に合わせる */
     min-width: 45%;        /* 最低でも画面の半分弱は確保（極端に小さくなるのを防止） */
   }
-
-  /* 3. 【重要】部屋の選択枠（セレクトボックス）の幅設定
-      width: 100% (強制最大) を解除し、auto (中身の文字数に合わせる) に変更します。
-  */
   #input-room {
     width: auto !important;      /* 文字数に合わせて幅を変える */
     min-width: 150px !important; /* ただし短すぎると押しにくいので最低幅は確保 */
@@ -736,12 +556,6 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
     white-space: nowrap;         /* 文字の折り返し防止 */
   }
 }
-
-/* ==============================================
-   ▼▼▼ 【修正】備考欄（入力例）の表示修正 ▼▼▼
-   ============================================== */
-
-/* 備考欄（テキストエリア）のスタイルを強制的に整える */
 textarea#input-note {
   display: block !important;
   width: 100% !important;
@@ -749,26 +563,18 @@ textarea#input-note {
   min-height: 100px !important;  /* 最低でも100pxの高さを確保 */
   padding: 10px !important;      /* 内側の余白 */
   margin-bottom: 15px !important;/* 下のボタンとの隙間 */
-  
   box-sizing: border-box !important; /* 枠線を含めてサイズ計算 */
   font-size: 16px !important;    /* 文字サイズ */
   line-height: 1.5 !important;   /* 行間 */
   color: #333 !important;        /* 文字色 */
   background-color: #fff !important;
 }
-
-/* 入力例（プレースホルダー）の色と表示を確実に */
 textarea#input-note::placeholder {
   color: #999 !important;        /* 薄いグレー */
   opacity: 1 !important;         /* 透明度をなくす */
   visibility: visible !important;
 }
-/* ==============================================
-   ▼▼▼ 【スマホ専用】備考欄（入力例）の表示修正 ▼▼▼
-   ============================================== */
-
 @media (max-width: 600px) {
-  /* スマホの時だけ、ID指定で強力に高さを確保する */
   #bookingModal textarea#input-note {
     display: block !important;
     width: 100% !important;
@@ -776,24 +582,16 @@ textarea#input-note::placeholder {
     min-height: 120px !important;  /* ★スマホでは指でタップしやすいよう少し大きめに確保 */
     padding: 10px !important;      /* 内側の余白 */
     margin-bottom: 20px !important;/* 下のボタンとの隙間 */
-    
     font-size: 16px !important;    /* スマホで見やすい文字サイズ */
     line-height: 1.5 !important;   /* 行間 */
     box-sizing: border-box !important;
   }
-
-  /* プレースホルダー（入力例）のスタイル */
   #bookingModal textarea#input-note::placeholder {
     color: #999 !important;
     opacity: 1 !important;
     line-height: 1.5 !important;   /* 入力文字と同じ行間に合わせる */
   }
 }
-/* ==============================================
-   ▼▼▼ 【追加】マップ画面のPC/スマホ分岐 ▼▼▼
-   ============================================== */
-
-/* --- 共通設定 --- */
 #dual-map-container {
     width: 100%;
 }
@@ -814,42 +612,31 @@ textarea#input-note::placeholder {
     height: 100%;
     pointer-events: none; /* 下の画像クリックを邪魔しない設定（必要に応じてautoに） */
 }
-/* オーバーレイの中のクリック可能エリアはポインターを有効にする */
 .overlay-layer .map-click-area {
     pointer-events: auto;
 }
-
-/* --- スマホ表示（デフォルト） --- */
 .floor-map-unit {
     display: none; /* 基本は隠す */
 }
 .floor-map-unit.active {
     display: block; /* 選択されている階だけ表示 */
 }
-
-/* --- PC表示（画面幅 1024px以上の場合） --- */
 @media (min-width: 1024px) {
     /* 1. タブを隠す */
     .floor-selector {
         display: none !important;
     }
-
-    /* 2. マップを横並びにする */
     #dual-map-container {
         display: flex;
         gap: 20px; /* 7階と6階の間隔 */
         justify-content: center;
         align-items: flex-start;
     }
-
-    /* 3. 両方の階を強制的に表示する */
     .floor-map-unit {
         display: block !important;
         flex: 1; /* 幅を均等に分ける */
         max-width: 50%; /* 半分以上にならないように */
     }
-
-    /* 4. PC用の階数タイトルを表示 */
     .pc-floor-title {
         display: none !important;
     }
