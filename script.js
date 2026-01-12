@@ -447,7 +447,11 @@ function renderVerticalTimeline(mode) {
       container.onscroll = () => {
           axisContainer.scrollTop = container.scrollTop;
       };
-      
+      axisContainer.addEventListener('wheel', (e) => {
+          e.preventDefault(); // ブラウザの「スクロール不可」判定をキャンセル
+          container.scrollTop += e.deltaY;
+          container.scrollLeft += e.deltaX; // 横スクロールも念の為同期
+      }, { passive: false }); // passive: false が重要
       // ▼▼▼ 追加：左側(axis)でホイール操作した時、右側(container)を動かす ▼▼▼
       axisContainer.onwheel = (e) => {
           // これにより、時間軸の上でもスクロールが可能になります
