@@ -1654,3 +1654,63 @@ function formatTimeInput(elm) {
         elm.value = `${h}:${m}`;
     }
 }
+/* --- script.js の末尾に追記・修正 --- */
+
+// ▼ 1. 自動計算用の関数（新規追加）
+function autoSetEndTime() {
+    const startEl = document.getElementById('input-start');
+    const endEl = document.getElementById('input-end');
+    
+    const val = startEl.value;
+    if (!val || val.indexOf(':') === -1) return;
+
+    // 時間を分解
+    const parts = val.split(':');
+    let h = parseInt(parts[0], 10);
+    const m = parseInt(parts[1], 10);
+
+    if (isNaN(h) || isNaN(m)) return;
+
+    // 1時間足す
+    h += 1;
+
+    // 24時を超えた場合の処理（必要なら 0に戻すなど。今回はそのまま）
+    // if (h >= 24) h -= 24; 
+
+    // 0埋め整形
+    const endH = (h < 10 ? '0' : '') + h;
+    const endM = (m < 10 ? '0' : '') + m;
+
+    // 終了時間にセット
+    endEl.value = `${endH}:${endM}`;
+}
+
+// ▼ 2. 既存の formatTimeInput 関数をこれに書き換えてください
+// （手入力後の整形 ＋ 自動計算の呼び出しを行います）
+function formatTimeInput(elm) {
+    let val = elm.value.trim();
+    if (!val) return;
+
+    // 全角数字を半角に
+    val = val.replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
+    
+    // コロンがない場合（例: "0900"）の簡易補正を入れるならここですが、
+    // 今回はコロン必須前提のままにします
+    if (val.indexOf(':') === -1) return;
+
+    let parts = val.split(':');
+    let h = parseInt(parts[0]);
+    let m = parseInt(parts[1]);
+
+    if (!isNaN(h)) h = (h < 10 ? '0' : '') + h;
+    if (!isNaN(m)) m = (m < 10 ? '0' : '') + m;
+
+    if(!isNaN(h) && !isNaN(m)) {
+        elm.value = `${h}:${m}`;
+        
+        // ★ここが追加ポイント：開始時間の入力だった場合、終了時間を自動計算する
+        if (elm.id === 'input-start') {
+            autoSetEndTime();
+        }
+    }
+}
