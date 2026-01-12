@@ -139,22 +139,40 @@
     </div>
 
     <div style="display: flex; gap: 10px; align-items: flex-end; margin-bottom: 15px;">
-      
-      <div style="flex: 1.2;">
-        <label for="input-date" style="display:block; font-weight:bold; font-size:0.9rem; margin-bottom:5px;">日付</label>
-        <input type="date" id="input-date" style="width: 100%; box-sizing: border-box; padding: 8px;">
-      </div>
+  
+  <div style="flex: 1.2;">
+    <label for="input-date" style="display:block; font-weight:bold; font-size:0.9rem; margin-bottom:5px;">日付</label>
+    <input type="date" id="input-date" style="width: 100%; box-sizing: border-box; padding: 8px;">
+  </div>
 
-      <div style="flex: 1;">
-  <label for="input-start" style="display:block; font-weight:bold; font-size:0.9rem; margin-bottom:5px;">開始</label>
-  <input type="text" id="input-start" list="time-list" placeholder="09:00" autocomplete="off" style="width: 100%; box-sizing: border-box; padding: 8px; height: 36px; border: 1px solid #ccc; border-radius: 4px; text-align: center;">
-</div>
+  <div style="flex: 1; position: relative;">
+    <label for="input-start" style="display:block; font-weight:bold; font-size:0.9rem; margin-bottom:5px;">開始</label>
+    
+    <input type="tel" id="input-start" placeholder="09:00" autocomplete="off" 
+           style="width: 100%; box-sizing: border-box; padding: 8px 30px 8px 8px; height: 36px; border: 1px solid #ccc; border-radius: 4px; text-align: center;">
 
-<div style="padding-bottom: 8px; font-weight: bold;">～</div>
+    <div style="position: absolute; right: 8px; bottom: 8px; color: #666; pointer-events: none; font-size: 10px;">▼</div>
 
-<div style="flex: 1;">
-  <label for="input-end" style="display:block; font-weight:bold; font-size:0.9rem; margin-bottom:5px;">終了</label>
-  <input type="text" id="input-end" list="time-list" placeholder="10:00" autocomplete="off" style="width: 100%; box-sizing: border-box; padding: 8px; height: 36px; border: 1px solid #ccc; border-radius: 4px; text-align: center;">
+    <select id="helper-start" onchange="document.getElementById('input-start').value=this.value" 
+            style="position: absolute; right: 0; bottom: 0; width: 100%; height: 36px; opacity: 0; cursor: pointer;">
+    </select>
+  </div>
+
+  <div style="padding-bottom: 8px; font-weight: bold;">～</div>
+
+  <div style="flex: 1; position: relative;">
+    <label for="input-end" style="display:block; font-weight:bold; font-size:0.9rem; margin-bottom:5px;">終了</label>
+    
+    <input type="tel" id="input-end" placeholder="10:00" autocomplete="off" 
+           style="width: 100%; box-sizing: border-box; padding: 8px 30px 8px 8px; height: 36px; border: 1px solid #ccc; border-radius: 4px; text-align: center;">
+
+    <div style="position: absolute; right: 8px; bottom: 8px; color: #666; pointer-events: none; font-size: 10px;">▼</div>
+
+    <select id="helper-end" onchange="document.getElementById('input-end').value=this.value" 
+            style="position: absolute; right: 0; bottom: 0; width: 100%; height: 36px; opacity: 0; cursor: pointer;">
+    </select>
+  </div>
+
 </div>
 
 <datalist id="time-list">
