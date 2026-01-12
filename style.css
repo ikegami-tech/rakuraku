@@ -591,38 +591,41 @@ textarea#input-note::placeholder {
     opacity: 1 !important;
     line-height: 1.5 !important;   /* 入力文字と同じ行間に合わせる */
   }
-}
+/* ▼▼▼ 前のブロックの閉じ忘れ防止用（安全策として入れています） ▼▼▼ */
+} 
+
 /* =================================================================
    ▼▼▼ 【完全版】マップ表示・レスポンシブ・バグ修正用CSS ▼▼▼
    ================================================================= */
 
-/* --- 1. マップ全体のコンテナ（PC/スマホ共通） --- */
+/* --- 1. マップ表示エリア全体（PC/スマホ共通） --- */
 #dual-map-container {
     width: 100%;
     box-sizing: border-box;
-    /* Flexboxの影響を受けないようにブロック要素としてリセット */
-    display: block; 
+    display: block; /* Flexboxの影響をリセット */
 }
 
 /* --- 2. 各階のエリア（ユニット） --- */
 .floor-map-unit {
     width: 100%;
     box-sizing: border-box;
-    /* Flexbox内での潰れ防止 */
-    min-width: 0;
-    /* スマホではデフォルト非表示（JSでactiveがついた方だけ表示） */
+    min-width: 0; /* 縮小時のバグ防止 */
+    
+    /* ▼ スマホでのデフォルト動作：非表示（JSでactiveがついた方だけ表示） */
     display: none; 
     margin-bottom: 20px;
 }
+
+/* アクティブな階（スマホ用） */
 .floor-map-unit.active {
-    display: block; /* 選択中のみ表示 */
+    display: block;
 }
 
 /* --- 3. 画像を表示する枠（ズレ防止の基準点） --- */
 .map-inner-wrapper {
     position: relative; 
     width: 100%;
-    /* 高さ0になるバグを防ぐためブロック要素化 */
+    /* ブロック要素として高さを確保 */
     display: block !important;
     line-height: 0;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
@@ -671,17 +674,18 @@ textarea#input-note::placeholder {
     white-space: normal !important;
 }
 
-/* --- 7. 「7階」「6階」というタイトル帯（デフォルト非表示） --- */
+/* --- 7. PC用のタイトル帯（常に非表示） --- */
 .pc-floor-title {
     display: none !important; 
 }
 
 
 /* =================================================================
-   ▼▼▼ PC表示時の特別設定（画面幅 1024px以上） ▼▼▼
+   ▼▼▼ パソコン表示時の設定（画面幅 1024px以上） ▼▼▼
    ================================================================= */
 @media (min-width: 1024px) {
-    /* 1. 上部の切り替えタブ（ボタン）を確実に消す */
+    
+    /* 1. 【重要】タブ（7階・6階ボタン）を完全に消す */
     .floor-selector {
         display: none !important;
     }
@@ -694,7 +698,7 @@ textarea#input-note::placeholder {
         gap: 20px;
     }
 
-    /* 3. 両方の階を強制的に表示する */
+    /* 3. 両方の階を強制的に表示する（スマホ用の非表示設定を解除） */
     .floor-map-unit {
         display: block !important;
         flex: 1;          /* 均等に分ける */
