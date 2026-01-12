@@ -56,9 +56,6 @@ window.onload = () => {
 
   const startInput = document.getElementById('input-start');
   const endInput = document.getElementById('input-end');
-  // ▼ 15分刻みに変更 (15 * 60 = 900)
-  if (startInput) startInput.step = 900; 
-  if (endInput) endInput.step = 900;
 };
 
 async function callAPI(params) {
@@ -134,11 +131,48 @@ async function loadAllData(isUpdate = false) {
   }
 }
 
+// ▼▼▼ 新規追加: 15分刻みの選択肢を生成する関数 ▼▼▼
+function populateTimeSelects() {
+    const startSelect = document.getElementById('input-start');
+    const endSelect = document.getElementById('input-end');
+    
+    if (!startSelect || !endSelect) return;
+
+    startSelect.innerHTML = "";
+    endSelect.innerHTML = "";
+
+    // 7:00 から 22:00 まで生成
+    const startHour = 7; 
+    const endHour = 22; 
+
+    for (let h = startHour; h <= endHour; h++) {
+        for (let m = 0; m < 60; m += 15) {
+            // 22:15以降などは作らないようにする制御（必要であれば）
+            if (h === endHour && m > 0) continue; 
+
+            const val = `${pad(h)}:${pad(m)}`;
+            
+            // 開始プルダウンに追加
+            const opt1 = document.createElement('option');
+            opt1.value = val;
+            opt1.innerText = val;
+            startSelect.appendChild(opt1);
+
+            // 終了プルダウンに追加
+            const opt2 = document.createElement('option');
+            opt2.value = val;
+            opt2.innerText = val;
+            endSelect.appendChild(opt2);
+        }
+    }
+}
+// ▲▲▲ 追加ここまで ▲▲▲
 function initUI() {
   // 1. 時間軸の枠組みだけ準備
   renderTimeAxis('time-axis-all');
   renderTimeAxis('time-axis-map');
-  
+
+　populateTimeSelects();
   // 2. 部屋選択プルダウンの生成
   const roomSelect = document.getElementById('input-room');
   if (roomSelect) {
@@ -823,12 +857,7 @@ function openModal(res = null, defaultRoomId = null, clickHour = null, clickMin 
   originalParticipantIds.clear(); 
   document.getElementById('shuttle-search-input').value = "";
 
-  const startInput = document.getElementById('input-start');
-  const endInput = document.getElementById('input-end');
-  // 時間制限 (7:00-21:00)
-  if(startInput) { startInput.min = "07:00"; startInput.max = "21:00"; }
-  if(endInput)   { endInput.min = "07:00"; endInput.max = "21:00"; }
-
+  
   if (res) {
     // === 既存予約の編集 ===
     document.getElementById('modal-title').innerText = "予約編集";
