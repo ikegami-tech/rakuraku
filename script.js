@@ -301,7 +301,7 @@ function renderShuttleLists(filterText = "") {
             const isMatch = (rawInput === "") || 
                             name.includes(searchLower) || 
                             name.includes(searchKata) || 
-                            kana.includes(searchLower);
+                            kana.includes(searchLower) ||
                             kana.includes(searchKata);
 
             if (isMatch) {
@@ -1556,7 +1556,7 @@ function renderGroupCreateShuttle() {
             const isMatch = (rawInput === "") || 
                             name.includes(searchLower) || 
                             name.includes(searchKata) || 
-                            kana.includes(searchLower);
+                            kana.includes(searchLower) ||
                             kana.includes(searchKata);
 
             if (isMatch) {
