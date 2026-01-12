@@ -646,16 +646,22 @@ function renderVerticalTimeline(mode) {
       let sMin = start.getMinutes();
       let eHour = end.getHours();
       let eMin = end.getMinutes();
+      
+      // 時間範囲の補正
       if (sHour < START_HOUR) { sHour = START_HOUR; sMin = 0; }
       if (eHour >= END_HOUR) { eHour = END_HOUR; eMin = 0; }
+
+      // 描画範囲内であればバーを生成
       if (sHour < END_HOUR && (sHour > START_HOUR || (sHour === START_HOUR && sMin >= 0))) {
           const topPx = hourTops[sHour] + (hourRowHeights[sHour] * (sMin / 60));
           let bottomPx = 0;
           if (eHour === END_HOUR) bottomPx = hourTops[END_HOUR];
           else bottomPx = hourTops[eHour] + (hourRowHeights[eHour] * (eMin / 60));
+          
           let heightPx = bottomPx - topPx; 
           const minHeightPx = hourRowHeights[sHour] * (15 / 60);
           if (heightPx < minHeightPx) heightPx = minHeightPx;
+          
           const bar = document.createElement('div');
           bar.className = `v-booking-bar type-${room.type}`;
           bar.style.top = (topPx + 1) + "px";
@@ -664,14 +670,17 @@ function renderVerticalTimeline(mode) {
           bar.style.position = "absolute"; 
           bar.style.left = "2px";
           bar.style.width = "calc(100% - 4px)";
-         // ▼▼▼ 表示用文字列の作成（開始-終了） ▼▼▼
+          
+          // ▼ タイトル変数の定義（ここが消えているとエラーになります）
+          let displayTitle = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '予約';
+
+          // ▼ 時間表記の作成（開始-終了）
           const startTimeStr = `${pad(start.getHours())}:${pad(start.getMinutes())}`;
           const endTimeStr = `${pad(end.getHours())}:${pad(end.getMinutes())}`;
-          const timeRangeStr = `${startTimeStr}-${endTimeStr}`; // 例: 09:00-10:00
+          const timeRangeStr = `${startTimeStr}-${endTimeStr}`;
 
-          // ▼▼▼ 表示内容の設定（修正箇所） ▼▼▼
           if (mode === 'map') {
-              // マップ下のタイムライン表示（左右分割レイアウト）
+              // マップ画面用（左右分割）
               bar.innerHTML = `
                   <div style="flex: 1; text-align: right; padding-right: 5px; font-weight: bold; overflow: hidden; font-size: 0.9em;">
                       ${timeRangeStr}
@@ -681,13 +690,13 @@ function renderVerticalTimeline(mode) {
                   </div>`;
               bar.style.display = "flex";
           } else {
-              // 通常の縦型タイムライン表示（並列レイアウト）
-              // 時間とタイトルの間に少しスペースを入れています
+              // 一覧画面用（横並び）
               bar.innerHTML = `
                   <span style="font-weight:bold; font-size:0.9em;">${timeRangeStr}</span>
                   <span style="font-weight:bold; font-size:0.9em; margin-left: 5px;">${displayTitle}</span>
               `;
           }
+
           bar.onclick = (e) => { 
               if (hasDragged) return;
               e.stopPropagation(); 
