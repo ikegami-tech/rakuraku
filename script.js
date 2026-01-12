@@ -302,6 +302,7 @@ function renderShuttleLists(filterText = "") {
                             name.includes(searchLower) || 
                             name.includes(searchKata) || 
                             kana.includes(searchLower);
+                            kana.includes(searchKata);
 
             if (isMatch) {
                 const div = document.createElement('div');
@@ -1539,6 +1540,7 @@ function renderGroupCreateShuttle() {
                             name.includes(searchLower) || 
                             name.includes(searchKata) || 
                             kana.includes(searchLower);
+                            kana.includes(searchKata);
 
             if (isMatch) {
                 const div = document.createElement('div');
