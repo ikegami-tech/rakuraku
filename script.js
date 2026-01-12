@@ -169,8 +169,9 @@ function hiraToKata(str) {
 function initUI() {
   renderTimeAxis('time-axis-all');
   renderTimeAxis('time-axis-map');
-
-　populateTimeSelects();
+  populateTimeSelects();
+  
+  // 部屋プルダウンの作成（変更なし）
   const roomSelect = document.getElementById('input-room');
   if (roomSelect) {
     roomSelect.innerHTML = "";
@@ -187,9 +188,12 @@ function initUI() {
   currentFloor = 7;
   currentTimelineFloor = 7;
 
+  // ▼▼▼ ここを変更・追加 ▼▼▼
+  renderDualMaps(); // 7階と6階の両方を一気に描画
+  switchFloor(7);   // スマホ用に7階を表示状態にする
+  
   switchTab('map-view');
 }
-
 function refreshUI() {
   renderLogs();
   renderGroupButtons();
@@ -1029,53 +1033,68 @@ function selectRoomFromMap(element) {
   document.getElementById('map-timeline-section').scrollIntoView({behavior: 'smooth'});
 }
 
+// ▼▼▼ 書き換え ▼▼▼
 function switchFloor(floor) {
     currentFloor = floor;
-    
+
+    // 1. タブの見た目切り替え
     const mapContainer = document.getElementById('view-map-view');
     if(mapContainer) {
         mapContainer.querySelectorAll('.floor-tab').forEach(tab => tab.classList.remove('active'));
     }
-    
     const activeTab = document.getElementById(`tab-${floor}f`);
     if(activeTab) activeTab.classList.add('active');
 
-    renderMap(floor);
-}
-function renderMap(floor) {
-    const config = mapConfig[floor];
-    if (!config) return;
-
-    const imgEl = document.getElementById('office-map-img');
-    if(imgEl) imgEl.src = config.image;
-
-    const wrapper = document.getElementById('map-inner-wrapper'); 
-    const container = document.getElementById('dynamic-map-container');
-    const targetParent = wrapper || container;
+    // 2. 表示エリアの切り替え (CSSでPC時は無視され両方表示されます)
+    const area7 = document.getElementById('area-7f');
+    const area6 = document.getElementById('area-6f');
+    if(area7) area7.classList.remove('active');
+    if(area6) area6.classList.remove('active');
     
-    if (!targetParent) return;
+    const activeArea = document.getElementById(`area-${floor}f`);
+    if(activeArea) activeArea.classList.add('active');
+}
+// ▼▼▼ 新規追加: 7階と6階を一括で描画する関数 ▼▼▼
+function renderDualMaps() {
+    // 7階と6階をループ処理
+    [7, 6].forEach(floor => {
+        const config = mapConfig[floor];
+        if (!config) return;
 
-    const existingAreas = targetParent.querySelectorAll('.map-click-area');
-    existingAreas.forEach(el => el.remove());
+        // 1. 画像のセット (HTML側のID: map-img-7, map-img-6)
+        const imgEl = document.getElementById(`map-img-${floor}`);
+        if (imgEl) imgEl.src = config.image;
 
-    config.areas.forEach(area => {
-        const div = document.createElement("div");
-        div.className = "map-click-area"; // CSSクラス
-        div.style.top = area.top + "%";
-        div.style.left = area.left + "%";
-        div.style.width = area.width + "%";
-        div.style.height = area.height + "%";
-        div.innerText = area.name;
-        div.setAttribute('data-room-id', area.id);
-        div.onclick = function() {
-            selectRoomFromMap(this);
-        };
+        // 2. ピンを置く場所を取得 (HTML側のID: overlay-container-7, overlay-container-6)
+        const container = document.getElementById(`overlay-container-${floor}`);
+        if (!container) return;
 
-        targetParent.appendChild(div);
+        // 既存のピンをクリア
+        container.innerHTML = '';
+
+        // 3. エリア情報からピンを作成
+        config.areas.forEach(area => {
+            const div = document.createElement("div");
+            div.className = "map-click-area"; 
+            
+            // 座標とサイズ (親枠に対する%指定なのでズレません)
+            div.style.top = area.top + "%";
+            div.style.left = area.left + "%";
+            div.style.width = area.width + "%";
+            div.style.height = area.height + "%";
+            
+            // 文字と背景色
+            div.innerText = area.name;
+            if(area.color) div.style.backgroundColor = area.color;
+
+            div.setAttribute('data-room-id', area.id);
+            div.onclick = function() {
+                selectRoomFromMap(this);
+            };
+
+            container.appendChild(div);
+        });
     });
-
-    const timelineSection = document.getElementById('map-timeline-section');
-    if(timelineSection) timelineSection.style.display = 'none';
 }
 
 function switchTimelineFloor(floor) {
