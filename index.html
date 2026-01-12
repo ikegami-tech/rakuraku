@@ -153,8 +153,8 @@
             
             <div style="position: absolute; right: 0; top: 0; width: 35px; height: 100%; display:flex; align-items:center; justify-content:center; color: #666; pointer-events: none; font-size: 10px;">▼</div>
 
-            <select onchange="document.getElementById('input-start').value=this.value" 
-                    style="position: absolute; right: 0; top: 0; width: 35px; height: 100%; opacity: 0; cursor: pointer;">
+            <select onchange="document.getElementById('input-start').value=this.value; autoSetEndTime();" 
+        style="position: absolute; right: 0; top: 0; width: 35px; height: 100%; opacity: 0; cursor: pointer;">
                 <option value="" selected hidden></option>
                 <option value="07:00">07:00</option><option value="07:15">07:15</option><option value="07:30">07:30</option><option value="07:45">07:45</option>
                 <option value="08:00">08:00</option><option value="08:15">08:15</option><option value="08:30">08:30</option><option value="08:45">08:45</option>
