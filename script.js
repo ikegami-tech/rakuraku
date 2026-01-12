@@ -1612,3 +1612,45 @@ function updateModalDisplay() {
     // 表示を更新
     displayEl.innerText = `${m}月${d}日 ${startEl.value} - ${endEl.value}`;
 }
+// ▼▼▼ 追加: 時間入力の「時」「分」部分選択ロジック ▼▼▼
+function selectTimePart(elm) {
+    // 少し遅らせないとブラウザの標準カーソル位置動作に負けるため setTimeout を使用
+    setTimeout(() => {
+        const val = elm.value;
+        // 「:」が含まれていない場合は何もしない
+        if (!val || val.indexOf(':') === -1) return;
+
+        const colonIndex = val.indexOf(':');
+        const cursorPos = elm.selectionStart;
+
+        // カーソルがコロンより左なら「時」、右なら「分」を選択状態にする
+        if (cursorPos <= colonIndex) {
+            elm.setSelectionRange(0, colonIndex); // 時を選択
+        } else {
+            elm.setSelectionRange(colonIndex + 1, val.length); // 分を選択
+        }
+    }, 10);
+}
+
+// ▼▼▼ 追加: 入力完了時に 9:00 → 09:00 に整形するロジック ▼▼▼
+function formatTimeInput(elm) {
+    let val = elm.value.trim();
+    if (!val) return;
+
+    // 全角数字を半角に変換（念のため）
+    val = val.replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
+    // コロンがなければ何もしない（保存時のチェックに任せる）
+    if (val.indexOf(':') === -1) return;
+
+    let parts = val.split(':');
+    let h = parseInt(parts[0]);
+    let m = parseInt(parts[1]);
+
+    if (!isNaN(h)) h = (h < 10 ? '0' : '') + h; // 0埋め
+    if (!isNaN(m)) m = (m < 10 ? '0' : '') + m; // 0埋め
+
+    // 整形した値を書き戻す
+    if(!isNaN(h) && !isNaN(m)) {
+        elm.value = `${h}:${m}`;
+    }
+}
