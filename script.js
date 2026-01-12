@@ -328,7 +328,6 @@ function renderVerticalTimeline(mode) {
   let container, dateInputId, targetRooms;
   let timeAxisId;
 
-  // 1. モード設定
   if (mode === 'all') {
       container = document.getElementById('rooms-container-all');
       dateInputId = 'timeline-date';
@@ -346,46 +345,30 @@ function renderVerticalTimeline(mode) {
       dateInputId = 'map-date';
       timeAxisId = 'time-axis-map';
       targetRooms = masterData.rooms.filter(r => String(r.roomId) === String(currentMapRoomId));
+      container.style.width = "100%";
   } else {
       return;
   }
   
   if (!targetRooms || targetRooms.length === 0) {
-      if(container) container.innerHTML = "<div style='padding:20px;'>部屋データが見つかりません。</div>";
+      container.innerHTML = "<div style='padding:20px;'>部屋データが見つかりません。</div>";
       return;
-  }
-
-  // 2. コンテナの初期設定
-  if (container) {
-      container.innerHTML = ""; 
-      
-      // ★高さ調整: 下のスクロールバーが見切れにくいように少し余裕を持つ(200px)
-      container.style.height = "calc(100vh - 200px)"; 
-      container.style.overflowY = "auto";  // 縦スクロール
-      container.style.overflowX = "auto";  // 横スクロール（左スクロール）
-      
-      // スクロール連鎖防止
-      container.style.overscrollBehavior = "contain"; 
-      
-      container.style.display = "flex";    
-      container.style.flexWrap = "nowrap"; 
-      container.style.width = "100%";      
-      container.style.alignItems = "flex-start"; 
-      container.style.position = "relative";
-      
-      // 誤操作防止
-      container.style.userSelect = "none"; 
-      container.style.webkitUserSelect = "none";
   }
 
   const rawDateVal = document.getElementById(dateInputId).value; 
   const targetDateNum = formatDateToNum(new Date(rawDateVal)); 
   
-  // 高さ初期化
+  // 高さの初期化
   for(let h=START_HOUR; h<END_HOUR; h++) hourRowHeights[h] = BASE_HOUR_HEIGHT;
 
-  // 3. データのフィルタリングと高さ計算
-  const DYNAMIC_CHARS_PER_LINE = 12; 
+  const totalWidth = container.clientWidth > 0 ? container.clientWidth : window.innerWidth;
+  const colCount = targetRooms.length > 0 ? targetRooms.length : 1;
+  let colWidth = Math.floor(totalWidth / colCount);
+  if (colWidth < 120) colWidth = 120;
+
+  let calculatedChars = Math.floor((colWidth - 10) / 12);
+  if (calculatedChars < 12) calculatedChars = 12; 
+  const DYNAMIC_CHARS_PER_LINE = calculatedChars;
 
   const allRelevantReservations = masterData.reservations.filter(res => {
       const startTimeVal = getVal(res, ['startTime', 'start_time', '開始日時', '開始', 'Start']);
@@ -402,13 +385,19 @@ function renderVerticalTimeline(mode) {
       return isTargetRoom && (resDateNum === targetDateNum);
   });
 
+  // 予約に基づいて高さを計算
   allRelevantReservations.forEach(res => {
       const start = new Date(res._startTime);
       const sHour = start.getHours();
       
       let displayText = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '予約';
-      const titleLines = Math.ceil(displayText.length / DYNAMIC_CHARS_PER_LINE) || 1;
-      const contentHeightPx = (titleLines * 15) + 25; 
+
+      const CHARS_PER_LINE = DYNAMIC_CHARS_PER_LINE; 
+      const titleLines = Math.ceil(displayText.length / CHARS_PER_LINE) || 1;
+      const timeLines = 1; 
+      const nameLines = 0; 
+      const totalLines = titleLines + timeLines + nameLines; 
+      const contentHeightPx = (totalLines * 15) + 10;
 
       let durationMin = (new Date(res._endTime) - new Date(res._startTime)) / 60000;
       if (durationMin < 15) durationMin = 15;
@@ -423,6 +412,8 @@ function renderVerticalTimeline(mode) {
       }
   });
 
+  // ▼▼▼ 【重要修正】高さの合計（currentTop）を先に計算します ▼▼▼
+  // これを先にやらないと、時間軸の高さを設定するときにエラーになります
   const hourTops = {};
   let currentTop = 0;
   for(let h=START_HOUR; h<END_HOUR; h++) {
@@ -430,92 +421,55 @@ function renderVerticalTimeline(mode) {
       currentTop += hourRowHeights[h];
   }
   hourTops[END_HOUR] = currentTop;
+  // ▲▲▲ 計算ここまで ▲▲▲
 
-  // ▼▼▼ 4. 時間軸のスクロール同期（修正箇所） ▼▼▼
+  // 時間軸を描画
   drawTimeAxis(timeAxisId);
+  
+  // ▼▼▼ 時間軸のスタイル設定（z-indexと高さ確保） ▼▼▼
   const axisContainer = document.getElementById(timeAxisId);
-  
-  if (axisContainer && container) {
-      // (A) スタイル設定
-      axisContainer.style.height = container.style.height; 
-      axisContainer.style.overflow = "hidden"; // スクロールバーは消す
-      axisContainer.style.display = "block";
-      axisContainer.style.overscrollBehavior = "contain";
-      
-      // (B) 右側(container) → 左側(axis) の同期
-      container.onscroll = () => {
-          axisContainer.scrollTop = container.scrollTop;
-      };
-      
-      // (C) 左側(axis) → 右側(container) の操作連動
-      // ★修正：onwheelプロパティを使うことでイベントの重複登録（バグ）を防止
-      axisContainer.onwheel = (e) => {
-          e.preventDefault(); // 左側のスクロール操作を乗っ取る
-          container.scrollTop += e.deltaY; // 右側を縦スクロール
-          container.scrollLeft += e.deltaX; // 右側を横スクロール
-      };
+  if (axisContainer) {
+      axisContainer.style.position = "sticky";
+      axisContainer.style.left = "0";
+      axisContainer.style.zIndex = "9999";    // 最前面に固定
+      axisContainer.style.background = "#fff"; // 透けないように白背景
+      axisContainer.style.borderRight = "1px solid #ddd";
 
-      // 初期位置同期
-      axisContainer.scrollTop = container.scrollTop;
-
-      // 時間軸ヘッダーの固定
-      const axisHeader = axisContainer.querySelector('.time-axis-header');
-      if(axisHeader) {
-          axisHeader.style.position = "sticky";
-          axisHeader.style.top = "0";
-          axisHeader.style.backgroundColor = "#fff"; 
-          axisHeader.style.zIndex = "20";
-          axisHeader.style.borderBottom = "1px solid #ddd"; 
-          axisHeader.style.boxSizing = "border-box";
-          axisHeader.style.transform = "translateZ(0)";
-      }
+      // ★ここで計算済みの高さを使って、背景が途切れないようにする
+      axisContainer.style.minHeight = (currentTop + 40) + "px"; 
   }
-  // ▲▲▲ 修正ここまで ▲▲▲
   
-  // 5. 部屋列の生成
+  // 部屋コンテナをクリアして描画開始
+  container.innerHTML = "";
+  
   targetRooms.forEach(room => {
     const col = document.createElement('div');
     col.className = 'room-col';
-    
-    col.style.minWidth = "150px"; 
-    col.style.flex = "1";         
-    col.style.position = "relative";
-    col.style.borderRight = "1px solid #ddd"; 
-    col.style.overflow = "visible"; 
+    if(mode === 'single') col.style.width = "100%"; 
 
-    // ヘッダー（部屋名）
+    // 部屋の列自体のレベルを下げる（時間軸の下に潜り込ませる）
+    col.style.position = "relative";
+    col.style.zIndex = "1"; 
+    
+    // ヘッダー設定
     const header = document.createElement('div');
     header.className = 'room-header';
     header.innerText = room.roomName;
-    
-    header.style.position = "sticky";
-    header.style.top = "0";          
-    header.style.zIndex = "10";      
-    header.style.backgroundColor = "#fff"; 
-    header.style.borderBottom = "1px solid #999"; 
-    header.style.borderTop = "1px solid #ddd"; 
     header.style.height = "40px";       
-    header.style.lineHeight = "40px"; 
-    header.style.textAlign = "center";
-    header.style.fontWeight = "bold";
-    header.style.boxSizing = "border-box"; 
-    header.style.transform = "translateZ(0)";
-    header.style.willChange = "transform";
-    
+    header.style.minHeight = "40px";
+    header.style.flexShrink = "0";
+    header.style.overflow = "hidden";   
+    header.style.whiteSpace = "nowrap"; 
     col.appendChild(header);
     
-    // グリッド
     const body = document.createElement('div');
     body.className = 'room-grid-body';
     body.style.height = currentTop + "px"; 
-    body.style.position = "relative"; 
 
     for(let h=START_HOUR; h<END_HOUR; h++) {
         const slot = document.createElement('div');
         slot.className = 'grid-slot';
         slot.style.height = hourRowHeights[h] + "px";
-        slot.style.boxSizing = "border-box";
-        slot.style.borderBottom = "1px dotted #eee"; 
         body.appendChild(slot);
     }
     
@@ -551,9 +505,9 @@ function renderVerticalTimeline(mode) {
        }
     };
 
-    // 予約バー
     const reservations = allRelevantReservations.filter(res => String(res._resourceId) === String(room.roomId));
     
+    // 予約バーの描画ループ
     reservations.forEach(res => {
       const start = new Date(res._startTime);
       const end = new Date(res._endTime);
@@ -580,34 +534,34 @@ function renderVerticalTimeline(mode) {
           let heightPx = bottomPx - topPx; 
           const minHeightPx = hourRowHeights[sHour] * (15 / 60);
 
-          if (heightPx < minHeightPx) heightPx = minHeightPx;
+          if (heightPx < minHeightPx) {
+              heightPx = minHeightPx;
+          }
 
           const bar = document.createElement('div');
           bar.className = `v-booking-bar type-${room.type}`;
           
           bar.style.top = (topPx + 1) + "px";
           bar.style.height = (heightPx - 2) + "px"; 
+
+          // 予約枠のレベルを固定
           bar.style.zIndex = "5";
-          bar.style.position = "absolute"; 
-          bar.style.left = "2px";
-          bar.style.width = "calc(100% - 4px)";
           
           let displayTitle = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '予約';
 
           if (mode === 'map') {
               bar.innerHTML = `
-                <div style="flex: 1; text-align: right; padding-right: 5px; font-weight: bold; overflow: hidden;">
+                <div style="flex: 1; text-align: right; padding-right: 10px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                   ${pad(start.getHours())}:${pad(start.getMinutes())}
                 </div>
-                <div style="flex: 2; text-align: left; padding-left: 5px; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                <div style="flex: 1; text-align: left; padding-left: 10px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                   ${displayTitle}
                 </div>
               `;
-              bar.style.display = "flex";
           } else {
               bar.innerHTML = `
-                <span style="font-weight:bold; font-size:0.9em;">${pad(start.getHours())}:${pad(start.getMinutes())}</span>
-                <span style="font-weight:bold; font-size:0.9em;">${displayTitle}</span>
+                <span style="font-weight:bold;">${pad(start.getHours())}:${pad(start.getMinutes())}</span><br>
+                <span style="font-weight:bold;">${displayTitle}</span>
               `;
           }
         
@@ -618,12 +572,10 @@ function renderVerticalTimeline(mode) {
           body.appendChild(bar);
       }
     });
-    
     col.appendChild(body);
     container.appendChild(col);
   });
 }
-
 function formatDateToNum(d) {
   if (isNaN(d.getTime())) return ""; 
   return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
