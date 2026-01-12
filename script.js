@@ -131,15 +131,23 @@ async function loadAllData(isUpdate = false) {
   }
 }
 
-// ▼▼▼ 新規追加: 15分刻みの選択肢を生成する関数 ▼▼▼
+// ▼▼▼ 修正版: 15分刻みの選択肢を生成する関数 ▼▼▼
 function populateTimeSelects() {
-    const startSelect = document.getElementById('input-start');
-    const endSelect = document.getElementById('input-end');
+    // 今回追加した「透明なセレクトボックス」を取得
+    const startHelper = document.getElementById('helper-start');
+    const endHelper = document.getElementById('helper-end');
     
-    if (!startSelect || !endSelect) return;
+    if (!startHelper || !endHelper) return;
 
-    startSelect.innerHTML = "";
-    endSelect.innerHTML = "";
+    startHelper.innerHTML = "";
+    endHelper.innerHTML = "";
+
+    // 空の選択肢（初期状態用）を追加
+    const emptyOpt = document.createElement('option');
+    emptyOpt.value = "";
+    emptyOpt.innerText = "時間を選択";
+    startHelper.appendChild(emptyOpt.cloneNode(true));
+    endHelper.appendChild(emptyOpt.cloneNode(true));
 
     // 7:00 から 22:00 まで生成
     const startHour = 7; 
@@ -147,24 +155,22 @@ function populateTimeSelects() {
 
     for (let h = startHour; h <= endHour; h++) {
         for (let m = 0; m < 60; m += 15) {
-            // 22:15以降などは作らないようにする制御（必要であれば）
             if (h === endHour && m > 0) continue; 
 
             const val = `${pad(h)}:${pad(m)}`;
             
-            // 開始プルダウンに追加
+            // 開始用セレクトに追加
             const opt1 = document.createElement('option');
             opt1.value = val;
             opt1.innerText = val;
-            startSelect.appendChild(opt1);
+            startHelper.appendChild(opt1);
 
-            // 終了プルダウンに追加
+            // 終了用セレクトに追加
             const opt2 = document.createElement('option');
             opt2.value = val;
             opt2.innerText = val;
-            endSelect.appendChild(opt2);
+            endHelper.appendChild(opt2);
         }
-    
     }
 }
 // ▼▼▼ 新規追加: ひらがな→カタカナ変換関数 ▼▼▼
