@@ -1714,10 +1714,18 @@ function formatTimeInput(elm) {
         }
     }
 }
-/* --- script.js の一番下に追加 --- */
+/* --- script.js の handleTimeArrowKeys をこれに書き換えてください --- */
 
-// ▼ 矢印キーで移動したときに、時または分を全選択にする関数
 function handleTimeArrowKeys(event, elm) {
+    // ▼ 追加: エンターキー (Enter) が押されたらフォーカスを外す
+    // これにより onblur イベントが発火し、自動計算と整形が実行されます
+    if (event.key === 'Enter') {
+        elm.blur();
+        return;
+    }
+
+    // --- 以下は前回の矢印キーの処理と同じです ---
+
     // 矢印キー以外は何もしない
     if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return;
 
@@ -1727,20 +1735,16 @@ function handleTimeArrowKeys(event, elm) {
 
     const cursorPos = elm.selectionStart;
 
-    // 右矢印キー（→）が押されたとき
+    // 右矢印キー（→）
     if (event.key === 'ArrowRight') {
-        // カーソルがコロンより右（分エリア）に来ていたら
         if (cursorPos > colonIndex) {
-            // 分の部分（コロンの次〜末尾）を全選択する
             elm.setSelectionRange(colonIndex + 1, val.length);
         }
     }
 
-    // 左矢印キー（←）が押されたとき
+    // 左矢印キー（←）
     if (event.key === 'ArrowLeft') {
-        // カーソルがコロンより左（時エリア）に来ていたら
         if (cursorPos <= colonIndex) {
-            // 時の部分（先頭〜コロン）を全選択する
             elm.setSelectionRange(0, colonIndex);
         }
     }
