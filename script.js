@@ -355,31 +355,41 @@ function renderVerticalTimeline(mode) {
       return;
   }
 
-  // 2. コンテナ初期設定（幅制限を追加してスクロールを強制）
+  // ▼▼▼ ここが修正の肝（スクロールバー制御） ▼▼▼
+  
+  // 1. 画面全体（body）のスクロールを消して、右端のバーを削除する
+  document.body.style.overflow = "hidden"; 
+  document.body.style.height = "100vh";
+
+  // 2. コンテナの初期設定
   if (container) {
       container.innerHTML = ""; 
       
-      // ★重要：コンテナの幅を「画面幅」に制限する（これで中身がはみ出してスクロール可能になる）
-      container.style.maxWidth = "100vw"; 
+      // ★高さ調整: 下のスクロールバーが確実に見えるよう、余裕（250px）を持たせる
+      // これで「画面内に」横スクロールバーが表示されるようになります
+      container.style.height = "calc(100vh - 250px)"; 
+      
       container.style.width = "100%"; 
-      container.style.boxSizing = "border-box"; // 枠線を含めたサイズ計算にする
-
-      container.style.height = "calc(100vh - 180px)"; 
-      container.style.overflowY = "auto";  
-      container.style.overflowX = "auto";  // これでコンテナ自身のスクロールバーが出る
+      container.style.maxWidth = "100vw"; // 画面幅を超えないようにする
+      
+      container.style.overflowY = "auto";  // 縦スクロール（必要な時だけ）
+      container.style.overflowX = "auto";  // 横スクロール（必要な時だけ）
+      
       container.style.overscrollBehavior = "contain"; 
+      container.style.boxSizing = "border-box";
       
       container.style.display = "flex";    
       container.style.flexWrap = "nowrap"; 
       container.style.alignItems = "flex-start"; 
       container.style.position = "relative";
       
+      // ドラッグ操作用のカーソル
       container.style.cursor = "grab"; 
       container.style.userSelect = "none"; 
       container.style.webkitUserSelect = "none";
   }
 
-  // ▼▼▼ ドラッグスクロール機能 ▼▼▼
+  // ▼▼▼ ドラッグスクロール機能（マウスホールドで動かす） ▼▼▼
   let isDown = false;
   let startX, startY, scrollLeft, scrollTop;
   let hasDragged = false; 
@@ -394,24 +404,32 @@ function renderVerticalTimeline(mode) {
           scrollLeft = container.scrollLeft;
           scrollTop = container.scrollTop;
       };
+      
       container.onmouseleave = () => { isDown = false; container.style.cursor = "grab"; };
+      
       container.onmouseup = () => {
           isDown = false;
           container.style.cursor = "grab";
+          // クリック判定との競合を防ぐため少し遅らせてフラグ解除
           setTimeout(() => { hasDragged = false; }, 50);
       };
+      
       container.onmousemove = (e) => {
           if (!isDown) return;
           e.preventDefault();
           const x = e.pageX - container.offsetLeft;
           const y = e.pageY - container.offsetTop;
-          // 移動量（ドラッグした分だけスクロールさせる）
-          const walkX = (x - startX) * 1.5; // 少し加速させる
-          const walkY = (y - startY) * 1.5; 
+          
+          // 移動係数（数値を大きくすると少しの動きで大きくスクロールします）
+          const speed = 1.5; 
+          const walkX = (x - startX) * speed; 
+          const walkY = (y - startY) * speed; 
           
           if (Math.abs(walkX) > 5 || Math.abs(walkY) > 5) {
               hasDragged = true;
           }
+          
+          // ここでスクロール位置を更新（下のスクロールバーもこれに連動して動きます）
           container.scrollLeft = scrollLeft - walkX;
           container.scrollTop = scrollTop - walkY;
       };
@@ -464,7 +482,7 @@ function renderVerticalTimeline(mode) {
   const axisContainer = document.getElementById(timeAxisId);
   
   if (axisContainer && container) {
-      axisContainer.style.height = container.style.height; 
+      axisContainer.style.height = container.style.height; // 高さを合わせる
       axisContainer.style.overflow = "hidden"; 
       axisContainer.style.display = "block";
       axisContainer.style.overscrollBehavior = "contain";
@@ -498,7 +516,7 @@ function renderVerticalTimeline(mode) {
     const col = document.createElement('div');
     col.className = 'room-col';
     
-    // 幅設定：これで確実に画面幅を超えるようにする
+    // ★幅設定：最低200px確保することで、部屋数が多いときに確実に横スクロールを発生させる
     col.style.minWidth = "200px"; 
     
     col.style.flex = "1";         
@@ -506,7 +524,7 @@ function renderVerticalTimeline(mode) {
     col.style.borderRight = "1px solid #ddd"; 
     col.style.overflow = "visible"; 
 
-    // ヘッダー
+    // ヘッダー（上タブ）
     const header = document.createElement('div');
     header.className = 'room-header';
     header.innerText = room.roomName;
@@ -563,7 +581,7 @@ function renderVerticalTimeline(mode) {
        }
     };
 
-    // 予約バー描画
+    // 予約バー
     const reservations = allRelevantReservations.filter(res => String(res._resourceId) === String(room.roomId));
     reservations.forEach(res => {
       const start = new Date(res._startTime);
