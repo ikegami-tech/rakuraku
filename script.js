@@ -355,39 +355,20 @@ function renderVerticalTimeline(mode) {
       return;
   }
 
-  // ▼▼▼ レイアウト修正の核心部分 ▼▼▼
-  // 以前の body へのスタイル適用は削除し、カレンダー部分だけにスタイルを適用します
-  document.body.style.overflow = ""; 
-  document.body.style.height = ""; 
-  document.body.style.margin = "";
+  // ▼▼▼ 修正：親要素の強制スタイル変更を削除し、bodyのみ制御 ▼▼▼
+  document.body.style.overflow = "hidden"; // ブラウザ全体のスクロールを消す
+  // document.documentElement.style.overflow = "hidden"; // 必要に応じて有効化
 
-  const axisContainer = document.getElementById(timeAxisId);
-
-  // コンテナと時間軸の親要素を取得して、強制的に横並びにする
-  if (container && axisContainer && container.parentElement) {
-      const wrapper = container.parentElement;
-      
-      // 親要素(wrapper)のスタイルを強制設定
-      wrapper.style.display = "flex";
-      wrapper.style.flexDirection = "row"; // 横並びにする（これでズレが直ります）
-      wrapper.style.alignItems = "flex-start"; // 上端を合わせる
-      wrapper.style.justifyContent = "flex-start";
-      wrapper.style.width = "100%";
-      
-      // ★高さ設定：画面高さ(100vh)から上部メニュー分(約240px)を引く
-      // これにより、上部タブが見切れることなく、画面下部にスクロールバーが出ます
-      wrapper.style.height = "calc(100vh - 240px)"; 
-      wrapper.style.overflow = "hidden"; // 親自体のスクロールは禁止
-  }
-
-  // 2. 予約表コンテナの設定
+  // 2. コンテナ初期設定
   if (container) {
       container.innerHTML = ""; 
       
-      // Flex設定：残り幅を全て使う
-      container.style.flex = "1"; 
-      container.style.width = "0"; // Flexbox内での幅計算バグ防止
-      container.style.height = "100%"; // 親要素の高さを埋める
+      // ★高さ設定：画面高さ(100vh)から、上部のヘッダーや余白分(約220px)を引く
+      // これにより、画面内に収まりつつ、下部に横スクロールバーが出るようになります
+      container.style.height = "calc(100vh - 220px)"; 
+      
+      container.style.width = "100%"; 
+      container.style.maxWidth = "100vw"; // 画面幅を超えないように制限
       
       container.style.overflowY = "auto";  // 縦スクロール
       container.style.overflowX = "auto";  // 横スクロール
@@ -395,38 +376,45 @@ function renderVerticalTimeline(mode) {
       
       container.style.display = "flex";    
       container.style.flexWrap = "nowrap"; 
-      container.style.alignItems = "flex-start"; 
+      container.style.alignItems = "flex-start"; // 上揃え（ズレ防止）
       container.style.position = "relative";
+      
+      // 枠線やパディングによるサイズズレを防ぐ
       container.style.boxSizing = "border-box";
       
+      // ドラッグ操作用のカーソル
       container.style.cursor = "grab"; 
       container.style.userSelect = "none"; 
       container.style.webkitUserSelect = "none";
-      container.style.touchAction = "none"; // スマホでの操作性向上
   }
 
-  // ▼▼▼ 3. ドラッグ＆タッチ操作機能 ▼▼▼
+  // ▼▼▼ ドラッグスクロール機能 ▼▼▼
   let isDown = false;
   let startX, startY, scrollLeft, scrollTop;
   let hasDragged = false; 
 
   if (container) {
-      const startDrag = (pageX, pageY) => {
+      container.onmousedown = (e) => {
           isDown = true;
           hasDragged = false;
           container.style.cursor = "grabbing"; 
-          startX = pageX;
-          startY = pageY;
+          startX = e.pageX - container.offsetLeft;
+          startY = e.pageY - container.offsetTop;
           scrollLeft = container.scrollLeft;
           scrollTop = container.scrollTop;
       };
-
-      const moveDrag = (e, pageX, pageY) => {
+      container.onmouseleave = () => { isDown = false; container.style.cursor = "grab"; };
+      container.onmouseup = () => {
+          isDown = false;
+          container.style.cursor = "grab";
+          setTimeout(() => { hasDragged = false; }, 50);
+      };
+      container.onmousemove = (e) => {
           if (!isDown) return;
-          if(e.cancelable) e.preventDefault();
-          
-          const x = pageX;
-          const y = pageY;
+          e.preventDefault();
+          const x = e.pageX - container.offsetLeft;
+          const y = e.pageY - container.offsetTop;
+          // 移動感度（1.5倍速）
           const walkX = (x - startX) * 1.5; 
           const walkY = (y - startY) * 1.5; 
           
@@ -436,23 +424,6 @@ function renderVerticalTimeline(mode) {
           container.scrollLeft = scrollLeft - walkX;
           container.scrollTop = scrollTop - walkY;
       };
-
-      const endDrag = () => {
-          isDown = false;
-          container.style.cursor = "grab";
-          setTimeout(() => { hasDragged = false; }, 50);
-      };
-
-      // PC
-      container.onmousedown = (e) => startDrag(e.pageX, e.pageY);
-      container.onmouseleave = endDrag;
-      container.onmouseup = endDrag;
-      container.onmousemove = (e) => moveDrag(e, e.pageX, e.pageY);
-
-      // スマホ
-      container.ontouchstart = (e) => startDrag(e.touches[0].pageX, e.touches[0].pageY);
-      container.ontouchend = endDrag;
-      container.ontouchmove = (e) => moveDrag(e, e.touches[0].pageX, e.touches[0].pageY);
   }
 
   const rawDateVal = document.getElementById(dateInputId).value; 
@@ -460,7 +431,7 @@ function renderVerticalTimeline(mode) {
   
   for(let h=START_HOUR; h<END_HOUR; h++) hourRowHeights[h] = BASE_HOUR_HEIGHT;
 
-  // 4. データ処理
+  // 3. データ処理
   const DYNAMIC_CHARS_PER_LINE = 12; 
   const allRelevantReservations = masterData.reservations.filter(res => {
       const startTimeVal = getVal(res, ['startTime', 'start_time', '開始日時', '開始', 'Start']);
@@ -497,41 +468,27 @@ function renderVerticalTimeline(mode) {
   }
   hourTops[END_HOUR] = currentTop;
 
-  // 5. 時間軸の同期設定
+  // 4. 時間軸の同期
   drawTimeAxis(timeAxisId);
+  const axisContainer = document.getElementById(timeAxisId);
   
   if (axisContainer && container) {
-      // 時間軸のスタイル設定
-      axisContainer.style.flexShrink = "0"; // 縮小させない
-      axisContainer.style.width = "auto";
-      axisContainer.style.height = "100%"; // 親要素の高さに合わせる
+      // 高さ同期：コンテナと同じ高さにする
+      axisContainer.style.height = container.style.height; 
       axisContainer.style.overflow = "hidden"; 
       axisContainer.style.display = "block";
       axisContainer.style.overscrollBehavior = "contain";
       
-      // スクロール同期
+      // コンテナ(右) → 時間軸(左)
       container.onscroll = () => {
           axisContainer.scrollTop = container.scrollTop;
       };
       
-      const syncWheel = (e) => {
+      // 時間軸(左) → コンテナ(右)
+      axisContainer.onwheel = (e) => {
           e.preventDefault(); 
           container.scrollTop += e.deltaY; 
           container.scrollLeft += e.deltaX; 
-      };
-      axisContainer.onwheel = syncWheel;
-      
-      // スマホタッチ同期
-      let axisStartY, axisStartScroll;
-      axisContainer.ontouchstart = (e) => {
-          axisStartY = e.touches[0].pageY;
-          axisStartScroll = container.scrollTop;
-      };
-      axisContainer.ontouchmove = (e) => {
-          if(e.cancelable) e.preventDefault();
-          const y = e.touches[0].pageY;
-          const walk = (y - axisStartY) * 1.5;
-          container.scrollTop = axisStartScroll - walk;
       };
 
       axisContainer.scrollTop = container.scrollTop;
@@ -548,20 +505,21 @@ function renderVerticalTimeline(mode) {
       }
   }
   
-  // 6. 部屋列の生成
+  // 5. 部屋列の生成
   targetRooms.forEach(room => {
     const col = document.createElement('div');
     col.className = 'room-col';
     
-    // 幅設定：200px以上確保して横スクロールさせる
+    // ★幅設定：列の幅を確保し、画面幅を超える場合は横スクロールさせる
     col.style.minWidth = "200px"; 
-    col.style.flexShrink = "0"; 
+    col.style.flexShrink = "0"; // 縮小禁止（重要）
     col.style.flexGrow = "1";
     
     col.style.position = "relative";
     col.style.borderRight = "1px solid #ddd"; 
     col.style.overflow = "visible"; 
 
+    // ヘッダー（上タブ）
     const header = document.createElement('div');
     header.className = 'room-header';
     header.innerText = room.roomName;
@@ -580,6 +538,7 @@ function renderVerticalTimeline(mode) {
     header.style.willChange = "transform";
     col.appendChild(header);
     
+    // グリッド
     const body = document.createElement('div');
     body.className = 'room-grid-body';
     body.style.height = currentTop + "px"; 
@@ -617,6 +576,7 @@ function renderVerticalTimeline(mode) {
        }
     };
 
+    // 予約バー
     const reservations = allRelevantReservations.filter(res => String(res._resourceId) === String(room.roomId));
     reservations.forEach(res => {
       const start = new Date(res._startTime);
