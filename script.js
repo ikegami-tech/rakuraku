@@ -355,40 +355,35 @@ function renderVerticalTimeline(mode) {
       return;
   }
 
-  // ▼▼▼ 修正：親要素の強制スタイル変更を削除し、bodyのみ制御 ▼▼▼
-  document.body.style.overflow = "hidden"; // ブラウザ全体のスクロールを消す
-  // document.documentElement.style.overflow = "hidden"; // 必要に応じて有効化
+  // レイアウト設定（右端バー削除）
+  document.body.style.overflow = "hidden"; 
 
   // 2. コンテナ初期設定
   if (container) {
       container.innerHTML = ""; 
       
-      // ★高さ設定：画面高さ(100vh)から、上部のヘッダーや余白分(約220px)を引く
-      // これにより、画面内に収まりつつ、下部に横スクロールバーが出るようになります
+      // 高さ設定：下バーを表示させるための計算
       container.style.height = "calc(100vh - 220px)"; 
       
       container.style.width = "100%"; 
-      container.style.maxWidth = "100vw"; // 画面幅を超えないように制限
+      container.style.maxWidth = "100vw"; 
       
-      container.style.overflowY = "auto";  // 縦スクロール
-      container.style.overflowX = "auto";  // 横スクロール
+      container.style.overflowY = "auto";  
+      container.style.overflowX = "auto";  
       container.style.overscrollBehavior = "contain"; 
       
       container.style.display = "flex";    
       container.style.flexWrap = "nowrap"; 
-      container.style.alignItems = "flex-start"; // 上揃え（ズレ防止）
+      container.style.alignItems = "flex-start"; 
       container.style.position = "relative";
-      
-      // 枠線やパディングによるサイズズレを防ぐ
       container.style.boxSizing = "border-box";
       
-      // ドラッグ操作用のカーソル
       container.style.cursor = "grab"; 
       container.style.userSelect = "none"; 
       container.style.webkitUserSelect = "none";
   }
 
-  // ▼▼▼ ドラッグスクロール機能 ▼▼▼
+  // ▼▼▼ ドラッグスクロール機能（計算式を刷新） ▼▼▼
   let isDown = false;
   let startX, startY, scrollLeft, scrollTop;
   let hasDragged = false; 
@@ -398,29 +393,43 @@ function renderVerticalTimeline(mode) {
           isDown = true;
           hasDragged = false;
           container.style.cursor = "grabbing"; 
-          startX = e.pageX - container.offsetLeft;
-          startY = e.pageY - container.offsetTop;
+          
+          // ★修正：コンテナの位置(offset)に依存せず、画面上の絶対座標を使う
+          startX = e.pageX;
+          startY = e.pageY;
+          
           scrollLeft = container.scrollLeft;
           scrollTop = container.scrollTop;
       };
-      container.onmouseleave = () => { isDown = false; container.style.cursor = "grab"; };
-      container.onmouseup = () => {
+      
+      const stopDrag = () => {
+          if(!isDown) return;
           isDown = false;
           container.style.cursor = "grab";
           setTimeout(() => { hasDragged = false; }, 50);
       };
+
+      container.onmouseleave = stopDrag;
+      container.onmouseup = stopDrag;
+      
       container.onmousemove = (e) => {
           if (!isDown) return;
           e.preventDefault();
-          const x = e.pageX - container.offsetLeft;
-          const y = e.pageY - container.offsetTop;
-          // 移動感度（1.5倍速）
+          
+          // ★修正：現在のマウス位置と、クリック開始位置の差分を計算
+          const x = e.pageX;
+          const y = e.pageY;
+          
+          // 移動量（1.5倍速）
           const walkX = (x - startX) * 1.5; 
           const walkY = (y - startY) * 1.5; 
           
+          // ドラッグ判定
           if (Math.abs(walkX) > 5 || Math.abs(walkY) > 5) {
               hasDragged = true;
           }
+          
+          // 「開始時のスクロール位置」から「移動量」を引く（引くと逆方向に動く＝掴んで動かす感覚）
           container.scrollLeft = scrollLeft - walkX;
           container.scrollTop = scrollTop - walkY;
       };
@@ -473,18 +482,15 @@ function renderVerticalTimeline(mode) {
   const axisContainer = document.getElementById(timeAxisId);
   
   if (axisContainer && container) {
-      // 高さ同期：コンテナと同じ高さにする
       axisContainer.style.height = container.style.height; 
       axisContainer.style.overflow = "hidden"; 
       axisContainer.style.display = "block";
       axisContainer.style.overscrollBehavior = "contain";
       
-      // コンテナ(右) → 時間軸(左)
       container.onscroll = () => {
           axisContainer.scrollTop = container.scrollTop;
       };
       
-      // 時間軸(左) → コンテナ(右)
       axisContainer.onwheel = (e) => {
           e.preventDefault(); 
           container.scrollTop += e.deltaY; 
@@ -510,16 +516,16 @@ function renderVerticalTimeline(mode) {
     const col = document.createElement('div');
     col.className = 'room-col';
     
-    // ★幅設定：列の幅を確保し、画面幅を超える場合は横スクロールさせる
-    col.style.minWidth = "200px"; 
-    col.style.flexShrink = "0"; // 縮小禁止（重要）
+    // ★幅設定：300pxに広げて、確実にスクロール幅を確保する
+    col.style.minWidth = "300px"; 
+    col.style.flexShrink = "0"; 
     col.style.flexGrow = "1";
     
     col.style.position = "relative";
     col.style.borderRight = "1px solid #ddd"; 
     col.style.overflow = "visible"; 
 
-    // ヘッダー（上タブ）
+    // ヘッダー
     const header = document.createElement('div');
     header.className = 'room-header';
     header.innerText = room.roomName;
