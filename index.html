@@ -146,7 +146,8 @@
 
       <div style="flex: 1;">
         <label for="input-start" style="display:block; font-weight:bold; font-size:0.9rem; margin-bottom:5px;">開始</label>
-        <input type="text" id="input-start" list="time-list" placeholder="09:00" autocomplete="off"
+        <input type="tel" id="input-start" list="time-list" placeholder="09:00" autocomplete="off"
+               onclick="selectTimePart(this)" onblur="formatTimeInput(this)"
                style="width: 100%; box-sizing: border-box; padding: 8px; border: 1px solid #ccc; border-radius: 4px; height: 38px; text-align: center;">
       </div>
 
@@ -154,7 +155,8 @@
 
       <div style="flex: 1;">
         <label for="input-end" style="display:block; font-weight:bold; font-size:0.9rem; margin-bottom:5px;">終了</label>
-        <input type="text" id="input-end" list="time-list" placeholder="10:00" autocomplete="off"
+        <input type="tel" id="input-end" list="time-list" placeholder="10:00" autocomplete="off"
+               onclick="selectTimePart(this)" onblur="formatTimeInput(this)"
                style="width: 100%; box-sizing: border-box; padding: 8px; border: 1px solid #ccc; border-radius: 4px; height: 38px; text-align: center;">
       </div>
 
