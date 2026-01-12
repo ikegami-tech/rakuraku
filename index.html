@@ -43,11 +43,25 @@
           <button class="floor-tab" onclick="switchFloor(6)" id="tab-6f">6階</button>
       </div>
 
-      <div class="map-container" id="dynamic-map-container">
-    <div id="map-inner-wrapper" class="map-inner-wrapper">
-        <img id="office-map-img" src="" alt="フロアマップ" class="map-image">
-    </div>
-</div>
+      <div id="dual-map-container">
+        
+        <div id="area-7f" class="floor-map-unit active">
+            <h4 class="pc-floor-title">7階</h4>
+            <div class="map-inner-wrapper">
+                <img id="map-img-7" src="img/7f.png" alt="7階マップ" class="map-image">
+                <div id="overlay-container-7" class="overlay-layer"></div>
+            </div>
+        </div>
+
+        <div id="area-6f" class="floor-map-unit">
+            <h4 class="pc-floor-title">6階</h4>
+            <div class="map-inner-wrapper">
+                <img id="map-img-6" src="img/6f.png" alt="6階マップ" class="map-image">
+                <div id="overlay-container-6" class="overlay-layer"></div>
+            </div>
+        </div>
+
+      </div>
       
       <p class="map-hint">部屋をクリックすると下に予約状況が表示されます</p>
 
