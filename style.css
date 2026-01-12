@@ -593,26 +593,22 @@ textarea#input-note::placeholder {
   }
 }
 /* ==============================================
-   ▼▼▼ 【修正版】マップのズレ防止・レスポンシブ設定 ▼▼▼
+   ▼▼▼ 【完全修正版】マップのズレ防止・PC設定 ▼▼▼
    ============================================== */
 
 /* 1. マップ表示エリア全体（PC/スマホ共通） */
 #dual-map-container {
     width: 100%;
-    /* 枠からはみ出さないようにする重要設定 */
     box-sizing: border-box;
 }
 
 /* 2. マップユニット（7階/6階のそれぞれの箱） */
 .floor-map-unit {
     width: 100%;
-    /* Flexbox内で画像がはみ出すのを防ぐ魔法の呪文 */
     min-width: 0; 
     margin-bottom: 20px;
     box-sizing: border-box;
-    
-    /* スマホではデフォルト非表示 */
-    display: none; 
+    display: none; /* スマホではデフォルト非表示 */
 }
 .floor-map-unit.active {
     display: block; /* 選択されている階だけ表示 */
@@ -620,12 +616,12 @@ textarea#input-note::placeholder {
 
 /* 3. マップ表示の親枠（ここが基準点） */
 .map-inner-wrapper {
-    position: relative; /* ピン配置の基準点 */
-    width: 100%;        /* 親の幅いっぱいに */
-    line-height: 0;     /* 画像下の隙間防止 */
-    overflow: hidden;   /* はみ出し防止 */
+    position: relative; 
+    width: 100%;
+    line-height: 0;
+    overflow: hidden;
     
-    /* 以前の display: inline-block を上書きしてブロック要素にする */
+    /* ブロック要素として幅いっぱいに広げる */
     display: block !important; 
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     border-radius: 4px;
@@ -634,9 +630,13 @@ textarea#input-note::placeholder {
 /* 4. マップ画像本体 */
 .map-image {
     display: block;
-    width: 100% !important;     /* 横幅は親に合わせる */
-    height: auto !important;    /* 高さは比率を維持して自動調整 */
-    max-width: 100% !important; /* 絶対に親枠を超えさせない */
+    width: 100% !important;      /* 横幅は親枠(100%)に強制的に合わせる */
+    height: auto !important;     /* 比率を維持 */
+    max-width: 100% !important;  /* 親枠を超えない */
+    
+    /* ★ここが修正ポイント：高さ制限を解除して、横幅に合わせて縦に伸びるようにする */
+    max-height: none !important; 
+    
     object-fit: contain;
 }
 
@@ -648,17 +648,16 @@ textarea#input-note::placeholder {
     width: 100%;
     height: 100%;
     z-index: 10;
-    pointer-events: none; /* 画像クリックの邪魔をしない */
+    pointer-events: none; 
 }
 
 /* 6. 個別のピン（クリックエリア） */
 .map-click-area {
-    position: absolute; /* 親枠(.map-inner-wrapper)に対する絶対配置 */
+    position: absolute;
     cursor: pointer;
     z-index: 20;
-    pointer-events: auto; /* クリック有効化 */
+    pointer-events: auto;
     
-    /* 文字の中央寄せ */
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -669,7 +668,6 @@ textarea#input-note::placeholder {
     text-shadow: 0 0 2px rgba(255,255,255,0.8);
     color: #333;
     
-    /* はみ出し防止 */
     box-sizing: border-box;
     white-space: normal !important;
     word-break: break-all !important;
@@ -678,27 +676,26 @@ textarea#input-note::placeholder {
 
 /* --- PC表示時の調整（画面幅 1024px以上） --- */
 @media (min-width: 1024px) {
-    /* タブを隠す */
+    /* ▼▼▼ 修正：タブ（ボタン）を確実に消す ▼▼▼ */
     .floor-selector { display: none !important; }
 
-    /* タイトル帯を隠す（今回のご要望） */
+    /* タイトル帯（濃い色のバー）を消す */
     .pc-floor-title { display: none !important; }
 
     /* マップを横並びにする */
     #dual-map-container {
         display: flex;
         justify-content: center;
-        gap: 20px;       /* 左右の間隔 */
+        gap: 20px;
         align-items: flex-start;
     }
 
     /* 各階の表示設定 */
     .floor-map-unit {
         display: block !important; /* 強制表示 */
-        flex: 1;          /* 幅を均等に分ける */
-        /* width: 50% だと隙間で崩れることがあるため 48% 程度に */
-        width: 48%;       
-        max-width: 48%;   
+        flex: 1;          /* 均等分割 */
+        width: 48%;       /* 幅指定 */
+        max-width: 50%;   /* 50%を超えないように */
         margin-bottom: 0;
     }
 }
