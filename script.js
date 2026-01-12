@@ -822,17 +822,6 @@ function openModal(res = null, defaultRoomId = null, clickHour = null, clickMin 
   selectedParticipantIds.clear();
   originalParticipantIds.clear(); 
   document.getElementById('shuttle-search-input').value = "";
-  
-  // 上部の時間表示エリア
-  let timeDisplayEl = document.getElementById('modal-time-display');
-  if (!timeDisplayEl) {
-      const header = document.getElementById('modal-title');
-      timeDisplayEl = document.createElement('div');
-      timeDisplayEl.id = 'modal-time-display';
-      timeDisplayEl.style.cssText = "font-size: 1.1rem; color: #27ae60; font-weight: bold; margin-bottom: 15px; text-align:center; background:#e8f5e9; padding:8px; border-radius:4px;";
-      header.parentNode.insertBefore(timeDisplayEl, header.nextSibling);
-  }
-  timeDisplayEl.innerText = "";
 
   const startInput = document.getElementById('input-start');
   const endInput = document.getElementById('input-end');
@@ -931,16 +920,6 @@ function openModal(res = null, defaultRoomId = null, clickHour = null, clickMin 
   
   renderShuttleLists();
 
-  const inputs = ['input-date', 'input-start', 'input-end'];
-  inputs.forEach(id => {
-      const el = document.getElementById(id);
-      if(el) {
-          el.oninput = updateModalDisplay;
-          el.onchange = updateModalDisplay;
-      }
-  });
-
-  updateModalDisplay();
     // ▼▼▼▼▼▼ ここから追加 ▼▼▼▼▼▼
   // モーダル表示時に一番上までスクロールを戻す
   if (modal) modal.scrollTop = 0;
