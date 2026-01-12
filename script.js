@@ -491,6 +491,8 @@ function renderVerticalTimeline(mode) {
     header.style.lineHeight = "40px"; // 文字を上下中央に
     header.style.textAlign = "center";
     header.style.fontWeight = "bold";
+    header.style.transform = "translateZ(0)"; // GPUアクセラレーションを有効化して固定を安定させる
+    header.style.willChange = "transform";    // ブラウザに固定要素であることを伝える
     // ▲▲▲ 固定設定ここまで ▲▲▲
     
     col.appendChild(header);
