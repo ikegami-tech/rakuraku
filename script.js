@@ -164,8 +164,17 @@ function populateTimeSelects() {
             opt2.innerText = val;
             endSelect.appendChild(opt2);
         }
+    
     }
 }
+// ▼▼▼ 新規追加: ひらがな→カタカナ変換関数 ▼▼▼
+function hiraToKata(str) {
+    return str.replace(/[\u3041-\u3096]/g, function(match) {
+        var chr = match.charCodeAt(0) + 0x60;
+        return String.fromCharCode(chr);
+    });
+}
+// ▲▲▲ 追加ここまで ▲▲▲
 // ▲▲▲ 追加ここまで ▲▲▲
 function initUI() {
   // 1. 時間軸の枠組みだけ準備
@@ -258,39 +267,55 @@ function selectGroupMembers(idsStr) {
 }
 
 function renderShuttleLists(filterText = "") {
-  const leftList = document.getElementById('list-candidates');
-  const rightList = document.getElementById('list-selected');
-  leftList.innerHTML = "";
-  rightList.innerHTML = "";
+    // 入力を小文字化＆トリム
+    const rawInput = (filterText || document.getElementById('shuttle-search-input').value || "").trim();
+    const searchLower = rawInput.toLowerCase();
+    const searchKata = hiraToKata(rawInput); // ひらがな入力をカタカナに変換
 
-  masterData.users.forEach(u => {
-      if (!u.userId) return;
-      const uidStr = String(u.userId);
+    const leftList = document.getElementById('list-candidates');
+    const rightList = document.getElementById('list-selected');
+    leftList.innerHTML = "";
+    rightList.innerHTML = "";
 
-      if (selectedParticipantIds.has(uidStr)) {
-          const div = document.createElement('div');
-          div.className = 'shuttle-item icon-remove';
-          div.innerText = u.userName;
-          div.onclick = () => {
-              selectedParticipantIds.delete(uidStr);
-              renderShuttleLists(document.getElementById('shuttle-search-input').value);
-          };
-          rightList.appendChild(div);
-      } else {
-          if (filterText === "" || u.userName.toLowerCase().includes(filterText.toLowerCase())) {
-              const div = document.createElement('div');
-              div.className = 'shuttle-item icon-add';
-              div.innerText = u.userName;
-              div.onclick = () => {
-                  selectedParticipantIds.add(uidStr);
-                  renderShuttleLists(document.getElementById('shuttle-search-input').value);
-              };
-              leftList.appendChild(div);
-          }
-      }
-  });
+    masterData.users.forEach(u => {
+        if (!u.userId) return;
+        const uidStr = String(u.userId);
+
+        // 既に選択されている場合
+        if (selectedParticipantIds.has(uidStr)) {
+            const div = document.createElement('div');
+            div.className = 'shuttle-item icon-remove';
+            div.innerText = u.userName;
+            div.onclick = () => {
+                selectedParticipantIds.delete(uidStr);
+                renderShuttleLists(document.getElementById('shuttle-search-input').value);
+            };
+            rightList.appendChild(div);
+        } else {
+            // ▼▼▼ 検索判定ロジックの強化 ▼▼▼
+            const name = (u.userName || "").toLowerCase();
+            // データにふりがながあれば取得（なければ空文字）
+            const kana = (u.kana || u.furigana || "").toLowerCase();
+
+            // 1. そのまま一致 (漢字や英語) OR 2. カタカナ変換一致 OR 3. ふりがなデータ一致
+            const isMatch = (rawInput === "") || 
+                            name.includes(searchLower) || 
+                            name.includes(searchKata) || 
+                            kana.includes(searchLower);
+
+            if (isMatch) {
+                const div = document.createElement('div');
+                div.className = 'shuttle-item icon-add';
+                div.innerText = u.userName;
+                div.onclick = () => {
+                    selectedParticipantIds.add(uidStr);
+                    renderShuttleLists(document.getElementById('shuttle-search-input').value);
+                };
+                leftList.appendChild(div);
+            }
+        }
+    });
 }
-
 function switchTab(tabName) {
   // 1. すべてのタブと画面を非アクティブにする
   document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
@@ -1483,7 +1508,11 @@ function closeGroupModal() {
 }
 
 function renderGroupCreateShuttle() {
-    const filterText = document.getElementById('group-shuttle-search').value.toLowerCase();
+    // 入力を取得して変換
+    const rawInput = (document.getElementById('group-shuttle-search').value || "").trim();
+    const searchLower = rawInput.toLowerCase();
+    const searchKata = hiraToKata(rawInput);
+
     const leftList = document.getElementById('group-create-candidates');
     const rightList = document.getElementById('group-create-selected');
     leftList.innerHTML = "";
@@ -1491,6 +1520,7 @@ function renderGroupCreateShuttle() {
 
     masterData.users.forEach(u => {
         const uidStr = String(u.userId);
+        
         if (groupCreateSelectedIds.has(uidStr)) {
             const div = document.createElement('div');
             div.className = 'shuttle-item icon-remove';
@@ -1500,15 +1530,26 @@ function renderGroupCreateShuttle() {
                 renderGroupCreateShuttle();
             };
             rightList.appendChild(div);
-        } else if (filterText === "" || u.userName.toLowerCase().includes(filterText)) {
-            const div = document.createElement('div');
-            div.className = 'shuttle-item icon-add';
-            div.innerText = u.userName;
-            div.onclick = () => {
-                groupCreateSelectedIds.add(uidStr);
-                renderGroupCreateShuttle();
-            };
-            leftList.appendChild(div);
+        } else {
+            // ▼▼▼ 検索判定ロジックの強化 ▼▼▼
+            const name = (u.userName || "").toLowerCase();
+            const kana = (u.kana || u.furigana || "").toLowerCase();
+
+            const isMatch = (rawInput === "") || 
+                            name.includes(searchLower) || 
+                            name.includes(searchKata) || 
+                            kana.includes(searchLower);
+
+            if (isMatch) {
+                const div = document.createElement('div');
+                div.className = 'shuttle-item icon-add';
+                div.innerText = u.userName;
+                div.onclick = () => {
+                    groupCreateSelectedIds.add(uidStr);
+                    renderGroupCreateShuttle();
+                };
+                leftList.appendChild(div);
+            }
         }
     });
 }
