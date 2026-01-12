@@ -592,52 +592,113 @@ textarea#input-note::placeholder {
     line-height: 1.5 !important;   /* 入力文字と同じ行間に合わせる */
   }
 }
+/* ==============================================
+   ▼▼▼ 【修正版】マップのズレ防止・レスポンシブ設定 ▼▼▼
+   ============================================== */
+
+/* 1. マップ表示エリア全体（PC/スマホ共通） */
 #dual-map-container {
     width: 100%;
+    /* 枠からはみ出さないようにする重要設定 */
+    box-sizing: border-box;
 }
-.pc-floor-title {
-    display: none; /* スマホではタイトルを消す（タブがあるため） */
-    text-align: center;
-    margin: 0 0 10px 0;
-    padding: 5px;
-    background: #2c3e50;
-    color: white;
+
+/* 2. マップユニット（7階/6階のそれぞれの箱） */
+.floor-map-unit {
+    width: 100%;
+    /* Flexbox内で画像がはみ出すのを防ぐ魔法の呪文 */
+    min-width: 0; 
+    margin-bottom: 20px;
+    box-sizing: border-box;
+    
+    /* スマホではデフォルト非表示 */
+    display: none; 
+}
+.floor-map-unit.active {
+    display: block; /* 選択されている階だけ表示 */
+}
+
+/* 3. マップ表示の親枠（ここが基準点） */
+.map-inner-wrapper {
+    position: relative; /* ピン配置の基準点 */
+    width: 100%;        /* 親の幅いっぱいに */
+    line-height: 0;     /* 画像下の隙間防止 */
+    overflow: hidden;   /* はみ出し防止 */
+    
+    /* 以前の display: inline-block を上書きしてブロック要素にする */
+    display: block !important; 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     border-radius: 4px;
 }
+
+/* 4. マップ画像本体 */
+.map-image {
+    display: block;
+    width: 100% !important;     /* 横幅は親に合わせる */
+    height: auto !important;    /* 高さは比率を維持して自動調整 */
+    max-width: 100% !important; /* 絶対に親枠を超えさせない */
+    object-fit: contain;
+}
+
+/* 5. ピンを置く透明レイヤー */
 .overlay-layer {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    pointer-events: none; /* 下の画像クリックを邪魔しない設定（必要に応じてautoに） */
+    z-index: 10;
+    pointer-events: none; /* 画像クリックの邪魔をしない */
 }
-.overlay-layer .map-click-area {
-    pointer-events: auto;
+
+/* 6. 個別のピン（クリックエリア） */
+.map-click-area {
+    position: absolute; /* 親枠(.map-inner-wrapper)に対する絶対配置 */
+    cursor: pointer;
+    z-index: 20;
+    pointer-events: auto; /* クリック有効化 */
+    
+    /* 文字の中央寄せ */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    
+    font-size: 10px !important;
+    font-weight: bold;
+    text-shadow: 0 0 2px rgba(255,255,255,0.8);
+    color: #333;
+    
+    /* はみ出し防止 */
+    box-sizing: border-box;
+    white-space: normal !important;
+    word-break: break-all !important;
+    line-height: 1.1 !important;
 }
-.floor-map-unit {
-    display: none; /* 基本は隠す */
-}
-.floor-map-unit.active {
-    display: block; /* 選択されている階だけ表示 */
-}
+
+/* --- PC表示時の調整（画面幅 1024px以上） --- */
 @media (min-width: 1024px) {
-    /* 1. タブを隠す */
-    .floor-selector {
-        display: none !important;
-    }
+    /* タブを隠す */
+    .floor-selector { display: none !important; }
+
+    /* タイトル帯を隠す（今回のご要望） */
+    .pc-floor-title { display: none !important; }
+
+    /* マップを横並びにする */
     #dual-map-container {
         display: flex;
-        gap: 20px; /* 7階と6階の間隔 */
         justify-content: center;
+        gap: 20px;       /* 左右の間隔 */
         align-items: flex-start;
     }
+
+    /* 各階の表示設定 */
     .floor-map-unit {
-        display: block !important;
-        flex: 1; /* 幅を均等に分ける */
-        max-width: 50%; /* 半分以上にならないように */
-    }
-    .pc-floor-title {
-        display: none !important;
+        display: block !important; /* 強制表示 */
+        flex: 1;          /* 幅を均等に分ける */
+        /* width: 50% だと隙間で崩れることがあるため 48% 程度に */
+        width: 48%;       
+        max-width: 48%;   
+        margin-bottom: 0;
     }
 }
