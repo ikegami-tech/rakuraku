@@ -56,8 +56,9 @@ window.onload = () => {
 
   const startInput = document.getElementById('input-start');
   const endInput = document.getElementById('input-end');
-  if (startInput) startInput.step = 60; // 900から60に変更、または行ごと削除
-  if (endInput) endInput.step = 60;   // 900から60に変更、または行ごと削除
+  // ▼ 15分刻みに変更 (15 * 60 = 900)
+  if (startInput) startInput.step = 900; 
+  if (endInput) endInput.step = 900;
 };
 
 async function callAPI(params) {
