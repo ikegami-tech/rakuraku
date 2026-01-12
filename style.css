@@ -591,66 +591,72 @@ textarea#input-note::placeholder {
     opacity: 1 !important;
     line-height: 1.5 !important;   /* 入力文字と同じ行間に合わせる */
   }
-} 
+}
+/* ==============================================
+   ▼▼▼ 【完全修正版】マップのズレ防止・PC設定 ▼▼▼
+   ============================================== */
 
+/* 1. マップ表示エリア全体（PC/スマホ共通） */
 #dual-map-container {
     width: 100%;
     box-sizing: border-box;
-    display: block; /* Flexboxの影響をリセット */
 }
 
-/* --- 2. 各階のエリア（ユニット） --- */
+/* 2. マップユニット（7階/6階のそれぞれの箱） */
 .floor-map-unit {
     width: 100%;
-    box-sizing: border-box;
-    min-width: 0; /* 縮小時のバグ防止 */
-    
-    /* ▼ スマホでのデフォルト動作：非表示（JSでactiveがついた方だけ表示） */
-    display: none; 
+    min-width: 0; 
     margin-bottom: 20px;
+    box-sizing: border-box;
+    display: none; /* スマホではデフォルト非表示 */
 }
-
-/* アクティブな階（スマホ用） */
 .floor-map-unit.active {
-    display: block;
+    display: block; /* 選択されている階だけ表示 */
 }
 
-/* --- 3. 画像を表示する枠（ズレ防止の基準点） --- */
+/* 3. マップ表示の親枠（ここが基準点） */
 .map-inner-wrapper {
     position: relative; 
     width: 100%;
-    /* ブロック要素として高さを確保 */
-    display: block !important;
     line-height: 0;
+    overflow: hidden;
+    
+    /* ブロック要素として幅いっぱいに広げる */
+    display: block !important; 
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     border-radius: 4px;
-    overflow: hidden;
 }
 
-/* --- 4. マップ画像本体 --- */
+/* 4. マップ画像本体 */
 .map-image {
     display: block;
-    width: 100% !important;      /* 親枠に合わせて幅を確保 */
-    height: auto !important;     /* アスペクト比を維持して高さを自動調整 */
-    max-width: 100% !important;
-    max-height: none !important; /* 高さ制限を撤廃（拡大時に切れるのを防ぐ） */
+    width: 100% !important;      /* 横幅は親枠(100%)に強制的に合わせる */
+    height: auto !important;     /* 比率を維持 */
+    max-width: 100% !important;  /* 親枠を超えない */
+    
+    /* ★ここが修正ポイント：高さ制限を解除して、横幅に合わせて縦に伸びるようにする */
+    max-height: none !important; 
+    
     object-fit: contain;
 }
 
-/* --- 5. ピン配置用の透明レイヤー --- */
+/* 5. ピンを置く透明レイヤー */
 .overlay-layer {
     position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     z-index: 10;
-    pointer-events: none;
+    pointer-events: none; 
 }
 
-/* --- 6. ピン（クリックエリア） --- */
+/* 6. 個別のピン（クリックエリア） */
 .map-click-area {
     position: absolute;
+    cursor: pointer;
     z-index: 20;
     pointer-events: auto;
-    cursor: pointer;
     
     display: flex !important;
     align-items: center !important;
@@ -659,45 +665,37 @@ textarea#input-note::placeholder {
     
     font-size: 10px !important;
     font-weight: bold;
-    color: #333;
     text-shadow: 0 0 2px rgba(255,255,255,0.8);
+    color: #333;
     
     box-sizing: border-box;
-    line-height: 1.1 !important;
-    word-break: break-all !important;
     white-space: normal !important;
+    word-break: break-all !important;
+    line-height: 1.1 !important;
 }
 
-/* --- 7. PC用のタイトル帯（常に非表示） --- */
-.pc-floor-title {
-    display: none !important; 
-}
-
-
-/* =================================================================
-   ▼▼▼ パソコン表示時の設定（画面幅 1024px以上） ▼▼▼
-   ================================================================= */
+/* --- PC表示時の調整（画面幅 1024px以上） --- */
 @media (min-width: 1024px) {
-    
-    /* 1. 【重要】タブ（7階・6階ボタン）を完全に消す */
-    .floor-selector {
-        display: none !important;
-    }
+    /* ▼▼▼ 修正：タブ（ボタン）を確実に消す ▼▼▼ */
+    .floor-selector { display: none !important; }
 
-    /* 2. マップを横並びにする */
+    /* タイトル帯（濃い色のバー）を消す */
+    .pc-floor-title { display: none !important; }
+
+    /* マップを横並びにする */
     #dual-map-container {
-        display: flex !important;
+        display: flex;
         justify-content: center;
-        align-items: flex-start;
         gap: 20px;
+        align-items: flex-start;
     }
 
-    /* 3. 両方の階を強制的に表示する（スマホ用の非表示設定を解除） */
+    /* 各階の表示設定 */
     .floor-map-unit {
-        display: block !important;
-        flex: 1;          /* 均等に分ける */
-        width: 48%;       /* 幅を確保 */
-        max-width: 50%;   /* 50%を超えて崩れないように */
+        display: block !important; /* 強制表示 */
+        flex: 1;          /* 均等分割 */
+        width: 48%;       /* 幅指定 */
+        max-width: 50%;   /* 50%を超えないように */
         margin-bottom: 0;
     }
 }
