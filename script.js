@@ -6,15 +6,10 @@ const mapConfig = {
     7: {
         image: IMG_7F, 
         areas: [
-            // ▼ ZOOMブース：青系 (rgba(0, 100, 255, 0.3))
             { id: "Z 角", name: "Z 角", top: 11.1, left: 0.0, width: 12.0, height: 7.1, color: "rgba(0, 100, 255, 0.3)" },
             { id: "Z 中", name: "Z 中", top: 0.0, left: 56.0, width: 12.0, height: 6.8, color: "rgba(0, 100, 255, 0.3)" },
-
-            // ▼ 会議室：緑系 (rgba(0, 200, 80, 0.3))
             { id: "会議室2", name: "会議室2", top: 15.0, left: 79.0, width: 21.0, height: 22.5, color: "rgba(0, 200, 80, 0.3)" },
             { id: "会議室1", name: "会議室1", top: 37.3, left: 79.0, width: 21.0, height: 15.0, color: "rgba(0, 200, 80, 0.3)" },
-
-            // ▼ 応接室：オレンジ系 (rgba(255, 165, 0, 0.3))
             { id: "応接室(8人)", name: "応接室(8人)", top: 71.0, left: 0.0, width: 22.5, height: 28.5, color: "rgba(255, 165, 0, 0.3)" },
             { id: "応接室(6人)", name: "応接室(6人)", top: 76.5, left: 22.6, width: 20.0, height: 23.0, color: "rgba(255, 165, 0, 0.3)" },
         ]
@@ -22,15 +17,10 @@ const mapConfig = {
     6: {
         image: IMG_6F,
         areas: [
-             // ▼ ZOOMブース：青系
              { id: "Ｚ １", name: "Ｚ １", top: 0.0, left: 63.4, width: 6.0, height: 17.7, color: "rgba(0, 100, 255, 0.3)" },
              { id: "Ｚ ２", name: "Ｚ ２", top: 0.0, left: 69.3, width: 6.0, height: 17.7, color: "rgba(0, 100, 255, 0.3)" },
              { id: "Ｚ ３", name: "Ｚ ３", top: 0.0, left: 75.4, width: 6.0, height: 17.7, color: "rgba(0, 100, 255, 0.3)" },
-             
-             // ▼ 応接室：オレンジ系
              { id: "応接室(10人)", name: "応接室(10人)", top: 0.0, left: 81.5, width: 18.2, height: 44.2, color: "rgba(255, 165, 0, 0.3)" },
-             
-             // ▼ ZOOMブース：青系
              { id: "Ｚ ４", name: "Ｚ ４", top: 44.5, left: 88.8, width: 11.1, height: 7.0, color: "rgba(0, 100, 255, 0.3)" },
              { id: "Ｚ ５", name: "Ｚ ５", top: 51.9, left: 88.8, width: 11.1, height: 7.0, color: "rgba(0, 100, 255, 0.3)" },
              { id: "Ｚ ６", name: "Ｚ ６", top: 59.0, left: 88.8, width: 11.1, height: 7.2, color: "rgba(0, 100, 255, 0.3)" },
@@ -142,14 +132,12 @@ function populateTimeSelects() {
     startHelper.innerHTML = "";
     endHelper.innerHTML = "";
 
-    // 空の選択肢（初期状態用）を追加
     const emptyOpt = document.createElement('option');
     emptyOpt.value = "";
     emptyOpt.innerText = "時間を選択";
     startHelper.appendChild(emptyOpt.cloneNode(true));
     endHelper.appendChild(emptyOpt.cloneNode(true));
 
-    // 7:00 から 22:00 まで生成
     const startHour = 7; 
     const endHour = 22; 
 
@@ -159,13 +147,11 @@ function populateTimeSelects() {
 
             const val = `${pad(h)}:${pad(m)}`;
             
-            // 開始用セレクトに追加
             const opt1 = document.createElement('option');
             opt1.value = val;
             opt1.innerText = val;
             startHelper.appendChild(opt1);
 
-            // 終了用セレクトに追加
             const opt2 = document.createElement('option');
             opt2.value = val;
             opt2.innerText = val;
@@ -173,22 +159,18 @@ function populateTimeSelects() {
         }
     }
 }
-// ▼▼▼ 新規追加: ひらがな→カタカナ変換関数 ▼▼▼
 function hiraToKata(str) {
     return str.replace(/[\u3041-\u3096]/g, function(match) {
         var chr = match.charCodeAt(0) + 0x60;
         return String.fromCharCode(chr);
     });
 }
-// ▲▲▲ 追加ここまで ▲▲▲
-// ▲▲▲ 追加ここまで ▲▲▲
+
 function initUI() {
-  // 1. 時間軸の枠組みだけ準備
   renderTimeAxis('time-axis-all');
   renderTimeAxis('time-axis-map');
 
 　populateTimeSelects();
-  // 2. 部屋選択プルダウンの生成
   const roomSelect = document.getElementById('input-room');
   if (roomSelect) {
     roomSelect.innerHTML = "";
@@ -209,13 +191,8 @@ function initUI() {
 }
 
 function refreshUI() {
-  // 1. 履歴の更新
   renderLogs();
-  
-  // 2. グループボタンの更新
   renderGroupButtons();
-
-  // 3. 部屋プルダウンの更新（選択状態を維持）
   const roomSelect = document.getElementById('input-room');
   if (roomSelect) {
       const currentVal = roomSelect.value;
@@ -229,7 +206,6 @@ function refreshUI() {
       if(currentVal) roomSelect.value = currentVal;
   }
 
-  // 4. 現在開いているタブに応じて再描画
   if (document.getElementById('view-timeline').classList.contains('active')) {
       renderVerticalTimeline('all');
   } else if (document.getElementById('view-map-view').classList.contains('active')) {
@@ -238,8 +214,6 @@ function refreshUI() {
       }
   }
 }
-
-
 
 function selectGroupMembers(idsStr) {
   if (idsStr === null || idsStr === undefined || idsStr === "") return;
@@ -260,7 +234,6 @@ function selectGroupMembers(idsStr) {
       return;
   }
 
-  // 4. 選択状態の切り替えロジック
   const isAllSelected = targetUsers.every(u => selectedParticipantIds.has(String(u.userId)));
 
   if (isAllSelected) {
@@ -273,7 +246,6 @@ function selectGroupMembers(idsStr) {
 }
 
 function renderShuttleLists(filterText = "") {
-    // 入力を小文字化＆トリム
     const rawInput = (filterText || document.getElementById('shuttle-search-input').value || "").trim();
     const searchLower = rawInput.toLowerCase();
     const searchKata = hiraToKata(rawInput); // ひらがな入力をカタカナに変換
@@ -287,7 +259,6 @@ function renderShuttleLists(filterText = "") {
         if (!u.userId) return;
         const uidStr = String(u.userId);
 
-        // 既に選択されている場合
         if (selectedParticipantIds.has(uidStr)) {
             const div = document.createElement('div');
             div.className = 'shuttle-item icon-remove';
@@ -298,12 +269,8 @@ function renderShuttleLists(filterText = "") {
             };
             rightList.appendChild(div);
         } else {
-            // ▼▼▼ 検索判定ロジックの強化 ▼▼▼
             const name = (u.userName || "").toLowerCase();
-            // データにふりがながあれば取得（なければ空文字）
             const kana = (u.kana || u.furigana || "").toLowerCase();
-
-            // 1. そのまま一致 (漢字や英語) OR 2. カタカナ変換一致 OR 3. ふりがなデータ一致
             const isMatch = (rawInput === "") || 
                             name.includes(searchLower) || 
                             name.includes(searchKata) || 
@@ -324,33 +291,21 @@ function renderShuttleLists(filterText = "") {
     });
 }
 function switchTab(tabName) {
-  // 1. すべてのタブと画面を非アクティブにする
   document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-  
-  // 2. 選択された画面を表示する（CSSで display: block になる）
   const targetView = document.getElementById('view-' + tabName);
   if(targetView) targetView.classList.add('active');
-  
-  // 3. ナビゲーションボタンの見た目を更新
   const tabs = document.querySelectorAll('.nav-item');
-  // インデックスはHTMLの並び順 (0:マップ, 1:一覧, 2:履歴)
   if(tabName === 'map-view' && tabs[0]) tabs[0].classList.add('active');
   if(tabName === 'timeline' && tabs[1]) tabs[1].classList.add('active');
   if(tabName === 'logs' && tabs[2]) tabs[2].classList.add('active');
-
-  // ▼▼▼ 【重要修正】画面が表示された後に、中身を描画する ▼▼▼
-  
   if (tabName === 'map-view') {
-      // マップ画面の場合：描画ズレを防ぐため、ほんの少し待ってから描画
       setTimeout(() => {
           switchFloor(currentFloor); 
       }, 50);
       
   } else if (tabName === 'timeline') {
-      // 一覧画面の場合：画面幅を正しく取得させるため、setTimeout(0)で実行
       setTimeout(() => {
-          // タブの見た目も同期
           document.querySelectorAll('#view-timeline .floor-tab').forEach(tab => tab.classList.remove('active'));
           const activeTab = document.getElementById(`timeline-tab-${currentTimelineFloor}f`);
           if(activeTab) activeTab.classList.add('active');
@@ -359,7 +314,6 @@ function switchTab(tabName) {
       }, 0);
       
   } else if (tabName === 'logs') {
-      // 履歴画面の場合
       renderLogs();
   }
 }
@@ -369,7 +323,6 @@ let hourRowHeights = {};
 function drawTimeAxis(containerId) {
   const container = document.getElementById(containerId);
   container.innerHTML = "";
-  // 時間軸ヘッダーを生成（これがないと右側とズレます）
   const header = document.createElement('div');
   header.className = 'time-axis-header';
   header.style.height = "40px"; 
@@ -388,7 +341,6 @@ function drawTimeAxis(containerId) {
   }
 }
 function renderTimeAxis(containerId) {
-    // 初期化時は何もしない
 }
 
 function renderVerticalTimeline(mode) {
@@ -422,40 +374,25 @@ function renderVerticalTimeline(mode) {
       return;
   }
 
-  // ▼▼▼ 修正：親要素の強制スタイル変更を削除し、bodyのみ制御 ▼▼▼
   document.body.style.overflow = "hidden"; // ブラウザ全体のスクロールを消す
-  // document.documentElement.style.overflow = "hidden"; // 必要に応じて有効化
-
-  // 2. コンテナ初期設定
   if (container) {
       container.innerHTML = ""; 
-      
-      // ★高さ設定：画面高さ(100vh)から、上部のヘッダーや余白分(約220px)を引く
-      // これにより、画面内に収まりつつ、下部に横スクロールバーが出るようになります
-      container.style.height = "calc(100vh - 220px)"; 
-      
+      container.style.height = "calc(100vh - 220px)";      
       container.style.width = "100%"; 
-      container.style.maxWidth = "100vw"; // 画面幅を超えないように制限
-      
+      container.style.maxWidth = "100vw"; // 画面幅を超えないように制限     
       container.style.overflowY = "auto";  // 縦スクロール
       container.style.overflowX = "auto";  // 横スクロール
-      container.style.overscrollBehavior = "contain"; 
-      
+      container.style.overscrollBehavior = "contain";       
       container.style.display = "flex";    
       container.style.flexWrap = "nowrap"; 
       container.style.alignItems = "flex-start"; // 上揃え（ズレ防止）
       container.style.position = "relative";
-      
-      // 枠線やパディングによるサイズズレを防ぐ
       container.style.boxSizing = "border-box";
-      
-      // ドラッグ操作用のカーソル
       container.style.cursor = "grab"; 
       container.style.userSelect = "none"; 
       container.style.webkitUserSelect = "none";
   }
 
-  // ▼▼▼ ドラッグスクロール機能 ▼▼▼
   let isDown = false;
   let startX, startY, scrollLeft, scrollTop;
   let hasDragged = false; 
@@ -481,7 +418,6 @@ function renderVerticalTimeline(mode) {
           e.preventDefault();
           const x = e.pageX - container.offsetLeft;
           const y = e.pageY - container.offsetTop;
-          // 移動感度（1.5倍速）
           const walkX = (x - startX) * 1.5; 
           const walkY = (y - startY) * 1.5; 
           
@@ -498,7 +434,6 @@ function renderVerticalTimeline(mode) {
   
   for(let h=START_HOUR; h<END_HOUR; h++) hourRowHeights[h] = BASE_HOUR_HEIGHT;
 
-  // 3. データ処理
   const DYNAMIC_CHARS_PER_LINE = 12; 
   const allRelevantReservations = masterData.reservations.filter(res => {
       const startTimeVal = getVal(res, ['startTime', 'start_time', '開始日時', '開始', 'Start']);
@@ -535,23 +470,19 @@ function renderVerticalTimeline(mode) {
   }
   hourTops[END_HOUR] = currentTop;
 
-  // 4. 時間軸の同期
   drawTimeAxis(timeAxisId);
   const axisContainer = document.getElementById(timeAxisId);
   
   if (axisContainer && container) {
-      // 高さ同期：コンテナと同じ高さにする
       axisContainer.style.height = container.style.height; 
       axisContainer.style.overflow = "hidden"; 
       axisContainer.style.display = "block";
       axisContainer.style.overscrollBehavior = "contain";
-      
-      // コンテナ(右) → 時間軸(左)
+
       container.onscroll = () => {
           axisContainer.scrollTop = container.scrollTop;
       };
       
-      // 時間軸(左) → コンテナ(右)
       axisContainer.onwheel = (e) => {
           e.preventDefault(); 
           container.scrollTop += e.deltaY; 
@@ -572,16 +503,12 @@ function renderVerticalTimeline(mode) {
       }
   }
   
-  // 5. 部屋列の生成
   targetRooms.forEach(room => {
     const col = document.createElement('div');
     col.className = 'room-col';
-    
-    // ★幅設定：列の幅を確保し、画面幅を超える場合は横スクロールさせる
     col.style.minWidth = "200px"; 
     col.style.flexShrink = "0"; // 縮小禁止（重要）
     col.style.flexGrow = "1";
-    
     col.style.position = "relative";
     col.style.borderRight = "1px solid #ddd"; 
     col.style.overflow = "visible"; 
@@ -653,11 +580,9 @@ function renderVerticalTimeline(mode) {
       let eHour = end.getHours();
       let eMin = end.getMinutes();
       
-      // 時間範囲の補正
       if (sHour < START_HOUR) { sHour = START_HOUR; sMin = 0; }
       if (eHour >= END_HOUR) { eHour = END_HOUR; eMin = 0; }
 
-      // 描画範囲内であればバーを生成
       if (sHour < END_HOUR && (sHour > START_HOUR || (sHour === START_HOUR && sMin >= 0))) {
           const topPx = hourTops[sHour] + (hourRowHeights[sHour] * (sMin / 60));
           let bottomPx = 0;
@@ -678,9 +603,6 @@ function renderVerticalTimeline(mode) {
           bar.style.width = "calc(100% - 4px)";
           
           let displayTitle = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '予約';
-
-          // ▼▼▼ 修正箇所：時間の pad() を外して 0埋めなし に変更 ▼▼▼
-          // 分(Minutes)は00などの表示が必要なため、pad()を残します
           const startTimeStr = `${start.getHours()}:${pad(start.getMinutes())}`;
           const endTimeStr = `${end.getHours()}:${pad(end.getMinutes())}`;
           const timeRangeStr = `${startTimeStr}-${endTimeStr}`;
@@ -696,7 +618,6 @@ function renderVerticalTimeline(mode) {
                   </div>`;
               bar.style.display = "flex";
           } else {
-              // 一覧画面用（横並び）
               bar.innerHTML = `
                   <span style="font-weight:bold; font-size:0.9em;">${timeRangeStr}</span>
                   <span style="font-weight:bold; font-size:0.9em; margin-left: 5px;">${displayTitle}</span>
@@ -730,21 +651,14 @@ function changeDate(days, inputId) {
     else if(inputId === 'map-date') renderVerticalTimeline('map');
 }
 
-/* =========================================
-   ▼▼▼ 履歴表示・ページネーション修正版 ▼▼▼
-   ========================================= */
-
-// ページネーション用変数
 let currentLogPage = 1;
 const LOGS_PER_PAGE = 50; // 1ページあたりの表示数
 
-// 検索ボックス入力時に呼ばれる関数（ページを1に戻す）
 function searchLogs() {
     currentLogPage = 1;
     renderLogs();
 }
 
-// ページ切り替え用関数
 function changeLogPage(direction) {
     currentLogPage += direction;
     renderLogs();
@@ -753,16 +667,13 @@ function renderLogs() {
     const tbody = document.getElementById('log-tbody');
     tbody.innerHTML = "";
     
-    // データがない場合は終了
     if (!masterData.logs || masterData.logs.length === 0) {
         document.getElementById('log-pagination').innerHTML = "データがありません";
         return;
     }
 
-    // 1. 全データを新しい順（降順）に並べ替え
     let allLogs = [...masterData.logs].reverse(); 
 
-    // 2. 検索フィルタリング
     const filterText = document.getElementById('log-search-input').value.toLowerCase().trim();
     
     if (filterText) {
@@ -782,7 +693,6 @@ function renderLogs() {
         });
     }
 
-    // 3. ページネーション計算
     const totalItems = allLogs.length;
     const totalPages = Math.ceil(totalItems / LOGS_PER_PAGE) || 1;
 
@@ -794,7 +704,6 @@ function renderLogs() {
     
     const displayLogs = allLogs.slice(startIndex, endIndex);
 
-    // ヘルパー関数
     const resolveName = (id) => {
         const targetIdStr = String(id).trim();
         const u = masterData.users.find(user => {
@@ -814,7 +723,6 @@ function renderLogs() {
         return `${sDate.getMonth() + 1}/${sDate.getDate()} ${pad(sDate.getHours())}:${pad(sDate.getMinutes())} - ${pad(eDate.getHours())}:${pad(eDate.getMinutes())}`;
     };
 
-    // 4. 行（tr）の生成と描画
     displayLogs.forEach(log => {
         const tr = document.createElement('tr');
         let rawResName = log.resourceName || '-';
@@ -857,12 +765,9 @@ function renderLogs() {
         tbody.appendChild(tr);
     });
 
-    // 5. ページネーションコントロールの描画
     renderPaginationControls(totalPages, totalItems, startIndex + 1, Math.min(endIndex, totalItems));
 }
 
-
-// ページ送りボタン等の描画
 function renderPaginationControls(totalPages, totalItems, startCount, endCount) {
     const container = document.getElementById('log-pagination');
     container.innerHTML = "";
@@ -872,7 +777,6 @@ function renderPaginationControls(totalPages, totalItems, startCount, endCount) 
         return;
     }
 
-    // 前へボタン
     const prevBtn = document.createElement('button');
     prevBtn.className = 'page-btn';
     prevBtn.innerText = "< 前へ";
@@ -881,13 +785,11 @@ function renderPaginationControls(totalPages, totalItems, startCount, endCount) 
     prevBtn.onclick = () => changeLogPage(-1);
     container.appendChild(prevBtn);
 
-    // 情報表示 (例: 1 - 50 / 120件)
     const infoSpan = document.createElement('span');
     infoSpan.className = 'page-info';
     infoSpan.innerText = ` ${startCount} - ${endCount} / ${totalItems}件 `;
     container.appendChild(infoSpan);
-
-    // 次へボタン
+    
     const nextBtn = document.createElement('button');
     nextBtn.className = 'page-btn';
     nextBtn.innerText = "次へ >";
@@ -906,7 +808,6 @@ function getVal(obj, keys) {
     return ""; 
 }
 
-// ▼ 引数に clickMin = 0 を追加
 function openModal(res = null, defaultRoomId = null, clickHour = null, clickMin = 0) {
   const modal = document.getElementById('bookingModal');
   modal.style.display = 'flex';
@@ -917,7 +818,6 @@ function openModal(res = null, defaultRoomId = null, clickHour = null, clickMin 
 
   
   if (res) {
-    // === 既存予約の編集 ===
     document.getElementById('modal-title').innerText = "予約編集";
     document.getElementById('edit-res-id').value = res.id;
     
@@ -942,7 +842,6 @@ function openModal(res = null, defaultRoomId = null, clickHour = null, clickMin 
     document.getElementById('input-title').value = getVal(res, ['title', 'subject', '件名', 'タイトル', '用件', 'name']);
     document.getElementById('input-note').value = getVal(res, ['note', 'description', '備考', 'メモ', '詳細', 'body']);
     
-    // 参加者の復元
     const pIds = getVal(res, ['participantIds', 'participant_ids', '参加者', 'メンバー']);
     if (pIds) {
         let idList = [];
@@ -966,7 +865,6 @@ function openModal(res = null, defaultRoomId = null, clickHour = null, clickMin 
     document.getElementById('btn-delete').style.display = 'inline-block';
 
   } else {
-    // === 新規予約 ===
     document.getElementById('modal-title').innerText = "新規予約";
     document.getElementById('edit-res-id').value = "";
     if(defaultRoomId) document.getElementById('input-room').value = defaultRoomId;
@@ -990,16 +888,12 @@ function openModal(res = null, defaultRoomId = null, clickHour = null, clickMin 
    const sHour = clickHour !== null ? clickHour : 9;
     const sMin  = clickMin; // 0 または 30
 
-    // 【修正】常に開始時間の「1時間後」を終了時間に設定
-    // 例: 9:00 (上半分) → 10:00 終了
-    // 例: 9:30 (下半分) → 10:30 終了
     let eHour = sHour + 1;
     let eMin = sMin; 
 
     document.getElementById('input-start').value = `${pad(sHour)}:${pad(sMin)}`;
     document.getElementById('input-end').value = `${pad(eHour)}:${pad(eMin)}`;
-// ▲▲▲ 修正ここまで ▲▲▲
-    
+
     document.getElementById('input-title').value = "";
     document.getElementById('input-note').value = "";
     document.getElementById('btn-delete').style.display = 'none';
@@ -1007,12 +901,9 @@ function openModal(res = null, defaultRoomId = null, clickHour = null, clickMin 
   
   renderShuttleLists();
 
-    // ▼▼▼▼▼▼ ここから追加 ▼▼▼▼▼▼
-  // モーダル表示時に一番上までスクロールを戻す
   if (modal) modal.scrollTop = 0;
   const modalContent = modal.querySelector('.modal-content'); // もし中身のクラス名が違う場合は調整
   if (modalContent) modalContent.scrollTop = 0;
-  // ▲▲▲▲▲▲ ここまで追加 ▲▲▲▲▲▲
 }
     function closeModal() { document.getElementById('bookingModal').style.display = 'none'; }
 
@@ -1024,15 +915,11 @@ async function saveBooking() {
   const end = document.getElementById('input-end').value;
   const title = document.getElementById('input-title').value;
   const note = document.getElementById('input-note').value;
-
-  // ▼▼▼ 追加: 時間形式チェック (テキスト入力になったため必須) ▼▼▼
-  // 半角数字:半角数字 になっているか確認する正規表現
   const timePattern = /^([0-9]{1,2}):([0-9]{2})$/;
   if (!timePattern.test(start) || !timePattern.test(end)) {
       alert("時間は「09:00」のように半角数字とコロン(:)で入力してください。");
       return;
   }
-  // ▲▲▲ 追加ここまで ▲▲▲
   
   if (start >= end) {
       alert("開始時間は終了時間より前に設定してください。");
@@ -1044,9 +931,6 @@ async function saveBooking() {
       return;
   }
 
-  // ▼▼▼ 修正: 利用時間が15分未満ならエラーにする ▼▼▼
-  
-  // 1. 時間文字列を「分」に変換して差分を計算
   const startParts = start.split(':');
   const endParts = end.split(':');
   const startMinutes = parseInt(startParts[0]) * 60 + parseInt(startParts[1]);
@@ -1054,18 +938,15 @@ async function saveBooking() {
   
   const duration = endMinutes - startMinutes;
 
-  // 2. 15分未満ならアラート
   if (duration < 15) {
       alert("最低でも15分以上の日時を設定してください。");
       return;
   }
-  // ▲▲▲ 修正ここまで ▲▲▲
 
   const dateSlash = date.replace(/-/g, '/');
   const startTime = `${dateSlash} ${start}`;
   const endTime = `${dateSlash} ${end}`;
   
-  // 参加者IDの区切り文字に「スペース」を入れる
   const pIds = Array.from(selectedParticipantIds).join(', ');
 
   const action = id ? 'updateReservation' : 'createReservation';
@@ -1086,13 +967,13 @@ async function saveBooking() {
   const result = await callAPI(params);
   if(result.status === 'success') {
     closeModal();
-    // ▼▼▼ 修正: true を渡して画面遷移を防ぐ ▼▼▼
+
     loadAllData(true);
   } else {
     alert("エラー: " + result.message);
   }
 }
-// ▼▼▼ この関数を追加してください ▼▼▼
+
 async function deleteBooking() {
     const id = document.getElementById('edit-res-id').value;
 
@@ -1122,7 +1003,7 @@ async function deleteBooking() {
         alert("削除エラー: " + result.message);
     }
 }
-// ▲▲▲ 追加ここまで ▲▲▲
+
 function pad(n) { return n < 10 ? '0'+n : n; }
 function formatDate(d) { return `${d.getMonth()+1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}`; }
 function getRoomName(id) { const r = masterData.rooms.find(x => x.roomId === id); return r ? r.roomName : id; }
@@ -1151,17 +1032,14 @@ function selectRoomFromMap(element) {
 function switchFloor(floor) {
     currentFloor = floor;
     
-    // マップ画面内のタブだけを対象にする（一覧画面のタブには影響させない）
     const mapContainer = document.getElementById('view-map-view');
     if(mapContainer) {
         mapContainer.querySelectorAll('.floor-tab').forEach(tab => tab.classList.remove('active'));
     }
     
-    // 押されたタブを「選択中（active）」にする
     const activeTab = document.getElementById(`tab-${floor}f`);
     if(activeTab) activeTab.classList.add('active');
 
-    // 画像を描画する
     renderMap(floor);
 }
 function renderMap(floor) {
@@ -1171,60 +1049,47 @@ function renderMap(floor) {
     const imgEl = document.getElementById('office-map-img');
     if(imgEl) imgEl.src = config.image;
 
-    // 描画する親要素を取得
     const wrapper = document.getElementById('map-inner-wrapper'); 
     const container = document.getElementById('dynamic-map-container');
     const targetParent = wrapper || container;
     
     if (!targetParent) return;
 
-    // 既存のエリアを削除
     const existingAreas = targetParent.querySelectorAll('.map-click-area');
     existingAreas.forEach(el => el.remove());
 
-    // 各部屋のエリアを描画
     config.areas.forEach(area => {
         const div = document.createElement("div");
         div.className = "map-click-area"; // CSSクラス
-
-        // 座標とサイズ設定
         div.style.top = area.top + "%";
         div.style.left = area.left + "%";
         div.style.width = area.width + "%";
         div.style.height = area.height + "%";
-
-        // 部屋名を表示
         div.innerText = area.name;
-        
-        // 重要: クリック時に使うIDを埋め込む
         div.setAttribute('data-room-id', area.id);
-
-        // クリックイベント
         div.onclick = function() {
             selectRoomFromMap(this);
         };
 
-        // 画面に追加
         targetParent.appendChild(div);
     });
 
-    // マップ下のタイムラインを一旦隠す（部屋を選び直したため）
     const timelineSection = document.getElementById('map-timeline-section');
     if(timelineSection) timelineSection.style.display = 'none';
 }
-// ▼▼▼ 【追加】一覧画面の階切り替え機能 ▼▼▼
+
 function switchTimelineFloor(floor) {
     currentTimelineFloor = floor;
     
-    // タブの見た目を切り替え
+
     document.querySelectorAll('#view-timeline .floor-tab').forEach(tab => tab.classList.remove('active'));
     const activeTab = document.getElementById(`timeline-tab-${floor}f`);
     if(activeTab) activeTab.classList.add('active');
 
-    // タイムラインを再描画
+
     renderVerticalTimeline('all');
 }
-// ▼▼▼ 【修正版】詳細モーダル関連の処理 ▼▼▼
+
 let currentDetailRes = null;
 
 function openDetailModal(res) {
@@ -1245,15 +1110,12 @@ function openDetailModal(res) {
   // 3. 用件の表示
   const title = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '(なし)';
   document.getElementById('detail-title').innerText = title;
-  
-  // 4. 参加者の表示（リスト形式・スクロール対応）
-  // ★ここから修正箇所
+
   const membersContainer = document.getElementById('detail-members');
   membersContainer.innerHTML = ""; // 一旦クリア
 
   let pIdsStr = getVal(res, ['participantIds', 'participant_ids', '参加者', 'メンバー']);
   
-  // データ形式エラーチェック
   if (String(pIdsStr).includes('e+')) {
       membersContainer.innerHTML = "<div class='detail-member-item' style='color:red;'>⚠️データ形式エラー: 編集ボタンから修正してください</div>";
   } else if (pIdsStr) {
@@ -1287,14 +1149,11 @@ function openDetailModal(res) {
       // 参加者がいない場合
       membersContainer.innerHTML = "<div class='detail-member-item'>-</div>";
   }
-  // ★ここまで修正箇所（最後の innerText = pNames は削除しました）
 
-  // 5. 備考の表示
   let rawNote = getVal(res, ['note', 'description', '備考', 'メモ']) || '';
   let cleanNote = rawNote.replace(/【変更履歴】.*/g, '').replace(/^\s*[\r\n]/gm, '').trim();
   document.getElementById('detail-note').innerText = cleanNote;
 
-  // 「編集する」ボタン
   document.getElementById('btn-go-edit').onclick = function() {
       closeDetailModal();        
       openModal(currentDetailRes); 
@@ -1305,17 +1164,10 @@ function openDetailModal(res) {
 function closeDetailModal() {
   document.getElementById('detailModal').style.display = 'none';
 }
-/* =========================================
-   ▼▼▼ グループ管理機能（完全クリア＆共有版） ▼▼▼
-   ========================================= */
 
-// グループ作成モーダル用の一時的なID保存セット
 let groupCreateSelectedIds = new Set();
-// 削除モードかどうかのフラグ
 let isDeleteMode = false;
 let isEditMode = false; // ★追加
-
-// script.js の renderGroupButtons 関数をこれに置き換えてください
 
 function renderGroupButtons() {
   const container = document.getElementById('group-buttons-area');
@@ -1323,18 +1175,15 @@ function renderGroupButtons() {
   const serverGroups = masterData.groups || [];
 
   serverGroups.forEach(grp => {
-      // 既存グループボタンの生成
       createGroupButton(container, grp.groupName, grp.memberIds, true, grp.groupId);
   });
 
-  // 1. 「＋新規作成」ボタン
   const addBtn = document.createElement('div');
   addBtn.className = 'group-chip';
   addBtn.style.backgroundColor = '#4caf50'; // 緑
   addBtn.style.color = 'white';
   addBtn.style.fontWeight = 'bold';
   addBtn.innerText = "＋新規作成";
-  // 編集・削除モード中は押せないようにする（あるいはモード解除）
   addBtn.style.opacity = (isDeleteMode || isEditMode) ? "0.3" : "1.0";
   addBtn.onclick = () => {
       if(isDeleteMode || isEditMode) return;
@@ -1342,10 +1191,8 @@ function renderGroupButtons() {
   };
   container.appendChild(addBtn);
 
-  // 共有グループがある場合のみ操作ボタンを表示
   if (serverGroups.length > 0) {
-      
-      // 2. 「編集」ボタン（★追加）
+
       const editBtn = document.createElement('div');
       editBtn.className = 'group-chip';
       editBtn.style.backgroundColor = isEditMode ? '#2980b9' : '#3498db';
@@ -1359,7 +1206,6 @@ function renderGroupButtons() {
       };
       container.appendChild(editBtn);
 
-      // 3. 「削除」ボタン
       const delBtn = document.createElement('div');
       delBtn.className = 'group-chip';
       delBtn.style.backgroundColor = isDeleteMode ? '#c0392b' : '#e74c3c';
@@ -1432,7 +1278,6 @@ async function saveNewGroup() {
 
     const idsStr = Array.from(groupCreateSelectedIds).join(',');
 
-    // API呼び出し用のパラメータ
     const params = {
         action: 'createGroup',
         groupName: name,
@@ -1496,7 +1341,6 @@ function openGroupModal(groupId = null, groupName = "", memberIds = "") {
             });
         }
     } else {
-        // === 新規作成モード ===
         titleEl.innerText = "グループ作成";
         idInput.value = ""; // 空にする
         nameInput.value = "";
@@ -1550,11 +1394,9 @@ function closeGroupModal() {
 }
 
 function renderGroupCreateShuttle() {
-    // 入力を取得して変換
     const rawInput = (document.getElementById('group-shuttle-search').value || "").trim();
     const searchLower = rawInput.toLowerCase();
     const searchKata = hiraToKata(rawInput);
-
     const leftList = document.getElementById('group-create-candidates');
     const rightList = document.getElementById('group-create-selected');
     leftList.innerHTML = "";
@@ -1573,7 +1415,6 @@ function renderGroupCreateShuttle() {
             };
             rightList.appendChild(div);
         } else {
-            // ▼▼▼ 検索判定ロジックの強化 ▼▼▼
             const name = (u.userName || "").toLowerCase();
             const kana = (u.kana || u.furigana || "").toLowerCase();
 
@@ -1612,18 +1453,14 @@ function updateModalDisplay() {
     // 表示を更新
     displayEl.innerText = `${m}月${d}日 ${startEl.value} - ${endEl.value}`;
 }
-// ▼▼▼ 追加: 時間入力の「時」「分」部分選択ロジック ▼▼▼
 function selectTimePart(elm) {
-    // 少し遅らせないとブラウザの標準カーソル位置動作に負けるため setTimeout を使用
     setTimeout(() => {
         const val = elm.value;
-        // 「:」が含まれていない場合は何もしない
         if (!val || val.indexOf(':') === -1) return;
 
         const colonIndex = val.indexOf(':');
         const cursorPos = elm.selectionStart;
 
-        // カーソルがコロンより左なら「時」、右なら「分」を選択状態にする
         if (cursorPos <= colonIndex) {
             elm.setSelectionRange(0, colonIndex); // 時を選択
         } else {
@@ -1632,7 +1469,6 @@ function selectTimePart(elm) {
     }, 10);
 }
 
-// ▼▼▼ 追加: 入力完了時に 9:00 → 09:00 に整形するロジック ▼▼▼
 function formatTimeInput(elm) {
     let val = elm.value.trim();
     if (!val) return;
