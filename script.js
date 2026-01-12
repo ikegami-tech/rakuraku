@@ -355,16 +355,13 @@ function renderVerticalTimeline(mode) {
       return;
   }
 
-  // 2. コンテナの初期設定（画面内に収める設定）
+  // 2. コンテナの初期設定
   if (container) {
       container.innerHTML = ""; 
       
-      // ★高さ調整: 画面いっぱいから上部メニュー(180px)と下部余白(20px)を引いた高さにする
       container.style.height = "calc(100vh - 200px)"; 
-      container.style.overflowY = "auto";  // 縦スクロール
-      container.style.overflowX = "auto";  // 横スクロール
-      
-      // スクロール連鎖防止（ドラッグ時のバグ対策）
+      container.style.overflowY = "auto";  
+      container.style.overflowX = "auto";  
       container.style.overscrollBehavior = "contain"; 
       
       container.style.display = "flex";    
@@ -373,10 +370,58 @@ function renderVerticalTimeline(mode) {
       container.style.alignItems = "flex-start"; 
       container.style.position = "relative";
       
-      // 誤操作防止
+      // カーソルを「掴める手」の形にする
+      container.style.cursor = "grab"; 
       container.style.userSelect = "none"; 
       container.style.webkitUserSelect = "none";
   }
+
+  // ▼▼▼ ドラッグスクロール機能の実装（ここから追加） ▼▼▼
+  let isDown = false;
+  let startX, startY, scrollLeft, scrollTop;
+  let hasDragged = false; // クリックとドラッグを区別するフラグ
+
+  if (container) {
+      container.onmousedown = (e) => {
+          isDown = true;
+          hasDragged = false; // フラグをリセット
+          container.style.cursor = "grabbing"; // 「掴んだ手」にする
+          startX = e.pageX - container.offsetLeft;
+          startY = e.pageY - container.offsetTop;
+          scrollLeft = container.scrollLeft;
+          scrollTop = container.scrollTop;
+      };
+
+      container.onmouseleave = () => {
+          isDown = false;
+          container.style.cursor = "grab";
+      };
+
+      container.onmouseup = () => {
+          isDown = false;
+          container.style.cursor = "grab";
+          // クリック判定のためにフラグのリセットを少し遅らせる
+          setTimeout(() => { hasDragged = false; }, 50);
+      };
+
+      container.onmousemove = (e) => {
+          if (!isDown) return;
+          e.preventDefault();
+          const x = e.pageX - container.offsetLeft;
+          const y = e.pageY - container.offsetTop;
+          const walkX = (x - startX) * 1; // 横移動量
+          const walkY = (y - startY) * 1; // 縦移動量
+          
+          // 5px以上動いたら「ドラッグした」とみなす（クリック誤爆防止）
+          if (Math.abs(walkX) > 5 || Math.abs(walkY) > 5) {
+              hasDragged = true;
+          }
+
+          container.scrollLeft = scrollLeft - walkX;
+          container.scrollTop = scrollTop - walkY;
+      };
+  }
+  // ▲▲▲ ドラッグスクロール機能ここまで ▲▲▲
 
   const rawDateVal = document.getElementById(dateInputId).value; 
   const targetDateNum = formatDateToNum(new Date(rawDateVal)); 
@@ -431,35 +476,30 @@ function renderVerticalTimeline(mode) {
   }
   hourTops[END_HOUR] = currentTop;
 
-  // ▼▼▼ 4. 時間軸のスクロール同期と固定設定 ▼▼▼
+  // 4. 時間軸のスクロール同期と固定設定
   drawTimeAxis(timeAxisId);
   const axisContainer = document.getElementById(timeAxisId);
   
   if (axisContainer && container) {
-      // (A) 左側の高さを右側と合わせる
       axisContainer.style.height = container.style.height; 
-      axisContainer.style.overflow = "hidden"; // 左側のスクロールバーは消す
+      axisContainer.style.overflow = "hidden"; 
       axisContainer.style.display = "block";
       axisContainer.style.overscrollBehavior = "contain";
       
-      // (B) 右側(container) → 左側(axis) の同期
-      // 右側をスクロールしたら、左側も同じ位置に動かす
+      // 右側(container) → 左側(axis)
       container.onscroll = () => {
           axisContainer.scrollTop = container.scrollTop;
       };
       
-      // (C) 左側(axis) → 右側(container) の操作連動
-      // 左側でホイールを回した時、強制的に右側をスクロールさせる
+      // 左側(axis) → 右側(container)
       axisContainer.onwheel = (e) => {
-          e.preventDefault(); // デフォルトの動作を止める
-          container.scrollTop += e.deltaY; // 縦スクロール同期
-          container.scrollLeft += e.deltaX; // 横スクロール同期
+          e.preventDefault(); 
+          container.scrollTop += e.deltaY; 
+          container.scrollLeft += e.deltaX; 
       };
 
-      // 初期位置同期
       axisContainer.scrollTop = container.scrollTop;
 
-      // 左上の時間軸ヘッダー（空白部分）も固定する
       const axisHeader = axisContainer.querySelector('.time-axis-header');
       if(axisHeader) {
           axisHeader.style.position = "sticky";
@@ -468,7 +508,7 @@ function renderVerticalTimeline(mode) {
           axisHeader.style.zIndex = "20";
           axisHeader.style.borderBottom = "1px solid #ddd"; 
           axisHeader.style.boxSizing = "border-box";
-          axisHeader.style.transform = "translateZ(0)"; // 描画安定化
+          axisHeader.style.transform = "translateZ(0)"; 
       }
   }
   
@@ -481,18 +521,17 @@ function renderVerticalTimeline(mode) {
     col.style.flex = "1";         
     col.style.position = "relative";
     col.style.borderRight = "1px solid #ddd"; 
-    col.style.overflow = "visible"; // ★重要: Stickyを効かせるためvisibleにする
+    col.style.overflow = "visible"; 
 
-    // ヘッダー（部屋名）の生成
+    // ヘッダー（部屋名）
     const header = document.createElement('div');
     header.className = 'room-header';
     header.innerText = room.roomName;
     
-    // ▼▼▼ ヘッダー固定のスタイル設定 ▼▼▼
     header.style.position = "sticky";
     header.style.top = "0";          
     header.style.zIndex = "10";      
-    header.style.backgroundColor = "#fff"; // 背景白
+    header.style.backgroundColor = "#fff"; 
     header.style.borderBottom = "1px solid #999"; 
     header.style.borderTop = "1px solid #ddd"; 
     header.style.height = "40px";       
@@ -500,12 +539,12 @@ function renderVerticalTimeline(mode) {
     header.style.textAlign = "center";
     header.style.fontWeight = "bold";
     header.style.boxSizing = "border-box"; 
-    header.style.transform = "translateZ(0)"; // 描画安定化
+    header.style.transform = "translateZ(0)"; 
     header.style.willChange = "transform";
     
     col.appendChild(header);
     
-    // グリッド（予約枠エリア）
+    // グリッド
     const body = document.createElement('div');
     body.className = 'room-grid-body';
     body.style.height = currentTop + "px"; 
@@ -520,8 +559,11 @@ function renderVerticalTimeline(mode) {
         body.appendChild(slot);
     }
     
-    // クリックイベント
+    // クリックイベント（予約作成）
     body.onclick = (e) => {
+       // ★重要：ドラッグした直後のクリックは無視する
+       if (hasDragged) return;
+
        if (e.target.closest('.v-booking-bar')) return;
        
        if(e.target.classList.contains('grid-slot') || e.target === body) {
@@ -613,6 +655,8 @@ function renderVerticalTimeline(mode) {
           }
         
           bar.onclick = (e) => { 
+              // ★重要：ドラッグした直後は反応させない
+              if (hasDragged) return;
               e.stopPropagation(); 
               openDetailModal(res); 
           };
