@@ -355,36 +355,42 @@ function renderVerticalTimeline(mode) {
       return;
   }
 
-  // ▼▼▼ 1. レイアウトの強制調整（スマホの見切れ対策） ▼▼▼
-  
-  // 画面全体のスクロールを禁止
-  document.body.style.overflow = "hidden";
-  document.body.style.margin = "0";
-  // スマホのアドレスバー対策として dvh (Dynamic Viewport Height) を使用
-  document.body.style.height = "100dvh"; 
+  // ▼▼▼ レイアウト修正の核心部分 ▼▼▼
+  // 以前の body へのスタイル適用は削除し、カレンダー部分だけにスタイルを適用します
+  document.body.style.overflow = ""; 
+  document.body.style.height = ""; 
+  document.body.style.margin = "";
 
-  // コンテナの親要素（タブの中身全体）を Flexbox にして、高さを自動分配させる
-  if (container && container.parentElement) {
-      const parent = container.parentElement;
-      parent.style.display = "flex";
-      parent.style.flexDirection = "column";
-      parent.style.height = "100dvh"; // 画面いっぱいに広げる
-      parent.style.overflow = "hidden";
+  const axisContainer = document.getElementById(timeAxisId);
+
+  // コンテナと時間軸の親要素を取得して、強制的に横並びにする
+  if (container && axisContainer && container.parentElement) {
+      const wrapper = container.parentElement;
+      
+      // 親要素(wrapper)のスタイルを強制設定
+      wrapper.style.display = "flex";
+      wrapper.style.flexDirection = "row"; // 横並びにする（これでズレが直ります）
+      wrapper.style.alignItems = "flex-start"; // 上端を合わせる
+      wrapper.style.justifyContent = "flex-start";
+      wrapper.style.width = "100%";
+      
+      // ★高さ設定：画面高さ(100vh)から上部メニュー分(約240px)を引く
+      // これにより、上部タブが見切れることなく、画面下部にスクロールバーが出ます
+      wrapper.style.height = "calc(100vh - 240px)"; 
+      wrapper.style.overflow = "hidden"; // 親自体のスクロールは禁止
   }
 
-  // 2. コンテナ初期設定
+  // 2. 予約表コンテナの設定
   if (container) {
       container.innerHTML = ""; 
       
-      // ★高さ計算をやめ、Flexboxの「残りスペース全部(flex:1)」を使う
-      // これにより、ヘッダーの高さが変わっても予約表が自動で伸縮し、見切れなくなります
+      // Flex設定：残り幅を全て使う
       container.style.flex = "1"; 
-      container.style.height = "auto"; 
-      container.style.width = "100%"; 
-      container.style.maxWidth = "100vw"; 
+      container.style.width = "0"; // Flexbox内での幅計算バグ防止
+      container.style.height = "100%"; // 親要素の高さを埋める
       
-      container.style.overflowY = "auto";  
-      container.style.overflowX = "auto";  
+      container.style.overflowY = "auto";  // 縦スクロール
+      container.style.overflowX = "auto";  // 横スクロール
       container.style.overscrollBehavior = "contain"; 
       
       container.style.display = "flex";    
@@ -396,18 +402,15 @@ function renderVerticalTimeline(mode) {
       container.style.cursor = "grab"; 
       container.style.userSelect = "none"; 
       container.style.webkitUserSelect = "none";
-      
-      // タッチ操作の遅延をなくす
-      container.style.touchAction = "none"; 
+      container.style.touchAction = "none"; // スマホでの操作性向上
   }
 
-  // ▼▼▼ 3. ドラッグ＆タッチ操作機能（スマホ対応） ▼▼▼
+  // ▼▼▼ 3. ドラッグ＆タッチ操作機能 ▼▼▼
   let isDown = false;
   let startX, startY, scrollLeft, scrollTop;
   let hasDragged = false; 
 
   if (container) {
-      // --- マウス操作（PC用） ---
       const startDrag = (pageX, pageY) => {
           isDown = true;
           hasDragged = false;
@@ -420,7 +423,7 @@ function renderVerticalTimeline(mode) {
 
       const moveDrag = (e, pageX, pageY) => {
           if (!isDown) return;
-          if(e.cancelable) e.preventDefault(); // スクロール連鎖防止
+          if(e.cancelable) e.preventDefault();
           
           const x = pageX;
           const y = pageY;
@@ -440,13 +443,13 @@ function renderVerticalTimeline(mode) {
           setTimeout(() => { hasDragged = false; }, 50);
       };
 
-      // PC向けイベント
+      // PC
       container.onmousedown = (e) => startDrag(e.pageX, e.pageY);
       container.onmouseleave = endDrag;
       container.onmouseup = endDrag;
       container.onmousemove = (e) => moveDrag(e, e.pageX, e.pageY);
 
-      // ★スマホ向けタッチイベント（ここを追加）
+      // スマホ
       container.ontouchstart = (e) => startDrag(e.touches[0].pageX, e.touches[0].pageY);
       container.ontouchend = endDrag;
       container.ontouchmove = (e) => moveDrag(e, e.touches[0].pageX, e.touches[0].pageY);
@@ -494,29 +497,31 @@ function renderVerticalTimeline(mode) {
   }
   hourTops[END_HOUR] = currentTop;
 
-  // 5. 時間軸の同期
+  // 5. 時間軸の同期設定
   drawTimeAxis(timeAxisId);
-  const axisContainer = document.getElementById(timeAxisId);
   
   if (axisContainer && container) {
-      axisContainer.style.height = "auto"; 
-      axisContainer.style.flex = "1"; // 自動伸縮
+      // 時間軸のスタイル設定
+      axisContainer.style.flexShrink = "0"; // 縮小させない
+      axisContainer.style.width = "auto";
+      axisContainer.style.height = "100%"; // 親要素の高さに合わせる
       axisContainer.style.overflow = "hidden"; 
       axisContainer.style.display = "block";
       axisContainer.style.overscrollBehavior = "contain";
       
+      // スクロール同期
       container.onscroll = () => {
           axisContainer.scrollTop = container.scrollTop;
       };
       
-      // PCホイール同期
-      axisContainer.onwheel = (e) => {
+      const syncWheel = (e) => {
           e.preventDefault(); 
           container.scrollTop += e.deltaY; 
           container.scrollLeft += e.deltaX; 
       };
+      axisContainer.onwheel = syncWheel;
       
-      // スマホタッチ同期（時間軸上での操作を右側に伝える）
+      // スマホタッチ同期
       let axisStartY, axisStartScroll;
       axisContainer.ontouchstart = (e) => {
           axisStartY = e.touches[0].pageY;
@@ -548,6 +553,7 @@ function renderVerticalTimeline(mode) {
     const col = document.createElement('div');
     col.className = 'room-col';
     
+    // 幅設定：200px以上確保して横スクロールさせる
     col.style.minWidth = "200px"; 
     col.style.flexShrink = "0"; 
     col.style.flexGrow = "1";
