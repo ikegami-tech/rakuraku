@@ -664,12 +664,29 @@ function renderVerticalTimeline(mode) {
           bar.style.position = "absolute"; 
           bar.style.left = "2px";
           bar.style.width = "calc(100% - 4px)";
-          let displayTitle = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '予約';
+         // ▼▼▼ 表示用文字列の作成（開始-終了） ▼▼▼
+          const startTimeStr = `${pad(start.getHours())}:${pad(start.getMinutes())}`;
+          const endTimeStr = `${pad(end.getHours())}:${pad(end.getMinutes())}`;
+          const timeRangeStr = `${startTimeStr}-${endTimeStr}`; // 例: 09:00-10:00
+
+          // ▼▼▼ 表示内容の設定（修正箇所） ▼▼▼
           if (mode === 'map') {
-              bar.innerHTML = `<div style="flex: 1; text-align: right; padding-right: 5px; font-weight: bold; overflow: hidden;">${pad(start.getHours())}:${pad(start.getMinutes())}</div><div style="flex: 2; text-align: left; padding-left: 5px; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${displayTitle}</div>`;
+              // マップ下のタイムライン表示（左右分割レイアウト）
+              bar.innerHTML = `
+                  <div style="flex: 1; text-align: right; padding-right: 5px; font-weight: bold; overflow: hidden; font-size: 0.9em;">
+                      ${timeRangeStr}
+                  </div>
+                  <div style="flex: 2; text-align: left; padding-left: 5px; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                      ${displayTitle}
+                  </div>`;
               bar.style.display = "flex";
           } else {
-              bar.innerHTML = `<span style="font-weight:bold; font-size:0.9em;">${pad(start.getHours())}:${pad(start.getMinutes())}</span><span style="font-weight:bold; font-size:0.9em;">${displayTitle}</span>`;
+              // 通常の縦型タイムライン表示（並列レイアウト）
+              // 時間とタイトルの間に少しスペースを入れています
+              bar.innerHTML = `
+                  <span style="font-weight:bold; font-size:0.9em;">${timeRangeStr}</span>
+                  <span style="font-weight:bold; font-size:0.9em; margin-left: 5px;">${displayTitle}</span>
+              `;
           }
           bar.onclick = (e) => { 
               if (hasDragged) return;
