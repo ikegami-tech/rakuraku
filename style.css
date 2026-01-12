@@ -851,6 +851,6 @@ textarea#input-note::placeholder {
 
     /* 4. PC用の階数タイトルを表示 */
     .pc-floor-title {
-        display: block;
+        display: none !important;
     }
 }
