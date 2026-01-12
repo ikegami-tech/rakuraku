@@ -325,8 +325,6 @@ function renderTimeAxis(containerId) {
 }
 
 function renderVerticalTimeline(mode) {
-  console.log("=== デバッグモード開始: renderVerticalTimeline ===");
-
   let container, dateInputId, targetRooms;
   let timeAxisId;
 
@@ -357,21 +355,22 @@ function renderVerticalTimeline(mode) {
       return;
   }
 
-  // 2. コンテナ初期設定（デバッグ用スタイル適用）
+  // 2. コンテナ初期設定（幅制限を追加してスクロールを強制）
   if (container) {
       container.innerHTML = ""; 
       
-      // ★デバッグ：赤い枠線をつけて、領域を可視化する
-      container.style.border = "5px solid red"; 
-      
-      container.style.height = "calc(100vh - 200px)"; 
+      // ★重要：コンテナの幅を「画面幅」に制限する（これで中身がはみ出してスクロール可能になる）
+      container.style.maxWidth = "100vw"; 
+      container.style.width = "100%"; 
+      container.style.boxSizing = "border-box"; // 枠線を含めたサイズ計算にする
+
+      container.style.height = "calc(100vh - 180px)"; 
       container.style.overflowY = "auto";  
-      container.style.overflowX = "auto";  // 横スクロール許可
+      container.style.overflowX = "auto";  // これでコンテナ自身のスクロールバーが出る
       container.style.overscrollBehavior = "contain"; 
       
       container.style.display = "flex";    
-      container.style.flexWrap = "nowrap"; // 折り返し禁止
-      container.style.width = "100%";      
+      container.style.flexWrap = "nowrap"; 
       container.style.alignItems = "flex-start"; 
       container.style.position = "relative";
       
@@ -380,14 +379,13 @@ function renderVerticalTimeline(mode) {
       container.style.webkitUserSelect = "none";
   }
 
-  // ▼▼▼ ドラッグ機能（デバッグログ付き） ▼▼▼
+  // ▼▼▼ ドラッグスクロール機能 ▼▼▼
   let isDown = false;
   let startX, startY, scrollLeft, scrollTop;
   let hasDragged = false; 
 
   if (container) {
       container.onmousedown = (e) => {
-          console.log("マウスダウン検知");
           isDown = true;
           hasDragged = false;
           container.style.cursor = "grabbing"; 
@@ -407,13 +405,13 @@ function renderVerticalTimeline(mode) {
           e.preventDefault();
           const x = e.pageX - container.offsetLeft;
           const y = e.pageY - container.offsetTop;
-          const walkX = (x - startX) * 1; 
-          const walkY = (y - startY) * 1; 
+          // 移動量（ドラッグした分だけスクロールさせる）
+          const walkX = (x - startX) * 1.5; // 少し加速させる
+          const walkY = (y - startY) * 1.5; 
           
           if (Math.abs(walkX) > 5 || Math.abs(walkY) > 5) {
               hasDragged = true;
           }
-          // スクロール実行
           container.scrollLeft = scrollLeft - walkX;
           container.scrollTop = scrollTop - walkY;
       };
@@ -424,7 +422,7 @@ function renderVerticalTimeline(mode) {
   
   for(let h=START_HOUR; h<END_HOUR; h++) hourRowHeights[h] = BASE_HOUR_HEIGHT;
 
-  // 3. データ処理（省略なし）
+  // 3. データ処理
   const DYNAMIC_CHARS_PER_LINE = 12; 
   const allRelevantReservations = masterData.reservations.filter(res => {
       const startTimeVal = getVal(res, ['startTime', 'start_time', '開始日時', '開始', 'Start']);
@@ -461,14 +459,11 @@ function renderVerticalTimeline(mode) {
   }
   hourTops[END_HOUR] = currentTop;
 
-  // 4. 時間軸の同期（デバッグ用スタイル）
+  // 4. 時間軸の同期
   drawTimeAxis(timeAxisId);
   const axisContainer = document.getElementById(timeAxisId);
   
   if (axisContainer && container) {
-      // ★デバッグ：時間軸に青い枠線
-      axisContainer.style.border = "3px solid blue";
-      
       axisContainer.style.height = container.style.height; 
       axisContainer.style.overflow = "hidden"; 
       axisContainer.style.display = "block";
@@ -480,7 +475,6 @@ function renderVerticalTimeline(mode) {
       
       axisContainer.onwheel = (e) => {
           e.preventDefault(); 
-          console.log("時間軸ホイール操作: deltaY=" + e.deltaY); // ログ出力
           container.scrollTop += e.deltaY; 
           container.scrollLeft += e.deltaX; 
       };
@@ -504,9 +498,8 @@ function renderVerticalTimeline(mode) {
     const col = document.createElement('div');
     col.className = 'room-col';
     
-    // ★デバッグ：強制的に幅を広げる（300px）
-    // これにより、部屋が数個あれば確実に画面幅を超えて横スクロールバーが出るはずです
-    col.style.minWidth = "300px"; 
+    // 幅設定：これで確実に画面幅を超えるようにする
+    col.style.minWidth = "200px"; 
     
     col.style.flex = "1";         
     col.style.position = "relative";
@@ -570,7 +563,7 @@ function renderVerticalTimeline(mode) {
        }
     };
 
-    // 予約バー描画（省略なし）
+    // 予約バー描画
     const reservations = allRelevantReservations.filter(res => String(res._resourceId) === String(room.roomId));
     reservations.forEach(res => {
       const start = new Date(res._startTime);
@@ -616,18 +609,6 @@ function renderVerticalTimeline(mode) {
     col.appendChild(body);
     container.appendChild(col);
   });
-
-  // ★デバッグログ：コンテナのサイズ確認
-  setTimeout(() => {
-      console.log("=== デバッグサイズ確認 ===");
-      console.log("コンテナの表示幅 (clientWidth): " + container.clientWidth);
-      console.log("中身の全幅 (scrollWidth): " + container.scrollWidth);
-      if (container.scrollWidth > container.clientWidth) {
-          console.log("判定: 中身の方が大きいため、横スクロールバーが出るはずです。");
-      } else {
-          console.log("判定: 中身が画面に収まっているため、スクロールバーは出ません。");
-      }
-  }, 500);
 }
 function formatDateToNum(d) {
   if (isNaN(d.getTime())) return ""; 
