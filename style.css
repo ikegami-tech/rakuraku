@@ -196,12 +196,14 @@ header {
 
 /* ▼マップ下部の予約バー（上書き設定） */
 #rooms-container-map .v-booking-bar {
-  flex-direction: column !important;      /* 縦並びにする */
+  flex-direction: row !important;    /* 縦並びにする */
   justify-content: flex-start !important; /* 上に寄せる */
   align-items: flex-start !important;     /* 左に寄せる */
   padding: 4px 5px !important;            /* 余白調整 */
   text-align: left !important;            /* 文字左揃え */
-  gap: 2px;                               /* 時間と用件の間隔 */
+  gap: 10px;                               /* 時間と用件の間隔 */
+  flex-wrap: nowrap !important;
+  overflow: hidden;
 }
 #rooms-container-map .v-booking-bar span,
 #rooms-container-map .v-booking-bar div {
