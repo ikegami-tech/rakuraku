@@ -576,13 +576,18 @@ function renderVerticalTimeline(mode) {
           const endTimeStr = `${end.getHours()}:${pad(end.getMinutes())}`;
           const timeRangeStr = `${startTimeStr}-${endTimeStr}`;
 
+          // ▼▼▼ 修正: 参加者名の整形テキストを取得 ▼▼▼
+          const membersStr = getFormattedMemberString(res);
+          // タイトルと参加者を結合（参加者がいる場合のみ括弧書きで追加）
+          const fullContent = membersStr ? `${displayTitle} (${membersStr})` : displayTitle;
+
           if (mode === 'map') {
               bar.innerHTML = `
                   <div style="flex: 1; text-align: right; padding-right: 5px; font-weight: bold; overflow: hidden; font-size: 0.9em;">
                       ${timeRangeStr}
                   </div>
                   <div style="flex: 2; text-align: left; padding-left: 5px; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                      ${displayTitle}
+                      ${fullContent}
                   </div>`;
               bar.style.display = "flex";
           } else {
@@ -605,7 +610,6 @@ function renderVerticalTimeline(mode) {
     container.appendChild(col);
   });
 }
-
 /* ==============================================
    6. 予約・詳細モーダル関連
    ============================================== */
