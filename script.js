@@ -1266,3 +1266,33 @@ function getVal(obj, keys) {
     }
     return ""; 
 }
+/* ==============================================
+   追加ヘルパー: 参加者を「4名 + 他○名」に整形
+   ============================================== */
+function getFormattedMemberString(res) {
+    const pIdsStr = getVal(res, ['participantIds', 'participant_ids', '参加者', 'メンバー']);
+    
+    // エラーデータや空の場合は空文字を返す
+    if (!pIdsStr || String(pIdsStr).includes('e+')) return "";
+
+    const cleanIdsStr = String(pIdsStr).replace(/['"]/g, "");
+    // IDを配列化して空要素を除去
+    const resIds = cleanIdsStr.split(/[,、\s]+/).map(id => id.trim()).filter(id => id);
+
+    if (resIds.length === 0) return "";
+
+    // IDを名前に変換
+    const names = resIds.map(id => {
+        const u = masterData.users.find(user => String(user.userId) === id);
+        return u ? u.userName : id;
+    });
+
+    // 4名以下ならそのまま、5名以上なら省略表記
+    if (names.length <= 4) {
+        return names.join('、');
+    } else {
+        const shown = names.slice(0, 4).join('、');
+        const remaining = names.length - 4;
+        return `${shown} ＋他${remaining}名`;
+    }
+}
