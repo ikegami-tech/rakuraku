@@ -888,7 +888,8 @@ function closeDetailModal() { document.getElementById('detailModal').style.displ
 function renderGenericShuttle(filterText, targetSet, candidatesContainerId, selectedContainerId) {
     const rawInput = (filterText || "").trim();
     const searchLower = rawInput.toLowerCase();
-    const searchKata = hiraToKata(rawInput);
+    const searchKata = hiraToKata(rawInput); // 入力がひらがなならカタカナに変換
+    
     const leftList = document.getElementById(candidatesContainerId);
     const rightList = document.getElementById(selectedContainerId);
     if(!leftList || !rightList) return;
@@ -901,6 +902,7 @@ function renderGenericShuttle(filterText, targetSet, candidatesContainerId, sele
         const uidStr = String(u.userId);
         
         if (targetSet.has(uidStr)) {
+            // (省略) 選択済みの描画処理
             const div = document.createElement('div');
             div.className = 'shuttle-item icon-remove';
             div.innerText = u.userName;
@@ -910,15 +912,17 @@ function renderGenericShuttle(filterText, targetSet, candidatesContainerId, sele
             };
             rightList.appendChild(div);
         } else {
+            // ▼▼▼ 検索判定ロジック ▼▼▼
             const name = (u.userName || "").toLowerCase();
-            const kana = (u.kana || u.furigana || "").toLowerCase();
+            const kana = (u.kana || "").toLowerCase(); // GASから取得したkana
+
             const isMatch = (rawInput === "") || 
                             name.includes(searchLower) || 
-                            name.includes(searchKata) || 
-                            kana.includes(searchLower) ||
-                            kana.includes(searchKata);
+                            kana.includes(searchLower) ||  // そのまま検索(ひらがなデータ等)
+                            kana.includes(searchKata);     // カタカナ変換して検索
 
             if (isMatch) {
+                // (省略) 候補の描画処理
                 const div = document.createElement('div');
                 div.className = 'shuttle-item icon-add';
                 div.innerText = u.userName;
@@ -1126,14 +1130,24 @@ function renderLogs() {
     let allLogs = [...masterData.logs].reverse(); 
     const filterText = document.getElementById('log-search-input').value.toLowerCase().trim();
     if (filterText) {
+        // ▼▼▼ 検索用ヘルパー: 入力が「ひらがな」なら「カタカナ」も用意する
+        const searchKata = hiraToKata(filterText); 
+
         allLogs = allLogs.filter(log => {
             const dateStr = formatDate(new Date(log.timestamp));
             let roomName = log.resourceName || "";
             const roomObj = masterData.rooms.find(r => String(r.roomId) === String(log.resourceId || log.resourceName));
             if (roomObj) roomName = roomObj.roomName;
+
+            // ▼ ログの操作者名から、マスターデータのユーザー情報を探してフリガナを取得する
+            const operatorUser = masterData.users.find(u => u.userName === log.operatorName);
+            const operatorKana = operatorUser ? (operatorUser.kana || "") : "";
+
+            // ▼ 検索判定
             return (
                 dateStr.includes(filterText) ||
                 (log.operatorName && log.operatorName.toLowerCase().includes(filterText)) ||
+                (operatorKana && (operatorKana.includes(filterText) || operatorKana.includes(searchKata))) || // ★フリガナ検索追加
                 (log.action && log.action.toLowerCase().includes(filterText)) ||
                 (roomName && roomName.toLowerCase().includes(filterText)) ||
                 (log.details && log.details.toLowerCase().includes(filterText))
