@@ -198,7 +198,7 @@ header {
   align-items: flex-start !important;     /* 上寄せ */
   text-align: left !important;            /* 文字を左揃え */
   padding: 4px 6px !important;            /* 左上に適度な余白 */
-  gap: 10px;                              /* 時間と用件の間に隙間を作る */
+  gap: 4px;                              /* 時間と用件の間に隙間を作る */
   
   /* ↓もし文字が長すぎて隠れるのが嫌な場合は wrap を有効にしてください */
   flex-wrap: wrap !important; 
@@ -207,11 +207,15 @@ header {
 /* 中身の文字設定（強制的な改行禁止を解除して、自然に表示させる） */
 #rooms-container-map .v-booking-bar span,
 #rooms-container-map .v-booking-bar div {
-  white-space: normal !important;        /* 必要なら改行する */
+  white-space: normal !important;
   overflow: visible !important;
   text-overflow: clip !important;
   text-align: left !important;
-  width: auto !important;                /* 幅をなりゆきにする */
+  width: auto !important;
+  
+  /* ▼▼▼ 追加：念のため文字自体の余白もゼロにします ▼▼▼ */
+  margin: 0 !important;
+  padding: 0 !important;
 }
 /* ==============================================
    7. ログ (リスト) 画面
