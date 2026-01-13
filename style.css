@@ -204,7 +204,7 @@ header {
   flex-wrap: wrap !important; 
 }
 
-/* 中身の文字設定（強制的な改行禁止を解除して、自然に表示させる） */
+/* 中身の文字設定（共通） */
 #rooms-container-map .v-booking-bar span,
 #rooms-container-map .v-booking-bar div {
   white-space: normal !important;
@@ -213,9 +213,16 @@ header {
   text-align: left !important;
   width: auto !important;
   
-  /* ▼▼▼ 追加：念のため文字自体の余白もゼロにします ▼▼▼ */
+  /* すべての余白を一旦ゼロに */
   margin: 0 !important;
   padding: 0 !important;
+}
+
+/* ★ここが重要★：1つ目の要素（時間）についている右余白を強制削除 */
+#rooms-container-map .v-booking-bar > div:first-child,
+#rooms-container-map .v-booking-bar > span:first-child {
+  margin-right: 0 !important;
+  flex-shrink: 0 !important; /* 時間が潰れないようにする */
 }
 /* ==============================================
    7. ログ (リスト) 画面
