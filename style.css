@@ -196,11 +196,11 @@ header {
 /* ▼マップ下部の予約バー（横並び上書き） */
 #rooms-container-map .v-booking-bar {
   flex-direction: row !important;
-  justify-content: center !important;
+  justify-content: flex-start !important; /* 【変更】ここを flex-start にする */
   align-items: center !important;
   padding: 0 5px !important;
   text-align: left !important;
-  gap: 0;
+  gap: 5px; /* お好みで。文字とアイコンの間隔など */
 }
 #rooms-container-map .v-booking-bar span,
 #rooms-container-map .v-booking-bar div {
