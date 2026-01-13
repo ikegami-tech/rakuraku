@@ -1,96 +1,182 @@
-
+/* ==============================================
+   1. 変数定義 & 基本設定
+   ============================================== */
 :root {
-  --primary: #2c3e50; --accent: #27ae60; --danger: #c0392b;
+  --primary: #2c3e50;
+  --accent: #27ae60;
+  --danger: #c0392b;
   --meeting-bg: #e3f2fd; --meeting-border: #2196f3;
   --reception-bg: #e8f5e9; --reception-border: #4caf50;
   --zoom-bg: #fff3e0; --zoom-border: #ff9800;
   --base-hour-height: 100px;
 }
 
-body { font-family: "Helvetica Neue", Arial, sans-serif; margin: 0; background: #eef1f5; color: #333; height: 100vh; display: flex; flex-direction: column; }
+body {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  margin: 0;
+  background: #eef1f5;
+  color: #333;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
 * { box-sizing: border-box; }
-#login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary); display: flex; justify-content: center; align-items: center; z-index: 2000; }
-.login-box { background: white; padding: 2rem; border-radius: 8px; width: 90%; max-width: 350px; text-align: center; }
-input, select, textarea { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px; }
-button { width: 100%; padding: 12px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
+
+/* ==============================================
+   2. ログイン画面
+   ============================================== */
+#login-screen {
+  position: fixed; top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: var(--primary);
+  display: flex; justify-content: center; align-items: center;
+  z-index: 2000;
+}
+.login-box {
+  background: white; padding: 2rem;
+  border-radius: 8px; width: 90%; max-width: 350px;
+  text-align: center;
+}
+
+/* ==============================================
+   3. フォーム要素共通
+   ============================================== */
+input, select, textarea {
+  width: 100%; padding: 10px; margin-bottom: 10px;
+  border: 1px solid #ddd; border-radius: 4px;
+}
+button {
+  width: 100%; padding: 12px;
+  border: none; border-radius: 4px;
+  font-weight: bold; cursor: pointer;
+}
 .btn-primary { background: var(--accent); color: white; }
 .btn-danger { background: var(--danger); color: white; }
 
-#app-screen { display: none; flex-direction: column; height: 100%; max-width: 1280px; width: 100%; margin: 0 auto; background: white; box-shadow: 0 0 20px rgba(0,0,0,0.05); }
-header { background: var(--primary); color: white; padding: 10px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+/* ==============================================
+   4. レイアウト (ヘッダー・タブ・メイン)
+   ============================================== */
+#app-screen {
+  display: none; flex-direction: column;
+  height: 100%; max-width: 1280px; width: 100%;
+  margin: 0 auto;
+  background: white; box-shadow: 0 0 20px rgba(0,0,0,0.05);
+}
+
+header {
+  background: var(--primary); color: white; padding: 10px;
+  display: flex; justify-content: space-between; align-items: center;
+  flex-shrink: 0;
+}
 .user-info { font-size: 0.8rem; }
-.nav-tabs { display: flex; background: white; border-bottom: 1px solid #ddd; flex-shrink: 0; }
-.nav-item { flex: 1; text-align: center; padding: 12px; cursor: pointer; border-bottom: 3px solid transparent; }
-.nav-item.active { border-bottom-color: var(--accent); color: var(--accent); font-weight: bold; }
-.view-container { display: none; flex: 1; overflow: hidden; position: relative; }
+
+.nav-tabs {
+  display: flex; background: white; border-bottom: 1px solid #ddd;
+  flex-shrink: 0;
+}
+.nav-item {
+  flex: 1; text-align: center; padding: 12px;
+  cursor: pointer; border-bottom: 3px solid transparent;
+}
+.nav-item.active {
+  border-bottom-color: var(--accent); color: var(--accent); font-weight: bold;
+}
+
+.view-container {
+  display: none; flex: 1; overflow: hidden; position: relative;
+}
 .view-container.active { display: flex; flex-direction: column; }
 
-/* タイムライン */
-.date-controller { text-align: center; padding: 10px; background: #f9f9f9; border-bottom: 1px solid #ddd; display: flex; gap: 10px; justify-content: center; flex-shrink: 0; }
-.calendar-scroll-area { flex: 1; overflow: auto; position: relative; background: white; display: flex; }
+/* ローディング & FAB */
+#loading {
+  display: none; position: fixed; top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(255,255,255,0.8);
+  z-index: 4000;
+  justify-content: center; align-items: center; font-weight: bold;
+}
+.fab {
+  position: fixed; bottom: 20px;
+  right: calc(50% - 600px + 20px);
+  width: 56px; height: 56px;
+  background: var(--accent); color: white;
+  border-radius: 50%;
+  display: flex; justify-content: center; align-items: center;
+  font-size: 24px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  cursor: pointer; z-index: 100; border: none;
+}
+@media (max-width: 1280px) { .fab { right: 20px; } }
+
+/* ==============================================
+   5. タイムライン (カレンダー)
+   ============================================== */
+.date-controller {
+  text-align: center; padding: 10px;
+  background: #f9f9f9; border-bottom: 1px solid #ddd;
+  display: flex; gap: 10px; justify-content: center;
+  flex-shrink: 0;
+}
+.calendar-scroll-area {
+  flex: 1; overflow: auto; position: relative;
+  background: white; display: flex;
+}
 .time-axis-col { 
-    width: 50px; 
-    flex-shrink: 0; 
-    background: #fff; 
-    border-right: 1px solid #ddd; 
-    position: sticky; 
-    left: 0; 
-    z-index: 100 !important; /* ★ここを 100 に変更 */
+  width: 50px; flex-shrink: 0; background: #fff;
+  border-right: 1px solid #ddd;
+  position: sticky; left: 0; z-index: 100 !important;
 }
 .time-axis-header { 
-    height: 40px; 
-    border-bottom: 1px solid #ddd; 
-    background: #f9f9f9; 
-    position: sticky; 
-    top: 0; 
-    z-index: 110 !important; /* ★ここを 110 に変更 */
+  height: 40px; border-bottom: 1px solid #ddd; background: #f9f9f9;
+  position: sticky; top: 0; z-index: 110 !important;
 }
 .time-label {
-  border-bottom: 1px solid #eee; /* 線を薄く表示 */
+  border-bottom: 1px solid #eee;
   font-size: 0.7rem; color: #888;
   text-align: right; padding-right: 5px; padding-top: 5px;
   width: 100%;
 }
 .rooms-container { display: flex; min-width: fit-content; flex-grow: 1; }
 .room-col { 
-  flex: 1 0 120px; 
-  min-width: 120px; 
-  border-right: 1px solid #eee; 
-  position: relative; 
-  display: flex; 
-  flex-direction: column;
-  overflow: visible; 
-  z-index: 1; 
+  flex: 1 0 120px; min-width: 120px;
+  border-right: 1px solid #eee; position: relative;
+  display: flex; flex-direction: column;
+  overflow: visible; z-index: 1;
 }
 .room-header { 
-  height: 40px; 
-  display: flex; 
-  align-items: center; 
-  justify-content: center; 
-  font-size: 0.8rem; 
-  font-weight: bold; 
-  background: #fafafa; 
-  border-bottom: 1px solid #ddd; 
-  position: sticky; 
-  top: 0; 
-  z-index: 50; 
-  padding: 0 5px; 
-  text-align: center; 
-  word-break: break-all; 
+  height: 40px; display: flex; align-items: center; justify-content: center;
+  font-size: 0.8rem; font-weight: bold;
+  background: #fafafa; border-bottom: 1px solid #ddd;
+  position: sticky; top: 0; z-index: 50;
+  padding: 0 5px; text-align: center; word-break: break-all;
 }
 .room-grid-body { position: relative; background: transparent; }
 .grid-slot { 
-  border-bottom: 1px solid #eee; /* 時間軸と同じ線 */
-  width: 100%; 
-  position: relative; /* 30分線を表示するために必要 */
+  border-bottom: 1px solid #eee; width: 100%; position: relative;
 }
+
+/* マップタイムライン用の特例 */
 #map-timeline-section .calendar-scroll-area {
-  height: auto !important;      /* 高さを中身に合わせて自動で伸ばす */
-  min-height: 0 !important;     /* 最小高さの制限もなくす */
-  overflow: visible !important; /* スクロールバーを出さない */
-  display: flex !important;     /* 横並びレイアウトは維持 */
+  height: auto !important; min-height: 0 !important;
+  overflow: visible !important; display: flex !important;
 }
+
+/* ==============================================
+   6. 予約バー (.v-booking-bar)
+   ============================================== */
 .v-booking-bar {
+  position: absolute; left: 2px; right: 2px;
+  border-radius: 4px;
+  display: flex; flex-direction: column; /* デフォルト: 縦並び */
+  justify-content: center; align-items: center;
+  font-size: 10px; line-height: 1.1;
+  padding: 2px; color: #333;
+  overflow: hidden; white-space: normal;
+  overflow-wrap: anywhere; word-break: break-all;
+  z-index: 5; cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  text-align: center;
   transition: all 0.1s ease-in-out;
 }
 .v-booking-bar:hover {
@@ -98,604 +184,326 @@ header { background: var(--primary); color: white; padding: 10px; display: flex;
   box-shadow: 0 5px 10px rgba(0,0,0,0.3);
   filter: brightness(0.95);
 }
-.v-booking-bar {
-  position: absolute; 
-  left: 2px; 
-  right: 2px; 
-  border-radius: 4px;
-  display: flex;
-  flex-direction: column; /* 縦並び（時間→件名） */
-  justify-content: center; /* 【重要】縦方向の中央寄せ（これで長いバーでも真ん中に来ます） */
-  align-items: center;     /* 横方向の中央寄せ */
-  font-size: 10px;    /* 少し小さくして入りやすくする */
-  line-height: 1.1;   /* 行間を詰める */
-  padding: 2px;       
-  color: #333; 
-  overflow: hidden; 
-  white-space: normal; 
-  overflow-wrap: anywhere; 
-  word-break: break-all;
-  z-index: 5; 
-  cursor: pointer; 
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-  text-align: center;
-}
 
+/* タイプ別カラー */
 .type-meeting { background: var(--meeting-bg); border-top: 4px solid var(--meeting-border); }
 .type-reception { background: var(--reception-bg); border-top: 4px solid var(--reception-border); }
 .type-zoom { background: var(--zoom-bg); border-top: 4px solid var(--zoom-border); }
-.log-wrapper { overflow: auto; padding: 10px; }
-.log-table { 
-  width: 100%; 
-  border-collapse: collapse; 
-  font-size: 0.8rem; 
-  background: white; 
-  table-layout: fixed; 
-}
-.log-table th, .log-table td { 
-  padding: 8px; 
-  border: 1px solid #eee; 
-  text-align: left; 
-  word-wrap: break-word; /* 長すぎる場合は折り返す */
-}
-.log-table th:nth-child(1), .log-table td:nth-child(1) { 
-  width: 110px; 
-  white-space: nowrap; 
-}
-.log-table th:nth-child(2), .log-table td:nth-child(2) { 
-  width: 100px; 
-}
-.log-table th:nth-child(3), .log-table td:nth-child(3) { 
-  width: 60px; 
-  white-space: nowrap;
-}
-.log-table th:nth-child(4), .log-table td:nth-child(4) { 
-  width: auto; 
-}
-.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 3000; }
-.modal-content { background: white; padding: 20px; border-radius: 8px; width: 95%; max-width: 700px; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column;}
-.form-group label { font-weight: bold; font-size: 0.9rem; display: block; margin-top: 10px; }
-.group-container {
-  display: flex;
-  flex-wrap: wrap;        /* ボタンの折り返しを許可 */
-  gap: 8px;               /* ボタン同士の間隔 */
-  margin-bottom: 15px;    
-  height: auto !important;       /* 中身が増えたら枠も自動で伸びる */
-  min-height: 40px;              /* ボタンがない時でも最低限の高さを確保 */
-  max-height: none !important;   /* 高さの上限を撤廃（青天井にする） */
-  overflow: visible !important;  
-  border: none;
-  background: transparent;
-  padding: 5px 0;
-  align-items: flex-start;
-  align-content: flex-start;
-  flex-shrink: 0; /* 枠が勝手に縮まないようにする */
-}
-.group-chip {
-  background: #e0e0e0;
-  border: 1px solid #ccc;
-  border-radius: 12px; /* 丸みを少し小さく */
-  padding: 3px 8px;    /* 余白を削減 */
-  font-size: 0.75rem;  /* 文字を少し小さく */
-  cursor: pointer;
-  user-select: none;
-  transition: background 0.2s;
-  display: inline-block; /* 崩れ防止 */
-}
-.edit-mode-style {
-  border: 2px dashed #3498db !important; /* 青い破線 */
-  background-color: #eaf6fd !important;  /* 薄い青背景 */
-  color: #2980b9 !important;
-}
-.group-chip:hover { background: #d5d5d5; }
-.shuttle-container { display: flex; gap: 10px; margin-top: 5px; height: 200px; }
-.shuttle-box { flex: 1; border: 1px solid #ddd; border-radius: 4px; display: flex; flex-direction: column; background: #fafafa; }
-.shuttle-header { background: #eee; padding: 5px 10px; font-size: 0.8rem; font-weight: bold; text-align: center; border-bottom: 1px solid #ddd; }
-.shuttle-list { flex: 1; overflow-y: auto; padding: 5px; background: white; }
-.shuttle-item { padding: 6px 8px; border-bottom: 1px solid #f5f5f5; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; user-select: none; }
-.shuttle-item:hover { background: #f0f8ff; }
-.icon-add::before { content: "＋"; color: var(--accent); margin-right: 5px; font-weight:bold; }
-.icon-remove::before { content: "×"; color: var(--danger); margin-right: 5px; font-weight:bold; }
-.shuttle-search { padding: 5px; border-bottom: 1px solid #ddd; }
-.shuttle-search input { width: 100%; margin: 0; padding: 4px; font-size: 0.8rem; }
-#loading { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 4000; justify-content: center; align-items: center; font-weight: bold; }
-.fab { position: fixed; bottom: 20px; right: calc(50% - 600px + 20px); width: 56px; height: 56px; background: var(--accent); color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 24px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; z-index: 100; border: none; }
-@media (max-width: 1280px) { .fab { right: 20px; } }
-@media (max-width: 600px) { .shuttle-container { flex-direction: column; height: 300px; } }
 
-.map-wrapper {
-  padding: 10px;
-  background: #f9f9f9;
-  flex: 1;
-  overflow: auto; /* スクロール可能に */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  height: 100%;
-}
-
-.map-container {
-  position: relative;
-  width: 100%;
-  height: auto;
-  min-height: 50vh; /* 最低限の高さを確保 */
-  flex-shrink: 0;
-  margin: auto 0;
-  display: flex;
-  justify-content: center;
-  align-items: center; /* 中央寄せ */
-  background: transparent;
-  box-shadow: none;
-  border: none;
-}
-.map-inner-wrapper {
-  position: relative; /* 子要素(クリック範囲)の基準点になる */
-  display: inline-block; /* 中身(画像)のサイズに合わせて伸縮する */
-  width: auto;
-  max-width: 100%; /* 親を超えない */
-  line-height: 0; /* 画像下の隙間を消す */
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1); /* 影をつけるならここに */
-}
-.map-image {
-  display: block;
-  width: 100%;    /* ラッパー幅いっぱいに */
-  height: auto;   /* 比率を維持 */
-  max-width: 100%; 
-  max-height: 80vh; /* 画面からはみ出しすぎないように制限(任意) */
-  object-fit: contain;
-}
-.map-click-area {
-  position: absolute;
-  cursor: pointer;
-  background: transparent;
-  border: none;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  font-size: 0.9rem;
-  color: #333; 
-  text-shadow: 
-     1px  1px 0 #fff,
-    -1px -1px 0 #fff,
-    -1px  1px 0 #fff,
-     1px -1px 0 #fff,
-     0px  0px 3px rgba(255,255,255,0.8);
-}
-
-.map-click-area:hover {
-  background: rgba(39, 174, 96, 0.5) !important; 
-  border: 2px solid #27ae60 !important;
-  color: #333;
-  text-shadow: 
-     1px  1px 0 #fff,
-    -1px -1px 0 #fff,
-    -1px  1px 0 #fff,
-     1px -1px 0 #fff;
-}
-.map-hint {
-  margin-top: 5px;
-  color: #666;
-  font-size: 0.8rem;
-  text-align: center;
-}
-.floor-selector {
-    display: flex;
-    gap: 5px; /* タブ同士の間隔 */
-    margin-bottom: 10px;
-    width: 100%;
-    max-width: 800px;
-    justify-content: center;
-    margin-left: auto;
-    margin-right: auto;
-    border-bottom: 2px solid #2c3e50; /* 下に線を引いて一体感を出す */
-}
-
-.floor-tab {
-    padding: 10px 30px; /* 幅を広めに確保 */
-    background-color: #e0e0e0; /* 未選択時はグレー */
-    border: none;
-    border-radius: 6px 6px 0 0; /* 上だけ角丸 */
-    cursor: pointer;
-    font-weight: bold;
-    color: #7f8c8d; /* 未選択時の文字は少し薄く */
-    transition: all 0.2s;
-    flex-grow: 0;
-    margin-bottom: 0;
-}
-.floor-tab.active {
-    background-color: #2c3e50; /* 濃い紺色 */
-    color: #ffffff;            /* 白文字 */
-    transform: translateY(2px); /* 下の線とくっつける微調整 */
-}
-.floor-tab:hover:not(.active) {
-    background-color: #d5d5d5;
-    color: #333;
-}
-.detail-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-}
-.detail-table th {
-  text-align: left;
-  background: #f9f9f9;
-  padding: 10px;
-  width: 80px;
-  border-bottom: 1px solid #eee;
-  color: #555;
-  font-weight: normal;
-}
-.detail-table td {
-  padding: 10px;
-  border-bottom: 1px solid #eee;
-}
-.log-header-area {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-.log-header-area h3 {
-  margin: 0;
-}
-.log-search-box input {
-  padding: 8px;
-  width: 200px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-.pagination-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  margin-top: 15px;
-  padding-bottom: 20px;
-}
-.page-btn {
-  padding: 6px 12px;
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  cursor: pointer;
-  user-select: none;
-}
-.page-btn:hover {
-  background-color: #f0f0f0;
-}
-.page-btn.disabled {
-  color: #ccc;
-  cursor: not-allowed;
-  background-color: #f9f9f9;
-}
-.page-info {
-  font-size: 0.9rem;
-  font-weight: bold;
-  color: #555;
-}
-@media (max-width: 600px) {
-  .shuttle-container {
-    flex-direction: column;
-    height: auto;
-    gap: 15px;
-  }
-  .shuttle-box {
-    height: 200px;
-    flex: none;
-  }
-  .group-container {
-    max-height: 250px;
-    padding: 8px;
-  }
-  .group-chip {
-    display: inline-block;
-    padding: 6px 10px;
-    font-size: 12px;
-    margin: 2px;
-    touch-action: manipulation;
-  }
-  .date-controller {
-    display: flex !important;
-    flex-wrap: nowrap !important;        /* 折り返し禁止 */
-    justify-content: space-between !important; /* 両端と中央に配置 */
-    align-items: center !important;
-    gap: 5px !important;                 /* ボタンとの隙間を少し狭く */
-    padding: 5px 10px !important;        /* 上下5px, 左右10px */
-    width: 100% !important;              /* 横幅いっぱい */
-  }
-  .date-controller button {
-    flex: 0 0 44px !important;           /* 幅を44pxに固定して縮まないようにする */
-    width: 44px !important;
-    height: 36px !important;             /* 高さも程よく固定 */
-    padding: 0 !important;               /* 内側の余白をなくす */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  .date-controller input[type="date"] {
-    flex: 1 !important;                  /* 残りの幅をすべて使う */
-    min-width: 0 !important;             /* 幅がつぶれるのを防ぐおまじない */
-    width: 100% !important;
-    text-align: center !important;       /* 文字を中央寄せ */
-    font-size: 16px !important;          /* 文字サイズ調整（スマホで見やすく） */
-    margin: 0 !important;
-    padding: 5px 0 !important;
-  }
-  textarea {
-    height: auto !important;
-    min-height: 120px !important;
-    padding: 10px !important;
-    font-size: 16px !important;      /* スマホで見やすい文字サイズ */
-    line-height: 1.5 !important;     /* 行間 */
-    margin-bottom: 20px !important;  /* 下のボタンとの隙間を確保 */
-    width: 100% !important;          /* 横幅いっぱい */
-    box-sizing: border-box !important;
-  }
-  textarea::placeholder {
-    color: #999;
-    opacity: 1;
-  }
-  .map-click-area {
-    font-size: 10px !important; 
-    line-height: 1.0 !important;
-    padding: 0 1px !important;
-    white-space: normal !important;        /* 改行を許可 */
-    word-break: break-all !important;      /* 単語の途中でも改行する */
-    overflow-wrap: break-word !important;  
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    text-align: center !important;
-  }
-
-  #rooms-container-map .v-booking-bar {
-    justify-content: flex-start !important; /* 左寄せ */
-    padding-left: 5px !important;           /* 左に少し余白 */
-  }
-  #rooms-container-map .v-booking-bar div {
-    flex: none !important;         /* 50%分割（flex:1）を解除 */
-    width: auto !important;        /* 中身に合わせて幅を決める */
-    text-align: left !important;   /* 文字を左寄せ */
-    padding: 0 !important;         /* 既存の余白をリセット */
-    margin-right: 8px !important;  /* 時間と用件の間に隙間を作る */
-  }
-} 
-.group-header {
-  display: flex;
-  justify-content: space-between; /* 左右に配置 */
-  align-items: center;
-  margin-top: 10px;
-  margin-bottom: 5px;
-}
-#group-action-area {
-  display: flex;
-  gap: 5px;
-}
-#group-action-area .group-chip {
-  font-size: 0.7rem;
-  padding: 2px 8px;
-  margin: 0;
-  height: auto;
-}
-#detail-members {
-  display: block !important;
-  width: 100% !important;
-  max-height: 210px !important;
-  overflow-y: auto !important;
-  background-color: transparent; /* 背景を透明にする */
-  border: none;                   /* 一旦すべての線を消す */
-  border-bottom: 1px solid #eee;  /* その後、下線だけ上書きで引く */   
-  border-radius: 0;              /* 角丸も不要なら0に */
-  padding: 0 !important;
-  margin-top: 5px;
-}
-.detail-member-item {
-  padding: 8px 12px;
-  border-bottom: 1px solid #eee;
-  font-size: 14px;
-  color: #333;
-  line-height: 1.4;
-  text-align: left; /* 左寄せ */
-}
-.detail-member-item:last-child {
-  border-bottom: none;
-}
+/* ▼マップ下部の予約バー（横並び上書き） */
 #rooms-container-map .v-booking-bar {
-  flex-direction: row !important;       /* 横並び */
-  justify-content: center !important;   /* ★ここを「中央寄せ」にします */
-  align-items: center !important;       /* 上下中央 */
-  padding: 0 5px !important;            /* 左右の余白 */
+  flex-direction: row !important;
+  justify-content: center !important;
+  align-items: center !important;
+  padding: 0 5px !important;
   text-align: left !important;
   gap: 0;
 }
 #rooms-container-map .v-booking-bar span,
 #rooms-container-map .v-booking-bar div {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-@media (max-width: 600px) {
-  #rooms-container-map .v-booking-bar {
-    flex-direction: row !important;         /* 横並び */
-    justify-content: flex-start !important; /* 左寄せ（重要） */
-    align-items: center !important;         /* 上下中央 */
-    padding: 0 8px !important;              /* 左右に少し余白を入れる */
+
+/* ==============================================
+   7. ログ (リスト) 画面
+   ============================================== */
+.log-wrapper { overflow: auto; padding: 10px; }
+.log-header-area {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 10px;
+}
+.log-header-area h3 { margin: 0; }
+.log-search-box input {
+  padding: 8px; width: 200px;
+  border: 1px solid #ccc; border-radius: 4px;
+}
+
+.log-table { 
+  width: 100%; border-collapse: collapse;
+  font-size: 0.8rem; background: white; table-layout: fixed;
+}
+.log-table th, .log-table td { 
+  padding: 8px; border: 1px solid #eee;
+  text-align: left; word-wrap: break-word;
+}
+.log-table th:nth-child(1), .log-table td:nth-child(1) { width: 110px; white-space: nowrap; }
+.log-table th:nth-child(2), .log-table td:nth-child(2) { width: 100px; }
+.log-table th:nth-child(3), .log-table td:nth-child(3) { width: 60px; white-space: nowrap; }
+.log-table th:nth-child(4), .log-table td:nth-child(4) { width: auto; }
+
+.pagination-container {
+  display: flex; justify-content: center; align-items: center;
+  gap: 10px; margin-top: 15px; padding-bottom: 20px;
+}
+.page-btn {
+  padding: 6px 12px; background-color: #fff;
+  border: 1px solid #ddd; border-radius: 4px;
+  cursor: pointer; user-select: none;
+}
+.page-btn:hover { background-color: #f0f0f0; }
+.page-btn.disabled { color: #ccc; cursor: not-allowed; background-color: #f9f9f9; }
+.page-info { font-size: 0.9rem; font-weight: bold; color: #555; }
+
+/* ==============================================
+   8. マップ (座席) 画面
+   ============================================== */
+.map-wrapper {
+  padding: 10px; background: #f9f9f9;
+  flex: 1; overflow: auto;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: flex-start;
+  height: 100%;
+}
+.floor-selector {
+  display: flex; gap: 5px; margin-bottom: 10px;
+  width: 100%; max-width: 800px;
+  justify-content: center; margin-left: auto; margin-right: auto;
+  border-bottom: 2px solid #2c3e50;
+}
+.floor-tab {
+  padding: 10px 30px; background-color: #e0e0e0;
+  border: none; border-radius: 6px 6px 0 0;
+  cursor: pointer; font-weight: bold; color: #7f8c8d;
+  transition: all 0.2s; flex-grow: 0; margin-bottom: 0;
+}
+.floor-tab.active {
+  background-color: #2c3e50; color: #ffffff;
+  transform: translateY(2px);
+}
+.floor-tab:hover:not(.active) { background-color: #d5d5d5; color: #333; }
+
+/* マップコンテナ & ユニット */
+#dual-map-container { width: 100%; box-sizing: border-box; }
+
+.floor-map-unit {
+  width: 100%; min-width: 0; margin-bottom: 20px;
+  box-sizing: border-box; display: none; /* スマホ:デフォルト非表示 */
+}
+.floor-map-unit.active { display: block; }
+
+.map-container {
+  position: relative; width: 100%; height: auto;
+  min-height: 50vh; flex-shrink: 0; margin: auto 0;
+  display: flex; justify-content: center; align-items: center;
+  background: transparent; box-shadow: none; border: none;
+}
+
+/* マップ画像ラッパー */
+.map-inner-wrapper {
+  position: relative; width: 100%; line-height: 0;
+  overflow: hidden; display: block !important;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-radius: 4px;
+}
+.map-image {
+  display: block; width: 100% !important; height: auto !important;
+  max-width: 100% !important; max-height: none !important;
+  object-fit: contain;
+}
+
+/* オーバーレイ & ピン */
+.overlay-layer {
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 10; pointer-events: none;
+}
+.map-click-area {
+  position: absolute; cursor: pointer;
+  z-index: 20; pointer-events: auto;
+  display: flex !important;
+  align-items: center !important; justify-content: center !important;
+  text-align: center !important;
+  font-size: 10px !important; font-weight: bold;
+  text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff, -1px 1px 0 #fff, 1px -1px 0 #fff;
+  color: #333; box-sizing: border-box;
+  white-space: normal !important; word-break: break-all !important;
+  line-height: 1.1 !important;
+  background: transparent; border: none; transition: all 0.2s;
+}
+.map-click-area:hover {
+  background: rgba(39, 174, 96, 0.5) !important;
+  border: 2px solid #27ae60 !important;
+  color: #333;
+}
+.map-hint {
+  margin-top: 5px; color: #666;
+  font-size: 0.8rem; text-align: center;
+}
+
+/* 部屋詳細テーブル */
+.detail-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+.detail-table th {
+  text-align: left; background: #f9f9f9; padding: 10px;
+  width: 80px; border-bottom: 1px solid #eee;
+  color: #555; font-weight: normal;
+}
+.detail-table td { padding: 10px; border-bottom: 1px solid #eee; }
+
+/* PC表示時のマップ調整 (1024px以上) */
+@media (min-width: 1024px) {
+  .floor-selector { display: none !important; }
+  .pc-floor-title { display: none !important; }
+  #dual-map-container {
+    display: flex; justify-content: center; gap: 20px; align-items: flex-start;
   }
-  #rooms-container-map .v-booking-bar > div,
-  #rooms-container-map .v-booking-bar > span {
-    text-align: left !important;         /* 文字左寄せ */
-    white-space: nowrap !important;      /* 改行禁止（...を出すために必須） */
-    overflow: hidden !important;         /* はみ出し部分を隠す */
-    text-overflow: ellipsis !important;  /* 末尾を...にする */
-  }
-  #rooms-container-map .v-booking-bar > div:first-child {
-    flex-shrink: 0 !important;           /* 時間の幅は縮めさせない */
-    margin-right: 10px !important;       /* 要件との間に隙間を作る */
-    width: auto !important;
-  }
-  #rooms-container-map .v-booking-bar > div:last-child {
-    flex: 1 !important;                  /* 残りの幅を目一杯使う */
-    min-width: 0 !important;             /* これがないとFlexbox内で「...」が効かない魔法の記述 */
+  .floor-map-unit {
+    display: block !important; flex: 1; width: 48%; max-width: 50%; margin-bottom: 0;
   }
 }
-@media (max-width: 600px) {
-  #bookingModal .form-row {
-    flex-wrap: wrap !important; 
-  }
-  #bookingModal .form-row > div {
-    flex: auto !important; /* 1ではなくautoにすることで中身に合わせる */
-    min-width: 45%;        /* 最低でも画面の半分弱は確保（極端に小さくなるのを防止） */
-  }
-  #input-room {
-    width: auto !important;      /* 文字数に合わせて幅を変える */
-    min-width: 150px !important; /* ただし短すぎると押しにくいので最低幅は確保 */
-    max-width: 100% !important;  /* 画面からはみ出さないように制限 */
-    white-space: nowrap;         /* 文字の折り返し防止 */
-  }
+
+/* ==============================================
+   9. モーダル & 編集フォーム
+   ============================================== */
+.modal {
+  display: none; position: fixed; top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+  justify-content: center; align-items: center; z-index: 3000;
 }
+.modal-content {
+  background: white; padding: 20px;
+  border-radius: 8px; width: 95%; max-width: 700px;
+  max-height: 90vh; overflow-y: auto;
+  display: flex; flex-direction: column;
+}
+.form-group label {
+  font-weight: bold; font-size: 0.9rem; display: block; margin-top: 10px;
+}
+
+/* メンバー選択 (Group / Shuttle) */
+.group-header {
+  display: flex; justify-content: space-between;
+  align-items: center; margin-top: 10px; margin-bottom: 5px;
+}
+.group-container {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin-bottom: 15px; padding: 5px 0;
+  height: auto !important; min-height: 40px; max-height: none !important;
+  overflow: visible !important; border: none; background: transparent;
+  align-items: flex-start; flex-shrink: 0;
+}
+.group-chip {
+  background: #e0e0e0; border: 1px solid #ccc; border-radius: 12px;
+  padding: 3px 8px; font-size: 0.75rem;
+  cursor: pointer; user-select: none; transition: background 0.2s;
+  display: inline-block;
+}
+.group-chip:hover { background: #d5d5d5; }
+.edit-mode-style {
+  border: 2px dashed #3498db !important; background-color: #eaf6fd !important;
+  color: #2980b9 !important;
+}
+
+#group-action-area { display: flex; gap: 5px; }
+#group-action-area .group-chip {
+  font-size: 0.7rem; padding: 2px 8px; margin: 0; height: auto;
+}
+
+/* シャトルボックス */
+.shuttle-container { display: flex; gap: 10px; margin-top: 5px; height: 200px; }
+.shuttle-box {
+  flex: 1; border: 1px solid #ddd; border-radius: 4px;
+  display: flex; flex-direction: column; background: #fafafa;
+}
+.shuttle-header {
+  background: #eee; padding: 5px 10px; font-size: 0.8rem;
+  font-weight: bold; text-align: center; border-bottom: 1px solid #ddd;
+}
+.shuttle-list { flex: 1; overflow-y: auto; padding: 5px; background: white; }
+.shuttle-item {
+  padding: 6px 8px; border-bottom: 1px solid #f5f5f5;
+  cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; user-select: none;
+}
+.shuttle-item:hover { background: #f0f8ff; }
+.icon-add::before { content: "＋"; color: var(--accent); margin-right: 5px; font-weight:bold; }
+.icon-remove::before { content: "×"; color: var(--danger); margin-right: 5px; font-weight:bold; }
+.shuttle-search { padding: 5px; border-bottom: 1px solid #ddd; }
+.shuttle-search input { width: 100%; margin: 0; padding: 4px; font-size: 0.8rem; }
+
+/* 詳細表示用リスト */
+#detail-members {
+  display: block !important; width: 100% !important; max-height: 210px !important;
+  overflow-y: auto !important; background-color: transparent;
+  border: none; border-bottom: 1px solid #eee;
+  border-radius: 0; padding: 0 !important; margin-top: 5px;
+}
+.detail-member-item {
+  padding: 8px 12px; border-bottom: 1px solid #eee;
+  font-size: 14px; color: #333; line-height: 1.4; text-align: left;
+}
+.detail-member-item:last-child { border-bottom: none; }
+
+/* メモ入力エリア */
 textarea#input-note {
-  display: block !important;
-  width: 100% !important;
-  height: auto !important;       /* 自動調整をベースに */
-  min-height: 100px !important;  /* 最低でも100pxの高さを確保 */
-  padding: 10px !important;      /* 内側の余白 */
-  margin-bottom: 15px !important;/* 下のボタンとの隙間 */
-  box-sizing: border-box !important; /* 枠線を含めてサイズ計算 */
-  font-size: 16px !important;    /* 文字サイズ */
-  line-height: 1.5 !important;   /* 行間 */
-  color: #333 !important;        /* 文字色 */
+  display: block !important; width: 100% !important;
+  height: auto !important; min-height: 100px !important;
+  padding: 10px !important; margin-bottom: 15px !important;
+  box-sizing: border-box !important; font-size: 16px !important;
+  line-height: 1.5 !important; color: #333 !important;
   background-color: #fff !important;
 }
 textarea#input-note::placeholder {
-  color: #999 !important;        /* 薄いグレー */
-  opacity: 1 !important;         /* 透明度をなくす */
-  visibility: visible !important;
+  color: #999 !important; opacity: 1 !important; visibility: visible !important;
 }
-@media (max-width: 600px) {
-  #bookingModal textarea#input-note {
-    display: block !important;
-    width: 100% !important;
-    height: auto !important;
-    min-height: 120px !important;  /* ★スマホでは指でタップしやすいよう少し大きめに確保 */
-    padding: 10px !important;      /* 内側の余白 */
-    margin-bottom: 20px !important;/* 下のボタンとの隙間 */
-    font-size: 16px !important;    /* スマホで見やすい文字サイズ */
-    line-height: 1.5 !important;   /* 行間 */
-    box-sizing: border-box !important;
-  }
-  #bookingModal textarea#input-note::placeholder {
-    color: #999 !important;
-    opacity: 1 !important;
-    line-height: 1.5 !important;   /* 入力文字と同じ行間に合わせる */
-  }
-}
+
 /* ==============================================
-   ▼▼▼ 【完全修正版】マップのズレ防止・PC設定 ▼▼▼
+   10. モバイル用レスポンシブ (max-width: 600px)
    ============================================== */
+@media (max-width: 600px) {
+  /* 日付コントローラー */
+  .date-controller {
+    display: flex !important; flex-wrap: nowrap !important;
+    justify-content: space-between !important; align-items: center !important;
+    gap: 5px !important; padding: 5px 10px !important; width: 100% !important;
+  }
+  .date-controller button {
+    flex: 0 0 44px !important; width: 44px !important; height: 36px !important;
+    padding: 0 !important; display: flex; justify-content: center; align-items: center;
+  }
+  .date-controller input[type="date"] {
+    flex: 1 !important; min-width: 0 !important; width: 100% !important;
+    text-align: center !important; font-size: 16px !important;
+    margin: 0 !important; padding: 5px 0 !important;
+  }
 
-/* 1. マップ表示エリア全体（PC/スマホ共通） */
-#dual-map-container {
-    width: 100%;
-    box-sizing: border-box;
-}
+  /* メンバー選択周り */
+  .shuttle-container { flex-direction: column; height: auto; gap: 15px; }
+  .shuttle-box { height: 200px; flex: none; }
+  .group-container { max-height: 250px; padding: 8px; }
+  .group-chip {
+    display: inline-block; padding: 6px 10px; font-size: 12px;
+    margin: 2px; touch-action: manipulation;
+  }
 
-/* 2. マップユニット（7階/6階のそれぞれの箱） */
-.floor-map-unit {
-    width: 100%;
-    min-width: 0; 
-    margin-bottom: 20px;
-    box-sizing: border-box;
-    display: none; /* スマホではデフォルト非表示 */
-}
-.floor-map-unit.active {
-    display: block; /* 選択されている階だけ表示 */
-}
-
-/* 3. マップ表示の親枠（ここが基準点） */
-.map-inner-wrapper {
-    position: relative; 
-    width: 100%;
-    line-height: 0;
-    overflow: hidden;
-    
-    /* ブロック要素として幅いっぱいに広げる */
-    display: block !important; 
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    border-radius: 4px;
-}
-
-/* 4. マップ画像本体 */
-.map-image {
-    display: block;
-    width: 100% !important;      /* 横幅は親枠(100%)に強制的に合わせる */
-    height: auto !important;     /* 比率を維持 */
-    max-width: 100% !important;  /* 親枠を超えない */
-    
-    /* ★ここが修正ポイント：高さ制限を解除して、横幅に合わせて縦に伸びるようにする */
-    max-height: none !important; 
-    
-    object-fit: contain;
-}
-
-/* 5. ピンを置く透明レイヤー */
-.overlay-layer {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 10;
-    pointer-events: none; 
-}
-
-/* 6. 個別のピン（クリックエリア） */
-.map-click-area {
-    position: absolute;
-    cursor: pointer;
-    z-index: 20;
-    pointer-events: auto;
-    
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    text-align: center !important;
-    
-    font-size: 10px !important;
-    font-weight: bold;
-    text-shadow: 0 0 2px rgba(255,255,255,0.8);
-    color: #333;
-    
-    box-sizing: border-box;
-    white-space: normal !important;
-    word-break: break-all !important;
-    line-height: 1.1 !important;
-}
-
-/* --- PC表示時の調整（画面幅 1024px以上） --- */
-@media (min-width: 1024px) {
-    /* ▼▼▼ 修正：タブ（ボタン）を確実に消す ▼▼▼ */
-    .floor-selector { display: none !important; }
-
-    /* タイトル帯（濃い色のバー）を消す */
-    .pc-floor-title { display: none !important; }
-
-    /* マップを横並びにする */
-    #dual-map-container {
-        display: flex;
-        justify-content: center;
-        gap: 20px;
-        align-items: flex-start;
-    }
-
-    /* 各階の表示設定 */
-    .floor-map-unit {
-        display: block !important; /* 強制表示 */
-        flex: 1;          /* 均等分割 */
-        width: 48%;       /* 幅指定 */
-        max-width: 50%;   /* 50%を超えないように */
-        margin-bottom: 0;
-    }
+  /* モーダルフォーム */
+  #bookingModal .form-row { flex-wrap: wrap !important; }
+  #bookingModal .form-row > div { flex: auto !important; min-width: 45%; }
+  #input-room {
+    width: auto !important; min-width: 150px !important;
+    max-width: 100% !important; white-space: nowrap;
+  }
+  
+  /* テキストエリア */
+  textarea, 
+  #bookingModal textarea#input-note {
+    min-height: 120px !important;
+    font-size: 16px !important; line-height: 1.5 !important;
+    margin-bottom: 20px !important;
+  }
+  
+  /* マップの予約バー（スマホ特化） */
+  #rooms-container-map .v-booking-bar {
+    justify-content: flex-start !important; /* 左寄せ */
+    padding-left: 5px !important; padding-right: 8px !important;
+  }
+  #rooms-container-map .v-booking-bar > div,
+  #rooms-container-map .v-booking-bar > span {
+    text-align: left !important; white-space: nowrap !important;
+    overflow: hidden !important; text-overflow: ellipsis !important;
+  }
+  #rooms-container-map .v-booking-bar > div:first-child {
+    flex-shrink: 0 !important; margin-right: 10px !important; width: auto !important;
+  }
+  #rooms-container-map .v-booking-bar > div:last-child {
+    flex: 1 !important; min-width: 0 !important;
+  }
 }
