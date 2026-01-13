@@ -171,7 +171,7 @@ header {
   display: flex; flex-direction: column;
   justify-content: center; 
   align-items: flex-start; /* 【変更】左端に寄せる */
-  font-size: 14px;         /* 【変更】10pxから12pxへ大きく */
+  font-size: 12px;         /* 【変更】10pxから12pxへ大きく */
   line-height: 1.1;
   padding: 2px 5px;        /* 【変更】左に文字がくっつきすぎないよう余白追加 */
   color: #333;
