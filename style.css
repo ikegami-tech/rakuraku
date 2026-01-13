@@ -194,14 +194,14 @@ header {
 .type-reception { background: var(--reception-bg); border-top: 4px solid var(--reception-border); }
 .type-zoom { background: var(--zoom-bg); border-top: 4px solid var(--zoom-border); }
 
-/* ▼マップ下部の予約バー（横並び上書き） */
+/* ▼マップ下部の予約バー（上書き設定） */
 #rooms-container-map .v-booking-bar {
-  flex-direction: column !important;      /* 【変更】rowからcolumnにして縦並びに統一 */
-  justify-content: flex-start !important; /* 【変更】上寄せ */
-  align-items: flex-start !important;     /* 【変更】左寄せ */
-  padding: 4px 5px !important;            /* 【変更】余白をメイン一覧と合わせる */
-  text-align: left !important;
-  gap: 0;
+  flex-direction: column !important;      /* 縦並びにする */
+  justify-content: flex-start !important; /* 上に寄せる */
+  align-items: flex-start !important;     /* 左に寄せる */
+  padding: 4px 5px !important;            /* 余白調整 */
+  text-align: left !important;            /* 文字左揃え */
+  gap: 2px;                               /* 時間と用件の間隔 */
 }
 #rooms-container-map .v-booking-bar span,
 #rooms-container-map .v-booking-bar div {
@@ -493,24 +493,6 @@ textarea#input-note::placeholder {
     font-size: 16px !important; line-height: 1.5 !important;
     margin-bottom: 20px !important;
   }
-  
-  /* マップの予約バー（スマホ特化） */
-  #rooms-container-map .v-booking-bar {
-    justify-content: flex-start !important; /* 左寄せ */
-    padding-left: 5px !important; padding-right: 8px !important;
-  }
-  #rooms-container-map .v-booking-bar > div,
-  #rooms-container-map .v-booking-bar > span {
-    text-align: left !important; white-space: nowrap !important;
-    overflow: hidden !important; text-overflow: ellipsis !important;
-  }
-  #rooms-container-map .v-booking-bar > div:first-child {
-    flex-shrink: 0 !important; margin-right: 10px !important; width: auto !important;
-  }
-  #rooms-container-map .v-booking-bar > div:last-child {
-    flex: 1 !important; min-width: 0 !important;
-  }
-}
 /* ==============================================
    11. HTMLリファクタリング用 追加ユーティリティ
    ============================================== */
