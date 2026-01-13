@@ -16,7 +16,7 @@
     <h2>予約システム v3.2</h2>
     <input type="text" id="loginId" placeholder="ユーザーID">
     <input type="password" id="loginPass" placeholder="パスワード">
-    <button class="btn-primary" onclick="tryLogin()">ログイン</button>
+    <button type="button" class="btn-primary" onclick="tryLogin()">ログイン</button>
   </div>
 </div>
 
@@ -25,7 +25,7 @@
     <div id="header-title">部屋予約</div>
     <div class="user-info">
       <span id="display-user-name"></span> さん
-      <button onclick="logout()" style="width:auto; padding:5px 10px; font-size:0.7rem; margin-left:10px;">ログアウト</button>
+      <button type="button" class="btn-logout" onclick="logout()">ログアウト</button>
     </div>
   </header>
 
@@ -44,7 +44,6 @@
       </div>
 
       <div id="dual-map-container">
-        
         <div id="area-7f" class="floor-map-unit active">
             <h4 class="pc-floor-title">7階</h4>
             <div class="map-inner-wrapper">
@@ -60,23 +59,22 @@
                 <div id="overlay-container-6" class="overlay-layer"></div>
             </div>
         </div>
-
       </div>
       
       <p class="map-hint">部屋をクリックすると下に予約状況が表示されます</p>
 
-      <div id="map-timeline-section" style="display:none; width:100%; margin-top:10px; border-top:2px solid #ddd; padding-top:10px;">
-        <h4 id="map-selected-room-name" style="text-align:center; margin:5px 0;"></h4>
+      <div id="map-timeline-section" class="map-timeline-hidden">
+        <h4 id="map-selected-room-name" class="map-room-title"></h4>
         
         <div class="date-controller">
-          <button onclick="changeDate(-1, 'map-date')">&lt;</button>
+          <button type="button" onclick="changeDate(-1, 'map-date')">&lt;</button>
           <input type="date" id="map-date" onchange="renderVerticalTimeline('map')">
-          <button onclick="changeDate(1, 'map-date')">&gt;</button>
+          <button type="button" onclick="changeDate(1, 'map-date')">&gt;</button>
         </div>
 
         <div class="calendar-scroll-area">
             <div class="time-axis-col" id="time-axis-map"><div class="time-axis-header"></div></div>
-            <div class="rooms-container" id="rooms-container-map" style="flex:1;"></div>
+            <div class="rooms-container" id="rooms-container-map"></div>
         </div>
       </div>
 
@@ -84,14 +82,14 @@
   </div>
   
   <div id="view-timeline" class="view-container">
-    <div class="floor-selector" style="margin-top: 10px; justify-content: center;">
+    <div class="floor-selector mt-10">
         <button class="floor-tab active" onclick="switchTimelineFloor(7)" id="timeline-tab-7f">7階</button>
         <button class="floor-tab" onclick="switchTimelineFloor(6)" id="timeline-tab-6f">6階</button>
     </div>
     <div class="date-controller">
-      <button onclick="changeDate(-1, 'timeline-date')">&lt;</button>
+      <button type="button" onclick="changeDate(-1, 'timeline-date')">&lt;</button>
       <input type="date" id="timeline-date" onchange="renderVerticalTimeline('all')">
-      <button onclick="changeDate(1, 'timeline-date')">&gt;</button>
+      <button type="button" onclick="changeDate(1, 'timeline-date')">&gt;</button>
     </div>
     <div class="calendar-scroll-area">
       <div class="time-axis-col" id="time-axis-all"><div class="time-axis-header"></div></div>
@@ -102,37 +100,36 @@
 
   <div id="view-logs" class="view-container">
     <div class="log-wrapper">
-      
       <div class="log-header-area">
           <h3>操作履歴 (最大1000件)</h3>
           <div class="log-search-box">
               <input type="text" id="log-search-input" placeholder="履歴を検索..." oninput="searchLogs()">
           </div>
       </div>
-
       <table class="log-table">
         <thead><tr><th>日時</th><th>操作者</th><th>操作</th><th>詳細</th></tr></thead>
         <tbody id="log-tbody"></tbody>
       </table>
-
       <div id="log-pagination" class="pagination-container"></div>
     </div>
   </div>
-</div> <div id="detailModal" class="modal">
-  <div class="modal-content" style="max-width: 500px;">
-    <h3 style="margin-top:0; border-bottom: 2px solid #27ae60; padding-bottom: 10px;">予約詳細</h3>
+</div>
+
+<div id="detailModal" class="modal">
+  <div class="modal-content modal-sm">
+    <h3 class="modal-header-line">予約詳細</h3>
     
     <table class="detail-table">
-      <tr><th>日時</th><td id="detail-time" style="font-weight:bold; font-size:1.1em;"></td></tr>
+      <tr><th>日時</th><td id="detail-time" class="text-bold text-lg"></td></tr>
       <tr><th>部屋</th><td id="detail-room"></td></tr>
       <tr><th>用件</th><td id="detail-title"></td></tr>
       <tr><th>参加者</th><td id="detail-members"></td></tr>
-      <tr><th>備考</th><td id="detail-note" style="white-space: pre-wrap; color:#666;"></td></tr>
+      <tr><th>備考</th><td id="detail-note" class="text-pre-wrap text-muted"></td></tr>
     </table>
 
-    <div style="display:flex; gap:15px; margin-top:25px; justify-content: center;">
-      <button type="button" onclick="closeDetailModal()" style="background:#999; color:white; width: 100px; padding: 10px;">閉じる</button>
-      <button type="button" id="btn-go-edit" class="btn-primary" style="width: 120px; padding: 10px; font-weight:bold;">編集する</button>
+    <div class="modal-footer">
+      <button type="button" onclick="closeDetailModal()" class="btn-secondary">閉じる</button>
+      <button type="button" id="btn-go-edit" class="btn-primary btn-wide">編集する</button>
     </div>
   </div>
 </div>
@@ -140,93 +137,89 @@
 <div id="bookingModal" class="modal">
   <div class="modal-content">
     
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-        <h3 id="modal-title" style="margin: 0;">新規予約</h3>
-        <span onclick="closeModal()" style="font-size: 28px; font-weight: bold; color: #aaa; cursor: pointer; line-height: 1;">&times;</span>
+    <div class="modal-top-bar">
+        <h3 id="modal-title">新規予約</h3>
+        <span onclick="closeModal()" class="close-icon">&times;</span>
     </div>
     <input type="hidden" id="edit-res-id">
     
-    <div style="margin-bottom: 10px;">
-        <label style="display:block; font-weight:bold; margin-bottom:5px;">部屋</label>
-        <select id="input-room" style="width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; height: 38px;"></select>
+    <div class="form-group">
+        <label>部屋</label>
+        <select id="input-room"></select>
     </div>
 
-    <div style="display: flex; gap: 10px; align-items: flex-end; margin-bottom: 15px;">
+    <div class="form-row align-end mb-15">
       
-      <div style="flex: 1.2;">
-        <label for="input-date" style="display:block; font-weight:bold; font-size:0.9rem; margin-bottom:5px;">日付</label>
-        <input type="date" id="input-date" style="width: 100%; box-sizing: border-box; padding: 8px; border: 1px solid #ccc; border-radius: 4px; height: 38px;">
+      <div class="flex-1-2">
+        <label for="input-date">日付</label>
+        <input type="date" id="input-date">
       </div>
 
-      <div style="flex: 1;">
-    <label for="input-start" style="display:block; font-weight:bold; font-size:0.9rem; margin-bottom:5px;">開始</label>
-    <div style="position: relative; width: 100%;">
-        <input type="tel" id="input-start" placeholder="09:00" autocomplete="off"
-               onclick="selectTimePart(this)" 
-               onkeyup="handleTimeArrowKeys(event, this)"
-               onblur="formatTimeInput(this)"
-               style="width: 100%; box-sizing: border-box; padding: 8px 35px 8px 8px; border: 1px solid #ccc; border-radius: 4px; height: 38px; text-align: center;">
-        
-        <div style="position: absolute; right: 0; top: 0; width: 35px; height: 100%; display:flex; align-items:center; justify-content:center; color: #666; pointer-events: none; font-size: 10px;">▼</div>
+      <div class="flex-1">
+        <label for="input-start">開始</label>
+        <div class="time-picker-wrapper">
+          <input type="tel" id="input-start" placeholder="09:00" autocomplete="off"
+                 onclick="selectTimePart(this)" 
+                 onkeyup="handleTimeArrowKeys(event, this)"
+                 onblur="formatTimeInput(this)">
+          
+          <div class="time-picker-arrow">▼</div>
 
-        <select onchange="document.getElementById('input-start').value=this.value; autoSetEndTime();" 
-    style="position: absolute; right: 0; top: 0; width: 35px; height: 100%; opacity: 0; cursor: pointer;">
-            <option value="" selected hidden></option>
-            <option value="07:00">07:00</option><option value="07:15">07:15</option><option value="07:30">07:30</option><option value="07:45">07:45</option>
-            <option value="08:00">08:00</option><option value="08:15">08:15</option><option value="08:30">08:30</option><option value="08:45">08:45</option>
-            <option value="09:00">09:00</option><option value="09:15">09:15</option><option value="09:30">09:30</option><option value="09:45">09:45</option>
-            <option value="10:00">10:00</option><option value="10:15">10:15</option><option value="10:30">10:30</option><option value="10:45">10:45</option>
-            <option value="11:00">11:00</option><option value="11:15">11:15</option><option value="11:30">11:30</option><option value="11:45">11:45</option>
-            <option value="12:00">12:00</option><option value="12:15">12:15</option><option value="12:30">12:30</option><option value="12:45">12:45</option>
-            <option value="13:00">13:00</option><option value="13:15">13:15</option><option value="13:30">13:30</option><option value="13:45">13:45</option>
-            <option value="14:00">14:00</option><option value="14:15">14:15</option><option value="14:30">14:30</option><option value="14:45">14:45</option>
-            <option value="15:00">15:00</option><option value="15:15">15:15</option><option value="15:30">15:30</option><option value="15:45">15:45</option>
-            <option value="16:00">16:00</option><option value="16:15">16:15</option><option value="16:30">16:30</option><option value="16:45">16:45</option>
-            <option value="17:00">17:00</option><option value="17:15">17:15</option><option value="17:30">17:30</option><option value="17:45">17:45</option>
-            <option value="18:00">18:00</option><option value="18:15">18:15</option><option value="18:30">18:30</option><option value="18:45">18:45</option>
-            <option value="19:00">19:00</option><option value="19:15">19:15</option><option value="19:30">19:30</option><option value="19:45">19:45</option>
-            <option value="20:00">20:00</option><option value="20:15">20:15</option><option value="20:30">20:30</option><option value="20:45">20:45</option>
-            <option value="21:00">21:00</option><option value="21:15">21:15</option><option value="21:30">21:30</option><option value="21:45">21:45</option>
-            <option value="22:00">22:00</option>
-        </select>
-    </div>
-</div>
+          <select class="time-overlay-select" onchange="document.getElementById('input-start').value=this.value; autoSetEndTime();">
+             <option value="" selected hidden></option>
+             <option value="07:00">07:00</option><option value="07:15">07:15</option><option value="07:30">07:30</option><option value="07:45">07:45</option>
+             <option value="08:00">08:00</option><option value="08:15">08:15</option><option value="08:30">08:30</option><option value="08:45">08:45</option>
+             <option value="09:00">09:00</option><option value="09:15">09:15</option><option value="09:30">09:30</option><option value="09:45">09:45</option>
+             <option value="10:00">10:00</option><option value="10:15">10:15</option><option value="10:30">10:30</option><option value="10:45">10:45</option>
+             <option value="11:00">11:00</option><option value="11:15">11:15</option><option value="11:30">11:30</option><option value="11:45">11:45</option>
+             <option value="12:00">12:00</option><option value="12:15">12:15</option><option value="12:30">12:30</option><option value="12:45">12:45</option>
+             <option value="13:00">13:00</option><option value="13:15">13:15</option><option value="13:30">13:30</option><option value="13:45">13:45</option>
+             <option value="14:00">14:00</option><option value="14:15">14:15</option><option value="14:30">14:30</option><option value="14:45">14:45</option>
+             <option value="15:00">15:00</option><option value="15:15">15:15</option><option value="15:30">15:30</option><option value="15:45">15:45</option>
+             <option value="16:00">16:00</option><option value="16:15">16:15</option><option value="16:30">16:30</option><option value="16:45">16:45</option>
+             <option value="17:00">17:00</option><option value="17:15">17:15</option><option value="17:30">17:30</option><option value="17:45">17:45</option>
+             <option value="18:00">18:00</option><option value="18:15">18:15</option><option value="18:30">18:30</option><option value="18:45">18:45</option>
+             <option value="19:00">19:00</option><option value="19:15">19:15</option><option value="19:30">19:30</option><option value="19:45">19:45</option>
+             <option value="20:00">20:00</option><option value="20:15">20:15</option><option value="20:30">20:30</option><option value="20:45">20:45</option>
+             <option value="21:00">21:00</option><option value="21:15">21:15</option><option value="21:30">21:30</option><option value="21:45">21:45</option>
+             <option value="22:00">22:00</option>
+          </select>
+        </div>
+      </div>
 
-<div style="height: 38px; display: flex; align-items: center; justify-content: center; font-weight: bold;">～</div>
+      <div class="time-range-sep">～</div>
 
-<div style="flex: 1;">
-    <label for="input-end" style="display:block; font-weight:bold; font-size:0.9rem; margin-bottom:5px;">終了</label>
-    <div style="position: relative; width: 100%;">
-        <input type="tel" id="input-end" placeholder="10:00" autocomplete="off"
-               onclick="selectTimePart(this)" 
-               onkeyup="handleTimeArrowKeys(event, this)"
-               onblur="formatTimeInput(this)"
-               style="width: 100%; box-sizing: border-box; padding: 8px 35px 8px 8px; border: 1px solid #ccc; border-radius: 4px; height: 38px; text-align: center;">
-        
-        <div style="position: absolute; right: 0; top: 0; width: 35px; height: 100%; display:flex; align-items:center; justify-content:center; color: #666; pointer-events: none; font-size: 10px;">▼</div>
+      <div class="flex-1">
+        <label for="input-end">終了</label>
+        <div class="time-picker-wrapper">
+          <input type="tel" id="input-end" placeholder="10:00" autocomplete="off"
+                 onclick="selectTimePart(this)" 
+                 onkeyup="handleTimeArrowKeys(event, this)"
+                 onblur="formatTimeInput(this)">
+          
+          <div class="time-picker-arrow">▼</div>
 
-        <select onchange="document.getElementById('input-end').value=this.value" 
-                style="position: absolute; right: 0; top: 0; width: 35px; height: 100%; opacity: 0; cursor: pointer;">
-            <option value="" selected hidden></option>
-            <option value="07:00">07:00</option><option value="07:15">07:15</option><option value="07:30">07:30</option><option value="07:45">07:45</option>
-            <option value="08:00">08:00</option><option value="08:15">08:15</option><option value="08:30">08:30</option><option value="08:45">08:45</option>
-            <option value="09:00">09:00</option><option value="09:15">09:15</option><option value="09:30">09:30</option><option value="09:45">09:45</option>
-            <option value="10:00">10:00</option><option value="10:15">10:15</option><option value="10:30">10:30</option><option value="10:45">10:45</option>
-            <option value="11:00">11:00</option><option value="11:15">11:15</option><option value="11:30">11:30</option><option value="11:45">11:45</option>
-            <option value="12:00">12:00</option><option value="12:15">12:15</option><option value="12:30">12:30</option><option value="12:45">12:45</option>
-            <option value="13:00">13:00</option><option value="13:15">13:15</option><option value="13:30">13:30</option><option value="13:45">13:45</option>
-            <option value="14:00">14:00</option><option value="14:15">14:15</option><option value="14:30">14:30</option><option value="14:45">14:45</option>
-            <option value="15:00">15:00</option><option value="15:15">15:15</option><option value="15:30">15:30</option><option value="15:45">15:45</option>
-            <option value="16:00">16:00</option><option value="16:15">16:15</option><option value="16:30">16:30</option><option value="16:45">16:45</option>
-            <option value="17:00">17:00</option><option value="17:15">17:15</option><option value="17:30">17:30</option><option value="17:45">17:45</option>
-            <option value="18:00">18:00</option><option value="18:15">18:15</option><option value="18:30">18:30</option><option value="18:45">18:45</option>
-            <option value="19:00">19:00</option><option value="19:15">19:15</option><option value="19:30">19:30</option><option value="19:45">19:45</option>
-            <option value="20:00">20:00</option><option value="20:15">20:15</option><option value="20:30">20:30</option><option value="20:45">20:45</option>
-            <option value="21:00">21:00</option><option value="21:15">21:15</option><option value="21:30">21:30</option><option value="21:45">21:45</option>
-            <option value="22:00">22:00</option>
-        </select>
-    </div>
-</div>
+          <select class="time-overlay-select" onchange="document.getElementById('input-end').value=this.value">
+             <option value="" selected hidden></option>
+             <option value="07:00">07:00</option><option value="07:15">07:15</option><option value="07:30">07:30</option><option value="07:45">07:45</option>
+             <option value="08:00">08:00</option><option value="08:15">08:15</option><option value="08:30">08:30</option><option value="08:45">08:45</option>
+             <option value="09:00">09:00</option><option value="09:15">09:15</option><option value="09:30">09:30</option><option value="09:45">09:45</option>
+             <option value="10:00">10:00</option><option value="10:15">10:15</option><option value="10:30">10:30</option><option value="10:45">10:45</option>
+             <option value="11:00">11:00</option><option value="11:15">11:15</option><option value="11:30">11:30</option><option value="11:45">11:45</option>
+             <option value="12:00">12:00</option><option value="12:15">12:15</option><option value="12:30">12:30</option><option value="12:45">12:45</option>
+             <option value="13:00">13:00</option><option value="13:15">13:15</option><option value="13:30">13:30</option><option value="13:45">13:45</option>
+             <option value="14:00">14:00</option><option value="14:15">14:15</option><option value="14:30">14:30</option><option value="14:45">14:45</option>
+             <option value="15:00">15:00</option><option value="15:15">15:15</option><option value="15:30">15:30</option><option value="15:45">15:45</option>
+             <option value="16:00">16:00</option><option value="16:15">16:15</option><option value="16:30">16:30</option><option value="16:45">16:45</option>
+             <option value="17:00">17:00</option><option value="17:15">17:15</option><option value="17:30">17:30</option><option value="17:45">17:45</option>
+             <option value="18:00">18:00</option><option value="18:15">18:15</option><option value="18:30">18:30</option><option value="18:45">18:45</option>
+             <option value="19:00">19:00</option><option value="19:15">19:15</option><option value="19:30">19:30</option><option value="19:45">19:45</option>
+             <option value="20:00">20:00</option><option value="20:15">20:15</option><option value="20:30">20:30</option><option value="20:45">20:45</option>
+             <option value="21:00">21:00</option><option value="21:15">21:15</option><option value="21:30">21:30</option><option value="21:45">21:45</option>
+             <option value="22:00">22:00</option>
+          </select>
+        </div>
+      </div>
     </div>
 
     <label>用件 (タイトル)</label>
@@ -243,8 +236,8 @@
             </div>
             <div class="shuttle-list" id="list-candidates"></div>
         </div>
-        <div class="shuttle-box" style="background:#e3f2fd;">
-            <div class="shuttle-header" style="background:#bbdefb;">参加予定者</div>
+        <div class="shuttle-box bg-selected">
+            <div class="shuttle-header bg-header-selected">参加予定者</div>
             <div class="shuttle-list" id="list-selected"></div>
         </div>
     </div>
@@ -252,8 +245,8 @@
     <label>備考</label>
     <textarea id="input-note" rows="2" placeholder="備品要望など"></textarea>
 
-    <div style="display:flex; gap:10px; margin-top:20px;">
-      <button type="button" onclick="closeModal()" style="background:#999; color:white;">キャンセル</button>
+    <div class="modal-footer">
+      <button type="button" onclick="closeModal()" class="btn-secondary">キャンセル</button>
       <button type="button" id="btn-save" class="btn-primary" onclick="saveBooking()">保存</button>
       <button type="button" id="btn-delete" class="btn-danger" onclick="deleteBooking()" style="display:none;">削除</button>
     </div>
@@ -262,9 +255,10 @@
 </div>
 
 <div id="groupCreateModal" class="modal">
-  <div class="modal-content" style="max-width: 600px;">
-    <h3 style="margin-top:0;" id="group-modal-title">グループ作成</h3>
+  <div class="modal-content modal-md">
+    <h3 class="mt-0" id="group-modal-title">グループ作成</h3>
     <input type="hidden" id="edit-group-id">
+    
     <label>グループ名</label>
     <input type="text" id="new-group-name" placeholder="例: プロジェクトAチーム">
     
@@ -277,14 +271,14 @@
             </div>
             <div class="shuttle-list" id="group-create-candidates"></div>
         </div>
-        <div class="shuttle-box" style="background:#e3f2fd;">
-            <div class="shuttle-header" style="background:#bbdefb;">選択中</div>
+        <div class="shuttle-box bg-selected">
+            <div class="shuttle-header bg-header-selected">選択中</div>
             <div class="shuttle-list" id="group-create-selected"></div>
         </div>
     </div>
 
-    <div style="display:flex; gap:10px; margin-top:20px; justify-content: flex-end;">
-      <button type="button" onclick="closeGroupModal()" style="background:#999; color:white;">キャンセル</button>
+    <div class="modal-footer justify-end">
+      <button type="button" onclick="closeGroupModal()" class="btn-secondary">キャンセル</button>
       <button type="button" class="btn-primary" onclick="saveNewGroup()">保存</button>
     </div>
   </div>
