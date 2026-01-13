@@ -168,24 +168,25 @@ header {
 .v-booking-bar {
   position: absolute; left: 2px; right: 2px;
   border-radius: 4px;
-  display: flex; flex-direction: column;
-  justify-content: center; 
-  align-items: flex-start; /* 【変更】左端に寄せる */
-  font-size: 12px;         /* 【変更】10pxから12pxへ大きく */
-  line-height: 1.1;
-  padding: 2px 5px;        /* 【変更】左に文字がくっつきすぎないよう余白追加 */
+  display: flex; flex-direction: column; /* 縦並び */
+  
+  /* ▼ここを変更しました（左上に配置） */
+  justify-content: flex-start; /* 縦方向：上詰め */
+  align-items: flex-start;     /* 横方向：左詰め */
+  
+  /* ▼文字サイズと余白の調整 */
+  font-size: 12px;             /* 文字サイズを大きく */
+  line-height: 1.2;            /* 行間を少し広げて読みやすく */
+  padding: 4px 5px;            /* 上と左に少し余白を持たせる */
+  
   color: #333;
   overflow: hidden; white-space: normal;
   overflow-wrap: anywhere; word-break: break-all;
   z-index: 5; cursor: pointer;
   box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-  text-align: left;        /* 【変更】文字を左揃え */
+  
+  text-align: left;            /* テキスト左揃え */
   transition: all 0.1s ease-in-out;
-}
-.v-booking-bar:hover {
-  z-index: 20;
-  box-shadow: 0 5px 10px rgba(0,0,0,0.3);
-  filter: brightness(0.95);
 }
 
 /* タイプ別カラー */
