@@ -169,14 +169,14 @@ header {
   position: absolute; left: 2px; right: 2px;
   border-radius: 4px;
   display: flex; flex-direction: column; /* デフォルト: 縦並び */
-  justify-content: center; align-items: center;
-  font-size: 10px; line-height: 1.1;
-  padding: 2px; color: #333;
+  justify-content: flex-start; /* 上寄せ */
+  align-items: flex-start;     /* 左寄せ */
+  text-align: left;            /* テキスト左揃え */
+  padding: 4px;                /* 端に寄りすぎないよう余白を少し広げる */
   overflow: hidden; white-space: normal;
   overflow-wrap: anywhere; word-break: break-all;
   z-index: 5; cursor: pointer;
   box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-  text-align: center;
   transition: all 0.1s ease-in-out;
 }
 .v-booking-bar:hover {
@@ -193,7 +193,7 @@ header {
 /* ▼マップ下部の予約バー（横並び上書き） */
 #rooms-container-map .v-booking-bar {
   flex-direction: row !important;
-  justify-content: center !important;
+  justify-content: flex-start !important;
   align-items: center !important;
   padding: 0 5px !important;
   text-align: left !important;
