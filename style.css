@@ -353,7 +353,9 @@ header {
 
 /* PC表示時のマップ調整 (1024px以上) */
 @media (min-width: 1024px) {
-  .floor-selector { display: none !important; }
+  /* .map-wrapper の中にある .floor-selector だけを消すように変更 */
+  .map-wrapper .floor-selector { display: none !important; } 
+
   .pc-floor-title { display: none !important; }
   #dual-map-container {
     display: flex; justify-content: center; gap: 20px; align-items: flex-start;
