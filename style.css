@@ -5,9 +5,15 @@
   --primary: #2c3e50;
   --accent: #27ae60;
   --danger: #c0392b;
-  --meeting-bg: #e3f2fd; --meeting-border: #2196f3;
-  --reception-bg: #e8f5e9; --reception-border: #4caf50;
-  --zoom-bg: #fff3e0; --zoom-border: #ff9800;
+
+  /* 視認性向上のため改行 */
+  --meeting-bg: #e3f2fd;
+  --meeting-border: #2196f3;
+  --reception-bg: #e8f5e9;
+  --reception-border: #4caf50;
+  --zoom-bg: #fff3e0;
+  --zoom-border: #ff9800;
+
   --base-hour-height: 100px;
 }
 
@@ -163,18 +169,23 @@ header {
 }
 
 /* ==============================================
-   6. 予約バー (.v-booking-bar)
+   6. 予約バー (.v-booking-bar) 共通設定
    ============================================== */
 .v-booking-bar {
   position: absolute; left: 2px; right: 2px;
   border-radius: 4px;
-  display: flex; flex-direction: column; /* デフォルト: 縦並び */
-  justify-content: flex-start; /* 上寄せ */
-  align-items: flex-start;     /* 左寄せ */
-  text-align: left;            /* テキスト左揃え */
-  padding: 4px;                /* 端に寄りすぎないよう余白を少し広げる */
-  overflow: hidden; white-space: normal;
-  overflow-wrap: anywhere; word-break: break-all;
+  display: flex;
+  flex-direction: column; /* デフォルト: 縦並び */
+  justify-content: flex-start;
+  align-items: flex-start;
+  text-align: left;
+  padding: 4px;
+  
+  overflow: hidden; 
+  white-space: normal;
+  overflow-wrap: anywhere; 
+  word-break: break-all;
+  
   z-index: 5; cursor: pointer;
   box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   transition: all 0.1s ease-in-out;
@@ -190,33 +201,50 @@ header {
 .type-reception { background: var(--reception-bg); border-top: 4px solid var(--reception-border); }
 .type-zoom { background: var(--zoom-bg); border-top: 4px solid var(--zoom-border); }
 
-/* ▼マップ下部の予約バー（横並び上書き） */
+
+/* ==============================================
+   ★ マップ検索画面の予約バー専用設定 ★
+   （時間を上、用件を下に配置）
+   ============================================== */
 #rooms-container-map .v-booking-bar {
-  display: flex !important;
-  flex-direction: row !important;         /* 横並び（隣に表示） */
-  justify-content: flex-start !important; /* 左寄せ */
-  align-items: flex-start !important;     /* 上寄せ */
-  text-align: left !important;            /* 文字を左揃え */
-  padding: 4px 6px !important;            /* 左上に適度な余白 */
-  gap: 4px;                              /* 時間と用件の間に隙間を作る */
+  /* JSでblock指定される場合があるため、重要度を上げてflexを強制 */
+  display: flex !important; 
   
-  /* ↓もし文字が長すぎて隠れるのが嫌な場合は wrap を有効にしてください */
-  flex-wrap: wrap !important; 
+  /* 縦並び指定 */
+  flex-direction: column; 
+  justify-content: flex-start;
+  align-items: flex-start;
+  
+  /* レイアウト調整 */
+  text-align: left;
+  padding: 4px 6px;
+  gap: 2px; /* 時間と用件の間隔を狭く */
+  
+  /* 高さを中身に合わせる（枠からはみ出す場合はスクロール設定などが必要） */
+  height: auto !important;
+  min-height: 100%;
 }
 
-/* 中身の文字設定（強制的な改行禁止を解除して、自然に表示させる） */
+/* マップ予約バー内の文字設定 */
 #rooms-container-map .v-booking-bar span,
 #rooms-container-map .v-booking-bar div {
-  white-space: normal !important;
-  overflow: visible !important;
-  text-overflow: clip !important;
-  text-align: left !important;
-  width: auto !important;
-  
-  /* ▼▼▼ 追加：念のため文字自体の余白もゼロにします ▼▼▼ */
-  margin: 0 !important;
-  padding: 0 !important;
+  white-space: normal;
+  overflow: visible;
+  text-align: left;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  line-height: 1.2;
 }
+
+/* 時間部分（1行目）を太字にして少し強調 */
+#rooms-container-map .v-booking-bar > div:first-child,
+#rooms-container-map .v-booking-bar > span:first-child {
+  font-weight: bold;
+  margin-bottom: 2px;
+}
+
+
 /* ==============================================
    7. ログ (リスト) 画面
    ============================================== */
@@ -503,23 +531,14 @@ textarea#input-note::placeholder {
     margin-bottom: 20px !important;
   }
   
-  /* マップの予約バー（スマホ特化） */
+  /* スマホ画面でのマップ予約バー調整 
+     (PC用設定の #rooms-container-map でほとんど制御しているため最低限に)
+  */
   #rooms-container-map .v-booking-bar {
-    justify-content: flex-start !important; /* 左寄せ */
-    padding-left: 5px !important; padding-right: 8px !important;
-  }
-  #rooms-container-map .v-booking-bar > div,
-  #rooms-container-map .v-booking-bar > span {
-    text-align: left !important; white-space: nowrap !important;
-    overflow: hidden !important; text-overflow: ellipsis !important;
-  }
-  #rooms-container-map .v-booking-bar > div:first-child {
-    flex-shrink: 0 !important; margin-right: 10px !important; width: auto !important;
-  }
-  #rooms-container-map .v-booking-bar > div:last-child {
-    flex: 1 !important; min-width: 0 !important;
+    padding: 4px !important;
   }
 }
+
 /* ==============================================
    11. HTMLリファクタリング用 追加ユーティリティ
    ============================================== */
