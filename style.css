@@ -621,3 +621,42 @@ textarea#input-note::placeholder {
   margin-bottom: 0 !important;   /* 余白なし */
   padding-bottom: 3px;           /* 記号を視覚的な中心に微調整 */
 }
+/* ==============================================
+   14. スマホ表示レイアウト修正 (日付・時間)
+   ============================================== */
+@media (max-width: 600px) {
+  /* フォーム行のコンテナ設定 */
+  #bookingModal .form-row {
+    flex-wrap: wrap !important;      /* 折り返しを有効化 */
+    gap: 0 !important;               /* 自動の隙間をリセット */
+    align-items: flex-end !important; /* 下揃え */
+  }
+
+  /* 1. 日付エリア：強制的に横幅100%にして1行目を独占させる */
+  #bookingModal .form-row > .flex-1-2 {
+    flex: 0 0 100% !important;       /* 幅100% */
+    max-width: 100% !important;
+    margin-bottom: 20px !important;  /* 下の時間入力との間に余白を作る */
+  }
+
+  /* 2. 開始・終了時間エリア：残りの幅を分け合って2行目に並べる */
+  #bookingModal .form-row > .flex-1 {
+    flex: 1 !important;              /* 均等に広げる */
+    min-width: 0 !important;         /* 画面幅が狭くてもはみ出さないようにする */
+    margin-bottom: 0 !important;
+  }
+
+  /* 3. 「～」記号：中央に配置 */
+  #bookingModal .form-row > .time-range-sep {
+    width: auto !important;
+    min-width: 20px !important;
+    flex: 0 0 auto !important;       /* 伸縮させない */
+    justify-content: center;
+    margin: 0 2px !important;
+  }
+  
+  /* ラベルの位置調整（日付の下に余白ができすぎないように微調整） */
+  #bookingModal .form-row label {
+    margin-bottom: 5px !important;
+  }
+}
