@@ -622,41 +622,48 @@ textarea#input-note::placeholder {
   padding-bottom: 3px;           /* 記号を視覚的な中心に微調整 */
 }
 /* ==============================================
-   14. スマホ表示レイアウト修正 (日付・時間)
+   14. スマホ表示レイアウト修正 (日付・時間) - 強制適用版
    ============================================== */
 @media (max-width: 600px) {
-  /* フォーム行のコンテナ設定 */
+  /* コンテナ設定：強制的に折り返しを有効にする */
   #bookingModal .form-row {
-    flex-wrap: wrap !important;      /* 折り返しを有効化 */
-    gap: 0 !important;               /* 自動の隙間をリセット */
-    align-items: flex-end !important; /* 下揃え */
+    display: flex !important;
+    flex-wrap: wrap !important;       /* これがないと改行されません */
+    align-items: flex-end !important; /* 下揃え（入力欄と～の高さを合わせる） */
+    gap: 0 !important;                /* 隙間は個別に調整するためゼロに */
   }
 
-  /* 1. 日付エリア：強制的に横幅100%にして1行目を独占させる */
-  #bookingModal .form-row > .flex-1-2 {
-    flex: 0 0 100% !important;       /* 幅100% */
+  /* 1. 日付エリア：強制的に1行目を独占 (幅100%) */
+  #bookingModal .form-row > div:nth-child(1) {
+    flex: 1 1 100% !important;        /* 幅100%を強制 */
+    width: 100% !important;
     max-width: 100% !important;
-    margin-bottom: 20px !important;  /* 下の時間入力との間に余白を作る */
+    margin-right: 0 !important;
+    margin-bottom: 15px !important;   /* 下の「開始・終了」との間に余白 */
   }
 
-  /* 2. 開始・終了時間エリア：残りの幅を分け合って2行目に並べる */
-  #bookingModal .form-row > .flex-1 {
-    flex: 1 !important;              /* 均等に広げる */
-    min-width: 0 !important;         /* 画面幅が狭くてもはみ出さないようにする */
+  /* 2. 開始・終了エリア：2行目で横並び (幅を分け合う) */
+  #bookingModal .form-row > div:nth-child(2), /* 開始 */
+  #bookingModal .form-row > div:nth-child(4)  /* 終了 */ {
+    flex: 1 1 42% !important;         /* 残り幅を等分 */
+    width: auto !important;
+    min-width: 0 !important;
     margin-bottom: 0 !important;
   }
 
-  /* 3. 「～」記号：中央に配置 */
-  #bookingModal .form-row > .time-range-sep {
+  /* 3. 「～」記号：中央配置 */
+  #bookingModal .form-row > div:nth-child(3) {
+    flex: 0 0 auto !important;        /* 伸縮させない */
     width: auto !important;
     min-width: 20px !important;
-    flex: 0 0 auto !important;       /* 伸縮させない */
-    justify-content: center;
-    margin: 0 2px !important;
+    text-align: center !important;
+    padding-bottom: 10px !important;  /* 入力欄の底辺に合わせて位置調整 */
+    margin: 0 !important;
   }
   
-  /* ラベルの位置調整（日付の下に余白ができすぎないように微調整） */
-  #bookingModal .form-row label {
-    margin-bottom: 5px !important;
+  /* スマホ表示時の入力欄の高さ微調整 */
+  #bookingModal .form-row input,
+  #bookingModal .form-row select {
+    font-size: 16px !important; /* スマホでズームされないサイズ */
   }
 }
