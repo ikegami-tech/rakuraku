@@ -668,32 +668,33 @@ textarea#input-note::placeholder {
   }
 }
 /* ==============================================
-   15. スマホ表示レイアウト修正 (部屋・横並び強制・フォント統一)
+   15. スマホ表示レイアウト修正 (部屋・横並び・幅自動調整)
    ※以前の「15」を削除して、こちらに書き換えてください
    ============================================== */
 @media (max-width: 600px) {
-  /* 1. コンテナ：強制的に横並び・折り返し禁止 */
+  /* 1. コンテナ：左寄せで横並び */
   #bookingModal .form-group {
     display: flex !important;
     flex-direction: row !important;  /* 横方向 */
-    flex-wrap: nowrap !important;    /* ★重要: 折り返しさせない */
+    flex-wrap: nowrap !important;    /* 折り返し禁止 */
     align-items: center !important;  /* 上下中央 */
+    justify-content: flex-start !important; /* ★左寄せにする */
     gap: 15px !important;            /* ラベルと入力欄の距離 */
     margin-bottom: 15px !important;
   }
 
-  /* 2. ラベル：太字解除・サイズ統一・幅自動 */
+  /* 2. ラベル：幅をコンテンツに合わせる */
   #bookingModal .form-group label {
-    flex: 0 0 auto !important;       /* 縮まないように固定 */
+    flex: 0 0 auto !important;       /* 縮まない・伸びない */
     width: auto !important;
     margin: 0 !important;
-    font-weight: normal !important;  /* 太字解除 */
-    font-size: 16px !important;      /* サイズ統一 */
+    font-weight: normal !important;
+    font-size: 16px !important;
     line-height: 1 !important;
-    white-space: nowrap !important;  /* 改行禁止 */
+    white-space: nowrap !important;
   }
 
-  /* 3. 選択プルダウン：残りの幅を埋める */
+  /* 3. 選択プルダウン：文字数（最長の選択肢）に合わせた幅にする */
   #bookingModal .form-group select#input-room {
     flex: 0 1 auto !important;       /* ★重要: 1(伸びる)から0(伸びない)に変更 */
     width: auto !important;          /* 中身に合わせた幅にする */
@@ -704,7 +705,7 @@ textarea#input-note::placeholder {
     font-size: 16px !important;
   }
 
-  /* 4. その他のラベル（日付等）も太字解除して統一 */
+  /* 4. その他のラベル設定 */
   #bookingModal label {
     font-weight: normal !important;
     color: #333 !important;
