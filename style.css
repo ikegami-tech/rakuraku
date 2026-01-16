@@ -177,33 +177,6 @@ header {
 .type-reception { background: var(--reception-bg); border-top: 4px solid var(--reception-border); }
 .type-zoom { background: var(--zoom-bg); border-top: 4px solid var(--zoom-border); }
 
-/* ▼マップ下部の予約バー（横並び上書き） */
-#rooms-container-map .v-booking-bar {
-  display: flex !important;
-  flex-direction: row !important;         /* 横並び（隣に表示） */
-  justify-content: flex-start !important; /* 左寄せ */
-  align-items: flex-start !important;     /* 上寄せ */
-  text-align: left !important;            /* 文字を左揃え */
-  padding: 4px 6px !important;            /* 左上に適度な余白 */
-  gap: 4px;                              /* 時間と用件の間に隙間を作る */
-  
-  /* ↓もし文字が長すぎて隠れるのが嫌な場合は wrap を有効にしてください */
-  flex-wrap: wrap !important; 
-}
-
-/* 中身の文字設定（強制的な改行禁止を解除して、自然に表示させる） */
-#rooms-container-map .v-booking-bar span,
-#rooms-container-map .v-booking-bar div {
-  white-space: normal !important;
-  overflow: visible !important;
-  text-overflow: clip !important;
-  text-align: left !important;
-  width: auto !important;
-  
-  /* ▼▼▼ 追加：念のため文字自体の余白もゼロにします ▼▼▼ */
-  margin: 0 !important;
-  padding: 0 !important;
-}
 /* ==============================================
    7. ログ (リスト) 画面
    ============================================== */
@@ -728,4 +701,11 @@ textarea#input-note::placeholder {
   white-space: nowrap !important;         /* 文字がはみ出たら...にする */
   overflow: hidden !important;
   text-overflow: ellipsis !important;
+}
+/* ==============================================
+   19. 予約一覧(タイムライン)のフロア切替を表示
+   ============================================== */
+/* 画面サイズに関わらず、タイムライン画面では必ず表示させる */
+#view-timeline .floor-selector {
+  display: flex !important;
 }
