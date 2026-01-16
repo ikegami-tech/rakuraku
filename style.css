@@ -521,7 +521,7 @@ textarea#input-note::placeholder {
     overflow: hidden !important; text-overflow: ellipsis !important;
   }
   #rooms-container-map .v-booking-bar > div:first-child {
-    flex-shrink: 0 !important; margin-right: 10px !important; width: auto !important;
+    flex-shrink: 0 !important; margin-right: 0px !important; width: auto !important;
   }
   #rooms-container-map .v-booking-bar > div:last-child {
     flex: 1 !important; min-width: 0 !important;
