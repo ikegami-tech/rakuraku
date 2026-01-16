@@ -599,3 +599,25 @@ textarea#input-note::placeholder {
   height: 38px; display: flex; align-items: center; justify-content: center;
   font-weight: bold; padding: 0 5px;
 }
+/* ==============================================
+   13. レイアウト微調整 (日付・時間のズレ修正)
+   ============================================== */
+
+/* モーダル内の「日付」「開始」「終了」の入力欄を強制的に統一 */
+#bookingModal .form-row input[type="date"],
+#bookingModal .form-row .time-picker-wrapper input {
+  height: 38px !important;       /* すべて高さを38pxに固定 */
+  margin-bottom: 0 !important;   /* 下の余白を削除して底辺を揃える */
+  padding: 4px 10px !important;  /* 内側の余白を統一 */
+  line-height: normal !important; /* 文字位置のズレを防止 */
+}
+
+/* 「～」の記号の位置調整 */
+.time-range-sep {
+  height: 38px !important;       /* 入力欄と同じ高さにする */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0 !important;   /* 余白なし */
+  padding-bottom: 3px;           /* 記号を視覚的な中心に微調整 */
+}
