@@ -647,7 +647,33 @@ function renderVerticalTimeline(mode) {
           const startTimeStr = `${start.getHours()}:${pad(start.getMinutes())}`;
           const endTimeStr = `${end.getHours()}:${pad(end.getMinutes())}`;
           const timeRangeStr = `${startTimeStr}-${endTimeStr}`;
+          const timeRangeStr = `${startTimeStr}-${endTimeStr}`;
 
+          // ▼▼▼【重要】ここに参加者名を取得するコードを追加してください ▼▼▼
+          let membersText = "";
+          const pIdsStr = getVal(res, ['participantIds', 'participant_ids', '参加者', 'メンバー']);
+          
+          if (pIdsStr && String(pIdsStr).trim() !== "") {
+              const cleanIdsStr = String(pIdsStr).replace(/['"]/g, "");
+              const resIds = cleanIdsStr.split(/,\s*/).map(id => id.trim()).filter(id => id);
+              
+              const names = resIds.map(id => {
+                  if (!masterData.users) return id; 
+                  const u = masterData.users.find(user => String(user.userId) === id);
+                  return u ? u.userName : id; 
+              });
+
+              if (names.length > 0) {
+                  if (names.length <= 4) {
+                      membersText = names.join(', ');
+                  } else {
+                      const showNames = names.slice(0, 4).join(', ');
+                      const diff = names.length - 4;
+                      membersText = `${showNames} +他${diff}名`;
+                  }
+              }
+          }
+          // ▲▲▲ 追加ここまで ▲▲▲
           bar.innerHTML = `
               <div style="font-weight:bold; font-size:0.9em; line-height:1.2;">${timeRangeStr}</div>
               <div style="font-weight:bold; font-size:0.9em; margin-top: 2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${displayTitle}</div>
