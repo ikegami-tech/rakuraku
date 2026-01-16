@@ -617,10 +617,41 @@ function renderVerticalTimeline(mode) {
           const endTimeStr = `${end.getHours()}:${pad(end.getMinutes())}`;
           const timeRangeStr = `${startTimeStr}-${endTimeStr}`;
 
-          bar.innerHTML = `
-              <div style="font-weight:bold; font-size:0.9em; line-height:1.2;">${timeRangeStr}</div>
-              <div style="font-weight:bold; font-size:0.9em; margin-top: 2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${displayTitle}</div>
-          `;
+         let membersText = "";
+      const pIdsStr = getVal(res, ['participantIds', 'participant_ids', '参加者', 'メンバー']);
+      
+      if (pIdsStr && String(pIdsStr).trim() !== "") {
+          // IDリストを配列にする
+          const cleanIdsStr = String(pIdsStr).replace(/['"]/g, "");
+          const resIds = cleanIdsStr.split(/,\s*/).map(id => id.trim()).filter(id => id);
+          
+          // IDを名前に変換する
+          const names = resIds.map(id => {
+              // 数値型・文字列型どちらでもマッチするように比較
+              const u = masterData.users.find(user => String(user.userId) === id);
+              return u ? u.userName : id; // 名前が見つからなければIDを表示
+          });
+
+          // 4名までは全員表示、5名以上は省略表記
+          if (names.length > 0) {
+              if (names.length <= 4) {
+                  membersText = names.join(', ');
+              } else {
+                  const showNames = names.slice(0, 4).join(', ');
+                  const diff = names.length - 4;
+                  membersText = `${showNames} +他${diff}名`;
+              }
+          }
+      }
+      /* ▲▲▲ 追加ここまで ▲▲▲ */
+
+      // ▼▼▼ 修正：表示内容に参加者（membersText）を追加 ▼▼▼
+      bar.innerHTML = `
+          <div style="font-weight:bold; font-size:0.9em; line-height:1.2;">${timeRangeStr}</div>
+          <div style="font-weight:bold; font-size:0.9em; margin-top: 2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${displayTitle}</div>
+          <div style="font-size:0.85em; margin-top: 1px; color:#555; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${membersText}</div>
+      `;
+      // ▲▲▲ 修正ここまで ▲▲▲
 
           bar.onclick = (e) => { 
               if (hasDragged) return;
