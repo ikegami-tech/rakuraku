@@ -461,13 +461,16 @@ function renderVerticalTimeline(mode) {
       return isTargetRoom && (resDateNum === targetDateNum);
   });
 
-  // 高さ自動調整
+  // 高さ自動調整（★ここを修正：名前の行が増えた分、高さを確保）
   allRelevantReservations.forEach(res => {
       const start = new Date(res._startTime);
       const sHour = start.getHours();
       let displayText = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '予約';
       const titleLines = Math.ceil(displayText.length / DYNAMIC_CHARS_PER_LINE) || 1;
-      const contentHeightPx = (titleLines * 15) + 25; 
+      
+      // ★修正: 名前行が増えたので基本高さを +25px していたのを +45px に変更
+      const contentHeightPx = (titleLines * 15) + 45; 
+
       let durationMin = (new Date(res._endTime) - new Date(res._startTime)) / 60000;
       if (durationMin < 15) durationMin = 15;
       const ratio = durationMin / 60;
@@ -641,6 +644,7 @@ function renderVerticalTimeline(mode) {
               }
           }
 
+          // HTML描画（white-space:nowrap で横にはみ出さないように設定済み）
           bar.innerHTML = `
               <div style="font-weight:bold; font-size:0.9em; line-height:1.2;">${timeRangeStr}</div>
               <div style="font-weight:bold; font-size:0.9em; margin-top: 2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${displayTitle}</div>
@@ -655,11 +659,11 @@ function renderVerticalTimeline(mode) {
           };
           body.appendChild(bar);
       }
-    }); // ここが forEach の閉じカッコ
+    });
     
     col.appendChild(body);
     container.appendChild(col);
-  }); // ここが targetRooms.forEach の閉じカッコ
+  });
 }
 
 /* ==============================================
