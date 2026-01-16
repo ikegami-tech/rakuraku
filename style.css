@@ -198,7 +198,7 @@ header {
   align-items: flex-start !important;     /* 上寄せ */
   text-align: left !important;            /* 文字を左揃え */
   padding: 4px 6px !important;            /* 左上に適度な余白 */
-  gap: 4px;                              /* 時間と用件の間に隙間を作る */
+  gap: 2px;                              /* 時間と用件の間に隙間を作る */
   
   /* ↓もし文字が長すぎて隠れるのが嫌な場合は wrap を有効にしてください */
   flex-wrap: wrap !important; 
@@ -218,10 +218,10 @@ header {
   padding: 0 !important;
 }
 
-/* ★ここが重要★：1つ目の要素（時間）についている右余白を強制削除 */
 #rooms-container-map .v-booking-bar > div:first-child,
 #rooms-container-map .v-booking-bar > span:first-child {
   margin-right: 0 !important;
+  padding-right: 0 !important; /* 念のためpaddingもゼロに */
   flex-shrink: 0 !important; /* 時間が潰れないようにする */
 }
 /* ==============================================
