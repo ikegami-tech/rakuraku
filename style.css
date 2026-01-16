@@ -698,3 +698,13 @@ textarea#input-note::placeholder {
     color: #333 !important;
   }
 }
+/* ==============================================
+   17. 予約詳細ボタンの均等化
+   ============================================== */
+.modal-footer .btn-equal {
+  flex: 1 !important;       /* 幅を均等に分け合う */
+  width: auto !important;   /* 固定幅を解除 */
+  min-width: 0 !important;
+  justify-content: center;
+  padding: 12px 0 !important; /* 上下の余白を確保 */
+}
