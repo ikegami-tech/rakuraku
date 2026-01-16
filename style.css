@@ -16,7 +16,8 @@ body {
   margin: 0;
   background: #eef1f5;
   color: #333;
-  height: 100vh;
+  height: auto;       /* 元: 100vh */
+  min-height: 100vh;  /* 念のため最小高さを指定 */
   display: flex;
   flex-direction: column;
 }
@@ -59,7 +60,8 @@ button {
    ============================================== */
 #app-screen {
   display: none; flex-direction: column;
-  height: 100%; max-width: 1280px; width: 100%;
+  height: auto;      /* 元: 100% */
+  min-height: 100%; max-width: 1280px; width: 100%;
   margin: 0 auto;
   background: white; box-shadow: 0 0 20px rgba(0,0,0,0.05);
 }
@@ -84,7 +86,7 @@ header {
 }
 
 .view-container {
-  display: none; flex: 1; overflow: hidden; position: relative;
+  display: none; flex: 1; overflow: visible; position: relative;
 }
 .view-container.active { display: flex; flex-direction: column; }
 
@@ -119,7 +121,7 @@ header {
   flex-shrink: 0;
 }
 .calendar-scroll-area {
-  flex: 1; overflow: auto; position: relative;
+  flex: 1; overflow: visible; position: relative;
   background: white; display: flex;
 }
 .time-axis-col { 
