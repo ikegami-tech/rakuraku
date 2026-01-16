@@ -462,29 +462,57 @@ function renderVerticalTimeline(mode) {
       return isTargetRoom && (resDateNum === targetDateNum);
   });
 
-  // 高さ自動調整
+  // ▼▼▼ 高さ自動調整（修正版：参加者名も含めて計算） ▼▼▼
   allRelevantReservations.forEach(res => {
       const start = new Date(res._startTime);
       const sHour = start.getHours();
+      
+      // 1. タイトルの行数計算
       let displayText = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '予約';
       const titleLines = Math.ceil(displayText.length / DYNAMIC_CHARS_PER_LINE) || 1;
-      const contentHeightPx = (titleLines * 15) + 25; 
+      
+      // 2. 参加者の行数計算（ここを追加）
+      let membersText = "";
+      const pIdsStr = getVal(res, ['participantIds', 'participant_ids', '参加者', 'メンバー']);
+      if (pIdsStr && String(pIdsStr).trim() !== "") {
+          const cleanIdsStr = String(pIdsStr).replace(/['"]/g, "");
+          const resIds = cleanIdsStr.split(/,\s*/).map(id => id.trim()).filter(id => id);
+          
+          const names = resIds.map(id => {
+              const u = masterData.users.find(user => String(user.userId) === id);
+              return u ? u.userName : id; 
+          });
+
+          // 4名までは全員表示、5名以上は省略表記（表示ロジックと合わせる）
+          if (names.length > 0) {
+              if (names.length <= 4) {
+                  membersText = names.join(', ');
+              } else {
+                  const showNames = names.slice(0, 4).join(', ');
+                  const diff = names.length - 4;
+                  membersText = `${showNames} +他${diff}名`;
+              }
+          }
+      }
+      // 参加者名の行数（文字数 ÷ 1行あたりの文字数）
+      const memberLines = membersText ? (Math.ceil(membersText.length / DYNAMIC_CHARS_PER_LINE) || 1) : 0;
+
+      // 3. 必要な高さを算出 (タイトル行 + 参加者行 + 時間表示分 + 余白)
+      // 1行あたり約16px + ヘッダー余白30px と見積もり
+      const contentHeightPx = (titleLines * 16) + (memberLines * 16) + 35; 
+      
       let durationMin = (new Date(res._endTime) - new Date(res._startTime)) / 60000;
       if (durationMin < 15) durationMin = 15;
       const ratio = durationMin / 60;
+      
+      // この予約を表示するのに必要な「1時間あたりの高さ」を計算
       const requiredHourHeight = contentHeightPx / ratio;
+      
       if (sHour >= START_HOUR && sHour < END_HOUR) {
           if (requiredHourHeight > hourRowHeights[sHour]) hourRowHeights[sHour] = requiredHourHeight;
       }
   });
-
-  const hourTops = {};
-  let currentTop = 0;
-  for(let h=START_HOUR; h<END_HOUR; h++) {
-      hourTops[h] = currentTop;
-      currentTop += hourRowHeights[h];
-  }
-  hourTops[END_HOUR] = currentTop;
+  // ▲▲▲ 高さ自動調整 修正ここまで ▲▲▲
 
   // 軸を描画
   drawTimeAxis(timeAxisId);
