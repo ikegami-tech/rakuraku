@@ -16,8 +16,7 @@ body {
   margin: 0;
   background: #eef1f5;
   color: #333;
-  height: auto;       /* 元: 100vh */
-  min-height: 100vh;  /* 念のため最小高さを指定 */
+  height: 100vh;
   display: flex;
   flex-direction: column;
 }
@@ -60,8 +59,7 @@ button {
    ============================================== */
 #app-screen {
   display: none; flex-direction: column;
-  height: auto;      /* 元: 100% */
-  min-height: 100%; max-width: 1280px; width: 100%;
+  height: 100%; max-width: 1280px; width: 100%;
   margin: 0 auto;
   background: white; box-shadow: 0 0 20px rgba(0,0,0,0.05);
 }
@@ -86,7 +84,7 @@ header {
 }
 
 .view-container {
-  display: none; flex: 1; overflow: visible; position: relative;
+  display: none; flex: 1; overflow: hidden; position: relative;
 }
 .view-container.active { display: flex; flex-direction: column; }
 
@@ -121,9 +119,7 @@ header {
   flex-shrink: 0;
 }
 .calendar-scroll-area {
-  flex: 1; overflow-x: auto;       /* 横スクロールは表示する */
-  overflow-y: hidden;     /* 縦スクロールバーは消す */
-  min-height: 0; position: relative;
+  flex: 1; overflow: auto; position: relative;
   background: white; display: flex;
 }
 .time-axis-col { 
@@ -357,9 +353,7 @@ header {
 
 /* PC表示時のマップ調整 (1024px以上) */
 @media (min-width: 1024px) {
-  /* .map-wrapper の中にある .floor-selector だけを消すように変更 */
-  .map-wrapper .floor-selector { display: none !important; } 
-
+  .floor-selector { display: none !important; }
   .pc-floor-title { display: none !important; }
   #dual-map-container {
     display: flex; justify-content: center; gap: 20px; align-items: flex-start;
