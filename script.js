@@ -469,7 +469,7 @@ function renderVerticalTimeline(mode) {
       const titleLines = Math.ceil(displayText.length / DYNAMIC_CHARS_PER_LINE) || 1;
       
       // ★修正: 名前行が増えたので基本高さを +25px していたのを +45px に変更
-      const contentHeightPx = (titleLines * 15) + 45; 
+      const contentHeightPx = (titleLines * 15) + 65; 
 
       let durationMin = (new Date(res._endTime) - new Date(res._startTime)) / 60000;
       if (durationMin < 15) durationMin = 15;
