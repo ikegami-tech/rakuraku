@@ -667,3 +667,40 @@ textarea#input-note::placeholder {
     font-size: 16px !important; /* スマホでズームされないサイズ */
   }
 }
+/* ==============================================
+   15. スマホ表示レイアウト修正 (部屋・フォント統一)
+   ============================================== */
+@media (max-width: 600px) {
+  /* 1. 部屋セクションを横並び（Flexbox）にする */
+  .form-group {
+    display: flex !important;
+    align-items: center !important; /* 上下中央揃え */
+    gap: 15px !important;           /* ラベルと選択肢の間隔 */
+    margin-bottom: 15px !important; /* 下との余白 */
+  }
+
+  /* 2. 部屋のラベル：フォントと余白の強制リセット */
+  .form-group label {
+    width: auto !important;         /* 幅を内容に合わせる */
+    margin: 0 !important;           /* 不要な余白を削除 */
+    font-weight: normal !important; /* 太さを「日付」などに合わせる */
+    font-size: 16px !important;     /* サイズを統一 */
+    white-space: nowrap !important; /* 改行禁止 */
+    line-height: 1.5 !important;
+  }
+
+  /* 3. 部屋の選択プルダウン：横幅いっぱい */
+  .form-group select#input-room {
+    flex: 1 !important;             /* 残りのスペースを埋める */
+    width: auto !important;         /* 100%指定を解除してflexに任せる */
+    margin-bottom: 0 !important;    /* 余白削除 */
+    height: 38px !important;        /* 他の入力欄と高さを揃える */
+  }
+
+  /* 4. 他のラベル（日付・開始・終了）も含めてフォント統一 */
+  #bookingModal label {
+    font-weight: normal !important; /* 全体的に太字を解除して統一 */
+    font-size: 16px !important;     /* スマホで見やすいサイズに統一 */
+    color: #333 !important;
+  }
+}
