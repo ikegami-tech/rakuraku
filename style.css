@@ -16,9 +16,13 @@ body {
   margin: 0;
   background: #eef1f5;
   color: #333;
-  height: 100vh;
+  /* 修正: 画面全体の高さを固定せず、中身に合わせる */
+  height: auto;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
+  /* 縦スクロールはブラウザ標準に任せる */
+  overflow-y: visible;
 }
 
 * { box-sizing: border-box; }
@@ -59,7 +63,10 @@ button {
    ============================================== */
 #app-screen {
   display: none; flex-direction: column;
-  height: 100%; max-width: 1280px; width: 100%;
+  /* 修正: コンテンツに応じて伸びるようにする */
+  height: auto;
+  min-height: 100vh;
+  max-width: 1280px; width: 100%;
   margin: 0 auto;
   background: white; box-shadow: 0 0 20px rgba(0,0,0,0.05);
 }
@@ -84,7 +91,10 @@ header {
 }
 
 .view-container {
-  display: none; flex: 1; overflow: hidden; position: relative;
+  display: none; flex: 1; 
+  /* 修正: 隠さずに表示する */
+  overflow: visible; 
+  position: relative;
 }
 .view-container.active { display: flex; flex-direction: column; }
 
@@ -119,8 +129,17 @@ header {
   flex-shrink: 0;
 }
 .calendar-scroll-area {
-  flex: 1; overflow: auto; position: relative;
-  background: white; display: flex;
+  flex: 1;
+  position: relative;
+  background: white;
+  display: flex;
+  
+  /* ▼▼▼ 重要修正 ▼▼▼ */
+  /* 横スクロールはここで行う */
+  overflow-x: auto;
+  /* 縦スクロールはこのエリアでは行わず、画面全体で行う */
+  overflow-y: visible;
+  /* ▲▲▲ 重要修正 ▲▲▲ */
 }
 .time-axis-col { 
   width: 50px; flex-shrink: 0; background: #fff;
