@@ -617,21 +617,10 @@ function renderVerticalTimeline(mode) {
           const endTimeStr = `${end.getHours()}:${pad(end.getMinutes())}`;
           const timeRangeStr = `${startTimeStr}-${endTimeStr}`;
 
-          if (mode === 'map') {
-              bar.innerHTML = `
-                  <div style="flex: 1; text-align: right; padding-right: 5px; font-weight: bold; overflow: hidden; font-size: 0.9em;">
-                      ${timeRangeStr}
-                  </div>
-                  <div style="flex: 2; text-align: left; padding-left: 5px; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                      ${displayTitle}
-                  </div>`;
-              bar.style.display = "flex";
-          } else {
-              bar.innerHTML = `
-                  <span style="font-weight:bold; font-size:0.9em;">${timeRangeStr}</span>
-                  <span style="font-weight:bold; font-size:0.9em; margin-left: 5px;">${displayTitle}</span>
-              `;
-          }
+          bar.innerHTML = `
+              <div style="font-weight:bold; font-size:0.9em; line-height:1.2;">${timeRangeStr}</div>
+              <div style="font-weight:bold; font-size:0.9em; margin-top: 2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${displayTitle}</div>
+          `;
 
           bar.onclick = (e) => { 
               if (hasDragged) return;
