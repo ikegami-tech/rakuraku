@@ -387,12 +387,30 @@ header {
   display: flex; justify-content: space-between;
   align-items: center; margin-top: 10px; margin-bottom: 5px;
 }
-.group-container {
-  display: flex; flex-wrap: wrap; gap: 8px;
-  margin-bottom: 15px; padding: 5px 0;
-  height: auto !important; min-height: 40px; max-height: none !important;
-  overflow: visible !important; border: none; background: transparent;
-  align-items: flex-start; flex-shrink: 0;
+.group-chip {
+  background: #e0e0e0; 
+  border: 1px solid #ccc; 
+  border-radius: 12px;
+  
+  /* ▼▼▼ 修正・追加箇所 ▼▼▼ */
+  padding: 0 10px;            /* 上下の余白は高さ指定に任せるため0にし、左右を広げます */
+  font-size: 0.75rem;
+  
+  /* レイアウト調整 */
+  display: inline-flex;       /* inline-block から変更（中身の位置調整をしやすくする） */
+  align-items: center;        /* 文字を縦方向のど真ん中に配置 */
+  justify-content: center;    /* 文字を横方向のど真ん中に配置 */
+  
+  /* 高さを強制的に揃える */
+  height: 26px;               /* 高さを固定（これで英数字でも日本語でも同じ高さになります） */
+  min-height: 26px;           /* スマホ等での崩れ防止 */
+  line-height: 1;             /* 行間によるズレをリセット */
+  
+  /* その他 */
+  cursor: pointer; 
+  user-select: none; 
+  transition: background 0.2s;
+  margin: 2px;                /* ボタン同士がくっつきすぎないように少し隙間をあける */
 }
 .group-chip {
   background: #e0e0e0; border: 1px solid #ccc; border-radius: 12px;
