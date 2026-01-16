@@ -388,40 +388,38 @@ header {
   align-items: center; margin-top: 10px; margin-bottom: 5px;
 }
 .group-chip {
-  background: #e0e0e0; 
-  border: 1px solid #ccc; 
-  border-radius: 12px;
+  /* レイアウト配置（文字をど真ん中にする設定） */
+  display: inline-flex;       /* 中身の位置調整をしやすくする */
+  align-items: center;        /* 【重要】縦方向のど真ん中に配置 */
+  justify-content: center;    /* 【重要】横方向のど真ん中に配置 */
+  text-align: center;         /* 念のためテキスト自体も中央揃え */
+
+  /* サイズ設定 */
+  height: 30px;               /* 高さを30pxに固定（少し余裕を持たせました） */
+  min-height: 30px;           /* スマホ等での縮小防止 */
+  padding: 0 12px;            /* 左右の余白を少し広げました */
   
-  /* ▼▼▼ 修正・追加箇所 ▼▼▼ */
-  padding: 0 10px;            /* 上下の余白は高さ指定に任せるため0にし、左右を広げます */
-  font-size: 0.75rem;
-  
-  /* レイアウト調整 */
-  display: inline-flex;       /* inline-block から変更（中身の位置調整をしやすくする） */
-  align-items: center;        /* 文字を縦方向のど真ん中に配置 */
-  justify-content: center;    /* 文字を横方向のど真ん中に配置 */
-  
-  /* 高さを強制的に揃える */
-  height: 26px;               /* 高さを固定（これで英数字でも日本語でも同じ高さになります） */
-  min-height: 26px;           /* スマホ等での崩れ防止 */
-  line-height: 1;             /* 行間によるズレをリセット */
+  /* 余白設定（gapが効かない古い端末用に追加） */
+  margin: 2px 4px;            /* 上下2px、左右4pxの隙間を確保 */
+
+  /* 見た目 */
+  background: #e0e0e0;
+  border: 1px solid #ccc;
+  border-radius: 15px;        /* 丸みを高さに合わせて調整 */
+  font-size: 0.75rem;         /* 文字サイズ */
+  line-height: 1;             /* 行間のズレ防止 */
   
   /* その他 */
   cursor: pointer; 
   user-select: none; 
   transition: background 0.2s;
-  margin: 2px;                /* ボタン同士がくっつきすぎないように少し隙間をあける */
+  box-sizing: border-box;
 }
-.group-chip {
-  background: #e0e0e0; border: 1px solid #ccc; border-radius: 12px;
-  padding: 3px 8px; font-size: 0.75rem;
-  cursor: pointer; user-select: none; transition: background 0.2s;
-  display: inline-block;
-}
-.group-chip:hover { background: #d5d5d5; }
-.edit-mode-style {
-  border: 2px dashed #3498db !important; background-color: #eaf6fd !important;
-  color: #2980b9 !important;
+
+/* ホバー時の挙動 */
+.group-chip:hover { 
+  background: #d5d5d5; 
+  transform: translateY(-1px); /* ホバー時に少し浮き上がる演出（任意） */
 }
 
 #group-action-area { display: flex; gap: 5px; }
