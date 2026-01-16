@@ -368,6 +368,7 @@ function renderVerticalTimeline(mode) {
   let hasDragged = false; 
 
   if (container) {
+      // ▼▼▼ マウス操作用 (既存のコード) ▼▼▼
       container.onmousedown = (e) => {
           isDown = true;
           hasDragged = false;
@@ -396,6 +397,41 @@ function renderVerticalTimeline(mode) {
           }
           container.scrollLeft = scrollLeft - walkX;
           container.scrollTop = scrollTop - walkY;
+      };
+
+      // ▼▼▼ 追加: タッチ操作用 (F12スマホモード & 実機対応) ▼▼▼
+      container.ontouchstart = (e) => {
+          isDown = true;
+          hasDragged = false;
+          // タッチの1本目の指の座標を取得
+          const touch = e.touches[0];
+          startX = touch.pageX - container.offsetLeft;
+          startY = touch.pageY - container.offsetTop;
+          scrollLeft = container.scrollLeft;
+          scrollTop = container.scrollTop;
+      };
+
+      container.ontouchmove = (e) => {
+          if (!isDown) return;
+          // ブラウザ標準のスクロールを止めて、JSで制御する
+          if (e.cancelable) e.preventDefault(); 
+          
+          const touch = e.touches[0];
+          const x = touch.pageX - container.offsetLeft;
+          const y = touch.pageY - container.offsetTop;
+          const walkX = (x - startX) * 1.5;
+          const walkY = (y - startY) * 1.5;
+
+          if (Math.abs(walkX) > 5 || Math.abs(walkY) > 5) {
+              hasDragged = true;
+          }
+          container.scrollLeft = scrollLeft - walkX;
+          container.scrollTop = scrollTop - walkY;
+      };
+
+      container.ontouchend = () => {
+          isDown = false;
+          setTimeout(() => { hasDragged = false; }, 50);
       };
   }
 
