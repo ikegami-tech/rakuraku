@@ -121,7 +121,9 @@ header {
   flex-shrink: 0;
 }
 .calendar-scroll-area {
-  flex: 1; overflow: visible; position: relative;
+  flex: 1; overflow-x: auto;       /* 横スクロールは表示する */
+  overflow-y: hidden;     /* 縦スクロールバーは消す */
+  min-height: 0; position: relative;
   background: white; display: flex;
 }
 .time-axis-col { 
