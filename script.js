@@ -647,7 +647,6 @@ function renderVerticalTimeline(mode) {
           const startTimeStr = `${start.getHours()}:${pad(start.getMinutes())}`;
           const endTimeStr = `${end.getHours()}:${pad(end.getMinutes())}`;
           const timeRangeStr = `${startTimeStr}-${endTimeStr}`;
-          const timeRangeStr = `${startTimeStr}-${endTimeStr}`;
 
           // ▼▼▼【重要】ここに参加者名を取得するコードを追加してください ▼▼▼
           let membersText = "";
