@@ -105,8 +105,12 @@ async function tryLogin() {
 
 function logout() { location.reload(); }
 
-async function loadAllData(isUpdate = false) {
-  document.getElementById('loading').style.display = 'flex';
+async function loadAllData(isUpdate = false, isBackground = false) {
+  // 裏側更新(isBackground)でない時だけ、ローディング画面を出す
+  if (!isBackground) {
+      document.getElementById('loading').style.display = 'flex';
+  }
+  
   const url = new URL(API_URL);
   url.searchParams.append('action', 'getAllData');
   url.searchParams.append('_t', new Date().getTime()); 
@@ -114,7 +118,12 @@ async function loadAllData(isUpdate = false) {
   try {
     const res = await fetch(url.toString(), { method: 'GET', headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
     const json = await res.json();
-    document.getElementById('loading').style.display = 'none';
+    
+    // 読み込み完了したらローディングを消す
+    if (!isBackground) {
+        document.getElementById('loading').style.display = 'none';
+    }
+
     if (json.status === 'success') {
       masterData = json.data;
       if (isUpdate) {
@@ -123,13 +132,14 @@ async function loadAllData(isUpdate = false) {
           initUI();
       }
     } else { 
-      alert("読込エラー: " + json.message); 
+      // バックグラウンド更新時はエラーが出てもアラートを出さない方が親切（無視する）
+      if (!isBackground) alert("読込エラー: " + json.message); 
     }
   } catch(e) { 
-    document.getElementById('loading').style.display = 'none'; 
+    if (!isBackground) document.getElementById('loading').style.display = 'none'; 
+    console.error("通信エラー(バックグラウンド):", e);
   }
 }
-
 /* ==============================================
    3. UI初期化・更新・タブ切り替え
    ============================================== */
@@ -144,6 +154,37 @@ function initUI() {
   renderDualMaps(); // 7階・6階一括描画
   switchFloor(7);   // 初期表示
   switchTab('map-view');
+  
+  // ▼▼▼ 追加: 自動更新を開始 ▼▼▼
+  startPolling();
+}
+/* ==============================================
+   自動更新 (ポーリング) 設定
+   ============================================== */
+// 更新間隔（ミリ秒）。ここでは30秒に設定しています。
+// 短すぎるとGASの実行回数制限(Quota)に引っかかる可能性があるため、30秒〜60秒推奨です。
+const POLLING_INTERVAL = 30000; 
+let pollingTimer = null;
+
+function startPolling() {
+  if (pollingTimer) clearInterval(pollingTimer);
+  
+  pollingTimer = setInterval(() => {
+    // 1. モーダルが開いているかチェック
+    // (入力中に更新されると邪魔なため、モーダル表示中は更新をスキップ)
+    const modalOpen = document.querySelectorAll('.modal[style*="display: flex"]').length > 0;
+    
+    // 2. ドラッグ中かチェック (タイムライン操作中の更新を防ぐ)
+    // ここでは簡易的にマウスが押されているか判定するのは難しいため、モーダルのみチェックとします。
+    
+    if (!modalOpen) {
+      // ローディング画面を出さずに(true, true)データを更新
+      console.log("自動更新を実行中...");
+      loadAllData(true, true);
+    } else {
+      console.log("モーダル表示中のため自動更新をスキップしました");
+    }
+  }, POLLING_INTERVAL);
 }
 
 function refreshUI() {
