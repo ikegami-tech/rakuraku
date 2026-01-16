@@ -362,76 +362,60 @@ function renderVerticalTimeline(mode) {
       container.style.webkitUserSelect = "none";
   }
 
-  // ドラッグスクロール処理
+  // ドラッグスクロール処理 (Pointer Events対応版)
   let isDown = false;
   let startX, startY, scrollLeft, scrollTop;
   let hasDragged = false; 
 
   if (container) {
-      // ▼▼▼ マウス操作用 (既存のコード) ▼▼▼
-      container.onmousedown = (e) => {
+      // ★重要: ブラウザ標準のスクロール操作を無効化し、JSに任せる設定
+      container.style.touchAction = "none"; 
+
+      container.onpointerdown = (e) => {
           isDown = true;
           hasDragged = false;
+          container.setPointerCapture(e.pointerId); // ポインターをこの要素にロックする
           container.style.cursor = "grabbing"; 
+          
           startX = e.pageX - container.offsetLeft;
           startY = e.pageY - container.offsetTop;
           scrollLeft = container.scrollLeft;
           scrollTop = container.scrollTop;
       };
-      container.onmouseleave = () => { isDown = false; container.style.cursor = "grab"; };
-      container.onmouseup = () => {
-          isDown = false;
-          container.style.cursor = "grab";
-          setTimeout(() => { hasDragged = false; }, 50);
-      };
-      container.onmousemove = (e) => {
+
+      container.onpointermove = (e) => {
           if (!isDown) return;
-          e.preventDefault();
+          e.preventDefault(); // ブラウザ標準の動作をキャンセル
+          
           const x = e.pageX - container.offsetLeft;
           const y = e.pageY - container.offsetTop;
           const walkX = (x - startX) * 1.5; 
           const walkY = (y - startY) * 1.5; 
           
+          // 少しでも動いたらドラッグとみなす
           if (Math.abs(walkX) > 5 || Math.abs(walkY) > 5) {
               hasDragged = true;
           }
-          container.scrollLeft = scrollLeft - walkX;
-          container.scrollTop = scrollTop - walkY;
-      };
-
-      // ▼▼▼ 追加: タッチ操作用 (F12スマホモード & 実機対応) ▼▼▼
-      container.ontouchstart = (e) => {
-          isDown = true;
-          hasDragged = false;
-          // タッチの1本目の指の座標を取得
-          const touch = e.touches[0];
-          startX = touch.pageX - container.offsetLeft;
-          startY = touch.pageY - container.offsetTop;
-          scrollLeft = container.scrollLeft;
-          scrollTop = container.scrollTop;
-      };
-
-      container.ontouchmove = (e) => {
-          if (!isDown) return;
-          // ブラウザ標準のスクロールを止めて、JSで制御する
-          if (e.cancelable) e.preventDefault(); 
           
-          const touch = e.touches[0];
-          const x = touch.pageX - container.offsetLeft;
-          const y = touch.pageY - container.offsetTop;
-          const walkX = (x - startX) * 1.5;
-          const walkY = (y - startY) * 1.5;
-
-          if (Math.abs(walkX) > 5 || Math.abs(walkY) > 5) {
-              hasDragged = true;
-          }
           container.scrollLeft = scrollLeft - walkX;
           container.scrollTop = scrollTop - walkY;
       };
 
-      container.ontouchend = () => {
+      container.onpointerup = (e) => {
           isDown = false;
+          container.releasePointerCapture(e.pointerId); // ロック解除
+          container.style.cursor = "grab";
+          
+          // クリック判定のためにフラグクリアを少し遅らせる
           setTimeout(() => { hasDragged = false; }, 50);
+      };
+      
+      // ポインターキャンセル（画面外に出た時など）の対応
+      container.onpointercancel = (e) => {
+          isDown = false;
+          container.releasePointerCapture(e.pointerId);
+          container.style.cursor = "grab";
+          hasDragged = false;
       };
   }
 
