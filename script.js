@@ -341,69 +341,64 @@ function renderVerticalTimeline(mode) {
   document.body.style.overflow = "hidden";
   if (container) {
       container.innerHTML = ""; 
-      
-      // ▼▼▼ 修正: 全モード共通で高さを自動にし、縦スクロールバーを消す ▼▼▼
-      container.style.height = "auto";
-      container.style.overflowY = "visible"; // 縦ははみ出させる（画面スクロールさせる）
-      container.style.overflowX = "auto";    // 横はスクロールバーを出す
-      // ▲▲▲ 修正ここまで ▲▲▲
-
+      if (mode === 'map') {
+          container.style.height = "auto"; 
+          container.style.overflowY = "visible";
+      } else {
+          container.style.height = "calc(100vh - 220px)";       
+          container.style.overflowY = "auto";
+      }
       container.style.width = "100%"; 
       container.style.maxWidth = "100vw";
-      container.style.overscrollBehavior = "contain";        
+      container.style.overflowX = "auto"; 
+      container.style.overscrollBehavior = "contain";       
       container.style.display = "flex";    
       container.style.flexWrap = "nowrap"; 
       container.style.alignItems = "flex-start";
       container.style.position = "relative";
       container.style.boxSizing = "border-box";
-      
-      // 修正: 縦はブラウザスクロールを使うため、grabカーソルは横スクロールの暗示のみに残す
-      container.style.cursor = "default"; 
+      container.style.cursor = "grab"; 
       container.style.userSelect = "none"; 
       container.style.webkitUserSelect = "none";
   }
 
-  // ▼▼▼ 重要修正: ドラッグスクロールのロジックを変更 ▼▼▼
-  // 以前のコードは縦スクロール(scrollTop)を操作していましたが、
-  // 画面全体スクロールに切り替えたため、ここが競合して動かなくなっていました。
-  // 横スクロール(scrollLeft)のみ有効にします。
-
+  // ドラッグスクロール処理
   let isDown = false;
-  let startX, scrollLeft; // Y座標変数は削除
+  let startX, startY, scrollLeft, scrollTop;
   let hasDragged = false; 
 
   if (container) {
       container.onmousedown = (e) => {
-          // 予約バーなどをクリックしたときは発動しない
-          if (e.target.closest('.v-booking-bar')) return;
-          
           isDown = true;
           hasDragged = false;
           container.style.cursor = "grabbing"; 
           startX = e.pageX - container.offsetLeft;
+          startY = e.pageY - container.offsetTop;
           scrollLeft = container.scrollLeft;
+          scrollTop = container.scrollTop;
       };
-      container.onmouseleave = () => { isDown = false; container.style.cursor = "default"; };
+      container.onmouseleave = () => { isDown = false; container.style.cursor = "grab"; };
       container.onmouseup = () => {
           isDown = false;
-          container.style.cursor = "default";
+          container.style.cursor = "grab";
           setTimeout(() => { hasDragged = false; }, 50);
       };
       container.onmousemove = (e) => {
           if (!isDown) return;
           e.preventDefault();
           const x = e.pageX - container.offsetLeft;
-          
-          // 横方向のみドラッグでスクロールさせる
+          const y = e.pageY - container.offsetTop;
           const walkX = (x - startX) * 1.5; 
-          if (Math.abs(walkX) > 5) {
+          const walkY = (y - startY) * 1.5; 
+          
+          if (Math.abs(walkX) > 5 || Math.abs(walkY) > 5) {
               hasDragged = true;
           }
           container.scrollLeft = scrollLeft - walkX;
-          
-          // 縦方向(scrollTop)の操作は削除（ブラウザのスクロールに任せる）
+          container.scrollTop = scrollTop - walkY;
       };
   }
+
   // 日付・予約データ抽出
   const rawDateVal = document.getElementById(dateInputId).value; 
   const targetDateNum = formatDateToNum(new Date(rawDateVal)); 
