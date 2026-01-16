@@ -708,3 +708,24 @@ textarea#input-note::placeholder {
   justify-content: center;
   padding: 12px 0 !important; /* 上下の余白を確保 */
 }
+/* ==============================================
+   18. マップ下部の予約バーを「縦並び」に修正
+   ============================================== */
+#rooms-container-map .v-booking-bar {
+  flex-direction: column !important;      /* 縦並びにする */
+  justify-content: flex-start !important; /* 上寄せ */
+  align-items: flex-start !important;     /* 左寄せ */
+  flex-wrap: nowrap !important;           /* 折り返し禁止 */
+  padding: 4px !important;
+}
+
+/* 中身の要素のスタイルリセット */
+#rooms-container-map .v-booking-bar > div,
+#rooms-container-map .v-booking-bar > span {
+  width: 100% !important;                 /* 横幅いっぱい */
+  text-align: left !important;            /* 左寄せ */
+  margin: 0 !important;
+  white-space: nowrap !important;         /* 文字がはみ出たら...にする */
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
