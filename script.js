@@ -352,8 +352,6 @@ function drawTimeAxis(containerId) {
       container.appendChild(div);
   }
 }
-// 旧 renderTimeAxis は不要なので削除または drawTimeAxis に統合
-
 function renderVerticalTimeline(mode) {
   let container, dateInputId, targetRooms, timeAxisId;
 
@@ -387,13 +385,13 @@ function renderVerticalTimeline(mode) {
           container.style.height = "auto"; 
           container.style.overflowY = "visible";
       } else {
-          container.style.height = "calc(100vh - 220px)";       
+          container.style.height = "calc(100vh - 220px)";        
           container.style.overflowY = "auto";
       }
       container.style.width = "100%"; 
       container.style.maxWidth = "100vw";
       container.style.overflowX = "auto"; 
-      container.style.overscrollBehavior = "contain";       
+      container.style.overscrollBehavior = "contain";        
       container.style.display = "flex";    
       container.style.flexWrap = "nowrap"; 
       container.style.alignItems = "flex-start";
@@ -530,7 +528,7 @@ function renderVerticalTimeline(mode) {
     header.className = 'room-header';
     header.innerText = room.roomName;
     header.style.position = "sticky";
-    header.style.top = "0";          
+    header.style.top = "0";           
     header.style.zIndex = "10";       
     header.style.backgroundColor = "#fff"; 
     header.style.borderBottom = "1px solid #999"; 
@@ -613,23 +611,18 @@ function renderVerticalTimeline(mode) {
           bar.style.left = "2px";
           bar.style.width = "calc(100% - 4px)";
           
+          // ▼▼▼ 名前表示ロジック ▼▼▼
           let displayTitle = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '予約';
-          
-          // 2. 時間表示
           const startTimeStr = `${start.getHours()}:${pad(start.getMinutes())}`;
           const endTimeStr = `${end.getHours()}:${pad(end.getMinutes())}`;
           const timeRangeStr = `${startTimeStr}-${endTimeStr}`;
 
-          // 3. 参加者名表示ロジック (今回追加)
           let participantsStr = "";
           let pIdsRaw = getVal(res, ['participantIds', 'participant_ids', '参加者', 'メンバー']);
           
           if (pIdsRaw) {
-              // ID文字列を配列化してクリーニング
               const cleanIds = String(pIdsRaw).replace(/['"]/g, "").split(/[,、\s]+/);
               let names = [];
-
-              // IDから名前に変換
               cleanIds.forEach(id => {
                   const trimId = id.trim();
                   if(!trimId) return;
@@ -637,13 +630,10 @@ function renderVerticalTimeline(mode) {
                   names.push(u ? u.userName : trimId);
               });
 
-              // 人数判定と表示文字列作成
               if (names.length > 0) {
                   if (names.length <= 4) {
-                      // 4名以下なら全員表示
                       participantsStr = names.join(', ');
                   } else {
-                      // 5名以上なら「〇〇, 〇〇, 〇〇, 〇〇 (+n名)」
                       const showNames = names.slice(0, 4).join(', ');
                       const restCount = names.length - 4;
                       participantsStr = `${showNames} (+${restCount}名)`;
@@ -651,15 +641,12 @@ function renderVerticalTimeline(mode) {
               }
           }
 
-          // 4. HTML生成 (用件の下に名前を追加)
-          // styleはタイトルと同じ設定(font-weight:bold; font-size:0.9em;)を使用
           bar.innerHTML = `
               <div style="font-weight:bold; font-size:0.9em; line-height:1.2;">${timeRangeStr}</div>
               <div style="font-weight:bold; font-size:0.9em; margin-top: 2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${displayTitle}</div>
               <div style="font-weight:bold; font-size:0.9em; margin-top: 2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#444;">${participantsStr}</div>
           `;
-
-          // ▲▲▲ ここまで修正・追加 ▲▲▲
+          // ▲▲▲ 名前表示ロジック終了 ▲▲▲
 
           bar.onclick = (e) => { 
               if (hasDragged) return;
@@ -668,7 +655,12 @@ function renderVerticalTimeline(mode) {
           };
           body.appendChild(bar);
       }
-    });
+    }); // ここが forEach の閉じカッコ
+    
+    col.appendChild(body);
+    container.appendChild(col);
+  }); // ここが targetRooms.forEach の閉じカッコ
+}
 
 /* ==============================================
    6. 予約・詳細モーダル関連
