@@ -644,13 +644,13 @@ function renderVerticalTimeline(mode) {
               }
           }
 
-          // HTML描画（white-space:nowrap で横にはみ出さないように設定済み）
+          // HTML描画
+          // width: 100%; を指定し、親要素の幅に合わせて「…」を表示させる設定を強化しました。
           bar.innerHTML = `
-              <div style="font-weight:bold; font-size:0.9em; line-height:1.2;">${timeRangeStr}</div>
-              <div style="font-weight:bold; font-size:0.9em; margin-top: 2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${displayTitle}</div>
-              <div style="font-weight:bold; font-size:0.9em; margin-top: 2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#444;">${participantsStr}</div>
+              <div style="width:100%; font-weight:bold; font-size:0.85em; line-height:1.1; margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${timeRangeStr}</div>
+              <div style="width:100%; font-weight:bold; font-size:0.9em; line-height:1.1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${displayTitle}</div>
+              <div style="width:100%; font-weight:normal; font-size:0.85em; line-height:1.1; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#333;">${participantsStr}</div>
           `;
-          // ▲▲▲ 名前表示ロジック終了 ▲▲▲
 
           bar.onclick = (e) => { 
               if (hasDragged) return;
