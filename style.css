@@ -253,7 +253,7 @@ header {
 /* マップコンテナ & ユニット */
 #dual-map-container { 
   width: 100%; 
-  /* ★修正: スマホでは高さを固定せず、中身に合わせて伸ばす */
+  /* 中身（画像）に合わせて高さを確保 */
   height: auto; 
   box-sizing: border-box; 
   display: flex;
@@ -284,14 +284,15 @@ header {
 /* 画像本体の設定 (スマホ・デフォルト) */
 .map-image {
   display: block;
-  /* スマホ: 横幅100%に合わせて高さを自動調整 */
-  width: 100% !important;     
+  
+  /* ★修正: 画面内に確実に収める設定 (7階マップ対策) */
+  width: auto !important;
+  max-width: 95% !important;   /* 横幅いっぱいにせず少し余白 */
   height: auto !important;
-  max-width: 100% !important; 
-  /* スマホ: 高さ制限なし（スクロールで見る） */
-  max-height: none !important; 
+  max-height: 50vh !important; /* 高さを画面半分にして見切れ防止 */
   
   object-fit: contain;
+  margin: 0 auto;
 }
 
 /* オーバーレイ & ピン */
@@ -338,20 +339,17 @@ header {
   .floor-selector { display: none !important; }
   .pc-floor-title { display: none !important; }
   
- /* マップコンテナ & ユニット */
-#dual-map-container { 
-  width: 100%; 
-  /* 中身（画像）に合わせて高さを確保 */
-  height: auto; 
-  box-sizing: border-box; 
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  
-  /* ★重要修正★: これを追加！ */
-  /* 下に予約枠が出ても、マップエリアを絶対に縮ませない設定 */
-  flex-shrink: 0;
-}
+  #dual-map-container { 
+    width: 100%; 
+    height: auto; 
+    box-sizing: border-box; 
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    
+    /* 下に予約枠が出ても、マップエリアを絶対に縮ませない設定 */
+    flex-shrink: 0;
+  }
   
   .floor-map-unit {
     display: block !important; 
@@ -403,38 +401,14 @@ header {
   align-items: center; margin-top: 10px; margin-bottom: 5px;
 }
 .group-chip {
-  /* レイアウト配置（文字をど真ん中にする設定） */
-  display: inline-flex;       /* 中身の位置調整をしやすくする */
-  align-items: center;        /* 【重要】縦方向のど真ん中に配置 */
-  justify-content: center;    /* 【重要】横方向のど真ん中に配置 */
-  text-align: center;         /* 念のためテキスト自体も中央揃え */
-
-  /* サイズ設定 */
-  height: 30px;               /* 高さを30pxに固定（少し余裕を持たせました） */
-  min-height: 30px;           /* スマホ等での縮小防止 */
-  padding: 0 12px;            /* 左右の余白を少し広げました */
-  
-  /* 余白設定（gapが効かない古い端末用に追加） */
-  margin: 2px 4px;            /* 上下2px、左右4pxの隙間を確保 */
-
-  /* 見た目 */
-  background: #e0e0e0;
-  border: 1px solid #ccc;
-  border-radius: 15px;        /* 丸みを高さに合わせて調整 */
-  font-size: 0.75rem;         /* 文字サイズ */
-  line-height: 1;             /* 行間のズレ防止 */
-  
-  /* その他 */
-  cursor: pointer; 
-  user-select: none; 
-  transition: background 0.2s;
-  box-sizing: border-box;
+  display: inline-flex; align-items: center; justify-content: center; text-align: center;
+  height: 30px; min-height: 30px; padding: 0 12px; margin: 2px 4px;
+  background: #e0e0e0; border: 1px solid #ccc; border-radius: 15px;
+  font-size: 0.75rem; line-height: 1;
+  cursor: pointer; user-select: none; transition: background 0.2s; box-sizing: border-box;
 }
-
-/* ホバー時の挙動 */
 .group-chip:hover { 
-  background: #d5d5d5; 
-  transform: translateY(-1px); /* ホバー時に少し浮き上がる演出（任意） */
+  background: #d5d5d5; transform: translateY(-1px);
 }
 
 #group-action-area { display: flex; gap: 5px; }
@@ -493,22 +467,14 @@ textarea#input-note::placeholder {
    10. モバイル用レスポンシブ (max-width: 600px)
    ============================================== */
 @media (max-width: 600px) {
-   body {
-    /* ブラウザのアドレスバーによるズレを防ぐ */
+  /* ▼ アプリ画面固定（タブ見切れ防止） */
+  body {
     height: 100dvh; 
-    overflow: hidden; /* 大枠のスクロールを禁止 */
+    overflow: hidden; 
   }
-
   #app-screen {
-    /* 画面位置を固定し、ヘッダーが隠れないようにする */
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100dvh; /* 画面の高さいっぱいに広げる */
-    margin: 0;
-    border-radius: 0;
-    z-index: 100; /* ローディング画面(4000)よりは下、中身よりは上 */
+    position: fixed; top: 0; left: 0; width: 100%; height: 100dvh;
+    margin: 0; border-radius: 0; z-index: 100;
   }
    
   /* 日付コントローラー */
@@ -536,26 +502,66 @@ textarea#input-note::placeholder {
     margin: 2px; touch-action: manipulation;
   }
 
-  /* モーダルフォーム */
-  #bookingModal .form-row { flex-wrap: wrap !important; }
-  #bookingModal .form-row > div { flex: auto !important; min-width: 45%; }
-  #input-room {
-    width: auto !important; min-width: 150px !important;
-    max-width: 100% !important; white-space: nowrap;
+  /* モーダルフォーム: コンテナ設定（折り返し有効） */
+  #bookingModal .form-row { 
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: flex-end !important;
+    gap: 0 !important;
   }
   
+  /* 日付エリア: 1行目を独占 */
+  #bookingModal .form-row > div:nth-child(1) {
+    flex: 1 1 100% !important; width: 100% !important;
+    max-width: 100% !important; margin-right: 0 !important; margin-bottom: 15px !important;
+  }
+  /* 開始・終了エリア: 2行目で横並び */
+  #bookingModal .form-row > div:nth-child(2),
+  #bookingModal .form-row > div:nth-child(4) {
+    flex: 1 1 42% !important; width: auto !important;
+    min-width: 0 !important; margin-bottom: 0 !important;
+  }
+  /* 「～」記号: 中央配置 */
+  #bookingModal .form-row > div:nth-child(3) {
+    flex: 0 0 auto !important; width: auto !important; min-width: 20px !important;
+    text-align: center !important; padding-bottom: 10px !important; margin: 0 !important;
+  }
+
+  /* 入力欄のズーム防止 */
+  #bookingModal .form-row input,
+  #bookingModal .form-row select {
+    font-size: 16px !important; 
+  }
+  
+  /* 部屋選択: 横並び・左寄せ */
+  #bookingModal .form-group {
+    display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important;
+    align-items: center !important; justify-content: flex-start !important;
+    gap: 15px !important; margin-bottom: 15px !important;
+  }
+  #bookingModal .form-group label {
+    flex: 0 0 auto !important; width: auto !important; margin: 0 !important;
+    font-weight: normal !important; font-size: 16px !important; line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+  #bookingModal .form-group select#input-room {
+    flex: 0 1 auto !important; width: auto !important; min-width: 120px !important;
+    max-width: 100% !important; margin-bottom: 0 !important; height: 38px !important;
+    font-size: 16px !important;
+  }
+  #bookingModal label {
+    font-weight: normal !important; color: #333 !important;
+  }
+
   /* テキストエリア */
-  textarea, 
-  #bookingModal textarea#input-note {
-    min-height: 120px !important;
-    font-size: 16px !important; line-height: 1.5 !important;
-    margin-bottom: 20px !important;
+  textarea, #bookingModal textarea#input-note {
+    min-height: 120px !important; font-size: 16px !important;
+    line-height: 1.5 !important; margin-bottom: 20px !important;
   }
   
   /* マップの予約バー（スマホ特化） */
   #rooms-container-map .v-booking-bar {
-    justify-content: flex-start !important; /* 左寄せ */
-    padding-left: 5px !important; padding-right: 8px !important;
+    justify-content: flex-start !important; padding-left: 5px !important; padding-right: 8px !important;
   }
   #rooms-container-map .v-booking-bar > div,
   #rooms-container-map .v-booking-bar > span {
@@ -569,6 +575,7 @@ textarea#input-note::placeholder {
     flex: 1 !important; min-width: 0 !important;
   }
 }
+
 /* ==============================================
    11. HTMLリファクタリング用 追加ユーティリティ
    ============================================== */
@@ -639,126 +646,38 @@ textarea#input-note::placeholder {
 /* モーダル内の「日付」「開始」「終了」の入力欄を強制的に統一 */
 #bookingModal .form-row input[type="date"],
 #bookingModal .form-row .time-picker-wrapper input {
-  height: 38px !important;       /* すべて高さを38pxに固定 */
-  margin-bottom: 0 !important;   /* 下の余白を削除して底辺を揃える */
-  padding: 4px 10px !important;  /* 内側の余白を統一 */
+  height: 38px !important;        /* すべて高さを38pxに固定 */
+  margin-bottom: 0 !important;    /* 下の余白を削除して底辺を揃える */
+  padding: 4px 10px !important;   /* 内側の余白を統一 */
   line-height: normal !important; /* 文字位置のズレを防止 */
 }
 
 /* 「～」の記号の位置調整 */
 .time-range-sep {
-  height: 38px !important;       /* 入力欄と同じ高さにする */
+  height: 38px !important;        /* 入力欄と同じ高さにする */
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 0 !important;   /* 余白なし */
-  padding-bottom: 3px;           /* 記号を視覚的な中心に微調整 */
+  margin-bottom: 0 !important;    /* 余白なし */
+  padding-bottom: 3px;            /* 記号を視覚的な中心に微調整 */
 }
-/* ==============================================
-   14. スマホ表示レイアウト修正 (日付・時間) - 強制適用版
-   ============================================== */
-@media (max-width: 600px) {
-  /* コンテナ設定：強制的に折り返しを有効にする */
-  #bookingModal .form-row {
-    display: flex !important;
-    flex-wrap: wrap !important;       /* これがないと改行されません */
-    align-items: flex-end !important; /* 下揃え（入力欄と～の高さを合わせる） */
-    gap: 0 !important;                /* 隙間は個別に調整するためゼロに */
-  }
 
-  /* 1. 日付エリア：強制的に1行目を独占 (幅100%) */
-  #bookingModal .form-row > div:nth-child(1) {
-    flex: 1 1 100% !important;        /* 幅100%を強制 */
-    width: 100% !important;
-    max-width: 100% !important;
-    margin-right: 0 !important;
-    margin-bottom: 15px !important;   /* 下の「開始・終了」との間に余白 */
-  }
-
-  /* 2. 開始・終了エリア：2行目で横並び (幅を分け合う) */
-  #bookingModal .form-row > div:nth-child(2), /* 開始 */
-  #bookingModal .form-row > div:nth-child(4)  /* 終了 */ {
-    flex: 1 1 42% !important;         /* 残り幅を等分 */
-    width: auto !important;
-    min-width: 0 !important;
-    margin-bottom: 0 !important;
-  }
-
-  /* 3. 「～」記号：中央配置 */
-  #bookingModal .form-row > div:nth-child(3) {
-    flex: 0 0 auto !important;        /* 伸縮させない */
-    width: auto !important;
-    min-width: 20px !important;
-    text-align: center !important;
-    padding-bottom: 10px !important;  /* 入力欄の底辺に合わせて位置調整 */
-    margin: 0 !important;
-  }
-  
-  /* スマホ表示時の入力欄の高さ微調整 */
-  #bookingModal .form-row input,
-  #bookingModal .form-row select {
-    font-size: 16px !important; /* スマホでズームされないサイズ */
-  }
-}
-/* ==============================================
-   15. スマホ表示レイアウト修正 (部屋・横並び・幅自動調整)
-   ※以前の「15」を削除して、こちらに書き換えてください
-   ============================================== */
-@media (max-width: 600px) {
-  /* 1. コンテナ：左寄せで横並び */
-  #bookingModal .form-group {
-    display: flex !important;
-    flex-direction: row !important;  /* 横方向 */
-    flex-wrap: nowrap !important;    /* 折り返し禁止 */
-    align-items: center !important;  /* 上下中央 */
-    justify-content: flex-start !important; /* ★左寄せにする */
-    gap: 15px !important;            /* ラベルと入力欄の距離 */
-    margin-bottom: 15px !important;
-  }
-
-  /* 2. ラベル：幅をコンテンツに合わせる */
-  #bookingModal .form-group label {
-    flex: 0 0 auto !important;       /* 縮まない・伸びない */
-    width: auto !important;
-    margin: 0 !important;
-    font-weight: normal !important;
-    font-size: 16px !important;
-    line-height: 1 !important;
-    white-space: nowrap !important;
-  }
-
-  /* 3. 選択プルダウン：文字数（最長の選択肢）に合わせた幅にする */
-  #bookingModal .form-group select#input-room {
-    flex: 0 1 auto !important;       /* ★重要: 1(伸びる)から0(伸びない)に変更 */
-    width: auto !important;          /* 中身に合わせた幅にする */
-    min-width: 120px !important;     /* 部屋名が短すぎても押しやすい幅を確保 */
-    max-width: 100% !important;      /* 画面からはみ出さないようにする */
-    margin-bottom: 0 !important;
-    height: 38px !important;
-    font-size: 16px !important;
-  }
-
-  /* 4. その他のラベル設定 */
-  #bookingModal label {
-    font-weight: normal !important;
-    color: #333 !important;
-  }
-}
 /* ==============================================
    17. 予約詳細ボタンの均等化
    ============================================== */
 .modal-footer .btn-equal {
-  flex: 1 !important;       /* 幅を均等に分け合う */
-  width: auto !important;   /* 固定幅を解除 */
+  flex: 1 !important;        /* 幅を均等に分け合う */
+  width: auto !important;    /* 固定幅を解除 */
   min-width: 0 !important;
   justify-content: center;
   padding: 12px 0 !important; /* 上下の余白を確保 */
 }
+
 /* ==============================================
    18. マップ下部の予約バーを「縦並び」に修正
    ============================================== */
 #rooms-container-map .v-booking-bar {
-  flex-direction: column !important;      /* 縦並びにする */
+  flex-direction: column !important;       /* 縦並びにする */
   justify-content: flex-start !important; /* 上寄せ */
   align-items: flex-start !important;     /* 左寄せ */
   flex-wrap: nowrap !important;           /* 折り返し禁止 */
@@ -775,6 +694,7 @@ textarea#input-note::placeholder {
   overflow: hidden !important;
   text-overflow: ellipsis !important;
 }
+
 /* ==============================================
    19. 予約一覧(タイムライン)のフロア切替を表示
    ============================================== */
@@ -782,6 +702,7 @@ textarea#input-note::placeholder {
 #view-timeline .floor-selector {
   display: flex !important;
 }
+
 /* ==============================================
    20. 現在時刻ライン (赤線)
    ============================================== */
