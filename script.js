@@ -377,6 +377,13 @@ function renderVerticalTimeline(mode) {
       return;
   }
 
+  let savedScrollTop = 0;
+  let savedScrollLeft = 0;
+  if (container) {
+      savedScrollTop = container.scrollTop;
+      savedScrollLeft = container.scrollLeft;
+  }
+    
   // コンテナ初期化・スクロール設定
   document.body.style.overflow = "hidden";
   if (container) {
@@ -512,6 +519,7 @@ let nowTopPx = -1;
       axisContainer.style.display = "block";
       axisContainer.style.overscrollBehavior = "contain";
       container.onscroll = () => { axisContainer.scrollTop = container.scrollTop; };
+      axisContainer.scrollTop = savedScrollTop;
       axisContainer.onwheel = (e) => {
           e.preventDefault(); 
           container.scrollTop += e.deltaY; 
@@ -683,7 +691,11 @@ let nowTopPx = -1;
     
     col.appendChild(body);
     container.appendChild(col);
-  });
+    });
+    if (container) {
+      container.scrollTop = savedScrollTop;
+      container.scrollLeft = savedScrollLeft;
+  }
 }
 
 /* ==============================================
