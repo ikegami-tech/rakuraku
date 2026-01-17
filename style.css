@@ -223,14 +223,13 @@ header {
 .map-wrapper {
   padding: 10px; background: #f9f9f9;
   flex: 1; 
-  /* ★修正: 予約枠が表示されたらスクロールできるように auto に戻す */
+  /* 縦スクロールを許可 */
   overflow-y: auto; 
   display: flex; flex-direction: column;
   align-items: center; justify-content: flex-start;
   height: 100%;
   width: 100%;
 }
-
 .floor-selector {
   display: flex; gap: 5px; margin-bottom: 5px;
   width: 100%; max-width: 800px;
@@ -343,36 +342,29 @@ header {
     display: flex; justify-content: center; gap: 20px; align-items: flex-start;
     padding-bottom: 20px;
     
-    /* マップコンテナは中身（画像）の高さに合わせる */
+    /* マップエリアは縮ませない（ここが重要） */
+    flex-shrink: 0;
     height: auto; 
     min-height: 0;
-    
-    /* スクロール制御は親(.map-wrapper)で行うため visible */
     overflow: visible; 
   }
   
   .floor-map-unit {
     display: block !important; 
-    flex: 0 1 auto;
+    /* ★修正: 0 0 auto にして、縮小(shrink)を禁止する */
+    flex: 0 0 auto;
     width: auto; 
     max-width: 50%; 
     margin-bottom: 0;
-    /* 中央揃え */
     display: flex !important;
     flex-direction: column;
     align-items: center;
   }
   
-  /* ▼▼▼ ここが修正ポイント ▼▼▼ */
   .map-image {
-    /* 横幅は自動（高さに合わせて縮小） */
     width: auto !important; 
-    
-    /* 高さを画面の「65%」に制限する */
-    /* ノートPC等の狭い画面でも、ヘッダー(上)とマップ(中)が確実に収まるサイズ感です */
+    /* 高さは画面の65%を維持 */
     max-height: 65vh !important; 
-    
-    /* 横幅が画面を超えないように制限 */
     max-width: 100% !important;
   }
 }
