@@ -266,18 +266,23 @@ header {
   box-sizing: border-box; display: none; 
   margin: 0 auto;
 }
-.floor-map-unit.active { display: block; }
+.floor-map-unit.active { 
+  display: flex !important;           /* Flexboxにして中央寄せを可能にする */
+  flex-direction: column;             /* 縦並び */
+  align-items: center;                /* 左右中央揃え */
+  width: 100%;
+}
 
-/* マップ画像ラッパー */
 .map-inner-wrapper {
   position: relative; 
   line-height: 0;
   overflow: hidden; 
   box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-radius: 4px;
   
-  /* スマホ: 横幅いっぱいに広げる */
-  width: 100%;
-  height: auto;
+  /* ★重要修正: 横幅を100%ではなく、中身(画像)のサイズに合わせる */
+  width: fit-content !important;  
+  height: auto !important;
+  
   margin: 0 auto;
 }
 
