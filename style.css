@@ -798,3 +798,71 @@ textarea#input-note::placeholder {
   color: #ccc;
   cursor: default;
 }
+/* ==============================================
+   22. 空き状況検索フォーム (位置ズレ修正)
+   ============================================== */
+
+/* 検索エリアの親枠（もしクラス名がない場合は <div class="avail-search-row"> のように指定してください） */
+.avail-search-row {
+  display: flex;
+  align-items: flex-end !important; /* すべての要素の下端を揃える */
+  gap: 10px;
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+  flex-wrap: wrap; /* スマホで画面が狭いときは折り返す */
+}
+
+/* 入力欄（日付・時間）のグループ設定 */
+.avail-input-group {
+  flex: 1; /* 横幅を均等に伸ばす */
+  min-width: 140px; /* 縮みすぎ防止 */
+  display: flex;
+  flex-direction: column;
+}
+
+/* ラベルの調整 */
+.avail-input-group label {
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: #555;
+  margin-bottom: 5px;
+  display: block;
+}
+
+/* 入力フォームの高さを強制的に統一 */
+.avail-search-row input[type="date"],
+.avail-search-row input[type="time"],
+.avail-search-row .time-picker-wrapper input,
+.avail-search-row select {
+  height: 38px !important;       /* 高さを38pxに固定 */
+  padding: 4px 10px !important;  /* 内側の余白調整 */
+  margin-bottom: 0 !important;   /* 下の余白を削除 */
+  font-size: 16px !important;    /* ズーム防止 */
+  line-height: normal !important;
+  width: 100%;
+}
+
+/* 検索ボタンの調整 */
+.btn-search-avail {
+  height: 38px !important;       /* 入力欄と同じ高さに */
+  padding: 0 20px !important;
+  margin-bottom: 0 !important;   /* ラベルがない分のズレを補正 */
+  flex-shrink: 0;                /* ボタンが潰れないようにする */
+  font-weight: bold;
+  
+  /* ボタンも下端に合わせるためマージン調整が必要な場合への保険 */
+  margin-top: auto; 
+}
+
+/* スマホ表示時の微調整 */
+@media (max-width: 600px) {
+  .avail-search-row {
+    gap: 8px; /* 隙間を少し詰める */
+  }
+  /* ボタンをスマホでは横幅いっぱいにしたい場合（お好みで） */
+  .btn-search-avail {
+    width: 100%;
+    margin-top: 5px;
+  }
+}
