@@ -90,7 +90,10 @@
       <button type="button" onclick="changeDate(-1, 'timeline-date')">&lt;</button>
       <input type="date" id="timeline-date" onchange="renderVerticalTimeline('all')">
       <button type="button" onclick="changeDate(1, 'timeline-date')">&gt;</button>
-    </div>
+      <button type="button" class="btn-primary btn-sm" onclick="openAvailabilityModal()" style="width:auto; margin-left:10px;">
+         🔍 空き状況検索
+      </button>
+      </div>
     <div class="calendar-scroll-area">
       <div class="time-axis-col" id="time-axis-all"><div class="time-axis-header"></div></div>
       <div class="rooms-container" id="rooms-container-all"></div>
