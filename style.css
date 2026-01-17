@@ -282,20 +282,17 @@ header {
   margin: 0 auto;      /* 中央寄せ */
 }
 
-/* 画像本体の設定 */
+/* 画像本体の設定 (スマホ・デフォルト) */
 .map-image {
-  display: block; 
-  
-  /* 【修正】高さ基準でリサイズする設定 */
-  /* 画面の高さ(100vh)から、ヘッダー等の分(約180px)を引いた高さを上限にする */
-  max-height: calc(100vh - 180px) !important; 
-  
-  /* 横幅は上限100%にしつつ、高さに合わせて自動縮小(auto)させる */
-  max-width: 100% !important; 
-  width: auto !important;     
+  display: block;
+  /* スマホでは横幅いっぱいに合わせる */
+  width: 100% !important;     
   height: auto !important;
+  max-width: 100% !important; 
+  /* スマホでは高さ制限をかけない（スクロールさせる） */
+  max-height: none !important; 
   
-  object-fit: contain; /* アスペクト比を崩さない */
+  object-fit: contain;
 }
 
 /* オーバーレイ & ピン */
@@ -341,15 +338,30 @@ header {
 @media (min-width: 1024px) {
   .floor-selector { display: none !important; }
   .pc-floor-title { display: none !important; }
+  
   #dual-map-container {
     display: flex; justify-content: center; gap: 20px; align-items: flex-start;
     padding-bottom: 20px;
+    height: 100%; /* 高さいっぱいに */
+    overflow: hidden; /* PCではスクロールさせない */
   }
+  
   .floor-map-unit {
-    display: block !important; flex: 0 1 auto; /* 伸び縮みさせる */
-    width: auto; /* 幅指定を解除し、画像サイズに委ねる */
+    display: block !important; 
+    flex: 0 1 auto;
+    width: auto; 
     max-width: 50%; 
     margin-bottom: 0;
+    /* 中央揃え */
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  /* PCのときだけ、高さ制限を適用する */
+  .map-image {
+    width: auto !important; /* 横幅は自動（高さに追従） */
+    max-height: calc(100vh - 180px) !important; /* 画面高さに合わせて制限 */
   }
 }
 
