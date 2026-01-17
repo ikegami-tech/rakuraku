@@ -1361,3 +1361,38 @@ function getVal(obj, keys) {
     }
     return ""; 
 }
+// ==============================================
+//  マップ画像と座標枠の自動同期 (ResizeObserver)
+// ==============================================
+function initMapResizer() {
+  // ブラウザ標準の「サイズ監視機能」を使用
+  const resizeObserver = new ResizeObserver(entries => {
+      for (let entry of entries) {
+          const img = entry.target;
+          // 画像の親要素(.map-inner-wrapper)を探す
+          const wrapper = img.closest('.map-inner-wrapper');
+          
+          if (wrapper) {
+              // 画像の現在の表示サイズ(幅・高さ)を取得し、ラッパーに強制適用
+              // これにより、座標(%)が画像の大きさと完全に一致します
+              wrapper.style.width = entry.contentRect.width + 'px';
+              wrapper.style.height = entry.contentRect.height + 'px';
+          }
+      }
+  });
+
+  // 全てのマップ画像を監視対象に登録
+  const mapImages = document.querySelectorAll('.map-image');
+  if (mapImages.length > 0) {
+      mapImages.forEach(img => {
+          resizeObserver.observe(img);
+      });
+  } else {
+      // まだ画像が生成されていない場合は少し待ってから再実行
+      setTimeout(initMapResizer, 500);
+  }
+}
+
+// ページ読み込み完了時と、画像読み込み完了時に実行
+window.addEventListener('DOMContentLoaded', initMapResizer);
+window.addEventListener('load', initMapResizer);
