@@ -398,7 +398,7 @@ function renderVerticalTimeline(mode) {
       container.style.alignItems = "flex-start";
       container.style.position = "relative";
       container.style.boxSizing = "border-box";
-      container.style.cursor = "default";
+      container.style.setProperty('cursor', 'default', 'important');
       container.style.userSelect = "none"; 
       container.style.webkitUserSelect = "none";
   }
