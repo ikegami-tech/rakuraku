@@ -90,7 +90,10 @@
       <button type="button" onclick="changeDate(-1, 'timeline-date')">&lt;</button>
       <input type="date" id="timeline-date" onchange="renderVerticalTimeline('all')">
       <button type="button" onclick="changeDate(1, 'timeline-date')">&gt;</button>
-    </div>
+      <button type="button" class="btn-primary btn-sm" onclick="openAvailabilityModal()" style="width:auto; margin-left:10px;">
+         🔍 空き状況検索
+      </button>
+      </div>
     <div class="calendar-scroll-area">
       <div class="time-axis-col" id="time-axis-all"><div class="time-axis-header"></div></div>
       <div class="rooms-container" id="rooms-container-all"></div>
@@ -281,6 +284,43 @@
       <button type="button" class="btn-primary" onclick="saveNewGroup()">保存</button>
     </div>
   </div>
+</div>
+
+  <div id="availabilityModal" class="modal">
+    <div class="modal-content modal-md">
+        <div class="modal-top-bar">
+            <h3>空き状況を確認</h3>
+            <span class="close-icon" onclick="closeAvailabilityModal()">&times;</span>
+        </div>
+
+        <div style="background:#f9f9f9; padding:15px; border-radius:8px; margin-bottom:15px;">
+            <div class="form-row align-end">
+                <div style="flex:1;">
+                    <label>日付</label>
+                    <input type="date" id="avail-date">
+                </div>
+                <div style="flex:0.8;">
+                    <label>開始</label>
+                    <input type="time" id="avail-start" step="900"> </div>
+                <div style="display:flex; align-items:center; padding-bottom:10px;">～</div>
+                <div style="flex:0.8;">
+                    <label>終了</label>
+                    <input type="time" id="avail-end" step="900">
+                </div>
+                <div>
+                     <button class="btn-primary" onclick="execAvailabilitySearch()">検索</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="avail-result-container" style="overflow-y:auto; flex:1; border-top:1px solid #eee;">
+            <p style="text-align:center; color:#999; margin-top:20px;">条件を入力して検索してください</p>
+        </div>
+        
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="closeAvailabilityModal()">閉じる</button>
+        </div>
+    </div>
 </div>
 
 <script src="script.js"></script>
