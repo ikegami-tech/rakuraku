@@ -866,3 +866,53 @@ textarea#input-note::placeholder {
     margin-top: 5px;
   }
 }
+/* ==============================================
+   23. 空き状況アイコンの表示崩れ修正
+   ============================================== */
+
+/* ○ボタン（予約可）と ×アイコン（予約不可）の共通設定 */
+.status-ok, .status-ng {
+  display: inline-flex !important; /* inline-block から inline-flex に変更 */
+  justify-content: center;         /* 左右中央揃え */
+  align-items: center;             /* 上下中央揃え */
+  
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 50%;
+  font-weight: bold;
+  
+  /* 行の高さによるズレを防止するためにリセット */
+  line-height: 1 !important;
+  
+  /* 枠線を含めたサイズ計算を強制 */
+  box-sizing: border-box !important; 
+}
+
+/* ○ボタン（予約可）個別設定 */
+.status-ok {
+  font-size: 1.2rem;
+  color: #27ae60;
+  border: 2px solid #27ae60;
+  cursor: pointer;
+  background: #fff;
+  transition: all 0.2s;
+  
+  /* ★微調整: もしこれでも上が切れる場合は、下の数値を増やしてください (例: 3px) */
+  padding-top: 2px; 
+}
+
+.status-ok:hover {
+  background-color: #27ae60;
+  color: #fff;
+  transform: scale(1.1);
+}
+
+/* ×アイコン（予約不可）個別設定 */
+.status-ng {
+  font-size: 1.5rem;
+  color: #ccc;
+  cursor: default;
+  border: none; /* ×は枠線なし */
+  
+  padding-top: 0;
+}
