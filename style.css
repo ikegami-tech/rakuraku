@@ -223,8 +223,8 @@ header {
 .map-wrapper {
   padding: 10px; background: #f9f9f9;
   flex: 1; 
-  /* スクロールさせずに、画面内に収める設定 */
-  overflow: hidden; 
+  /* ★修正: 予約枠が表示されたらスクロールできるように auto に戻す */
+  overflow-y: auto; 
   display: flex; flex-direction: column;
   align-items: center; justify-content: flex-start;
   height: 100%;
