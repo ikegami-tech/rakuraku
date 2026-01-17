@@ -391,6 +391,7 @@ function renderVerticalTimeline(mode) {
       container.style.width = "100%"; 
       container.style.maxWidth = "100vw";
       container.style.overflowX = "auto"; 
+      container.style.minWidth = "0";
       container.style.overscrollBehavior = "contain";        
       container.style.display = "flex";    
       container.style.flexWrap = "nowrap"; 
