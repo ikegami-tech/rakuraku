@@ -218,23 +218,28 @@ header {
 .page-info { font-size: 0.9rem; font-weight: bold; color: #555; }
 
 /* ==============================================
-   8. マップ (座席) 画面
+   8. マップ (座席) 画面 (全画面表示対応版)
    ============================================== */
 .map-wrapper {
   padding: 10px; background: #f9f9f9;
-  flex: 1; overflow: auto;
+  flex: 1; 
+  /* スクロールさせずに、画面内に収める設定 */
+  overflow: hidden; 
   display: flex; flex-direction: column;
   align-items: center; justify-content: flex-start;
   height: 100%;
+  width: 100%;
 }
+
 .floor-selector {
-  display: flex; gap: 5px; margin-bottom: 10px;
+  display: flex; gap: 5px; margin-bottom: 5px;
   width: 100%; max-width: 800px;
   justify-content: center; margin-left: auto; margin-right: auto;
   border-bottom: 2px solid #2c3e50;
+  flex-shrink: 0; /* マップが大きくてもここは縮めない */
 }
 .floor-tab {
-  padding: 10px 30px; background-color: #e0e0e0;
+  padding: 8px 30px; background-color: #e0e0e0;
   border: none; border-radius: 6px 6px 0 0;
   cursor: pointer; font-weight: bold; color: #7f8c8d;
   transition: all 0.2s; flex-grow: 0; margin-bottom: 0;
@@ -246,31 +251,51 @@ header {
 .floor-tab:hover:not(.active) { background-color: #d5d5d5; color: #333; }
 
 /* マップコンテナ & ユニット */
-#dual-map-container { width: 100%; box-sizing: border-box; }
+#dual-map-container { 
+  width: 100%; 
+  height: 100%; /* 高さいっぱいに広げる */
+  box-sizing: border-box; 
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; /* 上寄せ（マップ下部の余白確保のため） */
+  overflow: auto; /* 画面が極端に小さい場合のみスクロール */
+}
 
 .floor-map-unit {
-  width: 100%; min-width: 0; margin-bottom: 20px;
-  box-sizing: border-box; display: none; /* スマホ:デフォルト非表示 */
+  width: 100%; min-width: 0; 
+  box-sizing: border-box; display: none; 
+  /* スマホ版の中央揃え */
+  margin: 0 auto;
 }
 .floor-map-unit.active { display: block; }
 
-.map-container {
-  position: relative; width: 100%; height: auto;
-  min-height: 50vh; flex-shrink: 0; margin: auto 0;
-  display: flex; justify-content: center; align-items: center;
-  background: transparent; box-shadow: none; border: none;
+/* マップ画像ラッパー（ここが重要） */
+.map-inner-wrapper {
+  position: relative; 
+  line-height: 0;
+  overflow: hidden; 
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-radius: 4px;
+  
+  /* 【修正】画面に合わせてサイズを自動調整する設定 */
+  width: fit-content;  /* 中身（画像）の大きさに合わせる */
+  height: auto;
+  margin: 0 auto;      /* 中央寄せ */
 }
 
-/* マップ画像ラッパー */
-.map-inner-wrapper {
-  position: relative; width: 100%; line-height: 0;
-  overflow: hidden; display: block !important;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-radius: 4px;
-}
+/* 画像本体の設定 */
 .map-image {
-  display: block; width: 100% !important; height: auto !important;
-  max-width: 100% !important; max-height: none !important;
-  object-fit: contain;
+  display: block; 
+  
+  /* 【修正】高さ基準でリサイズする設定 */
+  /* 画面の高さ(100vh)から、ヘッダー等の分(約180px)を引いた高さを上限にする */
+  max-height: calc(100vh - 180px) !important; 
+  
+  /* 横幅は上限100%にしつつ、高さに合わせて自動縮小(auto)させる */
+  max-width: 100% !important; 
+  width: auto !important;     
+  height: auto !important;
+  
+  object-fit: contain; /* アスペクト比を崩さない */
 }
 
 /* オーバーレイ & ピン */
@@ -300,6 +325,7 @@ header {
 .map-hint {
   margin-top: 5px; color: #666;
   font-size: 0.8rem; text-align: center;
+  flex-shrink: 0;
 }
 
 /* 部屋詳細テーブル */
@@ -311,15 +337,19 @@ header {
 }
 .detail-table td { padding: 10px; border-bottom: 1px solid #eee; }
 
-/* PC表示時のマップ調整 (1024px以上) */
+/* PC・横長画面表示時のマップ調整 (1024px以上) */
 @media (min-width: 1024px) {
   .floor-selector { display: none !important; }
   .pc-floor-title { display: none !important; }
   #dual-map-container {
     display: flex; justify-content: center; gap: 20px; align-items: flex-start;
+    padding-bottom: 20px;
   }
   .floor-map-unit {
-    display: block !important; flex: 1; width: 48%; max-width: 50%; margin-bottom: 0;
+    display: block !important; flex: 0 1 auto; /* 伸び縮みさせる */
+    width: auto; /* 幅指定を解除し、画像サイズに委ねる */
+    max-width: 50%; 
+    margin-bottom: 0;
   }
 }
 
