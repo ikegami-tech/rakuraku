@@ -491,19 +491,18 @@ function renderVerticalTimeline(mode) {
     
 let nowTopPx = -1;
   const now = new Date();
-  const todayStr = formatDateToNum(now); // 今日の日付数値 (例: 20240117)
+  const todayStr = formatDateToNum(now); 
   
-  // 表示中の日付が「今日」である場合のみ計算
+  // 開いているページの日付が「今日」と同じかチェック
   if (targetDateNum === todayStr) {
       const nowH = now.getHours();
       const nowM = now.getMinutes();
-      
+      // 営業時間内なら位置を計算
       if (nowH >= START_HOUR && nowH < END_HOUR) {
-          // 現在時刻が営業時間内 (7:00〜22:00) なら位置を計算
-          // その時間の「上端(top)」 + 「1時間分の高さ × 分の割合」
           nowTopPx = hourTops[nowH] + (hourRowHeights[nowH] * (nowM / 60));
       }
   }
+    
   // 軸を描画
   drawTimeAxis(timeAxisId);
   const axisContainer = document.getElementById(timeAxisId);
@@ -562,6 +561,12 @@ let nowTopPx = -1;
     // グリッド本体
     const body = document.createElement('div');
     body.className = 'room-grid-body';
+    if (nowTopPx !== -1) {
+        const line = document.createElement('div');
+        line.className = 'current-time-line';
+        line.style.top = nowTopPx + "px";
+        body.appendChild(line);
+    }  
     body.style.height = currentTop + "px"; 
     body.style.position = "relative"; 
 
