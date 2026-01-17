@@ -342,8 +342,13 @@ header {
   #dual-map-container {
     display: flex; justify-content: center; gap: 20px; align-items: flex-start;
     padding-bottom: 20px;
-    height: 100%; /* 高さいっぱいに */
-    overflow: hidden; /* PCではスクロールさせない */
+    
+    /* ★修正: マップコンテナ自体は高さを固定せず、中身（画像）に合わせる */
+    height: auto; 
+    min-height: 0;
+    
+    /* ★修正: スクロール制御は親(.map-wrapper)に任せるため visible にする */
+    overflow: visible; 
   }
   
   .floor-map-unit {
@@ -358,10 +363,12 @@ header {
     align-items: center;
   }
   
-  /* PCのときだけ、高さ制限を適用する */
+  /* PCのときだけ、画像の高さを画面に合わせて制限する */
+  /* これにより「初期表示」は画面に収まるが、スクロールすれば上下に動ける */
   .map-image {
-    width: auto !important; /* 横幅は自動（高さに追従） */
-    max-height: calc(100vh - 180px) !important; /* 画面高さに合わせて制限 */
+    width: auto !important; 
+    /* 画面高さ - ヘッダー分(約180px) を上限にする */
+    max-height: calc(100vh - 180px) !important; 
   }
 }
 
