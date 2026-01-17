@@ -223,14 +223,16 @@ header {
 .map-wrapper {
   padding: 10px; background: #f9f9f9;
   flex: 1; 
-  /* 縦スクロールを許可 */
   overflow-y: auto; 
   display: flex; flex-direction: column;
-  align-items: center; justify-content: center !important;
+  align-items: center; 
+  
+  /* ★修正: 強制中央寄せをやめ、上詰めでスクロール可能にする */
+  justify-content: flex-start !important;
+  
   height: 100%;
   width: 100%;
 }
-
 .floor-selector {
   display: flex; gap: 5px; margin-bottom: 5px;
   width: 100%; max-width: 800px;
@@ -349,14 +351,17 @@ header {
   
   #dual-map-container { 
     width: 100%; 
-    height: auto; 
+    height: auto; /* ここは auto のままでOK */
     box-sizing: border-box; 
     display: flex;
     justify-content: center;
-    align-items: flex-start;
+    align-items: center !important;
     
-    /* 下に予約枠が出ても、マップエリアを絶対に縮ませない設定 */
     flex-shrink: 0;
+
+    /* ★追加: PCでも同様に、スペースがあれば中央、なければスクロール */
+    margin-top: auto !important;
+    margin-bottom: auto !important;
   }
   
   .floor-map-unit {
