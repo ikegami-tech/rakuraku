@@ -343,11 +343,11 @@ header {
     display: flex; justify-content: center; gap: 20px; align-items: flex-start;
     padding-bottom: 20px;
     
-    /* ★修正: マップコンテナ自体は高さを固定せず、中身（画像）に合わせる */
+    /* マップコンテナは中身（画像）の高さに合わせる */
     height: auto; 
     min-height: 0;
     
-    /* ★修正: スクロール制御は親(.map-wrapper)に任せるため visible にする */
+    /* スクロール制御は親(.map-wrapper)で行うため visible */
     overflow: visible; 
   }
   
@@ -363,12 +363,17 @@ header {
     align-items: center;
   }
   
-  /* PCのときだけ、画像の高さを画面に合わせて制限する */
-  /* これにより「初期表示」は画面に収まるが、スクロールすれば上下に動ける */
+  /* ▼▼▼ ここが修正ポイント ▼▼▼ */
   .map-image {
+    /* 横幅は自動（高さに合わせて縮小） */
     width: auto !important; 
-    /* 画面高さ - ヘッダー分(約180px) を上限にする */
-    max-height: calc(100vh - 180px) !important; 
+    
+    /* 高さを画面の「65%」に制限する */
+    /* ノートPC等の狭い画面でも、ヘッダー(上)とマップ(中)が確実に収まるサイズ感です */
+    max-height: 65vh !important; 
+    
+    /* 横幅が画面を超えないように制限 */
+    max-width: 100% !important;
   }
 }
 
