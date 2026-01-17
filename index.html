@@ -4,8 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>らくらくお部屋予約システム</title>
-
-を外してください -->
+<link rel="icon" href="favicon.ico">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -48,7 +47,7 @@
         <div id="area-7f" class="floor-map-unit active">
             <h4 class="pc-floor-title">7階</h4>
             <div class="map-inner-wrapper">
-                <img id="map-img-7" src="" alt="7階マップ" class="map-image">
+                <img id="map-img-7" src="img/7f.png" alt="7階マップ" class="map-image">
                 <div id="overlay-container-7" class="overlay-layer"></div>
             </div>
         </div>
@@ -56,7 +55,7 @@
         <div id="area-6f" class="floor-map-unit">
             <h4 class="pc-floor-title">6階</h4>
             <div class="map-inner-wrapper">
-                <img id="map-img-6" src="" alt="6階マップ" class="map-image">
+                <img id="map-img-6" src="img/6f.png" alt="6階マップ" class="map-image">
                 <div id="overlay-container-6" class="overlay-layer"></div>
             </div>
         </div>
@@ -87,21 +86,15 @@
         <button class="floor-tab active" onclick="switchTimelineFloor(7)" id="timeline-tab-7f">7階</button>
         <button class="floor-tab" onclick="switchTimelineFloor(6)" id="timeline-tab-6f">6階</button>
     </div>
-    
     <div class="date-controller">
       <button type="button" onclick="changeDate(-1, 'timeline-date')">&lt;</button>
       <input type="date" id="timeline-date" onchange="renderVerticalTimeline('all')">
       <button type="button" onclick="changeDate(1, 'timeline-date')">&gt;</button>
     </div>
-
     <div class="calendar-scroll-area">
       <div class="time-axis-col" id="time-axis-all"><div class="time-axis-header"></div></div>
       <div class="rooms-container" id="rooms-container-all"></div>
     </div>
-
-    <button type="button" class="floating-search-btn" onclick="openAvailabilityModal()">
-        🔍 空き状況検索
-    </button>
   </div>
 
   <div id="view-logs" class="view-container">
@@ -290,44 +283,6 @@
   </div>
 </div>
 
-<div id="availabilityModal" class="modal">
-    <div class="modal-content modal-md">
-        <div class="modal-top-bar">
-            <h3>空き状況を確認</h3>
-            <span class="close-icon" onclick="closeAvailabilityModal()">&times;</span>
-        </div>
-
-        <div style="background:#f9f9f9; padding:15px; border-radius:8px; margin-bottom:15px;">
-            <div class="form-row align-end">
-                <div style="flex:1;">
-                    <label>日付</label>
-                    <input type="date" id="avail-date">
-                </div>
-                <div style="flex:0.8;">
-                    <label>開始</label>
-                    <input type="time" id="avail-start" step="900"> 
-                </div>
-                <div style="display:flex; align-items:center; padding-bottom:10px;">～</div>
-                <div style="flex:0.8;">
-                    <label>終了</label>
-                    <input type="time" id="avail-end" step="900">
-                </div>
-                <div>
-                     <button class="btn-primary" onclick="execAvailabilitySearch()">検索</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="avail-result-container" style="overflow-y:auto; flex:1; border-top:1px solid #eee;">
-            <p style="text-align:center; color:#999; margin-top:20px;">条件を入力して検索してください</p>
-        </div>
-        
-        <div class="modal-footer">
-            <button class="btn-secondary" onclick="closeAvailabilityModal()">閉じる</button>
-        </div>
-    </div>
-</div>
-  
 <script src="script.js"></script>
 </body>
 </html>
