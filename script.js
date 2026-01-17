@@ -398,7 +398,7 @@ function renderVerticalTimeline(mode) {
       container.style.alignItems = "flex-start";
       container.style.position = "relative";
       container.style.boxSizing = "border-box";
-      container.style.cursor = "grab"; 
+      container.style.cursor = "default";
       container.style.userSelect = "none"; 
       container.style.webkitUserSelect = "none";
   }
@@ -412,16 +412,16 @@ function renderVerticalTimeline(mode) {
       container.onmousedown = (e) => {
           isDown = true;
           hasDragged = false;
-          container.style.cursor = "grabbing"; 
+          container.style.cursor = "grabbing";
           startX = e.pageX - container.offsetLeft;
           startY = e.pageY - container.offsetTop;
           scrollLeft = container.scrollLeft;
           scrollTop = container.scrollTop;
       };
-      container.onmouseleave = () => { isDown = false; container.style.cursor = "grab"; };
+      container.onmouseleave = () => { isDown = false; container.style.cursor = "default"; };
       container.onmouseup = () => {
           isDown = false;
-          container.style.cursor = "grab";
+          container.style.cursor = "default";
           setTimeout(() => { hasDragged = false; }, 50);
       };
       container.onmousemove = (e) => {
