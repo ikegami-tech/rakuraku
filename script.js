@@ -693,8 +693,15 @@ let nowTopPx = -1;
     container.appendChild(col);
     });
     if (container) {
+      // メインの予約枠を復元
       container.scrollTop = savedScrollTop;
       container.scrollLeft = savedScrollLeft;
+
+      // ★追加★: 時間軸も同じ高さに強制的に合わせる
+      const axisContainerEnd = document.getElementById(timeAxisId);
+      if (axisContainerEnd) {
+          axisContainerEnd.scrollTop = savedScrollTop;
+      }
   }
 }
 
