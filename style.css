@@ -285,14 +285,18 @@ header {
 /* 画像本体の設定 (スマホ・デフォルト) */
 .map-image {
   display: block;
-  /* スマホ: 横幅100%に合わせて高さを自動調整 */
-  width: 100% !important;     
-  height: auto !important;
-  max-width: 100% !important; 
-  /* スマホ: 高さ制限なし（スクロールで見る） */
-  max-height: none !important; 
   
-  object-fit: contain;
+  /* ★修正: 画面内に全体が収まるように自動調整 */
+  width: auto !important;      /* 高さに合わせて幅を自動縮小 */
+  max-width: 100% !important;  /* ただし画面幅からははみ出させない */
+  
+  height: auto !important;
+  /* ★修正: 高さ制限を追加（画面の高さの約60%以内に抑える） */
+  /* これにより、縦長のスマホ画面でもマップ全体が見切れることなく表示されます */
+  max-height: 60vh !important; 
+  
+  object-fit: contain; /* 縦横比を崩さない */
+  margin: 0 auto;      /* 左右中央寄せ */
 }
 
 /* オーバーレイ & ピン */
