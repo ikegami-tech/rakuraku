@@ -229,7 +229,7 @@ header {
   
   /* ★修正: 強制中央寄せをやめ、上詰めでスクロール可能にする */
   justify-content: flex-start !important;
-　padding-bottom: 80px !important;  
+  
   height: 100%;
   width: 100%;
 }
@@ -359,9 +359,11 @@ header {
     
     flex-shrink: 0;
 
+    /* ★追加: PCでも同様に、スペースがあれば中央、なければスクロール */
     margin-top: auto !important;
-    margin-bottom: 20px !important; 
+    margin-bottom: auto !important;
   }
+  
   .floor-map-unit {
     display: block !important; 
     /* 縮小禁止 */
@@ -382,7 +384,7 @@ header {
   /* PC: 画像の高さを制限して全体を表示 */
   .map-image {
     width: auto !important; 
-    max-height: 60vh !important; 
+    max-height: 65vh !important; 
     max-width: 100% !important;
   }
 }
@@ -737,62 +739,4 @@ textarea#input-note::placeholder {
   height: 10px;
   background-color: #ea4335;
   border-radius: 50%;
-}
-/* ==============================================
-   21. 空き状況検索モーダル用スタイル
-   ============================================== */
-.avail-list-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px;
-  border-bottom: 1px solid #eee;
-  transition: background 0.2s;
-}
-.avail-list-item:hover {
-  background-color: #f9f9f9;
-}
-
-.avail-room-name {
-  font-weight: bold;
-  font-size: 1rem;
-  color: #333;
-}
-.avail-room-cap {
-  font-size: 0.8rem;
-  color: #777;
-  margin-top: 4px;
-}
-
-/* ○ボタン（予約可） */
-.status-ok {
-  display: inline-block;
-  width: 40px; height: 40px;
-  line-height: 40px;
-  border-radius: 50%;
-  text-align: center;
-  font-weight: bold;
-  font-size: 1.2rem;
-  color: #27ae60;      /* 緑色 */
-  border: 2px solid #27ae60;
-  cursor: pointer;
-  background: #fff;
-  transition: all 0.2s;
-}
-.status-ok:hover {
-  background-color: #27ae60;
-  color: #fff;
-  transform: scale(1.1);
-}
-
-/* ×アイコン（予約不可） */
-.status-ng {
-  display: inline-block;
-  width: 40px; height: 40px;
-  line-height: 40px;
-  text-align: center;
-  font-weight: bold;
-  font-size: 1.5rem;
-  color: #ccc;
-  cursor: default;
 }
