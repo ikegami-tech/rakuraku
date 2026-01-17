@@ -1435,7 +1435,7 @@ function openAvailabilityModal() {
     document.getElementById('avail-end').value = `${('0'+(h+1)).slice(-2)}:${('0'+min).slice(-2)}`;
 
     // 結果エリアリセット
-    document.getElementById('avail-result-container').innerHTML = '<p style="text-align:center; color:#999; margin-top:20px;">条件を入力して検索してください</p>';
+    document.getElementById('avail-result-container').innerHTML = '';
 
     modal.style.display = 'flex';
 }
