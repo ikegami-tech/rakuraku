@@ -1406,3 +1406,136 @@ function initMapResizer() {
 // ページ読み込み完了時と、画像読み込み完了時に実行
 window.addEventListener('DOMContentLoaded', initMapResizer);
 window.addEventListener('load', initMapResizer);
+// ==============================================
+//  空き状況検索機能
+// ==============================================
+
+// モーダルを開く
+function openAvailabilityModal() {
+    const modal = document.getElementById('availabilityModal');
+    if (!modal) return;
+
+    // 現在の日時を初期値セット
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = ('0' + (now.getMonth() + 1)).slice(-2);
+    const d = ('0' + now.getDate()).slice(-2);
+    
+    // 現在時刻から「次の00分か30分」を計算
+    let h = now.getHours();
+    let min = now.getMinutes();
+    if(min < 30) min = 0;
+    else { min = 30; } // 簡易的に00か30に丸める
+    
+    // 入力欄にセット
+    document.getElementById('avail-date').value = `${y}-${m}-${d}`;
+    document.getElementById('avail-start').value = `${('0'+h).slice(-2)}:${('0'+min).slice(-2)}`;
+    // デフォルト1時間後
+    document.getElementById('avail-end').value = `${('0'+(h+1)).slice(-2)}:${('0'+min).slice(-2)}`;
+
+    // 結果エリアリセット
+    document.getElementById('avail-result-container').innerHTML = '<p style="text-align:center; color:#999; margin-top:20px;">条件を入力して検索してください</p>';
+
+    modal.style.display = 'flex';
+}
+
+// モーダルを閉じる
+function closeAvailabilityModal() {
+    const modal = document.getElementById('availabilityModal');
+    if(modal) modal.style.display = 'none';
+}
+
+// 検索実行
+function execAvailabilitySearch() {
+    const dateVal = document.getElementById('avail-date').value;
+    const startVal = document.getElementById('avail-start').value;
+    const endVal = document.getElementById('avail-end').value;
+
+    if (!dateVal || !startVal || !endVal) {
+        alert("日付と時間を正しく入力してください");
+        return;
+    }
+
+    // 検索用の開始・終了日時オブジェクト作成
+    const searchStart = new Date(`${dateVal}T${startVal}:00`);
+    const searchEnd = new Date(`${dateVal}T${endVal}:00`);
+
+    if (searchStart >= searchEnd) {
+        alert("開始時間は終了時間より前に設定してください");
+        return;
+    }
+
+    const resultContainer = document.getElementById('avail-result-container');
+    resultContainer.innerHTML = ""; // クリア
+
+    // 全部屋をループして空き状況判定
+    let hasRoom = false;
+    
+    // 部屋リスト（ID順などでソート推奨）
+    const rooms = masterData.rooms;
+
+    rooms.forEach(room => {
+        // その部屋の「指定日」の予約を取得
+        const roomRes = masterData.reservations.filter(res => {
+            const rId = getVal(res, ['resourceId', 'roomId', 'room_id', 'resource_id', '部屋ID', '部屋']);
+            // 同じ部屋 かつ 日付が検索対象日を含んでいるか（簡易チェック）
+            // ※厳密には日時比較のみで良いが、データ量削減のため日付文字列比較などを挟むと高速
+            return String(rId) === String(room.roomId);
+        });
+
+        // 重複チェック
+        // 「既存予約の開始 < 検索終了」 かつ 「既存予約の終了 > 検索開始」 なら被っている
+        const isBusy = roomRes.some(res => {
+            const rStart = new Date(res._startTime || res.startTime);
+            const rEnd = new Date(res._endTime || res.endTime);
+            return (rStart < searchEnd && rEnd > searchStart);
+        });
+
+        // HTML生成
+        const item = document.createElement('div');
+        item.className = 'avail-list-item';
+
+        // ◯ボタンクリック時の動作
+        const sHour = searchStart.getHours();
+        const sMin = searchStart.getMinutes();
+        
+        // ◯ならクリックイベント、×ならただの表示
+        const statusHtml = isBusy 
+            ? `<span class="status-ng">×</span>`
+            : `<span class="status-ok" onclick="selectAvailableRoom('${room.roomId}', ${sHour}, ${sMin})">○</span>`;
+
+        item.innerHTML = `
+            <div>
+                <div class="avail-room-name">${room.roomName}</div>
+                <div class="avail-room-cap">定員: ${room.capacity || '-'}名</div>
+            </div>
+            <div>${statusHtml}</div>
+        `;
+        resultContainer.appendChild(item);
+        hasRoom = true;
+    });
+
+    if(!hasRoom) {
+        resultContainer.innerHTML = '<p style="padding:20px; text-align:center;">部屋データがありません</p>';
+    }
+}
+
+// ◯をクリックしたとき（予約モーダルへ連携）
+function selectAvailableRoom(roomId, h, m) {
+    // 1. 検索モーダルを閉じる
+    closeAvailabilityModal();
+    
+    // 2. 予約登録モーダルを開く
+    // openModal(予約データ(null), 部屋ID, 時間, 分)
+    openModal(null, roomId, h, m);
+
+    // 3. 日付も検索していた日付に合わせる
+    const dateVal = document.getElementById('avail-date').value;
+    const dateInput = document.getElementById('input-date');
+    if(dateInput) dateInput.value = dateVal;
+    
+    // 4. 終了時刻も検索値に合わせる（openModalは1時間後を自動セットするため、必要なら上書き）
+    const endVal = document.getElementById('avail-end').value;
+    const endInput = document.getElementById('input-end');
+    if(endInput) endInput.value = endVal;
+}
