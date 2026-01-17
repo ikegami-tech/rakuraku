@@ -764,3 +764,27 @@ textarea#input-note::placeholder {
 #view-timeline .floor-selector {
   display: flex !important;
 }
+/* ==============================================
+   20. 現在時刻ライン (赤線)
+   ============================================== */
+.current-time-line {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #ea4335; /* Googleカレンダー風の赤 */
+  z-index: 30; /* 予約バーより手前に表示 */
+  pointer-events: none; /* 線をクリックしても下の要素に反応するように */
+}
+
+/* 線の左端に「●」を付ける（オプション） */
+.current-time-line::before {
+  content: "";
+  position: absolute;
+  left: -5px;
+  top: -4px;
+  width: 10px;
+  height: 10px;
+  background-color: #ea4335;
+  border-radius: 50%;
+}
