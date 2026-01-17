@@ -274,33 +274,34 @@ header {
 }
 
 /* マップ画像ラッパー */
-/* マップ画像ラッパー */
 .map-inner-wrapper {
   position: relative; 
   line-height: 0;
   overflow: hidden; 
   box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-radius: 4px;
   
-  /* ★重要修正: 横幅を100%ではなく、中身(画像)のサイズに合わせる */
+  /* ★修正: 幅は中身に合わせるが、画面の95%を超えないように制限をかける */
   width: fit-content !important;  
+  max-width: 95% !important;      /* ← ここに95%制限を移動 */
   height: auto !important;
   
   margin: 0 auto;
 }
+
 /* 画像本体の設定 (スマホ・デフォルト) */
 .map-image {
   display: block;
   
-  /* ★修正: 画面内に確実に収める設定 (7階マップ対策) */
+  /* ★修正: 親(ラッパー)のサイズいっぱいまで表示する */
   width: auto !important;
-  max-width: 95% !important;   /* 横幅いっぱいにせず少し余白 */
+  max-width: 100% !important;  /* ← 95%から100%に変更 (親枠が既に95%になっているため) */
+  
   height: auto !important;
-  max-height: 50vh !important; /* 高さを画面半分にして見切れ防止 */
+  max-height: 50vh !important; /* 高さは維持 */
   
   object-fit: contain;
   margin: 0 auto;
 }
-
 /* オーバーレイ & ピン */
 .overlay-layer {
   position: absolute; top: 0; left: 0;
