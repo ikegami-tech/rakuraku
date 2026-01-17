@@ -229,7 +229,7 @@ header {
   
   /* ★修正: 強制中央寄せをやめ、上詰めでスクロール可能にする */
   justify-content: flex-start !important;
-  
+　padding-bottom: 80px !important;  
   height: 100%;
   width: 100%;
 }
@@ -359,11 +359,9 @@ header {
     
     flex-shrink: 0;
 
-    /* ★追加: PCでも同様に、スペースがあれば中央、なければスクロール */
     margin-top: auto !important;
-    margin-bottom: auto !important;
+    margin-bottom: 20px !important; 
   }
-  
   .floor-map-unit {
     display: block !important; 
     /* 縮小禁止 */
@@ -384,7 +382,7 @@ header {
   /* PC: 画像の高さを制限して全体を表示 */
   .map-image {
     width: auto !important; 
-    max-height: 65vh !important; 
+    max-height: 60vh !important; 
     max-width: 100% !important;
   }
 }
