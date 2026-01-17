@@ -773,12 +773,16 @@ function formatTimeInput(elm) {
 function openModal(res = null, defaultRoomId = null, clickHour = null, clickMin = 0) {
   const modal = document.getElementById('bookingModal');
   modal.style.display = 'flex';
-  
+   
+  // 一旦リセット
   selectedParticipantIds.clear();
   originalParticipantIds.clear(); 
   document.getElementById('shuttle-search-input').value = "";
-  
+   
   if (res) {
+    // ============================================
+    //  既存予約の編集モード (ここは変更なし)
+    // ============================================
     document.getElementById('modal-title').innerText = "予約編集";
     document.getElementById('edit-res-id').value = res.id;
     const rId = res._resourceId || res.resourceId || res.roomId; 
@@ -818,7 +822,11 @@ function openModal(res = null, defaultRoomId = null, clickHour = null, clickMin 
         });
     }
     document.getElementById('btn-delete').style.display = 'inline-block';
+
   } else {
+    // ============================================
+    //  新規予約モード (★ここに修正を追加)
+    // ============================================
     document.getElementById('modal-title').innerText = "新規予約";
     document.getElementById('edit-res-id').value = "";
     if(defaultRoomId) document.getElementById('input-room').value = defaultRoomId;
@@ -837,12 +845,14 @@ function openModal(res = null, defaultRoomId = null, clickHour = null, clickMin 
     const sMin  = clickMin;
     document.getElementById('input-start').value = `${pad(sHour)}:${pad(sMin)}`;
     document.getElementById('input-end').value = `${pad(sHour+1)}:${pad(sMin)}`;
-
     document.getElementById('input-title').value = "";
     document.getElementById('input-note').value = "";
     document.getElementById('btn-delete').style.display = 'none';
+    if (typeof currentUser !== 'undefined' && currentUser && currentUser.userId) {
+        selectedParticipantIds.add(String(currentUser.userId));
+    }
   }
-  
+   
   renderShuttleLists(); // 予約用シャトル描画
 
   if (modal) modal.scrollTop = 0;
