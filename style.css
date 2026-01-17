@@ -338,16 +338,20 @@ header {
   .floor-selector { display: none !important; }
   .pc-floor-title { display: none !important; }
   
-  #dual-map-container {
-    display: flex; justify-content: center; gap: 20px; align-items: flex-start;
-    padding-bottom: 20px;
-    
-    /* マップエリアは縮ませない */
-    flex-shrink: 0;
-    height: auto; 
-    min-height: 0;
-    overflow: visible; 
-  }
+ /* マップコンテナ & ユニット */
+#dual-map-container { 
+  width: 100%; 
+  /* 中身（画像）に合わせて高さを確保 */
+  height: auto; 
+  box-sizing: border-box; 
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  
+  /* ★重要修正★: これを追加！ */
+  /* 下に予約枠が出ても、マップエリアを絶対に縮ませない設定 */
+  flex-shrink: 0;
+}
   
   .floor-map-unit {
     display: block !important; 
