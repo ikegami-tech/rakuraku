@@ -867,55 +867,73 @@ textarea#input-note::placeholder {
   }
 }
 /* ==============================================
-   23. 空き状況表示 (行全体グレー版)
+   23. 空き状況表示 (予約ボタン化 & 行全体グレー版)
    ============================================== */
 
 /* ▼ 行全体の制御 (:has を使用) */
 /* 「.status-ng（×）」が含まれている行は、背景をグレーにする */
 .avail-list-item:has(.status-ng) {
-  background-color: #e0e0e0 !important; /* 行全体をグレーに */
-  color: #999 !important;               /* 文字色を薄くして不可感を出す */
-  pointer-events: none;                 /* クリックできないようにする */
+  background-color: #e0e0e0 !important;
+  color: #999 !important;
+  pointer-events: none;
 }
 
-/* 共通設定 (◯と☓) */
+/* 共通リセット */
 .status-ok, .status-ng {
   display: flex !important;
   justify-content: center;
   align-items: center;
-  
-  width: 100% !important;
-  height: 45px !important;
-  
-  font-size: 2.0rem !important; 
-  font-weight: normal;
-  line-height: 1 !important;
-  
-  border-radius: 4px;
-  margin: 0;
+  margin: 0 auto;
   padding: 0;
   border: none !important;
   overflow: visible !important;
 }
 
-/* ◯ (予約可) の設定 */
+/* ----------------------------------------------------
+   ★修正: ◯ (予約可) を「予約ボタン」に変身させる設定
+   ---------------------------------------------------- */
 .status-ok {
-  color: #333 !important;
-  background: transparent;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-/* ◯ のホバー時（ホットペッパー風うっすら赤） */
-.status-ok:hover {
-  background-color: rgba(255, 0, 0, 0.08) !important;
-}
-
-/* ☓ (予約不可) の設定 */
-.status-ng {
-  /* ★修正: 背景色は行全体につけるので、アイコン自体の背景は透明に戻す */
-  background-color: transparent !important; 
+  /* 元々入っている「◯」の文字を見えなくする */
+  font-size: 0 !important;
   
+  /* ボタンの形状を作る */
+  width: 70px !important;       /* ボタンの幅 */
+  height: 34px !important;      /* ボタンの高さ */
+  background-color: #27ae60 !important; /* 緑色 */
+  border-radius: 4px;           /* 角丸 */
+  
+  /* 影をつけてボタンっぽく */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+  
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* 疑似要素で「予約」という文字を新しく表示 */
+.status-ok::before {
+  content: "予約";              /* ここで文字を指定 */
+  color: #fff !important;       /* 白文字 */
+  font-size: 14px !important;   /* 文字サイズ */
+  font-weight: bold;
+}
+
+/* ホバー時の動き（ボタンが沈むアニメーション） */
+.status-ok:hover {
+  background-color: #219150 !important; /* 少し濃い緑に */
+  transform: translateY(1px);           /* 押した感じを出す */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  text-decoration: none !important;
+}
+
+
+/* ----------------------------------------------------
+   ☓ (予約不可) の設定
+   ---------------------------------------------------- */
+.status-ng {
+  width: 100% !important;
+  height: 45px !important;
+  background-color: transparent !important;
   color: #999 !important;
+  font-size: 2.0rem !important; /* ×は大きく */
   cursor: default;
 }
