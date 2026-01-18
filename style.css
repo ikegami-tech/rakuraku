@@ -1118,3 +1118,55 @@ textarea#input-note::placeholder {
     min-width: 0; 
   }
 }
+/* ==============================================
+   26. スマホ版：空き状況検索画面の表示領域拡大
+   ============================================== */
+@media (max-width: 600px) {
+  
+  /* 1. モーダル全体の高さを画面いっぱい(85%)まで広げる */
+  #availabilityModal .modal-content {
+    height: 85vh;      /* 高さを確保 */
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* 2. 検索条件エリア（グレーの箱）をコンパクトにする */
+  /* HTMLの style="..." 指定を上書きするため !important を使用 */
+  #availabilityModal .modal-content > div:nth-of-type(2) {
+    padding: 10px !important;       /* 余白を15px→10pxに縮小 */
+    margin-bottom: 5px !important;  /* 下の隙間を削減 */
+    flex-shrink: 0;                 /* 縮みすぎて崩れるのを防ぐ */
+  }
+
+  /* 3. 入力欄同士の隙間を詰める */
+  .avail-search-row {
+    gap: 8px !important; /* 15px→8pxに詰める */
+  }
+
+  /* 入力欄の高さを少しスリムにする */
+  .avail-input-group input, 
+  .time-picker-wrapper input {
+    padding: 6px !important;
+    font-size: 14px;
+  }
+
+  /* 検索ボタンの上の隙間をなくす */
+  .btn-search-avail {
+    margin-top: 2px !important;
+    padding: 8px !important;
+  }
+
+  /* 4. 結果一覧エリア（下枠）を余ったスペース限界まで広げる */
+  #avail-result-container {
+    flex: 1;          /* 残りの高さを全て使う */
+    overflow-y: auto; /* スクロールさせる */
+    min-height: 0;    /* 表示崩れ防止 */
+    border-top: 1px solid #ddd; /* 境界線をわかりやすく */
+  }
+  
+  /* リスト項目のサイズ調整（より多く表示するため） */
+  .avail-list-item {
+    padding: 8px 10px; /* 少しスリムに */
+  }
+}
