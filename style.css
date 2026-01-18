@@ -1002,3 +1002,56 @@ textarea#input-note::placeholder {
   cursor: pointer;
   z-index: 10;    /* 一番上に配置してクリックを受け取る */
 }
+
+/* ==============================================
+   25. 右下固定の空室確認ボタン (FAB)
+   ============================================== */
+.fab-avail-btn {
+  position: fixed;          /* 画面上の位置を固定 */
+  bottom: 30px;             /* 下から30px */
+  right: 30px;              /* 右から30px */
+  
+  width: 70px;              /* 幅 */
+  height: 70px;             /* 高さ */
+  border-radius: 50%;       /* 完全な円にする */
+  
+  background-color: #27ae60; /* アクセントカラー(緑) */
+  color: white;
+  border: none;
+  
+  /* 影をつけて浮かせる */
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  
+  /* 中の文字の配置 */
+  display: flex;
+  flex-direction: column;   /* 縦並び */
+  justify-content: center;  /* 上下中央 */
+  align-items: center;      /* 左右中央 */
+  
+  z-index: 2000;            /* 最前面に表示 */
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  /* 文字スタイル */
+  font-weight: bold;
+  font-size: 13px;
+  line-height: 1.1;
+}
+
+/* ホバー時の動き */
+.fab-avail-btn:hover {
+  background-color: #219150; /* 少し濃く */
+  transform: scale(1.1);     /* 少し大きく */
+  box-shadow: 0 6px 14px rgba(0,0,0,0.4);
+}
+
+/* スマホでの位置調整（少し小さく、端に寄せすぎない） */
+@media (max-width: 600px) {
+  .fab-avail-btn {
+    width: 60px;
+    height: 60px;
+    bottom: 20px;
+    right: 20px;
+    font-size: 11px;
+  }
+}
