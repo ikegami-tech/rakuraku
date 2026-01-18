@@ -724,6 +724,22 @@ function autoSetEndTime() {
     endEl.value = `${endH}:${endM}`;
 }
 
+// 空き状況検索用の自動計算
+function autoSetAvailEndTime() {
+    const startEl = document.getElementById('avail-start');
+    const endEl = document.getElementById('avail-end');
+    const val = startEl.value;
+    if (!val || val.indexOf(':') === -1) return;
+    const parts = val.split(':');
+    let h = parseInt(parts[0], 10);
+    const m = parseInt(parts[1], 10);
+    if (isNaN(h) || isNaN(m)) return;
+    h += 1;
+    const endH = (h < 10 ? '0' : '') + h;
+    const endM = (m < 10 ? '0' : '') + m;
+    endEl.value = `${endH}:${endM}`;
+}
+
 function selectTimePart(elm) {
     setTimeout(() => {
         const val = elm.value;
@@ -764,8 +780,13 @@ function formatTimeInput(elm) {
     if (!isNaN(h)) h = (h < 10 ? '0' : '') + h;
     if (!isNaN(m)) m = (m < 10 ? '0' : '') + m;
     if(!isNaN(h) && !isNaN(m)) {
-        elm.value = `${h}:${m}`;
-        if (elm.id === 'input-start') autoSetEndTime();
+    elm.value = `${h}:${m}`;
+    
+    // 予約画面の開始時間なら
+    if (elm.id === 'input-start') autoSetEndTime();
+    
+    // ★追加: 空き状況検索の開始時間なら
+    if (elm.id === 'avail-start') autoSetAvailEndTime();
     }
 }
 
