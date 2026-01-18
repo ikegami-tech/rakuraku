@@ -954,3 +954,51 @@ textarea#input-note::placeholder {
   font-size: 2.0rem !important;
   cursor: default;
 }
+/* ==============================================
+   24. 時間入力のクリック判定修正 (手入力対応)
+   ============================================== */
+
+/* 時間入力ラッパーの基準位置設定 */
+.time-picker-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+/* 入力欄本体の設定 */
+.time-picker-wrapper input {
+  position: relative;
+  z-index: 1; /* 下層だがクリック可能にする */
+  width: 100%;
+  box-sizing: border-box;
+  padding-right: 40px !important; /* 右側に矢印分の余白を確保 */
+}
+
+/* ▼矢印の見た目 */
+.time-picker-arrow {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 40px; /* 矢印エリアの幅 */
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  pointer-events: none; /* クリックを下の要素に通す */
+  z-index: 5;
+}
+
+/* ★重要: 透明なプルダウン (ここを修正) */
+.time-overlay-select {
+  position: absolute;
+  right: 0;       /* 右寄せ */
+  top: 0;
+  
+  /* ★修正: 幅を100%ではなく、矢印部分(40px)だけに制限する */
+  width: 40px !important; 
+  height: 100%;
+  
+  opacity: 0;     /* 透明にする */
+  cursor: pointer;
+  z-index: 10;    /* 一番上に配置してクリックを受け取る */
+}
