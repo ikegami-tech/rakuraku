@@ -347,7 +347,12 @@ function switchTab(tabName) {
           document.querySelectorAll('#view-timeline .floor-tab').forEach(tab => tab.classList.remove('active'));
           const activeTab = document.getElementById(`timeline-tab-${currentTimelineFloor}f`);
           if(activeTab) activeTab.classList.add('active');
+          
           renderVerticalTimeline('all');
+
+          // ★追加: 描画が終わった直後に、赤線を中央にする処理を呼ぶ
+          setTimeout(scrollToNow, 50); 
+
       }, 0);
   } else if (tabName === 'logs') {
       renderLogs();
@@ -1713,4 +1718,32 @@ function backToAvailability() {
   
   // 空き状況モーダルを再表示
   document.getElementById('availabilityModal').style.display = 'flex';
+}
+/**
+ * 現在時刻（赤線）が画面中央に来るようにスクロールする関数
+ */
+function scrollToNow() {
+  const container = document.getElementById('rooms-container-all');
+  const axis = document.getElementById('time-axis-all');
+  if (!container) return;
+
+  // 赤線要素を探す
+  const redLine = container.querySelector('.current-time-line');
+
+  if (redLine) {
+    // 赤線の位置(上からのpx)を取得
+    // offsetTop は親要素(grid-body)の上端からの距離
+    const lineTop = redLine.offsetTop;
+    
+    // 表示エリアの高さを取得
+    const containerHeight = container.clientHeight;
+    
+    // 中央に来るためのスクロール量を計算
+    // (線の位置) - (画面の半分の高さ)
+    const targetScroll = lineTop - (containerHeight / 2);
+
+    // スクロール実行 (コンテナと時間軸の両方)
+    container.scrollTop = targetScroll;
+    if(axis) axis.scrollTop = targetScroll;
+  }
 }
