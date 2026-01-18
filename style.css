@@ -867,44 +867,54 @@ textarea#input-note::placeholder {
   }
 }
 /* ==============================================
-   23. 空き状況アイコンの表示崩れ修正
+   23. 空き状況アイコンの表示崩れ修正 (強化版)
    ============================================== */
 
 /* ○ボタン（予約可）と ×アイコン（予約不可）の共通設定 */
 .status-ok, .status-ng {
-  display: inline-flex !important; /* inline-block から inline-flex に変更 */
-  justify-content: center;         /* 左右中央揃え */
-  align-items: center;             /* 上下中央揃え */
+  display: inline-flex !important; /* フレックスボックスで中央配置 */
+  justify-content: center;
+  align-items: center;
   
   width: 40px !important;
   height: 40px !important;
   border-radius: 50%;
   font-weight: bold;
   
-  /* 行の高さによるズレを防止するためにリセット */
   line-height: 1 !important;
+  box-sizing: border-box !important;
   
-  /* 枠線を含めたサイズ計算を強制 */
-  box-sizing: border-box !important; 
+  /* ★追加: 上下が切れないように、周囲に透明なバリア（余白）を作る */
+  margin: 2px !important;
+  flex-shrink: 0; /* 押しつぶされ防止 */
 }
 
 /* ○ボタン（予約可）個別設定 */
 .status-ok {
   font-size: 1.2rem;
   color: #27ae60;
-  border: 2px solid #27ae60;
-  cursor: pointer;
   background: #fff;
+  cursor: pointer;
   transition: all 0.2s;
   
-  /* ★微調整: もしこれでも上が切れる場合は、下の数値を増やしてください (例: 3px) */
-  padding-top: 2px; 
+  /* ★修正: 枠線の描画を安定させる設定 */
+  border: 2px solid #27ae60 !important;
+  
+  /* ★追加: 万が一borderが切れても、影(box-shadow)で補って丸く見せる隠し味 */
+  box-shadow: 0 0 0 1px transparent; /* レンダリング調整用 */
+  
+  /* 文字の微調整（OSによるズレを補正） */
+  padding-top: 2px;
 }
 
+/* ホバー時の設定 */
 .status-ok:hover {
   background-color: #27ae60;
   color: #fff;
+  /* ホバー時に少し大きくする */
   transform: scale(1.1);
+  /* ホバー時は枠線を背景色と同じにして馴染ませる */
+  border-color: #27ae60 !important;
 }
 
 /* ×アイコン（予約不可）個別設定 */
@@ -912,7 +922,6 @@ textarea#input-note::placeholder {
   font-size: 1.5rem;
   color: #ccc;
   cursor: default;
-  border: none; /* ×は枠線なし */
-  
+  border: none;
   padding-top: 0;
 }
