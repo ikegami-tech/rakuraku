@@ -220,32 +220,83 @@ function initUI() {
   startPolling();
 }
 /* ==============================================
-   自動更新 (ポーリング) 設定
+   自動更新 (ポーリング) 設定：アイドリング検知付き
    ============================================== */
-// 更新間隔（ミリ秒）。ここでは30秒に設定しています。
-// 短すぎるとGASの実行回数制限(Quota)に引っかかる可能性があるため、30秒〜60秒推奨です。
-const POLLING_INTERVAL = 30000; 
-let pollingTimer = null;
 
+// ▼ 設定値（ここを変更しました）
+const POLLING_INTERVAL_ACTIVE = 20000;   // アクティブ時: 20秒
+const POLLING_INTERVAL_IDLE   = 600000;  // アイドル時: 10分 (10 * 60 * 1000)
+const IDLE_TIMEOUT            = 60000;   // 放置判定: 1分 (60 * 1000)
+
+let pollingTimer = null;
+let idleCheckTimer = null;
+let isUserIdle = false;
+let lastActivityTime = new Date().getTime();
+
+/**
+ * ユーザーの操作を監視して、アクティブ/アイドルを切り替える
+ */
+function initIdleDetection() {
+    // 検知する操作イベント (PCのマウス操作、キー入力、スマホのタッチ、スクロール)
+    const events = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
+    
+    events.forEach(evt => {
+        window.addEventListener(evt, () => {
+            lastActivityTime = new Date().getTime();
+            
+            // アイドル状態だった場合、即座にアクティブモードに復帰させる
+            if (isUserIdle) {
+                console.log("操作検知: アクティブモード(20秒更新)に復帰します");
+                isUserIdle = false;
+                
+                // 即座にデータを読み込む (ユーザー体験向上のため)
+                loadAllData(true, true);
+                
+                // タイマーを20秒間隔で再始動
+                restartPolling(POLLING_INTERVAL_ACTIVE);
+            }
+        }, { passive: true });
+    });
+
+    // 定期チェック (5秒ごとに「1分以上放置されていないか」を確認)
+    if (idleCheckTimer) clearInterval(idleCheckTimer);
+    idleCheckTimer = setInterval(() => {
+        const now = new Date().getTime();
+        // まだアイドル判定されておらず、かつ最後の操作から規定時間が過ぎていたら
+        if (!isUserIdle && (now - lastActivityTime > IDLE_TIMEOUT)) {
+            console.log("1分間操作なし: アイドルモード(10分更新)に移行します");
+            isUserIdle = true;
+            restartPolling(POLLING_INTERVAL_IDLE);
+        }
+    }, 5000);
+}
+
+/**
+ * 指定された間隔でポーリングタイマーを再セットする
+ */
+function restartPolling(interval) {
+    if (pollingTimer) clearInterval(pollingTimer);
+    
+    pollingTimer = setInterval(() => {
+        // モーダルが開いている時は更新しない（入力の邪魔になるため）
+        const modalOpen = document.querySelectorAll('.modal[style*="display: flex"]').length > 0;
+        
+        if (!modalOpen) {
+            console.log(`自動更新を実行中... (間隔: ${interval/1000}秒)`);
+            loadAllData(true, true);
+        } else {
+            console.log("モーダル表示中のため自動更新をスキップしました");
+        }
+    }, interval);
+}
+
+/**
+ * 起動時に呼ばれる関数
+ */
 function startPolling() {
-  if (pollingTimer) clearInterval(pollingTimer);
-  
-  pollingTimer = setInterval(() => {
-    // 1. モーダルが開いているかチェック
-    // (入力中に更新されると邪魔なため、モーダル表示中は更新をスキップ)
-    const modalOpen = document.querySelectorAll('.modal[style*="display: flex"]').length > 0;
-    
-    // 2. ドラッグ中かチェック (タイムライン操作中の更新を防ぐ)
-    // ここでは簡易的にマウスが押されているか判定するのは難しいため、モーダルのみチェックとします。
-    
-    if (!modalOpen) {
-      // ローディング画面を出さずに(true, true)データを更新
-      console.log("自動更新を実行中...");
-      loadAllData(true, true);
-    } else {
-      console.log("モーダル表示中のため自動更新をスキップしました");
-    }
-  }, POLLING_INTERVAL);
+    console.log("自動更新機能を開始します");
+    initIdleDetection();            // 操作検知の開始
+    restartPolling(POLLING_INTERVAL_ACTIVE); // 最初はアクティブモード(20秒)でスタート
 }
 
 function refreshUI() {
