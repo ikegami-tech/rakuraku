@@ -773,6 +773,8 @@ function formatTimeInput(elm) {
 function openModal(res = null, defaultRoomId = null, clickHour = null, clickMin = 0) {
   const modal = document.getElementById('bookingModal');
   modal.style.display = 'flex';
+  document.getElementById('btn-back-avail').style.display = 'none';   // 戻るボタンを隠す
+  document.getElementById('btn-modal-cancel').style.display = 'inline-block'; // キャンセルボタンを表示
    
   // 一旦リセット
   selectedParticipantIds.clear();
@@ -1502,8 +1504,8 @@ function execAvailabilitySearch() {
         
         // ◯ならクリックイベント、×ならただの表示
         const statusHtml = isBusy 
-            ? `<span class="status-ng">×</span>`
-            : `<span class="status-ok" onclick="selectAvailableRoom('${room.roomId}', ${sHour}, ${sMin})">○</span>`;
+    ? `<span class="status-ng">×</span>`
+    : `<span class="status-ok" onclick="transitionToBooking('${room.roomName}', '${dateVal}', '${startVal}', '${endVal}')">○</span>`;
 
         item.innerHTML = `
             <div>
@@ -1520,23 +1522,54 @@ function execAvailabilitySearch() {
         resultContainer.innerHTML = '<p style="padding:20px; text-align:center;">部屋データがありません</p>';
     }
 }
+/* ==============================================
+   24. 空き状況検索 ⇔ 予約画面 の連携処理
+   ============================================== */
 
-// ◯をクリックしたとき（予約モーダルへ連携）
-function selectAvailableRoom(roomId, h, m) {
-    // 1. 検索モーダルを閉じる
-    closeAvailabilityModal();
-    
-    // 2. 予約登録モーダルを開く
-    // openModal(予約データ(null), 部屋ID, 時間, 分)
-    openModal(null, roomId, h, m);
+/**
+ * 空き状況リストの「予約」ボタンが押された時の処理
+ * @param {string} roomName - 部屋名
+ * @param {string} dateVal - 日付 (YYYY-MM-DD)
+ * @param {string} startVal - 開始時間 (HH:mm)
+ * @param {string} endVal - 終了時間 (HH:mm)
+ */
+function transitionToBooking(roomName, dateVal, startVal, endVal) {
+  // 1. 空き状況モーダルを一時的に隠す
+  document.getElementById('availabilityModal').style.display = 'none';
 
-    // 3. 日付も検索していた日付に合わせる
-    const dateVal = document.getElementById('avail-date').value;
-    const dateInput = document.getElementById('input-date');
-    if(dateInput) dateInput.value = dateVal;
-    
-    // 4. 終了時刻も検索値に合わせる（openModalは1時間後を自動セットするため、必要なら上書き）
-    const endVal = document.getElementById('avail-end').value;
-    const endInput = document.getElementById('input-end');
-    if(endInput) endInput.value = endVal;
+  // 2. 予約モーダルを開く準備（既存のopenModal等のロジックを模倣）
+  // フォームの値をセット
+  document.getElementById('edit-res-id').value = ''; // 新規
+  document.getElementById('modal-title').innerText = '新規予約';
+  document.getElementById('input-date').value = dateVal;
+  document.getElementById('input-start').value = startVal;
+  document.getElementById('input-end').value = endVal;
+  
+  // 部屋のプルダウンを選択
+  const roomSelect = document.getElementById('input-room');
+  // 部屋名からvalueを探してセットする簡易ロジック
+  for (let i = 0; i < roomSelect.options.length; i++) {
+    if (roomSelect.options[i].text === roomName) {
+      roomSelect.selectedIndex = i;
+      break;
+    }
+  }
+
+  // 3. 予約モーダルを表示
+  document.getElementById('bookingModal').style.display = 'flex';
+
+  // 4. ボタンの表示切替（「戻る」を表示、「キャンセル」を隠す）
+  document.getElementById('btn-back-avail').style.display = 'inline-block'; // 戻るボタンON
+  document.getElementById('btn-modal-cancel').style.display = 'none';       // キャンセルボタンOFF
+}
+
+/**
+ * 「戻る」ボタンが押された時の処理
+ */
+function backToAvailability() {
+  // 予約モーダルを閉じる
+  document.getElementById('bookingModal').style.display = 'none';
+  
+  // 空き状況モーダルを再表示
+  document.getElementById('availabilityModal').style.display = 'flex';
 }
