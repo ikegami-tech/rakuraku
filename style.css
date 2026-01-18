@@ -867,52 +867,56 @@ textarea#input-note::placeholder {
   }
 }
 /* ==============================================
-   23. 空き状況アイコンの修正 (シンプル文字版)
+   23. 空き状況アイコン (ホットペッパー風・背景色変化版)
    ============================================== */
 
 /* 共通設定 (◯と☓) */
 .status-ok, .status-ng {
-  display: inline-flex !important;
+  display: flex !important;      /* 枠の中央に配置 */
   justify-content: center;
   align-items: center;
   
-  width: 40px !important;  /* 列の幅を崩さないための確保 */
-  height: 40px !important;
+  width: 100% !important;        /* 親枠(セル)いっぱいまで広げる */
+  height: 45px !important;       /* 高さを確保してクリックしやすく */
   
-  font-size: 1.6rem !important; /* 文字を大きく見やすく */
-  font-weight: bold;
+  /* ★修正: 最初から大きく表示 (以前の拡大時と同等のサイズ) */
+  font-size: 2.0rem !important; 
+  font-weight: normal;           /* 太字だと野暮ったいので通常に */
   line-height: 1 !important;
   
-  /* ボタン風の装飾をすべて削除 */
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  border-radius: 0 !important;
+  /* ★修正: ◯と☓の色を統一 (濃いグレー) */
+  color: #333 !important;
   
-  margin: 0 auto;
+  /* 装飾リセット */
+  background: transparent;
+  border: none !important;
+  border-radius: 4px;            /* ホバー時の背景を少し角丸に */
+  box-shadow: none !important;
+  margin: 0;
   padding: 0;
   
   /* 文字切れ防止 */
-  overflow: visible !important; 
+  overflow: visible !important;
 }
 
 /* ◯ (予約可) の設定 */
 .status-ok {
-  color: #27ae60 !important; /* 緑色の文字 */
-  cursor: pointer;           /* クリックできる指マーク */
-  transition: transform 0.1s;
+  cursor: pointer;               /* クリックできる指マーク */
+  transition: background-color 0.2s ease; /* 背景色の変化を滑らかに */
 }
 
-/* ◯ にカーソルを合わせた時の動き */
+/* ★修正: ◯ にカーソルを合わせた時の動き (ホットペッパー風) */
 .status-ok:hover {
-  transform: scale(1.3);     /* ふわっと大きくして「押せる」ことを強調 */
-  background: transparent !important;
-  color: #27ae60 !important;
+  /* 背景をうっすら赤くする */
+  background-color: rgba(255, 0, 0, 0.08) !important; 
+  
+  /* 拡大アニメーションは廃止（サイズは固定） */
+  transform: none !important; 
   text-decoration: none !important;
 }
 
 /* ☓ (予約不可) の設定 */
 .status-ng {
-  color: #ccc !important;    /* 薄いグレー */
   cursor: default;
+  opacity: 0.6; /* ☓だけ少し薄くして「不可」感を出す（色は#333のまま） */
 }
