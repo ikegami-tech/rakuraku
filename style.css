@@ -1119,54 +1119,59 @@ textarea#input-note::placeholder {
   }
 }
 /* ==============================================
-   26. スマホ版：空き状況検索画面の表示領域拡大
+   26. スマホ版：空き状況検索画面の表示領域拡大 (可変対応版)
    ============================================== */
 @media (max-width: 600px) {
   
-  /* 1. モーダル全体の高さを画面いっぱい(85%)まで広げる */
+  /* 1. モーダル全体：初期状態は「中身の高さ」に合わせる */
   #availabilityModal .modal-content {
-    height: 85vh;      /* 高さを確保 */
-    max-height: 85vh;
+    height: auto !important;       /* ★ここが重要：まずは自動 */
+    max-height: 85vh;              /* 画面からはみ出さない */
     display: flex;
     flex-direction: column;
+    transition: height 0.3s ease;  /* 伸びる時にアニメーション */
   }
 
-  /* 2. 検索条件エリア（グレーの箱）をコンパクトにする */
-  /* HTMLの style="..." 指定を上書きするため !important を使用 */
+  /* ★検索実行後：クラスがついたら高さを画面いっぱいに広げる */
+  #availabilityModal .modal-content.modal-expanded {
+    height: 85vh !important;
+  }
+
+  /* 2. 検索条件エリア（コンパクト化） */
   #availabilityModal .modal-content > div:nth-of-type(2) {
-    padding: 10px !important;       /* 余白を15px→10pxに縮小 */
-    margin-bottom: 5px !important;  /* 下の隙間を削減 */
-    flex-shrink: 0;                 /* 縮みすぎて崩れるのを防ぐ */
+    padding: 10px !important;
+    margin-bottom: 0 !important;    /* 下の隙間をゼロに */
+    flex-shrink: 0;
   }
 
-  /* 3. 入力欄同士の隙間を詰める */
-  .avail-search-row {
-    gap: 8px !important; /* 15px→8pxに詰める */
-  }
-
-  /* 入力欄の高さを少しスリムにする */
+  /* 3. 入力欄調整 */
+  .avail-search-row { gap: 8px !important; }
+  
   .avail-input-group input, 
   .time-picker-wrapper input {
     padding: 6px !important;
     font-size: 14px;
   }
 
-  /* 検索ボタンの上の隙間をなくす */
   .btn-search-avail {
-    margin-top: 2px !important;
+    margin-top: 5px !important;
     padding: 8px !important;
   }
 
-  /* 4. 結果一覧エリア（下枠）を余ったスペース限界まで広げる */
+  /* 4. 結果一覧エリア：初期状態は「非表示」にする */
   #avail-result-container {
-    flex: 1;          /* 残りの高さを全て使う */
-    overflow-y: auto; /* スクロールさせる */
-    min-height: 0;    /* 表示崩れ防止 */
-    border-top: 1px solid #ddd; /* 境界線をわかりやすく */
+    display: none;                  /* ★初期は隠す */
+    border-top: 1px solid #ddd;
   }
   
-  /* リスト項目のサイズ調整（より多く表示するため） */
-  .avail-list-item {
-    padding: 8px 10px; /* 少しスリムに */
+  /* ★検索実行後：結果エリアを表示して、残りの高さを埋める */
+  .modal-expanded #avail-result-container {
+    display: block;                 /* 表示する */
+    flex: 1;                        /* 広げる */
+    overflow-y: auto;
+    min-height: 0;
+    margin-top: 10px;               /* 境界線との隙間 */
   }
+  
+  .avail-list-item { padding: 8px 10px; }
 }
