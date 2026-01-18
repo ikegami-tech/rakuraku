@@ -867,24 +867,31 @@ textarea#input-note::placeholder {
   }
 }
 /* ==============================================
-   23. 空き状況アイコン (×常時グレー版)
+   23. 空き状況表示 (行全体グレー版)
    ============================================== */
+
+/* ▼ 行全体の制御 (:has を使用) */
+/* 「.status-ng（×）」が含まれている行は、背景をグレーにする */
+.avail-list-item:has(.status-ng) {
+  background-color: #e0e0e0 !important; /* 行全体をグレーに */
+  color: #999 !important;               /* 文字色を薄くして不可感を出す */
+  pointer-events: none;                 /* クリックできないようにする */
+}
 
 /* 共通設定 (◯と☓) */
 .status-ok, .status-ng {
-  display: flex !important;      /* 枠の中央に配置 */
+  display: flex !important;
   justify-content: center;
   align-items: center;
   
-  width: 100% !important;        /* 親枠(セル)いっぱいまで広げる */
-  height: 45px !important;       /* 高さを確保 */
+  width: 100% !important;
+  height: 45px !important;
   
   font-size: 2.0rem !important; 
   font-weight: normal;
   line-height: 1 !important;
-  color: #333 !important;        /* 基本の文字色は濃いグレー */
   
-  border-radius: 4px;            /* 角を少し丸く */
+  border-radius: 4px;
   margin: 0;
   padding: 0;
   border: none !important;
@@ -893,7 +900,8 @@ textarea#input-note::placeholder {
 
 /* ◯ (予約可) の設定 */
 .status-ok {
-  background: transparent;       /* 通常時は背景なし(白) */
+  color: #333 !important;
+  background: transparent;
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
@@ -903,13 +911,11 @@ textarea#input-note::placeholder {
   background-color: rgba(255, 0, 0, 0.08) !important;
 }
 
-/* ★修正: ☓ (予約不可) の設定 */
+/* ☓ (予約不可) の設定 */
 .status-ng {
-  /* ★常に背景をグレーにする */
-  background-color: #e0e0e0 !important; 
+  /* ★修正: 背景色は行全体につけるので、アイコン自体の背景は透明に戻す */
+  background-color: transparent !important; 
   
-  /* 文字色を少し薄くして「使えない」感を出す */
   color: #999 !important;
-  
   cursor: default;
 }
