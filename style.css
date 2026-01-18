@@ -867,7 +867,7 @@ textarea#input-note::placeholder {
   }
 }
 /* ==============================================
-   23. 空き状況アイコン (ホットペッパー風・背景色変化版)
+   23. 空き状況アイコン (×常時グレー版)
    ============================================== */
 
 /* 共通設定 (◯と☓) */
@@ -877,46 +877,39 @@ textarea#input-note::placeholder {
   align-items: center;
   
   width: 100% !important;        /* 親枠(セル)いっぱいまで広げる */
-  height: 45px !important;       /* 高さを確保してクリックしやすく */
+  height: 45px !important;       /* 高さを確保 */
   
-  /* ★修正: 最初から大きく表示 (以前の拡大時と同等のサイズ) */
   font-size: 2.0rem !important; 
-  font-weight: normal;           /* 太字だと野暮ったいので通常に */
+  font-weight: normal;
   line-height: 1 !important;
+  color: #333 !important;        /* 基本の文字色は濃いグレー */
   
-  /* ★修正: ◯と☓の色を統一 (濃いグレー) */
-  color: #333 !important;
-  
-  /* 装飾リセット */
-  background: transparent;
-  border: none !important;
-  border-radius: 4px;            /* ホバー時の背景を少し角丸に */
-  box-shadow: none !important;
+  border-radius: 4px;            /* 角を少し丸く */
   margin: 0;
   padding: 0;
-  
-  /* 文字切れ防止 */
+  border: none !important;
   overflow: visible !important;
 }
 
 /* ◯ (予約可) の設定 */
 .status-ok {
-  cursor: pointer;               /* クリックできる指マーク */
-  transition: background-color 0.2s ease; /* 背景色の変化を滑らかに */
+  background: transparent;       /* 通常時は背景なし(白) */
+  cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
-/* ★修正: ◯ にカーソルを合わせた時の動き (ホットペッパー風) */
+/* ◯ のホバー時（ホットペッパー風うっすら赤） */
 .status-ok:hover {
-  /* 背景をうっすら赤くする */
-  background-color: rgba(255, 0, 0, 0.08) !important; 
-  
-  /* 拡大アニメーションは廃止（サイズは固定） */
-  transform: none !important; 
-  text-decoration: none !important;
+  background-color: rgba(255, 0, 0, 0.08) !important;
 }
 
-/* ☓ (予約不可) の設定 */
+/* ★修正: ☓ (予約不可) の設定 */
 .status-ng {
+  /* ★常に背景をグレーにする */
+  background-color: #e0e0e0 !important; 
+  
+  /* 文字色を少し薄くして「使えない」感を出す */
+  color: #999 !important;
+  
   cursor: default;
-  opacity: 0.6; /* ☓だけ少し薄くして「不可」感を出す（色は#333のまま） */
 }
