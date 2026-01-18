@@ -1055,3 +1055,35 @@ textarea#input-note::placeholder {
     font-size: 11px;
   }
 }
+/* ==============================================
+   25. スマホでの時間入力横並び対応
+   ============================================== */
+
+/* 時間入力の行を定義 */
+.avail-time-row {
+  display: flex;
+  align-items: flex-end; /* ラベルの高さが違っても入力欄の下を揃える */
+  gap: 5px;
+  flex: 1; /* 親要素いっぱいに広げる */
+}
+
+/* スマホ (画面幅600px以下) の時のレイアウト調整 */
+@media (max-width: 600px) {
+  /* 検索エリア全体を縦並びにする（日付が上、時間が下） */
+  .avail-search-row {
+    flex-direction: column !important;
+    gap: 15px;
+  }
+
+  /* 時間の行は横並びを維持し、幅を100%にする */
+  .avail-time-row {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  /* 個別の入力欄は幅を均等にする */
+  .avail-time-row .avail-input-group {
+    flex: 1;
+    min-width: 0; /* 縮小可能にしてはみ出し防止 */
+  }
+}
