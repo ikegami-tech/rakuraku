@@ -1593,3 +1593,13 @@ function transitionToBooking(roomName, dateVal, startVal, endVal) {
   document.getElementById('btn-back-avail').style.display = 'inline-block'; // 戻るボタンON
   document.getElementById('btn-modal-cancel').style.display = 'none';       // キャンセルボタンOFF
 }
+/**
+ * 「戻る」ボタンが押された時の処理
+ */
+function backToAvailability() {
+  // 予約モーダルを閉じる
+  document.getElementById('bookingModal').style.display = 'none';
+  
+  // 空き状況モーダルを再表示
+  document.getElementById('availabilityModal').style.display = 'flex';
+}
