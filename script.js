@@ -1546,7 +1546,6 @@ function execAvailabilitySearch() {
 /* ==============================================
    24. 空き状況検索 ⇔ 予約画面 の連携処理
    ============================================== */
-
 /**
  * 空き状況リストの「予約」ボタンが押された時の処理
  * @param {string} roomName - 部屋名
@@ -1558,17 +1557,18 @@ function transitionToBooking(roomName, dateVal, startVal, endVal) {
   // 1. 空き状況モーダルを一時的に隠す
   document.getElementById('availabilityModal').style.display = 'none';
 
-  // 2. 予約モーダルを開く準備（既存のopenModal等のロジックを模倣）
+  // 2. 予約モーダルを開く準備
   // フォームの値をセット
   document.getElementById('edit-res-id').value = ''; // 新規
   document.getElementById('modal-title').innerText = '新規予約';
   document.getElementById('input-date').value = dateVal;
   document.getElementById('input-start').value = startVal;
   document.getElementById('input-end').value = endVal;
+  document.getElementById('input-title').value = ""; // タイトルクリア
+  document.getElementById('input-note').value = "";  // 備考クリア
   
   // 部屋のプルダウンを選択
   const roomSelect = document.getElementById('input-room');
-  // 部屋名からvalueを探してセットする簡易ロジック
   for (let i = 0; i < roomSelect.options.length; i++) {
     if (roomSelect.options[i].text === roomName) {
       roomSelect.selectedIndex = i;
@@ -1576,21 +1576,20 @@ function transitionToBooking(roomName, dateVal, startVal, endVal) {
     }
   }
 
+  // ★修正: 参加者選択の状態を初期化して、自分を選択済みにする
+  selectedParticipantIds.clear();
+  if (typeof currentUser !== 'undefined' && currentUser && currentUser.userId) {
+      selectedParticipantIds.add(String(currentUser.userId));
+  }
+  document.getElementById('shuttle-search-input').value = ""; // 検索窓クリア
+
+  // ★重要: ここで候補者リストを描画する！
+  renderShuttleLists(); 
+
   // 3. 予約モーダルを表示
   document.getElementById('bookingModal').style.display = 'flex';
 
   // 4. ボタンの表示切替（「戻る」を表示、「キャンセル」を隠す）
   document.getElementById('btn-back-avail').style.display = 'inline-block'; // 戻るボタンON
   document.getElementById('btn-modal-cancel').style.display = 'none';       // キャンセルボタンOFF
-}
-
-/**
- * 「戻る」ボタンが押された時の処理
- */
-function backToAvailability() {
-  // 予約モーダルを閉じる
-  document.getElementById('bookingModal').style.display = 'none';
-  
-  // 空き状況モーダルを再表示
-  document.getElementById('availabilityModal').style.display = 'flex';
 }
