@@ -867,11 +867,10 @@ textarea#input-note::placeholder {
   }
 }
 /* ==============================================
-   23. 空き状況表示 (予約ボタン化 & 行全体グレー版)
+   23. 空き状況表示 (「空き」文字 + 予約ボタン版)
    ============================================== */
 
-/* ▼ 行全体の制御 (:has を使用) */
-/* 「.status-ng（×）」が含まれている行は、背景をグレーにする */
+/* ▼ 行全体の制御 */
 .avail-list-item:has(.status-ng) {
   background-color: #e0e0e0 !important;
   color: #999 !important;
@@ -890,39 +889,57 @@ textarea#input-note::placeholder {
 }
 
 /* ----------------------------------------------------
-   ★修正: ◯ (予約可) を「予約ボタン」に変身させる設定
+   ★修正: ◯ (予約可) のスタイル
    ---------------------------------------------------- */
+/* コンテナとしての設定（文字とボタンを横並びにする） */
 .status-ok {
-  /* 元々入っている「◯」の文字を見えなくする */
-  font-size: 0 !important;
+  font-size: 0 !important;        /* 元の「◯」を消す */
+  width: auto !important;         /* 幅は内容に合わせる */
+  height: 45px !important;        /* 高さ確保 */
+  background: transparent !important;
   
-  /* ボタンの形状を作る */
-  width: 70px !important;       /* ボタンの幅 */
-  height: 34px !important;      /* ボタンの高さ */
-  background-color: #27ae60 !important; /* 緑色 */
-  border-radius: 4px;           /* 角丸 */
+  /* ★重要: 「空き」と「ボタン」の間に隙間を作る */
+  gap: 12px;                      
+  
+  cursor: pointer;
+  text-decoration: none !important;
+}
+
+/* ① 左側に「空き」という文字を表示 (::before) */
+.status-ok::before {
+  content: "空き";                /* 表示する文字 */
+  color: #e74c3c !important;      /* 赤色 */
+  font-size: 14px !important;     /* 文字サイズを復活 */
+  font-weight: bold;
+  white-space: nowrap;            /* 折り返し防止 */
+}
+
+/* ② 右側に「予約」ボタンを表示 (::after) */
+/* ※以前のボタンスタイルをここに移動 */
+.status-ok::after {
+  content: "予約";
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+  width: 70px;                    /* ボタン幅 */
+  height: 34px;                   /* ボタン高さ */
+  background-color: #27ae60;      /* 緑色 */
+  color: #fff;
+  font-size: 14px;
+  font-weight: bold;
+  border-radius: 4px;
   
   /* 影をつけてボタンっぽく */
   box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-  
-  cursor: pointer;
   transition: all 0.2s ease;
 }
 
-/* 疑似要素で「予約」という文字を新しく表示 */
-.status-ok::before {
-  content: "予約";              /* ここで文字を指定 */
-  color: #fff !important;       /* 白文字 */
-  font-size: 14px !important;   /* 文字サイズ */
-  font-weight: bold;
-}
-
-/* ホバー時の動き（ボタンが沈むアニメーション） */
-.status-ok:hover {
-  background-color: #219150 !important; /* 少し濃い緑に */
-  transform: translateY(1px);           /* 押した感じを出す */
+/* ホバー時の動き（ボタン部分のみ変化させる） */
+.status-ok:hover::after {
+  background-color: #219150;      /* 少し濃い緑に */
+  transform: translateY(1px);     /* 押した感じ */
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  text-decoration: none !important;
 }
 
 
@@ -932,8 +949,8 @@ textarea#input-note::placeholder {
 .status-ng {
   width: 100% !important;
   height: 45px !important;
-  background-color: transparent !important;
+  background-color: transparent !important; /* 背景は行全体で制御するため透明 */
   color: #999 !important;
-  font-size: 2.0rem !important; /* ×は大きく */
+  font-size: 2.0rem !important;
   cursor: default;
 }
