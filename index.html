@@ -87,13 +87,11 @@
         <button class="floor-tab" onclick="switchTimelineFloor(6)" id="timeline-tab-6f">6階</button>
     </div>
     <div class="date-controller">
-      <button type="button" onclick="changeDate(-1, 'timeline-date')">&lt;</button>
-      <input type="date" id="timeline-date" onchange="renderVerticalTimeline('all')">
-      <button type="button" onclick="changeDate(1, 'timeline-date')">&gt;</button>
-      <button type="button" class="btn-primary btn-sm" onclick="openAvailabilityModal()" style="width:auto; margin-left:10px;">
-         🔍 空き状況検索
-      </button>
-      </div>
+  <button type="button" onclick="changeDate(-1, 'timeline-date')">&lt;</button>
+  <input type="date" id="timeline-date" onchange="renderVerticalTimeline('all')">
+  <button type="button" onclick="changeDate(1, 'timeline-date')">&gt;</button>
+  
+  </div>
     <div class="calendar-scroll-area">
       <div class="time-axis-col" id="time-axis-all"><div class="time-axis-header"></div></div>
       <div class="rooms-container" id="rooms-container-all"></div>
@@ -117,6 +115,11 @@
   </div>
 </div>
 
+  <button class="fab-avail-btn" onclick="openAvailabilityModal()">
+    <span>空室</span>
+    <span>確認</span>
+  </button>
+  
 <div id="detailModal" class="modal">
   <div class="modal-content modal-sm">
     <h3 class="modal-header-line">予約詳細</h3>
