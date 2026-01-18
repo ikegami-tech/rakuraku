@@ -1554,7 +1554,9 @@ window.addEventListener('load', initMapResizer);
 function openAvailabilityModal() {
     const modal = document.getElementById('availabilityModal');
     if (!modal) return;
-
+    
+    const content = modal.querySelector('.modal-content');
+    if(content) content.classList.remove('modal-expanded');
     // 現在の日時を初期値セット
     const now = new Date();
     const y = now.getFullYear();
@@ -1657,6 +1659,10 @@ function execAvailabilitySearch() {
 
     if(!hasRoom) {
         resultContainer.innerHTML = '<p style="padding:20px; text-align:center;">部屋データがありません</p>';
+    }
+    const modalContent = document.querySelector('#availabilityModal .modal-content');
+    if (modalContent) {
+        modalContent.classList.add('modal-expanded');
     }
 }
 /* ==============================================
