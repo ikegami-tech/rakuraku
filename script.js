@@ -1146,15 +1146,13 @@ function openDetailModal(res) {
 function closeDetailModal() { document.getElementById('detailModal').style.display = 'none'; }
 
 /* ==============================================
-   7. グループ・メンバー選択関連 (共通化)
+   共通シャトル処理 (検索クリア機能付き)
    ============================================== */
-// シャトルボックス共通描画関数
-function renderGenericShuttle(filterText, targetSet, candidatesContainerId, selectedContainerId) {
+// ★修正: 第5引数 searchInputId を追加しました
+function renderGenericShuttle(filterText, targetSet, candidatesContainerId, selectedContainerId, searchInputId) {
     const rawInput = (filterText || "").trim();
-    const searchLower = rawInput.toLowerCase(); // そのまま（漢字など）
-    
-    // ★修正: 入力された文字を「カタカナ」と「ひらがな」の両方に変換しておく
-    const searchKata = hiraToKata(rawInput); 
+    const searchLower = rawInput.toLowerCase();
+    const searchKata = hiraToKata(rawInput);
     const searchHira = kataToHira(rawInput);
     
     const leftList = document.getElementById(candidatesContainerId);
@@ -1169,52 +1167,67 @@ function renderGenericShuttle(filterText, targetSet, candidatesContainerId, sele
         const uidStr = String(u.userId);
         
         if (targetSet.has(uidStr)) {
-            // (選択済みの描画処理 - 変更なし)
+            // 右側（選択済み）の描画
             const div = document.createElement('div');
             div.className = 'shuttle-item icon-remove';
             div.innerText = u.userName;
             div.onclick = () => {
                 targetSet.delete(uidStr);
-                renderGenericShuttle(filterText, targetSet, candidatesContainerId, selectedContainerId);
+                // 削除時は検索ボックスを維持したまま再描画
+                renderGenericShuttle(rawInput, targetSet, candidatesContainerId, selectedContainerId, searchInputId);
             };
             rightList.appendChild(div);
         } else {
-            // ▼▼▼ 検索判定ロジック (強化版) ▼▼▼
+            // 左側（候補）の描画
             const name = (u.userName || "").toLowerCase();
-            const kana = (u.kana || "").toLowerCase(); // マスタのフリガナ
+            const kana = (u.kana || "").toLowerCase();
 
             const isMatch = (rawInput === "") || 
-                            name.includes(searchLower) ||    // 漢字名で検索
-                            kana.includes(searchLower) ||    // フリガナそのままで検索
-                            kana.includes(searchKata)  ||    // 入力をカタカナにして検索
-                            kana.includes(searchHira);       // 入力をひらがなにして検索
+                            name.includes(searchLower) || 
+                            kana.includes(searchLower) || 
+                            kana.includes(searchKata) || 
+                            kana.includes(searchHira);
 
             if (isMatch) {
                 const div = document.createElement('div');
                 div.className = 'shuttle-item icon-add';
                 div.innerText = u.userName;
+                
+                // ★修正: 追加クリック時の処理
                 div.onclick = () => {
                     targetSet.add(uidStr);
-                    renderGenericShuttle(filterText, targetSet, candidatesContainerId, selectedContainerId);
+                    
+                    // 検索ボックスを空にする
+                    if (searchInputId) {
+                        const inputEl = document.getElementById(searchInputId);
+                        if(inputEl) inputEl.value = "";
+                    }
+                    
+                    // 引数のテキストを空("")にして再描画（全件表示に戻す）
+                    renderGenericShuttle("", targetSet, candidatesContainerId, selectedContainerId, searchInputId);
                 };
                 leftList.appendChild(div);
             }
         }
     });
 }
-
 // 予約モーダル用ラッパー
 function renderShuttleLists(filterText = "") {
-    const text = filterText || document.getElementById('shuttle-search-input').value;
-    renderGenericShuttle(text, selectedParticipantIds, 'list-candidates', 'list-selected');
+    const searchId = 'shuttle-search-input'; // IDを指定
+    const text = filterText || document.getElementById(searchId).value;
+    
+    // 第5引数に searchId を渡す
+    renderGenericShuttle(text, selectedParticipantIds, 'list-candidates', 'list-selected', searchId);
 }
 
 // グループ作成モーダル用ラッパー
 function renderGroupCreateShuttle() {
-    const text = document.getElementById('group-shuttle-search').value;
-    renderGenericShuttle(text, groupCreateSelectedIds, 'group-create-candidates', 'group-create-selected');
+    const searchId = 'group-shuttle-search'; // IDを指定
+    const text = document.getElementById(searchId).value;
+    
+    // 第5引数に searchId を渡す
+    renderGenericShuttle(text, groupCreateSelectedIds, 'group-create-candidates', 'group-create-selected', searchId);
 }
-
 function selectGroupMembers(idsStr) {
   if (!idsStr) return;
   const rawIds = String(idsStr).split(/[,、\s]+/);
