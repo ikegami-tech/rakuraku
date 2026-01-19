@@ -1461,35 +1461,36 @@ textarea#input-note::placeholder {
   }
 }
 /* ==============================================
-   33. スマホ版 時間プルダウンの表示修正
+   33. スマホ版 時間プルダウンの表示修正 (PC同様の見た目にする)
    ============================================== */
 
 @media (max-width: 600px) {
-  /* プルダウンの箱自体の設定 */
+  /* プルダウンの箱を強制的にPC版と同じスタイルにする */
   .custom-time-dropdown {
-    position: absolute !important; /* 場所を固定せず、親基準にする */
-    top: 100% !important;          /* 入力欄の真下 */
-    bottom: auto !important;       /* 下にくっつけない */
+    position: absolute !important;
+    top: 100% !important;          /* 入力欄の真下に表示 */
+    bottom: auto !important;       /* 下固定を解除 */
     left: 0 !important;
-    right: auto !important;
+    right: 0 !important;           /* 幅を合わせる */
     
-    width: 100% !important;        /* 入力欄と同じ幅 */
-    height: auto !important;       /* 高さは自動 */
+    width: 100% !important;
+    height: auto !important;
     
-    /* ★ここがポイント: 4つ分くらいの高さに制限 */
+    /* 高さ制限：約4つ分 (40px * 4 = 160px程度) */
     max-height: 160px !important;  
     
-    transform: none !important;    /* 中央寄せなどを解除 */
-    border-radius: 4px !important; /* 角丸 */
+    transform: none !important;    /* 中央表示などを解除 */
+    border-radius: 4px !important;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important;
     margin-top: 2px !important;
+    z-index: 1000 !important;      /* 他の要素より上に */
   }
 
-  /* リストの中身の文字サイズなどを調整 */
+  /* リストの中身 */
   .time-option {
-    padding: 10px !important;      /* スマホでも押しやすい高さ */
-    text-align: left !important;   /* 左寄せ */
-    font-size: 14px !important;    /* PCと同じくらいのサイズ感 */
+    padding: 8px 10px !important;  /* 少しコンパクトに */
+    text-align: left !important;
+    font-size: 14px !important;
     border-bottom: 1px solid #eee;
   }
 }
