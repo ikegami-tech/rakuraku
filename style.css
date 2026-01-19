@@ -1330,3 +1330,52 @@ textarea#input-note::placeholder {
     font-size: 0.75rem;
   }
 }
+/* ==============================================
+   29. PC用カスタム時間プルダウン (高さ制限版)
+   ============================================== */
+
+/* ドロップダウン本体 (初期は非表示) */
+.custom-time-dropdown {
+  display: none;
+  position: absolute;
+  top: 100%; left: 0; width: 100%;
+  max-height: 220px; /* ★ここが重要：高さ制限 (約6-7行分) */
+  overflow-y: auto;  /* 中身が多いときはスクロール */
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15); /* 影をつけて浮き上がらせる */
+  z-index: 5000; /* モーダルより手前に */
+}
+
+/* 表示時のクラス */
+.custom-time-dropdown.show {
+  display: block;
+}
+
+/* 選択肢のスタイル */
+.time-option {
+  padding: 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+  text-align: center;
+  color: #333;
+}
+.time-option:hover {
+  background-color: #e3f2fd; /* ホバー時は薄い青 */
+}
+
+/* ★PC (画面幅601px以上) の場合のみ、このカスタムUIを有効にする */
+@media (min-width: 601px) {
+  /* 1. 元々の透明なselectタグを無効化（隠す） */
+  .time-overlay-select {
+    display: none !important;
+  }
+  
+  /* 2. 矢印をクリック可能にする */
+  .time-picker-arrow {
+    pointer-events: auto !important; 
+    cursor: pointer;
+  }
+}
