@@ -1106,6 +1106,31 @@ function openDetailModal(res) {
   document.getElementById('detail-room').innerText = room ? room.roomName : res._resourceId;
   document.getElementById('detail-title').innerText = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '(なし)';
 
+  // ▼▼▼ ここから追加：登録者・編集者の表示処理 ▼▼▼
+  const metaContainer = document.getElementById('detail-meta-info');
+  if (metaContainer) {
+      // 日付フォーマット用関数
+      const fmt = (dStr) => {
+          if(!dStr) return "-";
+          const d = new Date(dStr);
+          if(isNaN(d.getTime())) return dStr; 
+          return `${d.getFullYear()}/${('0'+(d.getMonth()+1)).slice(-2)}/${('0'+d.getDate()).slice(-2)} ${('0'+d.getHours()).slice(-2)}:${('0'+d.getMinutes()).slice(-2)}`;
+      };
+
+      // データの取得 (GASのgetAllDataで追加したプロパティ)
+      const createdTime = fmt(res.createdAt);
+      const createdName = res.createdBy || "-";
+      const updatedTime = fmt(res.updatedAt);
+      const updatedName = res.updatedBy || "-";
+
+      // 表示内容の作成
+      let html = `<div>登録 : ${createdTime} ${createdName}</div>`;
+      html += `<div>編集 : ${updatedTime} ${updatedName}</div>`;
+      
+      metaContainer.innerHTML = html;
+  }
+  // ▲▲▲ ここまで追加 ▲▲▲
+
   const membersContainer = document.getElementById('detail-members');
   membersContainer.innerHTML = "";
   let pIdsStr = getVal(res, ['participantIds', 'participant_ids', '参加者', 'メンバー']);
