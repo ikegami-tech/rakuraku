@@ -215,7 +215,7 @@ function initUI() {
   renderDualMaps(); // 7階・6階一括描画
   switchFloor(7);   // 初期表示
   switchTab('map-view');
-  
+  initCustomTimePickers();
   // ▼▼▼ 追加: 自動更新を開始 ▼▼▼
   startPolling();
 }
@@ -1862,4 +1862,79 @@ async function savePassword() {
   } else {
     alert("エラー: " + result.message);
   }
+}
+/* ==============================================
+   PC用カスタム時間プルダウンの初期化処理
+   ============================================== */
+function initCustomTimePickers() {
+  // すべての時間入力欄（ラッパー）を取得
+  const wrappers = document.querySelectorAll('.time-picker-wrapper');
+  
+  wrappers.forEach(wrapper => {
+    // 既に作成済みならスキップ
+    if (wrapper.querySelector('.custom-time-dropdown')) return;
+
+    // 1. ドロップダウンの箱を作成
+    const dropdown = document.createElement('div');
+    dropdown.className = 'custom-time-dropdown';
+
+    // 時間リストを生成 (07:00 ～ 22:00)
+    const times = [];
+    for(let h=7; h<=22; h++) {
+       const hStr = (h < 10 ? '0' : '') + h;
+       if (h === 22) {
+          times.push("22:00");
+       } else {
+          ['00','15','30','45'].forEach(m => times.push(`${hStr}:${m}`));
+       }
+    }
+
+    // 選択肢を追加していく
+    times.forEach(time => {
+       const item = document.createElement('div');
+       item.className = 'time-option';
+       item.innerText = time;
+       
+       // 時間をクリックした時の処理
+       item.onclick = (e) => {
+         e.stopPropagation(); // 親への伝播を止める
+         
+         // 入力欄に値をセット
+         const input = wrapper.querySelector('input');
+         input.value = time;
+         
+         // 入力欄ごとの連動処理 (開始時間なら終了時間を自動セット)
+         if (input.id === 'input-start') autoSetEndTime();
+         if (input.id === 'avail-start') autoSetAvailEndTime();
+
+         // メニューを閉じる
+         dropdown.classList.remove('show');
+       };
+       dropdown.appendChild(item);
+    });
+
+    // ラッパーに追加
+    wrapper.appendChild(dropdown);
+
+    // 2. 矢印(▼)をクリックした時の開閉処理 (PCのみ有効)
+    const arrow = wrapper.querySelector('.time-picker-arrow');
+    if (arrow) {
+      arrow.onclick = (e) => {
+         e.stopPropagation();
+         
+         // 他の開いているドロップダウンを閉じる
+         document.querySelectorAll('.custom-time-dropdown').forEach(d => {
+            if(d !== dropdown) d.classList.remove('show');
+         });
+         
+         // 開閉切り替え
+         dropdown.classList.toggle('show');
+      };
+    }
+  });
+
+  // 3. 画面のどこかをクリックしたら閉じる処理
+  document.addEventListener('click', () => {
+     document.querySelectorAll('.custom-time-dropdown').forEach(d => d.classList.remove('show'));
+  });
 }
