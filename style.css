@@ -329,6 +329,25 @@ header {
   border: 2px solid #27ae60 !important;
   color: #333;
 }
+/* --- 既存のホバー設定（緑）はデフォルトとして残しつつ、以下で上書きします --- */
+
+/* 会議室：緑 */
+.map-click-area.type-meeting:hover {
+  background: rgba(39, 174, 96, 0.6) !important;
+  border: 2px solid #27ae60 !important;
+}
+
+/* 応接室：オレンジ */
+.map-click-area.type-reception:hover {
+  background: rgba(255, 165, 0, 0.6) !important;
+  border: 2px solid orange !important;
+}
+
+/* Zスペース：青 */
+.map-click-area.type-z:hover {
+  background: rgba(0, 100, 255, 0.6) !important;
+  border: 2px solid #0064ff !important;
+}
 .map-hint {
   margin-top: 5px; color: #666;
   font-size: 0.8rem; text-align: center;
