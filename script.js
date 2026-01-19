@@ -1951,8 +1951,9 @@ async function savePassword() {
 /* ==============================================
    PC用カスタム時間プルダウンの初期化処理 (スクロール位置自動調整版)
    ============================================== */
+/* script.js の initCustomTimePickers 関数 */
+
 function initCustomTimePickers() {
-  // すべての時間入力欄（ラッパー）を取得
   const wrappers = document.querySelectorAll('.time-picker-wrapper');
   
   wrappers.forEach(wrapper => {
@@ -1963,7 +1964,7 @@ function initCustomTimePickers() {
     const dropdown = document.createElement('div');
     dropdown.className = 'custom-time-dropdown';
 
-    // 時間リストを生成 (07:00 ～ 22:00)
+    // 時間リストを生成 (07:00 ～ 21:00)
     const times = [];
     for(let h=7; h<=21; h++) {
        const hStr = (h < 10 ? '0' : '') + h;
@@ -1974,16 +1975,14 @@ function initCustomTimePickers() {
        }
     }
 
-    // 選択肢を追加していく
+    // 選択肢を追加
     times.forEach(time => {
        const item = document.createElement('div');
        item.className = 'time-option';
        item.innerText = time;
        
-       // 時間をクリックした時の処理
        item.onclick = (e) => {
-         e.stopPropagation(); // 親への伝播を止める
-         
+         e.stopPropagation();
          const input = wrapper.querySelector('input');
          input.value = time;
          
@@ -1998,18 +1997,8 @@ function initCustomTimePickers() {
 
     wrapper.appendChild(dropdown);
 
-    const inputEl = wrapper.querySelector('input');
-    if (inputEl) {
-        inputEl.setAttribute('readonly', 'readonly');
-        // 入力欄自体をクリックしてもプルダウンが開くようにする
-        inputEl.onclick = (e) => {
-             e.stopPropagation();
-             // 矢印クリックと同じ処理を呼び出す（または矢印のclickイベントを発火）
-             const arrow = wrapper.querySelector('.time-picker-arrow');
-             if(arrow) arrow.click();
-        };
-    }
-
+    // ▼▼▼ 修正点: ここにあった readonly 設定のコードを削除しました ▼▼▼
+    
     // 2. 矢印(▼)をクリックした時の開閉処理
     const arrow = wrapper.querySelector('.time-picker-arrow');
     if (arrow) {
@@ -2027,13 +2016,11 @@ function initCustomTimePickers() {
          } else {
              dropdown.classList.add('show');
              
-             // ★追加: 現在の値の位置まで自動スクロールする処理
+             // 現在の値の位置まで自動スクロール
              const currentVal = wrapper.querySelector('input').value;
              if (currentVal) {
-                 // リストの中から、値が一致する要素を探す
                  const targetItem = Array.from(dropdown.children).find(child => child.innerText === currentVal);
                  if (targetItem) {
-                     // その要素が一番上に来るようにスクロール位置を調整
                      dropdown.scrollTop = targetItem.offsetTop;
                  }
              }
@@ -2041,6 +2028,12 @@ function initCustomTimePickers() {
       };
     }
   });
+
+  // 3. 画面外クリックで閉じる
+  document.addEventListener('click', () => {
+     document.querySelectorAll('.custom-time-dropdown').forEach(d => d.classList.remove('show'));
+  });
+}
 
   // 3. 画面外クリックで閉じる
   document.addEventListener('click', () => {
