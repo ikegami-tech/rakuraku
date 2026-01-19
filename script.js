@@ -1938,10 +1938,10 @@ function initCustomTimePickers() {
 
     // 時間リストを生成 (07:00 ～ 22:00)
     const times = [];
-    for(let h=7; h<=22; h++) {
+    for(let h=7; h<=21; h++) {
        const hStr = (h < 10 ? '0' : '') + h;
-       if (h === 22) {
-          times.push("22:00");
+       if (h === 21) {
+          times.push("21:00");
        } else {
           ['00','15','30','45'].forEach(m => times.push(`${hStr}:${m}`));
        }
