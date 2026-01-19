@@ -1753,3 +1753,44 @@ function scrollToNow() {
     if(axis) axis.scrollTop = targetScroll;
   }
 }
+/* ==============================================
+   設定メニュー (歯車) 関連の処理
+   ============================================== */
+
+/**
+ * 歯車メニューの開閉トグル
+ */
+function toggleSettingsMenu() {
+  const dropdown = document.getElementById("settings-dropdown");
+  dropdown.classList.toggle("show");
+}
+
+/**
+ * 手動更新ボタンが押された時の処理
+ */
+function manualRefresh() {
+  // メニューを閉じる
+  const dropdown = document.getElementById("settings-dropdown");
+  if(dropdown) dropdown.classList.remove("show");
+
+  // 強制的にデータを再読み込み (ローディング画面あり)
+  console.log("手動更新を実行します");
+  loadAllData(true, false); 
+  // 第2引数を false にして、ローディング画面を表示させることで「更新した感」を出します
+}
+
+/**
+ * 画面のどこかをクリックした時にメニューを閉じる処理
+ */
+window.onclick = function(event) {
+  // 歯車アイコン自体をクリックした場合は何もしない（toggleが動くので）
+  if (event.target.matches('.settings-icon')) {
+    return;
+  }
+
+  // それ以外をクリックしたら、開いているメニューを閉じる
+  const dropdown = document.getElementById("settings-dropdown");
+  if (dropdown && dropdown.classList.contains('show')) {
+    dropdown.classList.remove('show');
+  }
+}
