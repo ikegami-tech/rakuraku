@@ -1441,3 +1441,22 @@ textarea#input-note::placeholder {
   line-height: 1.5;
   padding-right: 5px;      /* スクロールバーとの隙間 */
 }
+/* ==============================================
+   32. 更新時刻の表示スタイル
+   ============================================== */
+
+.last-update-text {
+  color: rgba(255, 255, 255, 0.9); /* 真っ白より少し落ち着いた白 */
+  font-size: 0.85rem;              /* ボタンの文字と同じくらい */
+  font-weight: 500;
+  margin-left: 8px;                /* ボタンとの間隔 */
+  white-space: nowrap;             /* 改行させない */
+}
+
+/* スマホでは狭くなるので、文字を少し小さくする等の調整 */
+@media (max-width: 600px) {
+  .last-update-text {
+    font-size: 0.75rem;
+    margin-left: 5px;
+  }
+}
