@@ -403,6 +403,29 @@
     </div>
   </div>
 </div>
+
+  <div id="passwordModal" class="modal">
+  <div class="modal-content modal-sm">
+    <div class="modal-top-bar">
+      <h3>パスワード変更</h3>
+      <span class="close-icon" onclick="closePasswordModal()">&times;</span>
+    </div>
+
+    <label>現在のパスワード</label>
+    <input type="password" id="old-pass" placeholder="現在のパスワード">
+
+    <label>新しいパスワード</label>
+    <input type="password" id="new-pass" placeholder="新しいパスワード">
+
+    <label>新しいパスワード(確認)</label>
+    <input type="password" id="new-pass-confirm" placeholder="もう一度入力">
+
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" onclick="closePasswordModal()">キャンセル</button>
+      <button type="button" class="btn-primary" onclick="savePassword()">変更する</button>
+    </div>
+  </div>
+</div>
   
 <script src="script.js"></script>
 </body>
