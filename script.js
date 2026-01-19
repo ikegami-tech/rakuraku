@@ -944,6 +944,8 @@ function formatTimeInput(elm) {
 }
 
 // 予約モーダル表示
+/* script.js の openModal 関数 (機能維持 + 21時制限版) */
+
 function openModal(res = null, defaultRoomId = null, clickHour = null, clickMin = 0) {
   const modal = document.getElementById('bookingModal');
   modal.style.display = 'flex';
@@ -1001,7 +1003,7 @@ function openModal(res = null, defaultRoomId = null, clickHour = null, clickMin 
 
   } else {
     // ============================================
-    //  新規予約モード (★ここに修正を追加)
+    //  新規予約モード (★ここだけ修正)
     // ============================================
     document.getElementById('modal-title').innerText = "新規予約";
     document.getElementById('edit-res-id').value = "";
@@ -1017,10 +1019,16 @@ function openModal(res = null, defaultRoomId = null, clickHour = null, clickMin 
     }
     document.getElementById('input-date').value = currentTabDate;
 
+    // 時間のセット
     const sHour = clickHour !== null ? clickHour : 9;
     const sMin  = clickMin;
     document.getElementById('input-start').value = `${pad(sHour)}:${pad(sMin)}`;
-    document.getElementById('input-end').value = `${pad(sHour+1)}:${pad(sMin)}`;
+    
+    // ▼▼▼ 変更点: 手動計算をやめて、autoSetEndTime() を呼ぶ ▼▼▼
+    // document.getElementById('input-end').value = `${pad(sHour+1)}:${pad(sMin)}`; // ←これは削除
+    autoSetEndTime(); // ←これを追加（これで21時制限が適用されます）
+    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
     document.getElementById('input-title').value = "";
     document.getElementById('input-note').value = "";
     document.getElementById('btn-delete').style.display = 'none';
@@ -1030,7 +1038,7 @@ function openModal(res = null, defaultRoomId = null, clickHour = null, clickMin 
   }
    
   renderShuttleLists(); // 予約用シャトル描画
-
+}
   if (modal) modal.scrollTop = 0;
   const modalContent = modal.querySelector('.modal-content');
   if (modalContent) modalContent.scrollTop = 0;
