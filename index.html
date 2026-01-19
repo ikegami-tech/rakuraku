@@ -24,9 +24,18 @@
   <header>
     <div id="header-title">部屋予約</div>
     <div class="user-info">
-      <span id="display-user-name"></span> さん
-      <button type="button" class="btn-logout" onclick="logout()">ログアウト</button>
+  <span id="display-user-name"></span> さん
+  
+  <div class="settings-container">
+    <span class="settings-icon" onclick="toggleSettingsMenu()">&#9881;</span> <div id="settings-dropdown" class="settings-dropdown-content">
+      <div class="settings-item" onclick="manualRefresh()">
+        <span>&#8635;</span> 更新 </div>
+      <div class="settings-item logout-item" onclick="logout()">
+        <span>&#10162;</span> ログアウト
+      </div>
     </div>
+  </div>
+</div>
   </header>
 
   <div class="nav-tabs">
