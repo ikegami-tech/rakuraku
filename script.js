@@ -524,7 +524,7 @@ function renderVerticalTimeline(mode) {
           container.style.height = "auto"; 
           container.style.overflowY = "visible";
       } else {
-          container.style.height = "calc(100vh - 220px)";        
+          container.style.height = "100%";     
           container.style.overflowY = "auto";
       }
       container.style.width = "100%"; 
