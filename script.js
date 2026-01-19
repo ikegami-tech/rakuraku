@@ -841,36 +841,56 @@ let nowTopPx = -1;
 /* ==============================================
    6. 予約・詳細モーダル関連
    ============================================== */
-// 時間入力制御・自動計算
+// 1. 新規予約・編集モーダル用
 function autoSetEndTime() {
-    const startEl = document.getElementById('input-start');
-    const endEl = document.getElementById('input-end');
-    const val = startEl.value;
-    if (!val || val.indexOf(':') === -1) return;
-    const parts = val.split(':');
-    let h = parseInt(parts[0], 10);
-    const m = parseInt(parts[1], 10);
-    if (isNaN(h) || isNaN(m)) return;
-    h += 1;
-    const endH = (h < 10 ? '0' : '') + h;
-    const endM = (m < 10 ? '0' : '') + m;
-    endEl.value = `${endH}:${endM}`;
+  const startInput = document.getElementById('input-start');
+  const endInput = document.getElementById('input-end');
+  
+  if (!startInput || !endInput || !startInput.value) return;
+
+  const parts = startInput.value.split(':');
+  let h = parseInt(parts[0], 10);
+  let m = parseInt(parts[1], 10);
+
+  // 1時間進める
+  h += 1;
+
+  // ★修正: 21:00 を超える場合は強制的に 21:00 にする
+  if (h >= 21) {
+    h = 21;
+    m = 0; // 分も00にする
+  }
+
+  const hStr = (h < 10 ? '0' : '') + h;
+  const mStr = (m < 10 ? '0' : '') + m;
+  
+  endInput.value = `${hStr}:${mStr}`;
 }
 
-// 空き状況検索用の自動計算
+// 2. 空き状況検索用
 function autoSetAvailEndTime() {
-    const startEl = document.getElementById('avail-start');
-    const endEl = document.getElementById('avail-end');
-    const val = startEl.value;
-    if (!val || val.indexOf(':') === -1) return;
-    const parts = val.split(':');
-    let h = parseInt(parts[0], 10);
-    const m = parseInt(parts[1], 10);
-    if (isNaN(h) || isNaN(m)) return;
-    h += 1;
-    const endH = (h < 10 ? '0' : '') + h;
-    const endM = (m < 10 ? '0' : '') + m;
-    endEl.value = `${endH}:${endM}`;
+  const startInput = document.getElementById('avail-start');
+  const endInput = document.getElementById('avail-end');
+  
+  if (!startInput || !endInput || !startInput.value) return;
+
+  const parts = startInput.value.split(':');
+  let h = parseInt(parts[0], 10);
+  let m = parseInt(parts[1], 10);
+
+  // 1時間進める
+  h += 1;
+
+  // ★修正: 21:00 を超える場合は強制的に 21:00 にする
+  if (h >= 21) {
+    h = 21;
+    m = 0;
+  }
+
+  const hStr = (h < 10 ? '0' : '') + h;
+  const mStr = (m < 10 ? '0' : '') + m;
+  
+  endInput.value = `${hStr}:${mStr}`;
 }
 
 function selectTimePart(elm) {
