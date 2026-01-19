@@ -1038,7 +1038,6 @@ function openModal(res = null, defaultRoomId = null, clickHour = null, clickMin 
   }
    
   renderShuttleLists(); // 予約用シャトル描画
-}
   if (modal) modal.scrollTop = 0;
   const modalContent = modal.querySelector('.modal-content');
   if (modalContent) modalContent.scrollTop = 0;
