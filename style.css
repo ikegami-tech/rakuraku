@@ -1422,3 +1422,22 @@ textarea#input-note::placeholder {
     font-size: 0.7rem;
   }
 }
+/* ==============================================
+   31. 備考欄のレイアウト崩れ防止 & スクロール化
+   ============================================== */
+
+.note-scroll-area {
+  /* 1. 高さ制限とスクロール */
+  max-height: 150px;       /* これ以上長くなったらスクロール */
+  overflow-y: auto;        /* 縦スクロールバーを自動表示 */
+  
+  /* 2. URLなどの長い文字を強制的に折り返す (重要) */
+  word-break: break-all;   /* 単語の途中でも改行させる */
+  overflow-wrap: break-word; 
+  
+  /* 3. 見た目の調整 */
+  white-space: pre-wrap;   /* 改行はそのまま表示 */
+  font-size: 0.9em;        /* 少し文字を小さくして見やすく */
+  line-height: 1.5;
+  padding-right: 5px;      /* スクロールバーとの隙間 */
+}
