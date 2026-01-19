@@ -1864,7 +1864,7 @@ async function savePassword() {
   }
 }
 /* ==============================================
-   PC用カスタム時間プルダウンの初期化処理
+   PC用カスタム時間プルダウンの初期化処理 (スクロール位置自動調整版)
    ============================================== */
 function initCustomTimePickers() {
   // すべての時間入力欄（ラッパー）を取得
@@ -1899,24 +1899,21 @@ function initCustomTimePickers() {
        item.onclick = (e) => {
          e.stopPropagation(); // 親への伝播を止める
          
-         // 入力欄に値をセット
          const input = wrapper.querySelector('input');
          input.value = time;
          
-         // 入力欄ごとの連動処理 (開始時間なら終了時間を自動セット)
+         // 連動処理
          if (input.id === 'input-start') autoSetEndTime();
          if (input.id === 'avail-start') autoSetAvailEndTime();
 
-         // メニューを閉じる
          dropdown.classList.remove('show');
        };
        dropdown.appendChild(item);
     });
 
-    // ラッパーに追加
     wrapper.appendChild(dropdown);
 
-    // 2. 矢印(▼)をクリックした時の開閉処理 (PCのみ有効)
+    // 2. 矢印(▼)をクリックした時の開閉処理
     const arrow = wrapper.querySelector('.time-picker-arrow');
     if (arrow) {
       arrow.onclick = (e) => {
@@ -1928,12 +1925,27 @@ function initCustomTimePickers() {
          });
          
          // 開閉切り替え
-         dropdown.classList.toggle('show');
+         if (dropdown.classList.contains('show')) {
+             dropdown.classList.remove('show');
+         } else {
+             dropdown.classList.add('show');
+             
+             // ★追加: 現在の値の位置まで自動スクロールする処理
+             const currentVal = wrapper.querySelector('input').value;
+             if (currentVal) {
+                 // リストの中から、値が一致する要素を探す
+                 const targetItem = Array.from(dropdown.children).find(child => child.innerText === currentVal);
+                 if (targetItem) {
+                     // その要素が一番上に来るようにスクロール位置を調整
+                     dropdown.scrollTop = targetItem.offsetTop;
+                 }
+             }
+         }
       };
     }
   });
 
-  // 3. 画面のどこかをクリックしたら閉じる処理
+  // 3. 画面外クリックで閉じる
   document.addEventListener('click', () => {
      document.querySelectorAll('.custom-time-dropdown').forEach(d => d.classList.remove('show'));
   });
