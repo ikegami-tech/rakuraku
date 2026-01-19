@@ -1951,7 +1951,7 @@ async function savePassword() {
 /* ==============================================
    PC用カスタム時間プルダウンの初期化処理 (スクロール位置自動調整版)
    ============================================== */
-/* script.js の initCustomTimePickers 関数 */
+/* script.js の initCustomTimePickers 関数 (スクロール中央寄せ版) */
 
 function initCustomTimePickers() {
   const wrappers = document.querySelectorAll('.time-picker-wrapper');
@@ -1986,7 +1986,7 @@ function initCustomTimePickers() {
          const input = wrapper.querySelector('input');
          input.value = time;
          
-         // 連動処理 (終了時間などの自動計算)
+         // 連動処理
          if (input.id === 'input-start') autoSetEndTime();
          if (input.id === 'avail-start') autoSetAvailEndTime();
 
@@ -1998,7 +1998,6 @@ function initCustomTimePickers() {
     wrapper.appendChild(dropdown);
 
     // 2. 矢印(▼)をクリックした時の開閉処理
-    // ※入力欄(input)自体には触らないので、手入力(キーボード)が可能です
     const arrow = wrapper.querySelector('.time-picker-arrow');
     if (arrow) {
       arrow.onclick = (e) => {
@@ -2015,18 +2014,20 @@ function initCustomTimePickers() {
          } else {
              dropdown.classList.add('show');
              
-             // 現在の値の位置まで自動スクロール
+             // 現在の値の位置まで自動スクロール（真ん中に表示する）
              const currentVal = wrapper.querySelector('input').value;
              if (currentVal) {
                  const targetItem = Array.from(dropdown.children).find(child => child.innerText === currentVal);
                  if (targetItem) {
-                     dropdown.scrollTop = targetItem.offsetTop;
+                     // ★修正: リストの「一番上」ではなく「真ん中」に来るように調整
+                     dropdown.scrollTop = targetItem.offsetTop - (dropdown.clientHeight / 2) + (targetItem.clientHeight / 2);
                  }
              }
          }
       };
     }
   });
+
   // 3. 画面外クリックで閉じる
   document.addEventListener('click', () => {
      document.querySelectorAll('.custom-time-dropdown').forEach(d => d.classList.remove('show'));
