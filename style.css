@@ -1258,3 +1258,56 @@ textarea#input-note::placeholder {
   .settings-dropdown-content { min-width: 130px; }
   .settings-item { padding: 12px; font-size: 13px; }
 }
+/* ==============================================
+   28. ヘッダー更新ボタンとレイアウト調整
+   ============================================== */
+
+/* ヘッダー左側（タイトルとボタン）を横並びにする */
+.header-left-group {
+  display: flex;
+  align-items: center;
+  gap: 15px; /* タイトルとボタンの間隔 */
+}
+
+/* 青い更新ボタンのスタイル */
+.btn-header-refresh {
+  background-color: #3498db; /* 青色 */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: background 0.2s;
+  width: auto; /* 幅を自動調整 */
+  line-height: 1;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn-header-refresh:hover {
+  background-color: #2980b9; /* 濃い青 */
+  transform: translateY(-1px);
+}
+
+.btn-header-refresh:active {
+  transform: translateY(1px);
+}
+
+.btn-header-refresh span {
+  font-size: 1.2em; /* 更新マークを少し大きく */
+}
+
+/* スマホ対応：タイトルが長い場合に崩れないよう調整 */
+@media (max-width: 600px) {
+  .header-left-group {
+    gap: 10px;
+  }
+  .btn-header-refresh {
+    padding: 5px 10px;
+    font-size: 0.75rem;
+  }
+}
