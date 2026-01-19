@@ -1794,3 +1794,56 @@ window.onclick = function(event) {
     dropdown.classList.remove('show');
   }
 }
+/* ==============================================
+   パスワード変更機能
+   ============================================== */
+
+function openPasswordModal() {
+  // メニューを閉じる
+  const dropdown = document.getElementById("settings-dropdown");
+  if(dropdown) dropdown.classList.remove("show");
+
+  // 入力欄をクリア
+  document.getElementById('old-pass').value = "";
+  document.getElementById('new-pass').value = "";
+  document.getElementById('new-pass-confirm').value = "";
+
+  document.getElementById('passwordModal').style.display = 'flex';
+}
+
+function closePasswordModal() {
+  document.getElementById('passwordModal').style.display = 'none';
+}
+
+async function savePassword() {
+  const oldPass = document.getElementById('old-pass').value;
+  const newPass = document.getElementById('new-pass').value;
+  const confirmPass = document.getElementById('new-pass-confirm').value;
+
+  if (!oldPass || !newPass) {
+    alert("全ての項目を入力してください");
+    return;
+  }
+  
+  if (newPass !== confirmPass) {
+    alert("新しいパスワードが一致しません");
+    return;
+  }
+
+  // サーバー通信
+  const params = {
+    action: 'changePassword',
+    userId: currentUser.userId,
+    oldPassword: oldPass,
+    newPassword: newPass
+  };
+
+  const result = await callAPI(params);
+  
+  if (result.status === 'success') {
+    alert("パスワードを変更しました。\n次回ログイン時から有効です。");
+    closePasswordModal();
+  } else {
+    alert("エラー: " + result.message);
+  }
+}
