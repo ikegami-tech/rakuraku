@@ -1713,7 +1713,6 @@ function execAvailabilitySearch() {
         item.innerHTML = `
             <div>
                 <div class="avail-room-name">${room.roomName}</div>
-                <div class="avail-room-cap">定員: ${room.capacity || '-'}名</div>
             </div>
             <div>${statusHtml}</div>
         `;
