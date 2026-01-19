@@ -1176,107 +1176,85 @@ textarea#input-note::placeholder {
   .avail-list-item { padding: 8px 10px; }
 }
 /* ==============================================
-   27. ヘッダー設定メニュー (デザイン強化版)
+   27. ヘッダー設定メニュー (歯車アイコン)
    ============================================== */
 
 /* メニューの親枠 */
 .settings-container {
-  display: inline-flex;
-  align-items: center;
+  display: inline-block;
   position: relative;
-  margin-left: 15px;
-  height: 100%;
+  margin-left: 10px;
 }
 
-/* 歯車アイコン (SVG用) */
+/* 歯車アイコン */
 .settings-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%; /* 円形にする */
+  font-size: 1.5rem; /* 少し大きめに */
   cursor: pointer;
-  color: rgba(255, 255, 255, 0.9);
-  transition: all 0.3s ease;
+  color: white;
+  line-height: 1;
+  transition: transform 0.3s;
+  user-select: none;
 }
-
-/* ホバー時のエフェクト：背景を少し白くして回転 */
 .settings-icon:hover {
-  background-color: rgba(255, 255, 255, 0.15);
-  transform: rotate(45deg); /* 90度より45度の方が上品に見えます */
-  color: #fff;
+  transform: rotate(90deg); /* ホバーで回転 */
+  opacity: 0.8;
 }
 
-/* アイコンクリック時（メニューが開いている時） */
-.settings-icon.active {
-  background-color: rgba(255, 255, 255, 0.3);
-  color: #fff;
-}
-
-/* ドロップダウンメニュー本体 */
+/* ドロップダウンメニュー本体 (初期は非表示) */
 .settings-dropdown-content {
-  display: none;
+  display: none; /* JSで block に切り替え */
   position: absolute;
   right: 0;
-  top: 120%; /* 少し離す */
+  top: 130%; /* アイコンの少し下 */
   background-color: #fff;
-  min-width: 160px; /* 少し幅広に */
-  box-shadow: 0 10px 25px rgba(0,0,0,0.15); /* 影を柔らかくリッチに */
-  border-radius: 8px; /* 角丸を強める */
+  min-width: 140px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+  border-radius: 4px;
   z-index: 5000;
   overflow: hidden;
-  border: 1px solid rgba(0,0,0,0.05); /* 薄い境界線 */
-  
-  /* 吹き出しの三角（オプション：お好みで） */
-  /* transform-origin: top right; */
+  border: 1px solid #ddd;
 }
 
+/* メニューを表示するためのクラス */
 .settings-dropdown-content.show {
   display: block;
-  animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* 弾むようなアニメーション */
+  animation: fadeInMenu 0.2s ease-out;
 }
 
-/* メニュー項目 */
+/* メニューの項目 */
 .settings-item {
-  color: #444;
-  padding: 14px 20px;
+  color: #333;
+  padding: 12px 16px;
   text-decoration: none;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   cursor: pointer;
   font-size: 14px;
-  font-weight: 500;
   transition: background 0.2s;
-  border-bottom: 1px solid #f9f9f9;
+  border-bottom: 1px solid #f0f0f0;
 }
 .settings-item:last-child {
   border-bottom: none;
 }
 .settings-item:hover {
-  background-color: #f7f9fc;
-  color: #2c3e50;
+  background-color: #f1f1f1;
 }
 
-/* ログアウトのスタイル */
+/* ログアウトの文字色を少し変える（任意） */
 .logout-item {
-  color: #e74c3c;
-}
-.logout-item:hover {
-  background-color: #fdf0ef;
-  color: #c0392b;
+  color: #c0392b; /* 赤っぽく */
 }
 
-/* アニメーション定義 */
-@keyframes popIn {
-  from { opacity: 0; transform: scale(0.9) translateY(-10px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
+/* メニュー出現アニメーション */
+@keyframes fadeInMenu {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-/* スマホ調整 */
+/* スマホでの微調整 */
 @media (max-width: 600px) {
-  .settings-icon { width: 32px; height: 32px; }
-  .settings-icon svg { width: 20px; height: 20px; } /* SVGサイズ調整 */
-  .settings-dropdown-content { min-width: 140px; }
+  .settings-icon { font-size: 1.4rem; }
+  .settings-dropdown-content { min-width: 130px; }
+  .settings-item { padding: 12px; font-size: 13px; }
 }
