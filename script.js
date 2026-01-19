@@ -1998,6 +1998,18 @@ function initCustomTimePickers() {
 
     wrapper.appendChild(dropdown);
 
+    const inputEl = wrapper.querySelector('input');
+    if (inputEl) {
+        inputEl.setAttribute('readonly', 'readonly');
+        // 入力欄自体をクリックしてもプルダウンが開くようにする
+        inputEl.onclick = (e) => {
+             e.stopPropagation();
+             // 矢印クリックと同じ処理を呼び出す（または矢印のclickイベントを発火）
+             const arrow = wrapper.querySelector('.time-picker-arrow');
+             if(arrow) arrow.click();
+        };
+    }
+
     // 2. 矢印(▼)をクリックした時の開閉処理
     const arrow = wrapper.querySelector('.time-picker-arrow');
     if (arrow) {
