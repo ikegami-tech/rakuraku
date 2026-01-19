@@ -216,6 +216,7 @@ function initUI() {
   switchFloor(7);   // 初期表示
   switchTab('map-view');
   initCustomTimePickers();
+  updateRefreshTime();
   // ▼▼▼ 追加: 自動更新を開始 ▼▼▼
   startPolling();
 }
@@ -1848,6 +1849,7 @@ function manualRefresh() {
   // 強制的にデータを再読み込み (ローディング画面あり)
   console.log("手動更新を実行します");
   loadAllData(true, false); 
+  updateRefreshTime();
   // 第2引数を false にして、ローディング画面を表示させることで「更新した感」を出します
 }
 
@@ -2024,4 +2026,19 @@ function kataToHira(str) {
         var chr = match.charCodeAt(0) - 0x60;
         return String.fromCharCode(chr);
     });
+}
+/* ==============================================
+   更新時刻表示機能
+   ============================================== */
+
+// 時刻を「更新：HH:mm」形式で表示する関数
+function updateRefreshTime() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2, '0');
+    const m = String(now.getMinutes()).padStart(2, '0');
+    
+    const el = document.getElementById('last-update-time');
+    if (el) {
+        el.innerText = `更新：${h}:${m}`;
+    }
 }
