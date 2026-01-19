@@ -1151,8 +1151,11 @@ function closeDetailModal() { document.getElementById('detailModal').style.displ
 // シャトルボックス共通描画関数
 function renderGenericShuttle(filterText, targetSet, candidatesContainerId, selectedContainerId) {
     const rawInput = (filterText || "").trim();
-    const searchLower = rawInput.toLowerCase();
-    const searchKata = hiraToKata(rawInput); // 入力がひらがなならカタカナに変換
+    const searchLower = rawInput.toLowerCase(); // そのまま（漢字など）
+    
+    // ★修正: 入力された文字を「カタカナ」と「ひらがな」の両方に変換しておく
+    const searchKata = hiraToKata(rawInput); 
+    const searchHira = kataToHira(rawInput);
     
     const leftList = document.getElementById(candidatesContainerId);
     const rightList = document.getElementById(selectedContainerId);
@@ -1166,7 +1169,7 @@ function renderGenericShuttle(filterText, targetSet, candidatesContainerId, sele
         const uidStr = String(u.userId);
         
         if (targetSet.has(uidStr)) {
-            // (省略) 選択済みの描画処理
+            // (選択済みの描画処理 - 変更なし)
             const div = document.createElement('div');
             div.className = 'shuttle-item icon-remove';
             div.innerText = u.userName;
@@ -1176,17 +1179,17 @@ function renderGenericShuttle(filterText, targetSet, candidatesContainerId, sele
             };
             rightList.appendChild(div);
         } else {
-            // ▼▼▼ 検索判定ロジック ▼▼▼
+            // ▼▼▼ 検索判定ロジック (強化版) ▼▼▼
             const name = (u.userName || "").toLowerCase();
-            const kana = (u.kana || "").toLowerCase(); // GASから取得したkana
+            const kana = (u.kana || "").toLowerCase(); // マスタのフリガナ
 
             const isMatch = (rawInput === "") || 
-                            name.includes(searchLower) || 
-                            kana.includes(searchLower) ||  // そのまま検索(ひらがなデータ等)
-                            kana.includes(searchKata);     // カタカナ変換して検索
+                            name.includes(searchLower) ||    // 漢字名で検索
+                            kana.includes(searchLower) ||    // フリガナそのままで検索
+                            kana.includes(searchKata)  ||    // 入力をカタカナにして検索
+                            kana.includes(searchHira);       // 入力をひらがなにして検索
 
             if (isMatch) {
-                // (省略) 候補の描画処理
                 const div = document.createElement('div');
                 div.className = 'shuttle-item icon-add';
                 div.innerText = u.userName;
@@ -1393,9 +1396,11 @@ function renderLogs() {
 
     let allLogs = [...masterData.logs].reverse(); 
     const filterText = document.getElementById('log-search-input').value.toLowerCase().trim();
+    
     if (filterText) {
-        // ▼▼▼ 検索用ヘルパー: 入力が「ひらがな」なら「カタカナ」も用意する
+        // ★修正: 検索ワードを両方のカナに変換
         const searchKata = hiraToKata(filterText); 
+        const searchHira = kataToHira(filterText);
 
         allLogs = allLogs.filter(log => {
             const dateStr = formatDate(new Date(log.timestamp));
@@ -1403,15 +1408,20 @@ function renderLogs() {
             const roomObj = masterData.rooms.find(r => String(r.roomId) === String(log.resourceId || log.resourceName));
             if (roomObj) roomName = roomObj.roomName;
 
-            // ▼ ログの操作者名から、マスターデータのユーザー情報を探してフリガナを取得する
+            // 操作者のフリガナを取得
             const operatorUser = masterData.users.find(u => u.userName === log.operatorName);
             const operatorKana = operatorUser ? (operatorUser.kana || "") : "";
 
-            // ▼ 検索判定
+            // ▼ 検索判定 (強化版)
             return (
                 dateStr.includes(filterText) ||
                 (log.operatorName && log.operatorName.toLowerCase().includes(filterText)) ||
-                (operatorKana && (operatorKana.includes(filterText) || operatorKana.includes(searchKata))) || // ★フリガナ検索追加
+                // フリガナ検索 (ひらがな・カタカナ両対応)
+                (operatorKana && (
+                    operatorKana.includes(filterText) || 
+                    operatorKana.includes(searchKata) || 
+                    operatorKana.includes(searchHira)
+                )) ||
                 (log.action && log.action.toLowerCase().includes(filterText)) ||
                 (roomName && roomName.toLowerCase().includes(filterText)) ||
                 (log.details && log.details.toLowerCase().includes(filterText))
