@@ -1950,3 +1950,22 @@ function initCustomTimePickers() {
      document.querySelectorAll('.custom-time-dropdown').forEach(d => d.classList.remove('show'));
   });
 }
+/* ==============================================
+   文字変換ユーティリティ (既存の hiraToKata の下あたりに追加)
+   ============================================== */
+
+// 既存の hiraToKata (もし無ければここを使ってください)
+function hiraToKata(str) {
+    return str.replace(/[\u3041-\u3096]/g, function(match) {
+        var chr = match.charCodeAt(0) + 0x60;
+        return String.fromCharCode(chr);
+    });
+}
+
+// ★追加: カタカナ -> ひらがな 変換
+function kataToHira(str) {
+    return str.replace(/[\u30A1-\u30F6]/g, function(match) {
+        var chr = match.charCodeAt(0) - 0x60;
+        return String.fromCharCode(chr);
+    });
+}
