@@ -2027,19 +2027,6 @@ function initCustomTimePickers() {
       };
     }
   });
-
-  // 3. 画面外クリックで閉じる
-  document.addEventListener('click', () => {
-     document.querySelectorAll('.custom-time-dropdown').forEach(d => d.classList.remove('show'));
-  });
-}
-
-  // 3. 画面外クリックで閉じる
-  document.addEventListener('click', () => {
-     document.querySelectorAll('.custom-time-dropdown').forEach(d => d.classList.remove('show'));
-  });
-}
-
   // 3. 画面外クリックで閉じる
   document.addEventListener('click', () => {
      document.querySelectorAll('.custom-time-dropdown').forEach(d => d.classList.remove('show'));
