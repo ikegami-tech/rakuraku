@@ -1379,3 +1379,46 @@ textarea#input-note::placeholder {
     cursor: pointer;
   }
 }
+/* ==============================================
+   30. 予約詳細のメタ情報 (登録・編集者表示)
+   ============================================== */
+
+/* タイトルとメタ情報を横並び（あるいは上下）に配置するラッパー */
+.detail-header-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end; /* 下揃え */
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 5px;
+  margin-bottom: 15px;
+}
+
+/* 既存のタイトルの線はラッパーに移したので消す */
+.detail-header-wrapper .modal-header-line {
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 0;
+  margin-top: 0;
+}
+
+/* 右上の情報エリア */
+.detail-meta-info {
+  text-align: right;
+  font-size: 0.75rem; /* 小さく */
+  color: #666;
+  line-height: 1.4;
+  white-space: nowrap; /* 折り返し禁止 */
+}
+
+/* スマホでは縦並びにする */
+@media (max-width: 600px) {
+  .detail-header-wrapper {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .detail-meta-info {
+    text-align: left;
+    margin-top: 5px;
+    font-size: 0.7rem;
+  }
+}
