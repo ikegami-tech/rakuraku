@@ -1986,7 +1986,7 @@ function initCustomTimePickers() {
          const input = wrapper.querySelector('input');
          input.value = time;
          
-         // 連動処理
+         // 連動処理 (終了時間などの自動計算)
          if (input.id === 'input-start') autoSetEndTime();
          if (input.id === 'avail-start') autoSetAvailEndTime();
 
@@ -1997,9 +1997,8 @@ function initCustomTimePickers() {
 
     wrapper.appendChild(dropdown);
 
-    // ▼▼▼ 修正点: ここにあった readonly 設定のコードを削除しました ▼▼▼
-    
     // 2. 矢印(▼)をクリックした時の開閉処理
+    // ※入力欄(input)自体には触らないので、手入力(キーボード)が可能です
     const arrow = wrapper.querySelector('.time-picker-arrow');
     if (arrow) {
       arrow.onclick = (e) => {
@@ -2028,6 +2027,12 @@ function initCustomTimePickers() {
       };
     }
   });
+
+  // 3. 画面外クリックで閉じる
+  document.addEventListener('click', () => {
+     document.querySelectorAll('.custom-time-dropdown').forEach(d => d.classList.remove('show'));
+  });
+}
 
   // 3. 画面外クリックで閉じる
   document.addEventListener('click', () => {
