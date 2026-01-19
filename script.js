@@ -362,6 +362,9 @@ function switchTab(tabName) {
 /* ==============================================
    4. マップ関連処理
    ============================================== */
+/* ==============================================
+   4. マップ関連処理 (renderDualMaps修正版)
+   ============================================== */
 function renderDualMaps() {
     [7, 6].forEach(floor => {
         const config = mapConfig[floor];
@@ -377,12 +380,25 @@ function renderDualMaps() {
         config.areas.forEach(area => {
             const div = document.createElement("div");
             div.className = "map-click-area"; 
+            
+            // ★追加: 名前で判定して、色分け用のクラスを追加する
+            if (area.name.indexOf("会議室") !== -1) {
+                div.classList.add("type-meeting");    // 緑
+            } else if (area.name.indexOf("応接室") !== -1) {
+                div.classList.add("type-reception");  // オレンジ
+            } else if (area.name.indexOf("Z") !== -1 || area.name.indexOf("Ｚ") !== -1) {
+                div.classList.add("type-z");          // 青 (半角Zと全角Ｚ両対応)
+            }
+
             div.style.top = area.top + "%";
             div.style.left = area.left + "%";
             div.style.width = area.width + "%";
             div.style.height = area.height + "%";
             div.innerText = area.name;
+            
+            // mapConfigで指定された初期色があれば使う（ホバー時はCSSが優先される）
             if(area.color) div.style.backgroundColor = area.color;
+            
             div.setAttribute('data-room-id', area.id);
             div.onclick = function() { selectRoomFromMap(this); };
             container.appendChild(div);
