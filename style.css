@@ -1675,3 +1675,16 @@ textarea#input-note::placeholder {
   .manual-img-row { flex-direction: column; }
   .manual-img-col { max-width: 100%; margin-bottom: 20px; }
 }
+/* --- 動画マニュアル用スタイル --- */
+
+/* 動画プレイヤー */
+.manual-video {
+  width: 100%;       /* 幅いっぱい */
+  height: auto;      /* 高さは自動 */
+  max-height: 400px; /* 縦長になりすぎないよう制限 */
+  background-color: #000; /* 再生前は黒背景 */
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  margin-top: 10px;
+  outline: none;
+}
