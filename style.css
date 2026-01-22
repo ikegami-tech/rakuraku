@@ -1266,6 +1266,19 @@ textarea#input-note::placeholder {
   color: #c0392b; /* 赤っぽく */
 }
 
+.settings-user-display {
+  padding: 12px 16px;       /* 余白 */
+  background-color: #f8f9fa; /* 薄いグレーの背景 */
+  border-bottom: 2px solid #ddd; /* 下線で区切る */
+  font-weight: bold;        /* 太字 */
+  color: #2c3e50;           /* 濃い文字色 */
+  font-size: 0.9rem;        /* 文字サイズ */
+  
+  /* アイコンと名前の位置合わせ */
+  display: flex;
+  align-items: center;
+  gap: 8px;
+   
 /* メニュー出現アニメーション */
 @keyframes fadeInMenu {
   from { opacity: 0; transform: translateY(-5px); }
