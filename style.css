@@ -1564,7 +1564,7 @@ textarea#input-note::placeholder {
   }
 }
 /* ==============================================
-   マニュアル (使い方ガイド) 用スタイル - シンプル版
+   マニュアル (使い方ガイド) 用スタイル
    ============================================== */
 
 /* マニュアル全体の枠 */
@@ -1586,7 +1586,8 @@ textarea#input-note::placeholder {
 }
 .manual-toc ul {
   margin: 0; padding-left: 20px;
-  display: grid; grid-template-columns: 1fr 1fr; gap: 5px 20px; /* 2列 */
+  /* PCでは2列表示 */
+  display: grid; grid-template-columns: 1fr 1fr; gap: 5px 20px;
 }
 .manual-toc li { margin-bottom: 5px; }
 .manual-toc a {
@@ -1605,7 +1606,7 @@ textarea#input-note::placeholder {
   margin-bottom: 40px; scroll-margin-top: 60px;
 }
 
-/* 見出し（以前と同じシンプルなデザイン） */
+/* 見出し */
 .manual-section h4 {
   margin-top: 0; margin-bottom: 15px; font-size: 1.1rem;
   color: var(--primary);
@@ -1616,14 +1617,12 @@ textarea#input-note::placeholder {
   border-radius: 0 4px 4px 0;
 }
 
-/* 手順リスト（標準的な箇条書き） */
+/* 手順リスト */
 .manual-section ol { padding-left: 25px; margin-bottom: 15px; }
 .manual-section li { margin-bottom: 8px; line-height: 1.6; }
-
-/* 説明文 */
 .manual-section p { margin-bottom: 10px; color: #555; }
 
-/* ヒント注釈 */
+/* 注意書きボックス */
 .manual-note {
   background-color: #fff3cd;
   border: 1px solid #ffeeba;
@@ -1634,7 +1633,7 @@ textarea#input-note::placeholder {
   font-size: 0.9rem;
 }
 
-/* --- 画像を2枚並べるためのスタイル (ここだけ新規追加) --- */
+/* --- 画像を横並びにするレイアウト --- */
 
 .manual-img-row {
   display: flex;
@@ -1646,10 +1645,10 @@ textarea#input-note::placeholder {
 .manual-img-col {
   flex: 1;
   text-align: center;
-  max-width: 48%; /* 2枚並べるので半分以下に */
+  max-width: 48%; /* 2枚並べるので半分以下 */
 }
 
-/* 画像の上のラベル（PC画面 / スマホ画面） */
+/* PC/SPラベル */
 .device-label {
   display: inline-block;
   background: #eee;
@@ -1669,22 +1668,9 @@ textarea#input-note::placeholder {
   display: block;
 }
 
-/* スマホ閲覧時: 目次を1列、画像を縦並びにする */
+/* スマホ閲覧時: 目次1列・画像縦並び */
 @media (max-width: 600px) {
   .manual-toc ul { display: block; }
   .manual-img-row { flex-direction: column; }
   .manual-img-col { max-width: 100%; margin-bottom: 20px; }
-}
-/* --- 動画マニュアル用スタイル --- */
-
-/* 動画プレイヤー */
-.manual-video {
-  width: 100%;       /* 幅いっぱい */
-  height: auto;      /* 高さは自動 */
-  max-height: 400px; /* 縦長になりすぎないよう制限 */
-  background-color: #000; /* 再生前は黒背景 */
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  margin-top: 10px;
-  outline: none;
 }
