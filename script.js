@@ -2114,71 +2114,30 @@ async function sendContactFeedback() {
   }
 }
 /* ==============================================
-   ▼▼▼ script.js の一番下に貼り付ける ▼▼▼
-   マニュアルモーダル開閉 & 画面切り替え処理
+   マニュアルモーダル開閉 (シンプル版)
    ============================================== */
 
-// 1. モーダルを開く
+// モーダルを開く
 function openManualModal() {
   // 設定メニューが出ていれば閉じる
   const dropdown = document.getElementById("settings-dropdown");
   if(dropdown) dropdown.classList.remove("show");
 
-  // 画面リセット
-  resetManualMode(); 
-  
-  // モーダルを表示
-  document.getElementById('manualModal').style.display = 'flex';
+  // モーダルを表示 (display: flex にするだけ)
+  const modal = document.getElementById('manualModal');
+  if (modal) {
+    modal.style.display = 'flex';
+    
+    // スクロール位置を一番上に戻す
+    const body = modal.querySelector('.manual-body');
+    if (body) body.scrollTop = 0;
+  }
 }
 
-// 2. モーダルを閉じる
+// モーダルを閉じる
 function closeManualModal() {
-  document.getElementById('manualModal').style.display = 'none';
-}
-
-// 3. 表示モード切り替え
-function switchManualMode(mode) {
-  // --- デバッグ用ログ（F12コンソールで確認用） ---
-  console.log("switchManualModeが呼ばれました。モード:", mode);
-
-  // まず選択画面を隠す
-  const selectScreen = document.getElementById('manual-select-screen');
-  if(selectScreen) selectScreen.style.display = 'none';
-  
-  // PC版・スマホ版の要素を取得
-  const pcView = document.getElementById('manual-pc-view');
-  const spView = document.getElementById('manual-sp-view');
-
-  // 要素があるかチェック
-  if (!pcView || !spView) {
-    alert("エラー: HTML内に 'manual-pc-view' または 'manual-sp-view' が見つかりません。");
-    return;
+  const modal = document.getElementById('manualModal');
+  if (modal) {
+    modal.style.display = 'none';
   }
-
-  // 指定された方を表示
-  if (mode === 'pc') {
-    pcView.style.display = 'block';
-    spView.style.display = 'none';
-  } else if (mode === 'sp') {
-    pcView.style.display = 'none';
-    spView.style.display = 'block';
-  }
-  
-  // スクロールを一番上に戻す
-  const manualBody = document.querySelector('.manual-body');
-  if(manualBody) manualBody.scrollTop = 0;
-}
-
-// 4. リセット（選択画面に戻る）
-function resetManualMode() {
-  // 選択画面を表示
-  const selectScreen = document.getElementById('manual-select-screen');
-  if(selectScreen) selectScreen.style.display = 'block';
-  
-  // 詳細画面は両方隠す
-  const pcView = document.getElementById('manual-pc-view');
-  const spView = document.getElementById('manual-sp-view');
-  
-  if(pcView) pcView.style.display = 'none';
-  if(spView) spView.style.display = 'none';
 }
