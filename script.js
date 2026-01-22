@@ -2135,34 +2135,38 @@ function closeManualModal() {
   document.getElementById('manualModal').style.display = 'none';
 }
 
-// ▼ マニュアルの表示モード切り替え ('pc' または 'sp')
+// ▼▼▼ 診断用 switchManualMode 関数 ▼▼▼
 function switchManualMode(mode) {
-  // 1. まず選択画面を隠す
-  document.getElementById('manual-select-screen').style.display = 'none';
-  
-  // 2. 指定された方のマニュアルを表示する
-  if (mode === 'pc') {
-    document.getElementById('manual-pc-view').style.display = 'block';
-    document.getElementById('manual-sp-view').style.display = 'none';
-  } else if (mode === 'sp') {
-    document.getElementById('manual-pc-view').style.display = 'none';
-    document.getElementById('manual-sp-view').style.display = 'block';
-  }
-  
-  // (任意) 切り替えた瞬間に一番上までスクロールさせる
-  const manualBody = document.querySelector('.manual-body');
-  if(manualBody) manualBody.scrollTop = 0;
-}
+  // 1. そもそもボタンが反応しているかチェック
+  alert("ボタンが押されました！ モード: " + mode);
 
-// ▼ 選択画面に戻る（リセット）
-function resetManualMode() {
-  // 選択画面を表示
-  document.getElementById('manual-select-screen').style.display = 'block';
+  // 選択画面を隠す
+  const selectScreen = document.getElementById('manual-select-screen');
+  if (selectScreen) selectScreen.style.display = 'none';
   
-  // 詳細画面は両方隠す
   const pcView = document.getElementById('manual-pc-view');
   const spView = document.getElementById('manual-sp-view');
+
+  // 要素が見つかるかチェック
+  if (!pcView || !spView) {
+    alert("エラー：マニュアルの表示エリア(div)が見つかりません。HTMLのIDを確認してください。");
+    return;
+  }
+
+  // 2. モードごとの切り替え処理
+  if (mode === 'pc') {
+    pcView.style.display = 'block';
+    spView.style.display = 'none';
+    alert("PC版を表示しました");
+  } else if (mode === 'sp') {
+    pcView.style.display = 'none';
+    spView.style.display = 'block';
+    alert("スマホ版を表示しました");
+  } else {
+    alert("エラー：不明なモードです (" + mode + ")");
+  }
   
-  if(pcView) pcView.style.display = 'none';
-  if(spView) spView.style.display = 'none';
+  // スクロールリセット
+  const manualBody = document.querySelector('.manual-body');
+  if(manualBody) manualBody.scrollTop = 0;
 }
