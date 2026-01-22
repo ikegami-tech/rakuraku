@@ -2114,16 +2114,43 @@ async function sendContactFeedback() {
   }
 }
 /* ==============================================
-   マニュアルモーダル開閉
+   マニュアルモーダル開閉 (選択式)
    ============================================== */
+
+// モーダルを開く（最初は選択画面を表示）
 function openManualModal() {
-  // メニューを閉じる
   const dropdown = document.getElementById("settings-dropdown");
   if(dropdown) dropdown.classList.remove("show");
 
+  // 画面リセット（選択画面を表示、他を隠す）
+  resetManualMode();
+  
   document.getElementById('manualModal').style.display = 'flex';
 }
 
+// モーダルを閉じる
 function closeManualModal() {
   document.getElementById('manualModal').style.display = 'none';
+}
+
+// マニュアルの表示切り替え ('pc' または 'sp')
+function switchManualMode(mode) {
+  // 選択画面を隠す
+  document.getElementById('manual-select-screen').style.display = 'none';
+  
+  // 指定されたマニュアルを表示
+  if (mode === 'pc') {
+    document.getElementById('manual-pc-view').style.display = 'block';
+    document.getElementById('manual-sp-view').style.display = 'none';
+  } else {
+    document.getElementById('manual-pc-view').style.display = 'none';
+    document.getElementById('manual-sp-view').style.display = 'block';
+  }
+}
+
+// 選択画面に戻る
+function resetManualMode() {
+  document.getElementById('manual-select-screen').style.display = 'block';
+  document.getElementById('manual-pc-view').style.display = 'none';
+  document.getElementById('manual-sp-view').style.display = 'none';
 }
