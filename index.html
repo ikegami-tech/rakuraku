@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>部屋ピン</title>
+<title>らくらくお部屋予約システム</title>
 <link rel="icon" href="favicon.ico">
 <link rel="stylesheet" href="style.css">
 </head>
@@ -13,7 +13,7 @@
 
 <div id="login-screen">
   <div class="login-box">
-    <h2>ログイン</h2>
+    <h2>予約システム v3.2</h2>
     <input type="text" id="loginId" placeholder="ユーザーID">
     <input type="password" id="loginPass" placeholder="パスワード">
     <button type="button" class="btn-primary" onclick="tryLogin()">ログイン</button>
@@ -40,10 +40,6 @@
           
           <div class="settings-user-display">
              👤 <span id="display-user-name"></span> さん
-          </div>
-          
-          <div class="settings-item" onclick="openManualModal()">
-            <span>&#128214;</span> 使い方ガイド
           </div>
           
           <div class="settings-item" onclick="openPasswordModal()">
@@ -426,182 +422,50 @@
   </div>
 </div>
 
-  <div id="manualModal" class="modal">
-  <div class="modal-content modal-md">
+  <div id="passwordModal" class="modal">
+  <div class="modal-content modal-sm">
     <div class="modal-top-bar">
-      <h3>使い方ガイド</h3>
-      <span class="close-icon" onclick="closeManualModal()">&times;</span>
+      <h3>パスワード変更</h3>
+      <span class="close-icon" onclick="closePasswordModal()">&times;</span>
+    </div>
+
+    <label>現在のパスワード</label>
+    <input type="password" id="old-pass" placeholder="現在のパスワード">
+
+    <label>新しいパスワード</label>
+    <input type="password" id="new-pass" placeholder="新しいパスワード">
+
+    <label>新しいパスワード(確認)</label>
+    <input type="password" id="new-pass-confirm" placeholder="もう一度入力">
+
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" onclick="closePasswordModal()">キャンセル</button>
+      <button type="button" class="btn-primary" onclick="savePassword()">変更する</button>
+    </div>
+  </div>
+</div>
+
+  <div id="contactModal" class="modal">
+  <div class="modal-content modal-sm">
+    <div class="modal-top-bar">
+      <h3>お問い合わせ</h3>
+      <span class="close-icon" onclick="closeContactModal()">&times;</span>
     </div>
     
-    <div class="manual-body">
+    <p style="font-size:0.9rem; color:#666; margin-bottom:10px;">
+      システムの不具合や改善要望など、お気づきの点をお知らせください。
+    </p>
 
-      <div id="manual-select-screen">
-        <p style="text-align:center; margin-bottom:20px; font-weight:bold;">どちらの端末でご利用ですか？</p>
-        
-        <div class="manual-mode-buttons">
-          <button class="btn-mode-select" onclick="switchManualMode('pc')">
-            <span class="mode-icon">💻</span>
-            <span class="mode-text">ブラウザ版<br><small>(PC・タブレット)</small></span>
-          </button>
-          
-          <button class="btn-mode-select" onclick="switchManualMode('sp')">
-            <span class="mode-icon">📱</span>
-            <span class="mode-text">スマホ版<br><small>(スマートフォン)</small></span>
-          </button>
-        </div>
-      </div>
+    <label>内容</label>
+    <textarea id="contact-message" rows="5" placeholder="例: ○○の機能が使いにくい、××という機能が欲しい、など" style="width:100%; min-height:100px; padding:10px;"></textarea>
 
-      <div id="manual-pc-view" style="display:none;">
-        <button class="btn-sm btn-secondary" onclick="resetManualMode()" style="margin-bottom:15px;">← 選択に戻る</button>
-        
-        <div class="manual-toc">
-          <p>▼ PC版 目次</p>
-          <ul>
-            <li><a href="#pc-reserve">1. 予約方法</a></li>
-            <li><a href="#pc-check">2. 空室確認</a></li>
-            <li><a href="#pc-group">3. グループ機能</a></li>
-            <li><a href="#pc-edit">4. 編集・削除</a></li>
-            <li><a href="#pc-settings">5. 設定</a></li>
-          </ul>
-        </div>
-        <hr class="manual-divider">
-
-       <div id="pc-reserve" class="manual-section">
-          <h4>1.マップ予約方法</h4>
-          <p>マップを見ながら部屋を予約する手順です。</p>
-          <ol>
-            <li>
-              <strong>部屋を選ぶ：</strong><br>
-              PC画面では7階と6階のマップが一覧表示されています。<br>
-              利用したい階のマップを確認し、<strong>部屋（または座席）</strong>をクリックしてください。
-            </li>
-            <li>
-              <strong>空き時間をクリック：</strong><br>
-              マップの下に「タイムライン（予約表）」が表示されます。<br>
-              予約したい時間帯の<strong>空き枠</strong>をクリックしてください。<br>
-              
-              <div class="manual-note" style="margin-top:5px; margin-bottom:5px;">
-                <strong>💡 時間指定のコツ：</strong><br>
-                枠の <strong>上半分</strong> をクリック → <strong>00分</strong> 開始<br>
-                枠の <strong>下半分</strong> をクリック → <strong>30分</strong> 開始<br>
-                として予約画面が開きます。
-              </div>
-            </li>
-            <li>
-              <strong>内容を入力して保存：</strong><br>
-              「新規予約」画面が開きます。用件などを入力し、最後に<strong>「保存」</strong>ボタンを押すと完了です。
-            </li>
-          </ol>
-          <img src="images/manual_1_pc.png" alt="PC予約" class="manual-img">
-        </div>
-        
-       <div id="pc-check" class="manual-section">
-          <h4>2. 空室確認方法</h4>
-          <p>日時を指定して、空いている部屋を一括で検索できる機能です。</p>
-          <ol>
-            <li>
-              <strong>空室確認ボタンを押す：</strong><br>
-              画面右下に常に表示されている、緑色の丸い<strong>「空室確認」ボタン</strong>をクリックします。
-            </li>
-            <li>
-              <strong>日時を指定して検索：</strong><br>
-              検索画面が表示されます。<br>
-              <strong>「日付」</strong>と利用したい<strong>「開始・終了時間」</strong>を入力し、<strong>「検索」</strong>ボタンを押してください。
-            </li>
-            <li>
-              <strong>部屋を選ぶ：</strong><br>
-              結果一覧から、利用したい部屋の<span style="color:var(--accent); font-weight:bold;">「空き (予約)」</span>ボタンをクリックします。<br>
-              <small style="color:#666;">※「×」と表示されている部屋は既に予約が入っています。</small>
-            </li>
-            <li>
-              <strong>内容を入力して保存：</strong><br>
-              予約画面が開きます（日時と部屋は自動で入力されています）。<br>
-              用件や参加者などを入力し、最後に<strong>「保存」</strong>ボタンを押すと予約完了です。
-            </li>
-          </ol>
-          <img src="images/manual_2_pc.png" alt="PC空室" class="manual-img">
-        </div>
-        
-        <div id="pc-group" class="manual-section">
-          <h4>3. グループ機能</h4>
-          <p>よく会議をするメンバーをセットにして保存し、ボタン一つで呼び出せる機能です。</p>
-          <ol>
-            <li>
-              <strong>グループ作成画面を開く：</strong><br>
-              予約画面（新規または編集）の中にある<strong>「＋新規作成」</strong>ボタンをクリックします。
-            </li>
-            <li>
-              <strong>メンバーを選んで保存：</strong><br>
-              グループ作成画面が開きます。<br>
-              <strong>「グループ名」</strong>を入力し、下のリストからメンバーを検索して<strong>「＋」</strong>で追加してください。<br>
-              選び終わったら<strong>「保存」</strong>ボタンを押します。
-            </li>
-            <li>
-              <strong>グループを使って予約する：</strong><br>
-              予約画面に戻ると、上部に作成した<strong>グループ名のボタン</strong>が追加されています。<br>
-              このボタンをクリックすると、登録しておいたメンバーが「参加予定者」に一括で追加されます。
-            </li>
-            <li>
-              <strong>グループの編集・削除：</strong><br>
-              作成したグループボタンの端にある<strong>「編集（鉛筆）」</strong>や<strong>「削除（×）」</strong>のアイコンをクリックすることで、グループ内容の修正や削除が行えます。
-            </li>
-          </ol>
-          <img src="images/manual_3_pc.png" alt="PCグループ" class="manual-img">
-        </div>
-        
-        <div id="pc-edit" class="manual-section">
-          <h4>4. 編集・削除方法</h4>
-          <p>予約内容の変更や、会議の中止に伴う削除の手順です。</p>
-          
-          <div class="manual-note" style="margin-bottom:15px; background:#e3f2fd; color:#0d47a1; border:1px solid #90caf9; padding:10px; border-radius:4px; font-size:0.9rem;">
-            <strong>ℹ️ ポイント：</strong> どの予約でも、誰でも自由に編集・削除が可能です。<br>
-            他の人の予約を誤って操作しないよう、十分ご注意ください。
-          </div>
-
-          <ol>
-            <li>
-              <strong>予約詳細を開く：</strong><br>
-              タイムライン上にある、<strong>変更したい予約バー</strong>をクリックします。<br>
-              予約の詳細画面がポップアップで表示されます。
-            </li>
-            <li>
-              <strong>編集モードにする：</strong><br>
-              詳細画面の右下にある<strong>「編集する」</strong>ボタンをクリックします。<br>
-              予約入力画面が再び開き、現在の内容が表示されます。
-            </li>
-            <li>
-              <strong>修正または削除：</strong><br>
-              <ul>
-                <li><strong>内容を変更する場合：</strong> 時間や用件などを書き換えて、右下の<strong>「保存」</strong>ボタンを押します。</li>
-                <li><strong>予約を取り消す場合：</strong> 左下にある赤色の<strong>「削除」</strong>ボタンを押します（確認メッセージが出たらOKを押してください）。</li>
-              </ul>
-            </li>
-          </ol>
-          <img src="images/manual_4_pc.png" alt="PC編集" class="manual-img">
-        </div>
-        
-        <div id="pc-settings" class="manual-section">
-          <h4>5. パスワード・設定</h4>
-          <p>アカウント設定や、管理者への連絡はこちらから行います。</p>
-          <ol>
-            <li>
-              <strong>設定メニューを開く：</strong><br>
-              画面右上にある<strong>「歯車アイコン (⚙️)」</strong>をクリックします。<br>
-              <small style="color:#666;">※メニュー内に、現在ログインしているユーザー名が表示されています。</small>
-            </li>
-            <li>
-              <strong>各メニューの機能：</strong><br>
-              <ul style="margin-top:5px; margin-bottom:5px; font-size:0.9rem; color:#555;">
-                 <li style="margin-bottom:5px;"><strong>PW変更：</strong> ログインパスワードを変更できます。「現在のパスワード」と「新しいパスワード」を入力して保存してください。</li>
-                 <li style="margin-bottom:5px;"><strong>お問い合わせ：</strong> システムの不具合報告や、「こんな機能が欲しい」という要望を管理者に送信できます。</li>
-                 <li><strong>ログアウト：</strong> 共有PCなどで利用が終わったら、ここからログアウトしてください。</li>
-              </ul>
-            </li>
-          </ol>
-          <img src="images/manual_5_pc.png" alt="PC設定" class="manual-img">
-        </div>
-        
-      <div id="manualModal" class="modal">
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" onclick="closeContactModal()">キャンセル</button>
+      <button type="button" class="btn-primary" onclick="sendContactFeedback()">送信する</button>
+    </div>
+  </div>
+</div>
+<div id="manualModal" class="modal">
   <div class="modal-content modal-md">
     <div class="modal-top-bar">
       <h3>使い方ガイド</h3>
@@ -731,7 +595,7 @@
     </div>
   </div>
 </div>
-        
+  
 <script src="script.js"></script>
 </body>
 </html>
