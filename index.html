@@ -42,6 +42,10 @@
              👤 <span id="display-user-name"></span> さん
           </div>
           
+          <div class="settings-item" onclick="openManualModal()">
+            <span>&#128214;</span> 使い方ガイド
+          </div>
+          
           <div class="settings-item" onclick="openPasswordModal()">
             <span>&#128274;</span> PW変更 
           </div>
@@ -462,6 +466,40 @@
     <div class="modal-footer">
       <button type="button" class="btn-secondary" onclick="closeContactModal()">キャンセル</button>
       <button type="button" class="btn-primary" onclick="sendContactFeedback()">送信する</button>
+    </div>
+  </div>
+</div>
+<div id="manualModal" class="modal">
+  <div class="modal-content modal-md">
+    <div class="modal-top-bar">
+      <h3>使い方ガイド</h3>
+      <span class="close-icon" onclick="closeManualModal()">&times;</span>
+    </div>
+    
+    <div class="manual-body">
+      
+      <div class="manual-section">
+        <h4>1. 部屋を予約する</h4>
+        <p>マップ上の部屋をクリックすると、タイムラインが表示されます。空いている時間をクリックして予約画面へ進みます。</p>
+        <img src="images/manual_1.png" alt="マップ操作" class="manual-img">
+      </div>
+
+      <div class="manual-section">
+        <h4>2. 空き状況を一括検索</h4>
+        <p>画面右下の「空室確認」ボタンを押すと、日時を指定して空いている部屋を一覧で探せます。</p>
+        <img src="images/manual_2.png" alt="空き状況検索" class="manual-img">
+      </div>
+
+      <div class="manual-section">
+        <h4>3. 予約の確認・変更</h4>
+        <p>自分の予約バーをクリックすると詳細が表示されます。「編集する」ボタンから時間の変更やキャンセルが可能です。</p>
+        <img src="images/manual_3.png" alt="予約変更" class="manual-img">
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn-primary" onclick="closeManualModal()">閉じる</button>
     </div>
   </div>
 </div>
