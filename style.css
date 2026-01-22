@@ -1266,6 +1266,7 @@ textarea#input-note::placeholder {
   color: #c0392b; /* 赤っぽく */
 }
 
+/* ★修正箇所: ここから下を確認してください */
 .settings-user-display {
   padding: 12px 16px;       /* 余白 */
   background-color: #f8f9fa; /* 薄いグレーの背景 */
@@ -1278,6 +1279,11 @@ textarea#input-note::placeholder {
   display: flex;
   align-items: center;
   gap: 8px;
+  
+  /* カーソルは矢印のまま（クリックできないことを示す） */
+  cursor: default;
+  white-space: nowrap;      /* 改行禁止 */
+} /* ← ★重要: この「}」が抜けていました！これを必ず追加してください */
    
 /* メニュー出現アニメーション */
 @keyframes fadeInMenu {
@@ -1291,6 +1297,7 @@ textarea#input-note::placeholder {
   .settings-dropdown-content { min-width: 130px; }
   .settings-item { padding: 12px; font-size: 13px; }
 }
+
 /* ==============================================
    28. ヘッダー更新ボタンとレイアウト調整
    ============================================== */
