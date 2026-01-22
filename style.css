@@ -1623,3 +1623,83 @@ textarea#input-note::placeholder {
   display: block;
   margin: 15px auto;
 }
+/* --- 既存のマニュアル用CSSに追加 --- */
+
+/* 画像を横並びにするコンテナ */
+.manual-img-row {
+  display: flex;
+  gap: 15px;
+  margin-top: 15px;
+  justify-content: center;
+}
+
+/* 画像カラム */
+.manual-img-col {
+  flex: 1;
+  text-align: center;
+  max-width: 48%; /* 2枚並べるので半分以下に */
+}
+
+/* デバイスラベル (PC画面 / スマホ画面) */
+.device-label {
+  display: inline-block;
+  background: #eee;
+  padding: 4px 10px;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: #555;
+  margin-bottom: 5px;
+}
+
+/* 画像本体 */
+.manual-img {
+  width: 100%;
+  height: auto;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  display: block;
+}
+
+/* 手順を囲むボックス */
+.step-box {
+  background: #fff;
+  border: 1px solid #eee;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+/* リスト内のサブリスト */
+.manual-sub-list {
+  margin: 10px 0 0 0;
+  padding-left: 20px;
+  font-size: 0.9rem;
+  color: #666;
+}
+.manual-sub-list li {
+  margin-bottom: 5px;
+}
+
+/* ヒントバッジ */
+.badge-hint {
+  display: inline-block;
+  background: #ffecb3;
+  color: #856404;
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: bold;
+  margin-right: 5px;
+}
+
+/* スマホ表示時 (画像を縦並びにする) */
+@media (max-width: 600px) {
+  .manual-img-row {
+    flex-direction: column;
+  }
+  .manual-img-col {
+    max-width: 100%;
+    margin-bottom: 20px;
+  }
+}
