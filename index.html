@@ -482,72 +482,227 @@
       <div class="manual-toc">
         <p>▼ 目次 (クリックで移動)</p>
         <ul>
-          <li><a href="#m-reserve">1. 予約方法</a></li>
-          <li><a href="#m-check">2. 空室確認方法</a></li>
+          <li><a href="#m-reserve">1. 予約方法 (基本)</a></li>
+          <li><a href="#m-check">2. 空室確認方法 (検索)</a></li>
           <li><a href="#m-group">3. グループ機能</a></li>
           <li><a href="#m-edit">4. 編集・削除方法</a></li>
-          <li><a href="#m-password">5. パスワード変更方法</a></li>
+          <li><a href="#m-password">5. パスワード・設定</a></li>
         </ul>
       </div>
 
       <hr class="manual-divider">
 
       <div id="m-reserve" class="manual-section">
-        <h4>1. 予約方法</h4>
-        <p>マップを見ながら、直感的に部屋を予約する基本の手順です。</p>
-        <ol>
-          <li>画面上部のタブで<strong>「マップ検索」</strong>を選び、利用したい階 (7階/6階) を切り替えます。</li>
-          <li>マップ上の<strong>部屋（または座席）をクリック</strong>すると、画面下にタイムラインが表示されます。</li>
-          <li>タイムラインの<strong>空いている時間帯をクリック</strong>し、予約内容を入力して保存します。</li>
-        </ol>
-        <img src="images/manual_1.png" alt="予約方法" class="manual-img">
+        <div class="sec-title">1. 予約方法 (基本)</div>
+        <p>マップを見ながら、直感的に部屋を予約する手順です。</p>
+        
+        <div class="step-box">
+          <div class="step-row">
+            <span class="step-num">1</span>
+            <div class="step-text">画面上部のタブ<strong>「マップ検索」</strong>を選びます。<br>利用したい階 (7階 / 6階) のボタンを押して切り替えます。</div>
+          </div>
+          <div class="step-row">
+            <span class="step-num">2</span>
+            <div class="step-text">
+              マップ上の<strong>利用したい部屋（または座席）</strong>をクリックします。<br>
+              <small>※PCでは右側に、スマホでは画面下部に「タイムライン（時間割）」が表示されます。</small>
+            </div>
+          </div>
+          <div class="step-row">
+            <span class="step-num">3</span>
+            <div class="step-text">
+              タイムラインを確認し、<strong>予約が入っていない（空いている）時間帯</strong>をクリックします。<br>
+              <span class="badge-hint">ヒント</span> タイムラインは左右にドラッグしてスクロールできます。
+            </div>
+          </div>
+          <div class="step-row">
+            <span class="step-num">4</span>
+            <div class="step-text">
+              「新規予約」画面が開きます。以下の項目を入力して<strong>「保存」</strong>を押してください。
+              <ul class="manual-sub-list">
+                <li><strong>日付・時間：</strong> 開始・終了時刻を設定します。右側の「▼」でリストから選択可能です。</li>
+                <li><strong>用件：</strong> 会議名や目的を入力します（例：定例MTG）。</li>
+                <li><strong>参加者：</strong> 自分は自動で選択されます。他の参加者を追加する場合は検索して追加します。</li>
+                <li><strong>備考：</strong> メモを残せます。URLを貼るとリンクになります。</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="manual-img-row">
+          <div class="manual-img-col">
+            <span class="device-label">PC画面</span>
+            <img src="images/manual_1_pc.png" alt="予約方法PC" class="manual-img">
+          </div>
+          <div class="manual-img-col">
+            <span class="device-label">スマホ画面</span>
+            <img src="images/manual_1_sp.png" alt="予約方法SP" class="manual-img">
+          </div>
+        </div>
       </div>
 
       <div id="m-check" class="manual-section">
-        <h4>2. 空室確認方法</h4>
-        <p>日時を指定して、空いている部屋を一括で検索できます。</p>
-        <ol>
-          <li>画面右下にある緑色の<strong>「空室確認」ボタン</strong>を押します。</li>
-          <li>「日付」と「開始・終了時間」を指定して検索します。</li>
-          <li>結果一覧の<strong>「○ (予約)」ボタン</strong>を押すと、その部屋をすぐに予約できます。</li>
-        </ol>
-        <img src="images/manual_2.png" alt="空室確認" class="manual-img">
+        <div class="sec-title">2. 空室確認方法</div>
+        <p>日時を指定して、空いている部屋を一括で探せます。「明日の10時に空いてる部屋ある？」という時に便利です。</p>
+
+        <div class="step-box">
+          <div class="step-row">
+            <span class="step-num">1</span>
+            <div class="step-text">画面右下（スマホでも右下）に浮いている、緑色の<strong>「空室確認」ボタン</strong>を押します。</div>
+          </div>
+          <div class="step-row">
+            <span class="step-num">2</span>
+            <div class="step-text">
+              条件指定画面が開きます。<br>
+              <strong>「日付」</strong>と<strong>「開始・終了時間」</strong>を入力し、<strong>「検索」</strong>ボタンを押します。
+            </div>
+          </div>
+          <div class="step-row">
+            <span class="step-num">3</span>
+            <div class="step-text">
+              部屋ごとの空き状況が一覧で表示されます。
+              <ul class="manual-sub-list">
+                <li><span style="color:var(--accent); font-weight:bold;">○ 空き (予約)</span>：予約可能です。このボタンを押すと、日時が入った状態で予約画面へ進めます。</li>
+                <li><span style="color:#ccc; font-weight:bold;">×</span>：既に他の予約が入っています。</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="manual-img-row">
+          <div class="manual-img-col">
+            <span class="device-label">PC画面</span>
+            <img src="images/manual_2_pc.png" alt="空室確認PC" class="manual-img">
+          </div>
+          <div class="manual-img-col">
+            <span class="device-label">スマホ画面</span>
+            <img src="images/manual_2_sp.png" alt="空室確認SP" class="manual-img">
+          </div>
+        </div>
       </div>
 
       <div id="m-group" class="manual-section">
-        <h4>3. グループ機能</h4>
-        <p>よく会議をするメンバーセットを作成し、一括選択できます。</p>
-        <ol>
-          <li>予約画面にある<strong>「＋新規作成」</strong>ボタンを押します。</li>
-          <li>グループ名を入力し、メンバーを検索して追加・保存します。</li>
-          <li>次回から、作成した<strong>グループ名のボタン</strong>を押すだけで、参加者が自動で選択されます。</li>
-        </ol>
-        <img src="images/manual_3.png" alt="グループ機能" class="manual-img">
+        <div class="sec-title">3. グループ機能</div>
+        <p>よく会議をするメンバーセットを保存し、ボタン一つで呼び出せる機能です。</p>
+
+        <div class="step-box">
+          <div class="sub-sec-title">グループの作成方法</div>
+          <div class="step-row">
+            <span class="step-num">1</span>
+            <div class="step-text">予約画面（新規または編集）の中にある<strong>「＋新規作成」</strong>ボタンを押します。</div>
+          </div>
+          <div class="step-row">
+            <span class="step-num">2</span>
+            <div class="step-text">
+              グループ作成画面が開きます。
+              <ul class="manual-sub-list">
+                <li><strong>グループ名：</strong> 分かりやすい名前をつけます（例：プロジェクトAチーム）。</li>
+                <li><strong>メンバー選択：</strong> 候補者リストから検索し、「＋」ボタンで右側の「選択中」リストに追加します。</li>
+              </ul>
+            </div>
+          </div>
+          <div class="step-row">
+            <span class="step-num">3</span>
+            <div class="step-text"><strong>「保存」</strong>を押すと登録完了です。作成したグループは他のユーザーとも共有されます。</div>
+          </div>
+
+          <div class="sub-sec-title">グループの使い方</div>
+          <div class="step-row">
+            <div class="step-text">
+              予約画面の上部に、作成したグループ名のボタンが表示されます。<br>
+              <strong>ボタンをクリック</strong>すると、登録されているメンバーが一括で「参加予定者」に追加されます。
+            </div>
+          </div>
+        </div>
+
+        <div class="manual-img-row">
+          <div class="manual-img-col">
+            <span class="device-label">PC画面</span>
+            <img src="images/manual_3_pc.png" alt="グループPC" class="manual-img">
+          </div>
+          <div class="manual-img-col">
+            <span class="device-label">スマホ画面</span>
+            <img src="images/manual_3_sp.png" alt="グループSP" class="manual-img">
+          </div>
+        </div>
       </div>
 
       <div id="m-edit" class="manual-section">
-        <h4>4. 編集・削除方法</h4>
-        <p>自分の予約内容を変更したり、キャンセルしたりする手順です。</p>
-        <ol>
-          <li>タイムライン上の<strong>自分の予約バー（色付きの帯）</strong>をクリックします。</li>
-          <li>詳細画面が表示されるので、右下の<strong>「編集する」</strong>ボタンを押します。</li>
-          <li>内容を修正して「保存」、または左下の赤色<strong>「削除」</strong>ボタンで予約を取り消せます。</li>
-        </ol>
-        <img src="images/manual_4.png" alt="編集削除" class="manual-img">
+        <div class="sec-title">4. 編集・削除方法</div>
+        <p>予約時間の変更や、会議の中止に伴う削除の手順です。</p>
+
+        <div class="manual-note type-danger">
+          <strong>⚠️ 注意：</strong> 自分（ログイン中のユーザー）が作成した予約以外は、編集・削除できません。
+        </div>
+
+        <div class="step-box">
+          <div class="step-row">
+            <span class="step-num">1</span>
+            <div class="step-text">タイムライン上にある、<strong>自分の予約バー（色付きの帯）</strong>をクリックします。</div>
+          </div>
+          <div class="step-row">
+            <span class="step-num">2</span>
+            <div class="step-text">予約の詳細情報が表示されます。右下の<strong>「編集する」</strong>ボタンを押します。</div>
+          </div>
+          <div class="step-row">
+            <span class="step-num">3</span>
+            <div class="step-text">
+              編集画面が開きます。
+              <ul class="manual-sub-list">
+                <li><strong>内容を変更する場合：</strong> 時間やメモを修正し、右下の「保存」を押します。</li>
+                <li><strong>削除する場合：</strong> 左下にある赤色の<strong>「削除」</strong>ボタンを押します。確認メッセージでOKを押すと消去されます。</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="manual-img-row">
+          <div class="manual-img-col">
+            <span class="device-label">PC画面</span>
+            <img src="images/manual_4_pc.png" alt="編集削除PC" class="manual-img">
+          </div>
+          <div class="manual-img-col">
+            <span class="device-label">スマホ画面</span>
+            <img src="images/manual_4_sp.png" alt="編集削除SP" class="manual-img">
+          </div>
+        </div>
       </div>
 
       <div id="m-password" class="manual-section">
-        <h4>5. パスワード変更方法</h4>
-        <p>ログイン用のパスワードを変更したり、管理者へ連絡したりできます。</p>
-        <ol>
-          <li>画面右上の<strong>歯車アイコン</strong>をクリックします。</li>
-          <li>メニュー内の<strong>「PW変更」</strong>をクリックします。</li>
-          <li>現在のパスワードと新しいパスワードを入力して変更完了です。</li>
-        </ol>
-        <div class="manual-note">
-          ※同じメニュー内の「お問い合わせ」から、管理者への要望送信も可能です。
+        <div class="sec-title">5. パスワード変更・お問い合わせ</div>
+        <p>アカウント設定や、管理者への連絡を行うメニューです。</p>
+
+        <div class="step-box">
+          <div class="step-row">
+            <span class="step-num">1</span>
+            <div class="step-text">
+              画面右上にある<strong>「歯車アイコン」</strong>をクリックします。<br>
+              <small>※ここに「👤 〇〇さん」と自分の名前が表示されています。</small>
+            </div>
+          </div>
+          <div class="step-row">
+            <span class="step-num">2</span>
+            <div class="step-text">
+              メニューから項目を選択します。
+              <ul class="manual-sub-list">
+                <li><strong>PW変更：</strong> ログインパスワードを変更できます。「現在のパスワード」と「新しいパスワード」を入力して保存します。</li>
+                <li><strong>お問い合わせ：</strong> システムの不具合報告や、「こんな機能が欲しい」という要望を管理者に送信できます。（Google Chatへ通知されます）</li>
+                <li><strong>ログアウト：</strong> 共有PCなどで利用が終わったら押してください。</li>
+              </ul>
+            </div>
+          </div>
         </div>
-        <img src="images/manual_6.png" alt="設定メニュー" class="manual-img">
+
+        <div class="manual-img-row">
+          <div class="manual-img-col">
+            <span class="device-label">PC画面</span>
+            <img src="images/manual_5_pc.png" alt="設定PC" class="manual-img">
+          </div>
+          <div class="manual-img-col">
+            <span class="device-label">スマホ画面</span>
+            <img src="images/manual_5_sp.png" alt="設定SP" class="manual-img">
+          </div>
+        </div>
       </div>
 
     </div>
