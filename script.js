@@ -2114,52 +2114,66 @@ async function sendContactFeedback() {
   }
 }
 /* ==============================================
+   ▼▼▼ script.js の一番下に貼り付ける ▼▼▼
    マニュアルモーダル開閉 & 画面切り替え処理
    ============================================== */
 
-// ▼ 1. モーダルを開く（最初は「選択画面」を表示）
+// 1. モーダルを開く
 function openManualModal() {
   // 設定メニューが出ていれば閉じる
   const dropdown = document.getElementById("settings-dropdown");
   if(dropdown) dropdown.classList.remove("show");
 
-  // ★ここでエラーが出ていました。下の resetManualMode 関数が必要です
+  // 画面リセット
   resetManualMode(); 
   
   // モーダルを表示
   document.getElementById('manualModal').style.display = 'flex';
 }
 
-// ▼ 2. モーダルを閉じる
+// 2. モーダルを閉じる
 function closeManualModal() {
   document.getElementById('manualModal').style.display = 'none';
 }
 
-// ▼ 3. マニュアルの表示モード切り替え ('pc' または 'sp')
+// 3. 表示モード切り替え
 function switchManualMode(mode) {
-  // 選択画面を隠す
-  document.getElementById('manual-select-screen').style.display = 'none';
+  // --- デバッグ用ログ（F12コンソールで確認用） ---
+  console.log("switchManualModeが呼ばれました。モード:", mode);
+
+  // まず選択画面を隠す
+  const selectScreen = document.getElementById('manual-select-screen');
+  if(selectScreen) selectScreen.style.display = 'none';
   
-  // 指定された方のマニュアルを表示する
+  // PC版・スマホ版の要素を取得
+  const pcView = document.getElementById('manual-pc-view');
+  const spView = document.getElementById('manual-sp-view');
+
+  // 要素があるかチェック
+  if (!pcView || !spView) {
+    alert("エラー: HTML内に 'manual-pc-view' または 'manual-sp-view' が見つかりません。");
+    return;
+  }
+
+  // 指定された方を表示
   if (mode === 'pc') {
-    document.getElementById('manual-pc-view').style.display = 'block';
-    document.getElementById('manual-sp-view').style.display = 'none';
+    pcView.style.display = 'block';
+    spView.style.display = 'none';
   } else if (mode === 'sp') {
-    document.getElementById('manual-pc-view').style.display = 'none';
-    document.getElementById('manual-sp-view').style.display = 'block';
+    pcView.style.display = 'none';
+    spView.style.display = 'block';
   }
   
-  // 切り替えた瞬間に一番上までスクロールさせる
+  // スクロールを一番上に戻す
   const manualBody = document.querySelector('.manual-body');
   if(manualBody) manualBody.scrollTop = 0;
 }
 
-// ▼ 4. 選択画面に戻る（リセット）
-// ★この関数が足りていませんでした
+// 4. リセット（選択画面に戻る）
 function resetManualMode() {
   // 選択画面を表示
   const selectScreen = document.getElementById('manual-select-screen');
-  if (selectScreen) selectScreen.style.display = 'block';
+  if(selectScreen) selectScreen.style.display = 'block';
   
   // 詳細画面は両方隠す
   const pcView = document.getElementById('manual-pc-view');
