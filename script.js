@@ -2061,3 +2061,55 @@ function updateRefreshTime() {
         el.innerText = `更新：${h}:${m}`;
     }
 }
+/* ==============================================
+   お問い合わせ機能
+   ============================================== */
+
+function openContactModal() {
+  // メニューを閉じる
+  const dropdown = document.getElementById("settings-dropdown");
+  if(dropdown) dropdown.classList.remove("show");
+
+  // 入力欄をクリア
+  document.getElementById('contact-message').value = "";
+  
+  // モーダル表示
+  document.getElementById('contactModal').style.display = 'flex';
+}
+
+function closeContactModal() {
+  document.getElementById('contactModal').style.display = 'none';
+}
+
+async function sendContactFeedback() {
+  const msg = document.getElementById('contact-message').value.trim();
+  
+  if (!msg) {
+    alert("お問い合わせ内容を入力してください");
+    return;
+  }
+
+  // 二重送信防止のためボタンを一時的に無効化（ローディング表示など）
+  document.getElementById('loading').style.display = 'flex';
+
+  const params = {
+    action: 'sendFeedback',
+    operatorName: currentUser ? currentUser.userName : 'Unknown', // ログインユーザー名
+    message: msg
+  };
+
+  try {
+    const result = await callAPI(params);
+    document.getElementById('loading').style.display = 'none';
+
+    if (result.status === 'success') {
+      alert("送信しました。\nご意見ありがとうございます！");
+      closeContactModal();
+    } else {
+      alert("送信エラー: " + result.message);
+    }
+  } catch (e) {
+    document.getElementById('loading').style.display = 'none';
+    alert("通信エラーが発生しました");
+  }
+}
