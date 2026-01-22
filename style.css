@@ -1484,16 +1484,16 @@ textarea#input-note::placeholder {
   }
 }
 /* ==============================================
-   マニュアル (使い方ガイド) 用スタイル - 詳細版
+   マニュアル (使い方ガイド) 用スタイル
    ============================================== */
 
 /* マニュアル全体の枠 */
 .manual-body {
   padding: 5px 10px;
-  scroll-behavior: smooth; /* リンククリック時にスルッと移動 */
+  scroll-behavior: smooth;
 }
 
-/* 目次エリアのデザイン */
+/* 目次エリア */
 .manual-toc {
   background-color: #f9f9f9;
   border: 1px solid #eee;
@@ -1502,74 +1502,65 @@ textarea#input-note::placeholder {
   margin-bottom: 20px;
 }
 .manual-toc p {
-  font-weight: bold;
-  margin-top: 0;
-  margin-bottom: 10px;
-  color: #333;
+  font-weight: bold; margin: 0 0 10px 0; color: #333;
 }
 .manual-toc ul {
-  margin: 0;
-  padding-left: 20px;
+  margin: 0; padding-left: 20px;
+  /* 2列表示にする設定（任意） */
+  display: grid; grid-template-columns: 1fr 1fr; gap: 5px 20px;
 }
-.manual-toc li {
-  margin-bottom: 8px;
-}
+.manual-toc li { margin-bottom: 5px; }
 .manual-toc a {
-  color: var(--accent); /* 緑色 */
-  text-decoration: none;
-  font-weight: bold;
+  color: var(--accent); text-decoration: none; font-weight: bold;
   border-bottom: 1px dotted var(--accent);
 }
-.manual-toc a:hover {
-  color: #219150;
-  border-bottom: 1px solid #219150;
-}
+.manual-toc a:hover { color: #219150; border-bottom: 1px solid #219150; }
 
 /* 区切り線 */
 .manual-divider {
-  border: 0;
-  border-top: 1px dashed #ccc;
-  margin: 20px 0;
+  border: 0; border-top: 1px dashed #ccc; margin: 20px 0;
 }
 
 /* 各セクション */
 .manual-section {
-  margin-bottom: 40px; /* 余白を広めに */
-  /* ページ内リンクで飛んだ時に、ヘッダーに隠れないようにするハック */
-  scroll-margin-top: 60px; 
+  margin-bottom: 40px; scroll-margin-top: 60px;
 }
 
 /* 見出し */
 .manual-section h4 {
-  margin-top: 0;
-  margin-bottom: 15px;
-  font-size: 1.1rem;
-  color: var(--primary); /* 紺色 */
-  border-left: 6px solid var(--accent); /* 太めのアクセント線 */
+  margin-top: 0; margin-bottom: 15px; font-size: 1.1rem;
+  color: var(--primary);
+  border-left: 6px solid var(--accent);
   padding-left: 12px;
-  background-color: #f0f8ff; /* 薄い背景色で目立たせる */
-  padding-top: 8px;
-  padding-bottom: 8px;
+  background-color: #f0f8ff;
+  padding-top: 8px; padding-bottom: 8px;
   border-radius: 0 4px 4px 0;
 }
 
-/* 説明リスト（ol） */
-.manual-section ol {
-  padding-left: 25px;
+/* 手順リスト */
+.manual-section ol { padding-left: 25px; margin-bottom: 15px; }
+.manual-section li { margin-bottom: 8px; line-height: 1.6; }
+
+/* ★追加: ヒント等の注釈枠 */
+.manual-note {
+  background-color: #fff3cd;
+  border: 1px solid #ffeeba;
+  color: #856404;
+  padding: 10px;
+  border-radius: 4px;
   margin-bottom: 15px;
-}
-.manual-section li {
-  margin-bottom: 8px;
-  line-height: 1.5;
+  font-size: 0.9rem;
 }
 
 /* 画像 */
 .manual-img {
-  width: 100%;
-  height: auto;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* 立体感を出す */
-  display: block;
-  margin: 10px auto 0;
+  width: 100%; height: auto;
+  border: 1px solid #ddd; border-radius: 6px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  display: block; margin: 10px auto 0;
+}
+
+/* スマホ用: 目次を1列に戻す */
+@media (max-width: 600px) {
+  .manual-toc ul { display: block; }
 }
