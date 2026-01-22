@@ -426,50 +426,7 @@
   </div>
 </div>
 
-  <div id="passwordModal" class="modal">
-  <div class="modal-content modal-sm">
-    <div class="modal-top-bar">
-      <h3>パスワード変更</h3>
-      <span class="close-icon" onclick="closePasswordModal()">&times;</span>
-    </div>
-
-    <label>現在のパスワード</label>
-    <input type="password" id="old-pass" placeholder="現在のパスワード">
-
-    <label>新しいパスワード</label>
-    <input type="password" id="new-pass" placeholder="新しいパスワード">
-
-    <label>新しいパスワード(確認)</label>
-    <input type="password" id="new-pass-confirm" placeholder="もう一度入力">
-
-    <div class="modal-footer">
-      <button type="button" class="btn-secondary" onclick="closePasswordModal()">キャンセル</button>
-      <button type="button" class="btn-primary" onclick="savePassword()">変更する</button>
-    </div>
-  </div>
-</div>
-
-  <div id="contactModal" class="modal">
-  <div class="modal-content modal-sm">
-    <div class="modal-top-bar">
-      <h3>お問い合わせ</h3>
-      <span class="close-icon" onclick="closeContactModal()">&times;</span>
-    </div>
-    
-    <p style="font-size:0.9rem; color:#666; margin-bottom:10px;">
-      システムの不具合や改善要望など、お気づきの点をお知らせください。
-    </p>
-
-    <label>内容</label>
-    <textarea id="contact-message" rows="5" placeholder="例: ○○の機能が使いにくい、××という機能が欲しい、など" style="width:100%; min-height:100px; padding:10px;"></textarea>
-
-    <div class="modal-footer">
-      <button type="button" class="btn-secondary" onclick="closeContactModal()">キャンセル</button>
-      <button type="button" class="btn-primary" onclick="sendContactFeedback()">送信する</button>
-    </div>
-  </div>
-</div>
-<div id="manualModal" class="modal">
+  <div id="manualModal" class="modal">
   <div class="modal-content modal-md">
     <div class="modal-top-bar">
       <h3>使い方ガイド</h3>
@@ -478,22 +435,84 @@
     
     <div class="manual-body">
       
-      <div class="manual-section">
-        <h4>1. 部屋を予約する</h4>
-        <p>マップ上の部屋をクリックすると、タイムラインが表示されます。空いている時間をクリックして予約画面へ進みます。</p>
+      <div class="manual-toc">
+        <p>▼ 知りたい項目をクリックしてください</p>
+        <ul>
+          <li><a href="#m-basic">1. 基本の予約方法 (マップ)</a></li>
+          <li><a href="#m-search">2. 空き状況から探す</a></li>
+          <li><a href="#m-group">3. 便利なグループ機能</a></li>
+          <li><a href="#m-edit">4. 予約の変更・削除</a></li>
+          <li><a href="#m-log">5. 履歴の確認</a></li>
+          <li><a href="#m-settings">6. 設定・お問い合わせ</a></li>
+        </ul>
+      </div>
+
+      <hr class="manual-divider">
+
+      <div id="m-basic" class="manual-section">
+        <h4>1. 基本の予約方法 (マップ)</h4>
+        <p>直感的に部屋を選んで予約する方法です。</p>
+        <ol>
+          <li>「マップ検索」タブで、利用したい階 (7階/6階) を選びます。</li>
+          <li>マップ上の<strong>部屋をクリック</strong>すると、下にタイムラインが表示されます。</li>
+          <li>タイムラインの<strong>空いている時間帯をクリック</strong>すると、予約画面が開きます。</li>
+        </ol>
         <img src="images/manual_1.png" alt="マップ操作" class="manual-img">
       </div>
 
-      <div class="manual-section">
-        <h4>2. 空き状況を一括検索</h4>
-        <p>画面右下の「空室確認」ボタンを押すと、日時を指定して空いている部屋を一覧で探せます。</p>
+      <div id="m-search" class="manual-section">
+        <h4>2. 空き状況から探す</h4>
+        <p>「〇日の〇時から空いている部屋はどこ？」を一括で探せます。</p>
+        <ol>
+          <li>画面右下にある緑色の<strong>「空室確認」ボタン</strong>を押します。</li>
+          <li>利用したい「日付」と「開始・終了時間」を指定して検索します。</li>
+          <li>空いている部屋には<strong>「○ (予約)」ボタン</strong>が表示されるので、押すとそのまま予約できます。</li>
+        </ol>
         <img src="images/manual_2.png" alt="空き状況検索" class="manual-img">
       </div>
 
-      <div class="manual-section">
-        <h4>3. 予約の確認・変更</h4>
-        <p>自分の予約バーをクリックすると詳細が表示されます。「編集する」ボタンから時間の変更やキャンセルが可能です。</p>
-        <img src="images/manual_3.png" alt="予約変更" class="manual-img">
+      <div id="m-group" class="manual-section">
+        <h4>3. 便利なグループ機能</h4>
+        <p>よく会議をするメンバーを「グループ」として保存できます。</p>
+        <ol>
+          <li>予約画面にある<strong>「＋新規作成」</strong>ボタンを押します。</li>
+          <li>グループ名を入力し、メンバーを検索して追加します。</li>
+          <li>保存すると、次回からボタン1つで参加者を一括選択できるようになります。</li>
+        </ol>
+        <img src="images/manual_3.png" alt="グループ機能" class="manual-img">
+      </div>
+
+      <div id="m-edit" class="manual-section">
+        <h4>4. 予約の変更・削除</h4>
+        <p>自分の予約内容を修正したり、取り消したりする方法です。</p>
+        <ol>
+          <li>タイムライン上の<strong>自分の予約バー（色付きの帯）</strong>をクリックします。</li>
+          <li>詳細画面が表示されます。<strong>「編集する」</strong>ボタンを押します。</li>
+          <li>内容を修正して「保存」、または<strong>「削除」</strong>ボタンで予約を取り消せます。</li>
+        </ol>
+        <img src="images/manual_4.png" alt="予約変更" class="manual-img">
+      </div>
+
+      <div id="m-log" class="manual-section">
+        <h4>5. 履歴の確認</h4>
+        <p>誰がいつ予約・変更したかの履歴を確認できます。</p>
+        <ol>
+          <li>画面上部のタブから<strong>「履歴」</strong>を選びます。</li>
+          <li>最近の操作一覧が表示されます。</li>
+          <li>右上の検索ボックスに「名前」や「日付」を入れると絞り込みができます。</li>
+        </ol>
+        <img src="images/manual_5.png" alt="履歴確認" class="manual-img">
+      </div>
+
+      <div id="m-settings" class="manual-section">
+        <h4>6. 設定・お問い合わせ</h4>
+        <p>パスワード変更や、管理者への連絡はこちらから。</p>
+        <ol>
+          <li>画面右上の<strong>歯車アイコン</strong>をクリックします。</li>
+          <li><strong>「PW変更」</strong>でログインパスワードを変更できます。</li>
+          <li><strong>「お問い合わせ」</strong>から、システムの不具合や要望を送信できます。</li>
+        </ol>
+        <img src="images/manual_6.png" alt="設定メニュー" class="manual-img">
       </div>
 
     </div>
