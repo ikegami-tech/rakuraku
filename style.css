@@ -1226,7 +1226,7 @@ textarea#input-note::placeholder {
   right: 0;
   top: 130%; /* アイコンの少し下 */
   background-color: #fff;
-  min-width: 140px;
+  min-width: 160px;
   box-shadow: 0 8px 16px rgba(0,0,0,0.2);
   border-radius: 4px;
   z-index: 5000;
@@ -1252,6 +1252,7 @@ textarea#input-note::placeholder {
   font-size: 14px;
   transition: background 0.2s;
   border-bottom: 1px solid #f0f0f0;
+  white-space: nowrap;
 }
 .settings-item:last-child {
   border-bottom: none;
