@@ -2113,3 +2113,17 @@ async function sendContactFeedback() {
     alert("通信エラーが発生しました");
   }
 }
+/* ==============================================
+   マニュアルモーダル開閉
+   ============================================== */
+function openManualModal() {
+  // メニューを閉じる
+  const dropdown = document.getElementById("settings-dropdown");
+  if(dropdown) dropdown.classList.remove("show");
+
+  document.getElementById('manualModal').style.display = 'flex';
+}
+
+function closeManualModal() {
+  document.getElementById('manualModal').style.display = 'none';
+}
