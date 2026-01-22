@@ -2123,21 +2123,15 @@ function openManualModal() {
   const dropdown = document.getElementById("settings-dropdown");
   if(dropdown) dropdown.classList.remove("show");
 
-  // モーダルを表示 (display: flex にするだけ)
-  const modal = document.getElementById('manualModal');
-  if (modal) {
-    modal.style.display = 'flex';
-    
-    // スクロール位置を一番上に戻す
-    const body = modal.querySelector('.manual-body');
-    if (body) body.scrollTop = 0;
-  }
+  // モーダルを表示
+  document.getElementById('manualModal').style.display = 'flex';
+  
+  // スクロール位置を一番上に戻す
+  const body = document.querySelector('.manual-body');
+  if (body) body.scrollTop = 0;
 }
 
 // モーダルを閉じる
 function closeManualModal() {
-  const modal = document.getElementById('manualModal');
-  if (modal) {
-    modal.style.display = 'none';
-  }
+  document.getElementById('manualModal').style.display = 'none';
 }
