@@ -2113,38 +2113,3 @@ async function sendContactFeedback() {
     alert("通信エラーが発生しました");
   }
 }
-/* ==============================================
-   マニュアルモーダル開閉
-   ============================================== */
-function openManualModal() {
-  // メニューを閉じる
-  const dropdown = document.getElementById("settings-dropdown");
-  if(dropdown) dropdown.classList.remove("show");
-
-  document.getElementById('manualModal').style.display = 'flex';
-}
-
-function closeManualModal() {
-  document.getElementById('manualModal').style.display = 'none';
-}
-/* ==============================================
-   マニュアルモーダル開閉 (動画停止機能付き)
-   ============================================== */
-function openManualModal() {
-  const dropdown = document.getElementById("settings-dropdown");
-  if(dropdown) dropdown.classList.remove("show");
-  document.getElementById('manualModal').style.display = 'flex';
-}
-
-function closeManualModal() {
-  const modal = document.getElementById('manualModal');
-  
-  // ★追加: モーダル内の全ての動画を一時停止する処理
-  const videos = modal.querySelectorAll('video');
-  videos.forEach(video => {
-    video.pause(); // 停止
-    // video.currentTime = 0; // 最初に戻したい場合はこのコメントを外す
-  });
-
-  modal.style.display = 'none';
-}
