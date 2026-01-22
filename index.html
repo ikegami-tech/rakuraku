@@ -22,38 +22,41 @@
 
 <div id="app-screen">
   <header>
-  <div class="header-left-group">
-  <div id="header-title">部屋予約</div>
-  
-  <button type="button" class="btn-header-refresh" onclick="manualRefresh()">
-    <span>&#8635;</span> 更新
-  </button>
-  
-  <span id="last-update-time" class="last-update-text"></span>
-</div>
-
-  <div class="user-info">
-    <span id="display-user-name"></span> さん
-    
-    <div class="settings-container">
-      <span class="settings-icon" onclick="toggleSettingsMenu()">&#9881;</span>
+    <div class="header-left-group">
+      <div id="header-title">部屋予約</div>
       
-      <div id="settings-dropdown" class="settings-dropdown-content">
-        <div class="settings-item" onclick="openPasswordModal()">
-          <span>&#128274;</span> PW変更 
-        </div>
-        
-        <div class="settings-item" onclick="openContactModal()">
-          <span>&#9993;</span> お問い合わせ 
-        </div>
+      <button type="button" class="btn-header-refresh" onclick="manualRefresh()">
+        <span>&#8635;</span> 更新
+      </button>
+      
+      <span id="last-update-time" class="last-update-text"></span>
+    </div>
 
-        <div class="settings-item logout-item" onclick="logout()">
-          <span>&#10162;</span> ログアウト
+    <div class="user-info">
+      <div class="settings-container">
+        <span class="settings-icon" onclick="toggleSettingsMenu()">&#9881;</span>
+        
+        <div id="settings-dropdown" class="settings-dropdown-content">
+          
+          <div class="settings-user-display">
+             👤 <span id="display-user-name"></span> さん
+          </div>
+          
+          <div class="settings-item" onclick="openPasswordModal()">
+            <span>&#128274;</span> PW変更 
+          </div>
+
+          <div class="settings-item" onclick="openContactModal()">
+            <span>&#9993;</span> お問い合わせ 
+          </div>
+  
+          <div class="settings-item logout-item" onclick="logout()">
+            <span>&#10162;</span> ログアウト
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</header>
+  </header>
 
   <div class="nav-tabs">
     <div class="nav-item active" onclick="switchTab('map-view')">マップ検索</div>
