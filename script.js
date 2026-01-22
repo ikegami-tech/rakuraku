@@ -2114,43 +2114,55 @@ async function sendContactFeedback() {
   }
 }
 /* ==============================================
-   マニュアルモーダル開閉 (選択式)
+   マニュアルモーダル開閉 & 画面切り替え処理
    ============================================== */
 
-// モーダルを開く（最初は選択画面を表示）
+// ▼ モーダルを開く（最初は「選択画面」を表示）
 function openManualModal() {
+  // 設定メニューが出ていれば閉じる
   const dropdown = document.getElementById("settings-dropdown");
   if(dropdown) dropdown.classList.remove("show");
 
-  // 画面リセット（選択画面を表示、他を隠す）
+  // 画面状態をリセット（選択画面を表示、PC/スマホ詳細を隠す）
   resetManualMode();
   
+  // モーダルを表示
   document.getElementById('manualModal').style.display = 'flex';
 }
 
-// モーダルを閉じる
+// ▼ モーダルを閉じる
 function closeManualModal() {
   document.getElementById('manualModal').style.display = 'none';
 }
 
-// マニュアルの表示切り替え ('pc' または 'sp')
+// ▼ マニュアルの表示モード切り替え ('pc' または 'sp')
 function switchManualMode(mode) {
-  // 選択画面を隠す
+  // 1. まず選択画面を隠す
   document.getElementById('manual-select-screen').style.display = 'none';
   
-  // 指定されたマニュアルを表示
+  // 2. 指定された方のマニュアルを表示する
   if (mode === 'pc') {
     document.getElementById('manual-pc-view').style.display = 'block';
     document.getElementById('manual-sp-view').style.display = 'none';
-  } else {
+  } else if (mode === 'sp') {
     document.getElementById('manual-pc-view').style.display = 'none';
     document.getElementById('manual-sp-view').style.display = 'block';
   }
+  
+  // (任意) 切り替えた瞬間に一番上までスクロールさせる
+  const manualBody = document.querySelector('.manual-body');
+  if(manualBody) manualBody.scrollTop = 0;
 }
 
-// 選択画面に戻る
+// ▼ 選択画面に戻る（リセット）
 function resetManualMode() {
+  // 選択画面を表示
   document.getElementById('manual-select-screen').style.display = 'block';
-  document.getElementById('manual-pc-view').style.display = 'none';
-  document.getElementById('manual-sp-view').style.display = 'none';
+  
+  // 詳細画面は両方隠す
+  const pcView = document.getElementById('manual-pc-view');
+  const spView = document.getElementById('manual-sp-view');
+  
+  if(pcView) pcView.style.display = 'none';
+  if(spView) spView.style.display = 'none';
 }
