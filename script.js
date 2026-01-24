@@ -485,398 +485,399 @@ function drawTimeAxis(containerId) {
       container.appendChild(div);
   }
 }
+/* ==============================================
+   修正版: renderVerticalTimeline
+   (スマホタップ不具合 & マップ時スクロール不具合 対応版)
+   ============================================== */
 function renderVerticalTimeline(mode) {
-  let container, dateInputId, targetRooms, timeAxisId;
+    let container, dateInputId, targetRooms, timeAxisId;
 
-  // モード判定
-  if (mode === 'all') {
-      container = document.getElementById('rooms-container-all');
-      dateInputId = 'timeline-date';
-      timeAxisId = 'time-axis-all';
-      const floorConfig = mapConfig[currentTimelineFloor];
-      if (floorConfig) {
-          const floorRoomIds = floorConfig.areas.map(area => area.id);
-          targetRooms = masterData.rooms.filter(r => floorRoomIds.includes(r.roomId));
-      } else { targetRooms = []; }
-   } else if (mode === 'map') { 
-      container = document.getElementById('rooms-container-map');
-      dateInputId = 'map-date';
-      timeAxisId = 'time-axis-map';
-      targetRooms = masterData.rooms.filter(r => String(r.roomId) === String(currentMapRoomId));
-  } else { return; }
-  
-  if (!targetRooms || targetRooms.length === 0) {
-      if(container) container.innerHTML = "<div style='padding:20px;'>部屋データが見つかりません。</div>";
-      return;
-  }
+    // モード判定
+    if (mode === 'all') {
+        container = document.getElementById('rooms-container-all');
+        dateInputId = 'timeline-date';
+        timeAxisId = 'time-axis-all';
+        const floorConfig = mapConfig[currentTimelineFloor];
+        if (floorConfig) {
+            const floorRoomIds = floorConfig.areas.map(area => area.id);
+            targetRooms = masterData.rooms.filter(r => floorRoomIds.includes(r.roomId));
+        } else { targetRooms = []; }
+    } else if (mode === 'map') {
+        container = document.getElementById('rooms-container-map');
+        dateInputId = 'map-date';
+        timeAxisId = 'time-axis-map';
+        targetRooms = masterData.rooms.filter(r => String(r.roomId) === String(currentMapRoomId));
+    } else { return; }
 
-  let savedScrollTop = 0;
-  let savedScrollLeft = 0;
-  if (container) {
-      savedScrollTop = container.scrollTop;
-      savedScrollLeft = container.scrollLeft;
-  }
-    
-  // コンテナ初期化・スクロール設定
-  document.body.style.overflow = "hidden";
-  if (container) {
-      container.innerHTML = ""; 
-      if (mode === 'map') {
-          container.style.height = "auto"; 
-          container.style.overflowY = "visible";
-      } else {
-          container.style.height = "100%";     
-          container.style.overflowY = "auto";
-      }
-      container.style.width = "100%"; 
-      container.style.maxWidth = "100vw";
-      container.style.overflowX = "auto"; 
-      container.style.minWidth = "0";
-      container.style.overscrollBehavior = "contain";        
-      container.style.display = "flex";    
-      container.style.flexWrap = "nowrap"; 
-      container.style.alignItems = "flex-start";
-      container.style.position = "relative";
-      container.style.boxSizing = "border-box";
-      container.style.setProperty('cursor', 'default', 'important');
-      container.style.userSelect = "none"; 
-      container.style.webkitUserSelect = "none";
-  }
-
-  // ドラッグスクロール処理
-  let isDown = false;
-  let startX, startY;
-  let startScrollLeft, startScrollTop;
-  let vScrollTarget;
-
-  // ★追加: スマホのタッチ操作かどうかを判定するフラグ
-  let isTouchAction = false; 
-
-  if (container) {
-      // ★追加: タッチ開始時にフラグを立てる (スマホではPC用のドラッグ処理を無効化するため)
-      container.ontouchstart = () => { isTouchAction = true; };
-
-      if (mode === 'map') {
-          vScrollTarget = container.closest('.map-wrapper') || container;
-      } else {
-          vScrollTarget = container;
-      }
-
-      container.onmousedown = (e) => {
-          // ★追加: スマホ(タッチ操作)なら、このPC用ドラッグ処理は何もしない
-          if (isTouchAction) return;
-
-          isDown = true;
-          hasDragged = false; // ドラッグ状態をリセット
-          container.style.cursor = "grabbing";
-          
-          startX = e.pageX;
-          startY = e.pageY;
-          startScrollLeft = container.scrollLeft;
-          startScrollTop = vScrollTarget.scrollTop;
-      };
-
-      container.onmouseleave = () => {
-          isDown = false;
-          container.style.cursor = "default";
-      };
-
-      container.onmouseup = () => {
-          isDown = false;
-          container.style.cursor = "default";
-          // 少し遅らせてフラグを戻す（クリックイベントとの競合回避）
-          setTimeout(() => { hasDragged = false; }, 50);
-      };
-
-      container.onmousemove = (e) => {
-          if (!isDown) return;
-          e.preventDefault();
-          
-          const x = e.pageX;
-          const y = e.pageY;
-          const walkX = (x - startX) * 1.5;
-          const walkY = (y - startY) * 1.5;
-          
-          // 5px以上動いたらドラッグとみなす
-          if (Math.abs(walkX) > 5 || Math.abs(walkY) > 5) {
-              hasDragged = true;
-          }
-
-          container.scrollLeft = startScrollLeft - walkX;
-          vScrollTarget.scrollTop = startScrollTop - walkY;
-      };
-  }
-  // 日付・予約データ抽出
-  const rawDateVal = document.getElementById(dateInputId).value; 
-  const targetDateNum = formatDateToNum(new Date(rawDateVal)); 
-  
-  // 時間ごとの高さを計算
-  for(let h=START_HOUR; h<END_HOUR; h++) hourRowHeights[h] = BASE_HOUR_HEIGHT;
-
-  const DYNAMIC_CHARS_PER_LINE = 12; 
-  const allRelevantReservations = masterData.reservations.filter(res => {
-      const startTimeVal = getVal(res, ['startTime', 'start_time', '開始日時', '開始', 'Start']);
-      if (!startTimeVal) return false;
-      const rId = getVal(res, ['resourceId', 'roomId', 'room_id', 'resource_id', '部屋ID', '部屋']);
-      const isTargetRoom = targetRooms.some(r => String(r.roomId) === String(rId));
-      const resDateNum = formatDateToNum(new Date(startTimeVal));
-      
-      // データ補正してキャッシュ
-      res._startTime = startTimeVal;
-      res._endTime = getVal(res, ['endTime', 'end_time', '終了日時', '終了', 'End']);
-      res._resourceId = rId;
-      return isTargetRoom && (resDateNum === targetDateNum);
-  });
-
-  // 高さ自動調整（★ここを修正：名前の行が増えた分、高さを確保）
-  allRelevantReservations.forEach(res => {
-      const start = new Date(res._startTime);
-      const sHour = start.getHours();
-      let displayText = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '予約';
-      const titleLines = Math.ceil(displayText.length / DYNAMIC_CHARS_PER_LINE) || 1;
-      
-      // ★修正: 名前行が増えたので基本高さを +25px していたのを +45px に変更
-      const contentHeightPx = (titleLines * 15) + 65; 
-
-      let durationMin = (new Date(res._endTime) - new Date(res._startTime)) / 60000;
-      if (durationMin < 15) durationMin = 15;
-      const ratio = durationMin / 60;
-      const requiredHourHeight = contentHeightPx / ratio;
-      if (sHour >= START_HOUR && sHour < END_HOUR) {
-          if (requiredHourHeight > hourRowHeights[sHour]) hourRowHeights[sHour] = requiredHourHeight;
-      }
-  });
-
-  const hourTops = {};
-  let currentTop = 0;
-  for(let h=START_HOUR; h<END_HOUR; h++) {
-      hourTops[h] = currentTop;
-      currentTop += hourRowHeights[h];
-  }
-  hourTops[END_HOUR] = currentTop;
-    
-let nowTopPx = -1;
-  const now = new Date();
-  const todayStr = formatDateToNum(now); 
-  
-  // 開いているページの日付が「今日」と同じかチェック
-  if (targetDateNum === todayStr) {
-      const nowH = now.getHours();
-      const nowM = now.getMinutes();
-      // 営業時間内なら位置を計算
-      if (nowH >= START_HOUR && nowH < END_HOUR) {
-          nowTopPx = hourTops[nowH] + (hourRowHeights[nowH] * (nowM / 60));
-      }
-  }
-    
-  // 軸を描画
-  drawTimeAxis(timeAxisId);
-  const axisContainer = document.getElementById(timeAxisId);
-  if (axisContainer && container) {
-      axisContainer.style.height = container.style.height; 
-      axisContainer.style.overflow = "hidden"; 
-      axisContainer.style.display = "block";
-      axisContainer.style.overscrollBehavior = "contain";
-      container.onscroll = () => { axisContainer.scrollTop = container.scrollTop; };
-      axisContainer.scrollTop = savedScrollTop;
-      axisContainer.onwheel = (e) => {
-          e.preventDefault(); 
-          container.scrollTop += e.deltaY; 
-          container.scrollLeft += e.deltaX; 
-      };
-      axisContainer.scrollTop = container.scrollTop;
-
-      const axisHeader = axisContainer.querySelector('.time-axis-header');
-      if(axisHeader) {
-          axisHeader.style.position = "sticky";
-          axisHeader.style.top = "0";
-          axisHeader.style.backgroundColor = "#fff"; 
-          axisHeader.style.zIndex = "20";
-          axisHeader.style.borderBottom = "1px solid #ddd"; 
-          axisHeader.style.boxSizing = "border-box";
-      }
-  }
-  
-  // 部屋カラム描画
-  targetRooms.forEach(room => {
-    const col = document.createElement('div');
-    col.className = 'room-col';
-    col.style.minWidth = "200px"; 
-    col.style.flexShrink = "0";
-    col.style.flexGrow = "1";
-    col.style.position = "relative";
-    col.style.borderRight = "1px solid #ddd"; 
-    col.style.overflow = "visible"; 
-
-    // ヘッダー
-    const header = document.createElement('div');
-    header.className = 'room-header';
-    header.innerText = room.roomName;
-    header.style.position = "sticky";
-    header.style.top = "0";           
-    header.style.zIndex = "60";       
-    header.style.backgroundColor = "#fff"; 
-    header.style.borderBottom = "1px solid #999"; 
-    header.style.borderTop = "1px solid #ddd"; 
-    header.style.height = "40px";        
-    header.style.lineHeight = "40px"; 
-    header.style.textAlign = "center";
-    header.style.fontWeight = "bold";
-    header.style.boxSizing = "border-box"; 
-    col.appendChild(header);
-    
-    // グリッド本体
-    const body = document.createElement('div');
-    body.className = 'room-grid-body';
-    if (nowTopPx !== -1) {
-        const line = document.createElement('div');
-        line.className = 'current-time-line';
-        line.style.top = nowTopPx + "px";
-        body.appendChild(line);
-    }  
-    body.style.height = currentTop + "px"; 
-    body.style.position = "relative"; 
-
-    for(let h=START_HOUR; h<END_HOUR; h++) {
-        const slot = document.createElement('div');
-        slot.className = 'grid-slot';
-        slot.style.height = hourRowHeights[h] + "px";
-        slot.style.boxSizing = "border-box";
-        slot.style.borderBottom = "1px dotted #eee"; 
-        body.appendChild(slot);
+    if (!targetRooms || targetRooms.length === 0) {
+        if (container) container.innerHTML = "<div style='padding:20px;'>部屋データが見つかりません。</div>";
+        return;
     }
+
+    let savedScrollTop = 0;
+    let savedScrollLeft = 0;
     
-   // グリッドクリック（空き枠クリック）
-    body.onclick = (e) => {
-       // ドラッグ中なら反応させない
-       if (hasDragged) return;
+    // マップモードの場合、スクロール位置の保存対象は親ラッパーにする
+    const mapWrapper = document.querySelector('.map-wrapper');
+    if (mode === 'map' && mapWrapper) {
+        savedScrollTop = mapWrapper.scrollTop;
+    } else if (container) {
+        savedScrollTop = container.scrollTop;
+        savedScrollLeft = container.scrollLeft;
+    }
 
-       // 予約バー（既存予約）をクリックした場合は反応させない（バー側の処理に任せる）
-       if (e.target.closest('.v-booking-bar')) return;
-
-       // ★修正: クリック対象がなんであれ、body内であれば座標計算して処理する
-       // (以前の classList.contains('grid-slot') だけだと、枠線などをタップした時に反応しない場合があるため)
-       
-       const rect = body.getBoundingClientRect();
-       const clickY = e.clientY - rect.top; // 上からの位置
-       
-       let clickedHour = -1;
-       let clickedMin = 0; 
-       
-       // クリック位置がどの時間の枠にあるか計算
-       for(let h=START_HOUR; h<END_HOUR; h++) {
-           const top = hourTops[h];
-           const bottom = hourTops[h+1] !== undefined ? hourTops[h+1] : (top + hourRowHeights[h]);
-           
-           if (clickY >= top && clickY < bottom) {
-               clickedHour = h;
-               const height = bottom - top;
-               const relativeY = clickY - top; 
-               // 枠の下半分なら30分扱いにする
-               if (relativeY >= height / 2) clickedMin = 30;
-               break;
-           }
-       }
-       
-       if(clickedHour !== -1) {
-           openModal(null, room.roomId, clickedHour, clickedMin);
-       }
-    };
-
-    // 予約バー描画
-    const reservations = allRelevantReservations.filter(res => String(res._resourceId) === String(room.roomId));
-    reservations.forEach(res => {
-      const start = new Date(res._startTime);
-      const end = new Date(res._endTime);
-      let sHour = start.getHours();
-      let sMin = start.getMinutes();
-      let eHour = end.getHours();
-      let eMin = end.getMinutes();
-      
-      if (sHour < START_HOUR) { sHour = START_HOUR; sMin = 0; }
-      if (eHour >= END_HOUR) { eHour = END_HOUR; eMin = 0; }
-
-      if (sHour < END_HOUR && (sHour > START_HOUR || (sHour === START_HOUR && sMin >= 0))) {
-          const topPx = hourTops[sHour] + (hourRowHeights[sHour] * (sMin / 60));
-          let bottomPx = 0;
-          if (eHour === END_HOUR) bottomPx = hourTops[END_HOUR];
-          else bottomPx = hourTops[eHour] + (hourRowHeights[eHour] * (eMin / 60));
-          
-          let heightPx = bottomPx - topPx; 
-          const minHeightPx = hourRowHeights[sHour] * (15 / 60);
-          if (heightPx < minHeightPx) heightPx = minHeightPx;
-          
-          const bar = document.createElement('div');
-          bar.className = `v-booking-bar type-${room.type}`;
-          bar.style.top = (topPx + 1) + "px";
-          bar.style.height = (heightPx - 2) + "px"; 
-          bar.style.zIndex = "5";
-          bar.style.position = "absolute"; 
-          bar.style.left = "2px";
-          bar.style.width = "calc(100% - 4px)";
-          
-          // ▼▼▼ 名前表示ロジック ▼▼▼
-          let displayTitle = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '予約';
-          const startTimeStr = `${start.getHours()}:${pad(start.getMinutes())}`;
-          const endTimeStr = `${end.getHours()}:${pad(end.getMinutes())}`;
-          const timeRangeStr = `${startTimeStr}-${endTimeStr}`;
-
-          let participantsStr = "";
-          let pIdsRaw = getVal(res, ['participantIds', 'participant_ids', '参加者', 'メンバー']);
-          
-          if (pIdsRaw) {
-              const cleanIds = String(pIdsRaw).replace(/['"]/g, "").split(/[,、\s]+/);
-              let names = [];
-              cleanIds.forEach(id => {
-                  const trimId = id.trim();
-                  if(!trimId) return;
-                  const u = masterData.users.find(user => String(user.userId) === trimId);
-                  names.push(u ? u.userName : trimId);
-              });
-
-              if (names.length > 0) {
-                  if (names.length <= 4) {
-                      participantsStr = names.join(', ');
-                  } else {
-                      const showNames = names.slice(0, 4).join(', ');
-                      const restCount = names.length - 4;
-                      participantsStr = `${showNames} (+${restCount}名)`;
-                  }
-              }
-          }
-
-          // HTML描画
-          bar.innerHTML = `
-              <div style="width:100%; font-weight:bold; font-size:0.85em; line-height:1.1; margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${timeRangeStr}</div>
-              <div style="width:100%; font-weight:bold; font-size:0.9em; line-height:1.1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${displayTitle}</div>
-              <div style="width:100%; font-weight:bold; font-size:0.9em; line-height:1.1; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${participantsStr}</div>
-          `;
-
-          bar.onclick = (e) => { 
-              if (hasDragged) return;
-              e.stopPropagation(); 
-              openDetailModal(res); 
-          };
-          body.appendChild(bar);
-      }
-    });
-    
-    col.appendChild(body);
-    container.appendChild(col);
-    });
+    // コンテナ初期化
+    document.body.style.overflow = "hidden";
     if (container) {
-      // メインの予約枠を復元
-      container.scrollTop = savedScrollTop;
-      container.scrollLeft = savedScrollLeft;
+        container.innerHTML = "";
+        // マップモードと一覧モードでスタイルを分岐
+        if (mode === 'map') {
+            container.style.height = "auto";
+            container.style.overflowY = "visible"; // マップ時は中身に合わせて伸びる
+        } else {
+            container.style.height = "100%";
+            container.style.overflowY = "auto";    // 一覧時は枠内でスクロール
+        }
+        container.style.width = "100%";
+        container.style.maxWidth = "100vw";
+        container.style.overflowX = "auto";
+        container.style.minWidth = "0";
+        container.style.overscrollBehavior = "contain";
+        container.style.display = "flex";
+        container.style.flexWrap = "nowrap";
+        container.style.alignItems = "flex-start";
+        container.style.position = "relative";
+        container.style.boxSizing = "border-box";
+        container.style.setProperty('cursor', 'default', 'important');
+        container.style.userSelect = "none";
+        container.style.webkitUserSelect = "none";
+    }
 
-      // ★追加★: 時間軸も同じ高さに強制的に合わせる
-      const axisContainerEnd = document.getElementById(timeAxisId);
-      if (axisContainerEnd) {
-          axisContainerEnd.scrollTop = savedScrollTop;
-      }
-  }
+    // ==============================================
+    // 【修正1】 ドラッグスクロール処理 (PCのみ有効化)
+    // ==============================================
+    let isDown = false;
+    let startX, startY;
+    let startScrollLeft, startScrollTop;
+    let hasDragged = false;
+    let isTouch = false; // スマホ判定フラグ
+
+    if (container) {
+        // タッチ開始を検知したらフラグを立てる
+        container.addEventListener('touchstart', () => { isTouch = true; }, { passive: true });
+
+        // マップモード時のスクロール対象（親ラッパー または 自分自身）
+        const vScrollTarget = (mode === 'map') ? mapWrapper : container;
+
+        container.onmousedown = (e) => {
+            // ★スマホならPC用ドラッグ処理を即座に中断（ネイティブスクロールに任せる）
+            if (isTouch) return;
+
+            isDown = true;
+            hasDragged = false;
+            container.style.cursor = "grabbing";
+            startX = e.pageX;
+            startY = e.pageY;
+            startScrollLeft = container.scrollLeft;
+            // 縦スクロール位置の取得元を分岐
+            startScrollTop = vScrollTarget ? vScrollTarget.scrollTop : 0;
+        };
+
+        container.onmouseleave = () => { isDown = false; container.style.cursor = "default"; };
+        container.onmouseup = () => {
+            isDown = false;
+            container.style.cursor = "default";
+            // クリック判定のために少し遅らせてフラグを下ろす
+            setTimeout(() => { hasDragged = false; }, 50);
+        };
+
+        container.onmousemove = (e) => {
+            if (!isDown || isTouch) return; // スマホなら無視
+            e.preventDefault();
+
+            const x = e.pageX;
+            const y = e.pageY;
+            const walkX = (x - startX) * 1.5;
+            const walkY = (y - startY) * 1.5;
+
+            // 5px以上動いたらドラッグとみなす（クリック誤爆防止）
+            if (Math.abs(walkX) > 5 || Math.abs(walkY) > 5) {
+                hasDragged = true;
+            }
+
+            container.scrollLeft = startScrollLeft - walkX;
+            if (vScrollTarget) {
+                vScrollTarget.scrollTop = startScrollTop - walkY;
+            }
+        };
+
+        // ==============================================
+        // 【修正2】 マップモード時のマウスホイール強制スクロール
+        // ==============================================
+        if (mode === 'map' && mapWrapper) {
+            container.addEventListener('wheel', (e) => {
+                // 予約枠の上でホイールを回した時、親のmapWrapperをスクロールさせる
+                // 拡大縮小(Ctrlキー)などは除外
+                if (!e.ctrlKey) {
+                    mapWrapper.scrollTop += e.deltaY;
+                    // 必要であれば preventDefault() を入れるが、
+                    // 最近のブラウザは passive: true がデフォルトなので注意
+                }
+            }, { passive: false });
+        }
+    }
+
+    // --- 以下、データ描画処理 (変更なしだがコンテキスト維持のため記載) ---
+    
+    const rawDateVal = document.getElementById(dateInputId).value;
+    const targetDateNum = formatDateToNum(new Date(rawDateVal));
+    for (let h = START_HOUR; h < END_HOUR; h++) hourRowHeights[h] = BASE_HOUR_HEIGHT;
+
+    const DYNAMIC_CHARS_PER_LINE = 12;
+    const allRelevantReservations = masterData.reservations.filter(res => {
+        const startTimeVal = getVal(res, ['startTime', 'start_time', '開始日時', '開始', 'Start']);
+        if (!startTimeVal) return false;
+        const rId = getVal(res, ['resourceId', 'roomId', 'room_id', 'resource_id', '部屋ID', '部屋']);
+        const isTargetRoom = targetRooms.some(r => String(r.roomId) === String(rId));
+        const resDateNum = formatDateToNum(new Date(startTimeVal));
+        res._startTime = startTimeVal;
+        res._endTime = getVal(res, ['endTime', 'end_time', '終了日時', '終了', 'End']);
+        res._resourceId = rId;
+        return isTargetRoom && (resDateNum === targetDateNum);
+    });
+
+    allRelevantReservations.forEach(res => {
+        const start = new Date(res._startTime);
+        const sHour = start.getHours();
+        let displayText = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '予約';
+        const titleLines = Math.ceil(displayText.length / DYNAMIC_CHARS_PER_LINE) || 1;
+        const contentHeightPx = (titleLines * 15) + 65;
+        let durationMin = (new Date(res._endTime) - new Date(res._startTime)) / 60000;
+        if (durationMin < 15) durationMin = 15;
+        const ratio = durationMin / 60;
+        const requiredHourHeight = contentHeightPx / ratio;
+        if (sHour >= START_HOUR && sHour < END_HOUR) {
+            if (requiredHourHeight > hourRowHeights[sHour]) hourRowHeights[sHour] = requiredHourHeight;
+        }
+    });
+
+    const hourTops = {};
+    let currentTop = 0;
+    for (let h = START_HOUR; h < END_HOUR; h++) {
+        hourTops[h] = currentTop;
+        currentTop += hourRowHeights[h];
+    }
+    hourTops[END_HOUR] = currentTop;
+
+    let nowTopPx = -1;
+    const now = new Date();
+    const todayStr = formatDateToNum(now);
+    if (targetDateNum === todayStr) {
+        const nowH = now.getHours();
+        const nowM = now.getMinutes();
+        if (nowH >= START_HOUR && nowH < END_HOUR) {
+            nowTopPx = hourTops[nowH] + (hourRowHeights[nowH] * (nowM / 60));
+        }
+    }
+
+    drawTimeAxis(timeAxisId);
+    const axisContainer = document.getElementById(timeAxisId);
+    if (axisContainer && container) {
+        axisContainer.style.height = (mode === 'map') ? 'auto' : container.style.height;
+        axisContainer.style.overflow = "hidden";
+        axisContainer.style.display = "block";
+        
+        // 軸のスクロール同期
+        if (mode === 'all') {
+            container.onscroll = () => { axisContainer.scrollTop = container.scrollTop; };
+            axisContainer.scrollTop = savedScrollTop;
+            axisContainer.onwheel = (e) => {
+                e.preventDefault();
+                container.scrollTop += e.deltaY;
+                container.scrollLeft += e.deltaX;
+            };
+        } else {
+            // マップモードの場合は軸自体の高さもコンテンツに合わせる
+            axisContainer.style.height = currentTop + "px";
+        }
+
+        const axisHeader = axisContainer.querySelector('.time-axis-header');
+        if (axisHeader) {
+            axisHeader.style.position = "sticky";
+            axisHeader.style.top = "0";
+            axisHeader.style.backgroundColor = "#fff";
+            axisHeader.style.zIndex = "20";
+            axisHeader.style.borderBottom = "1px solid #ddd";
+            axisHeader.style.boxSizing = "border-box";
+        }
+    }
+
+    targetRooms.forEach(room => {
+        const col = document.createElement('div');
+        col.className = 'room-col';
+        col.style.minWidth = "200px";
+        col.style.flexShrink = "0";
+        col.style.flexGrow = "1";
+        col.style.position = "relative";
+        col.style.borderRight = "1px solid #ddd";
+        col.style.overflow = "visible";
+
+        const header = document.createElement('div');
+        header.className = 'room-header';
+        header.innerText = room.roomName;
+        header.style.position = "sticky";
+        header.style.top = "0";
+        header.style.zIndex = "60";
+        header.style.backgroundColor = "#fff";
+        header.style.borderBottom = "1px solid #999";
+        header.style.borderTop = "1px solid #ddd";
+        header.style.height = "40px";
+        header.style.lineHeight = "40px";
+        header.style.textAlign = "center";
+        header.style.fontWeight = "bold";
+        header.style.boxSizing = "border-box";
+        col.appendChild(header);
+
+        const body = document.createElement('div');
+        body.className = 'room-grid-body';
+        if (nowTopPx !== -1) {
+            const line = document.createElement('div');
+            line.className = 'current-time-line';
+            line.style.top = nowTopPx + "px";
+            body.appendChild(line);
+        }
+        body.style.height = currentTop + "px";
+        body.style.position = "relative";
+
+        for (let h = START_HOUR; h < END_HOUR; h++) {
+            const slot = document.createElement('div');
+            slot.className = 'grid-slot';
+            slot.style.height = hourRowHeights[h] + "px";
+            slot.style.boxSizing = "border-box";
+            slot.style.borderBottom = "1px dotted #eee";
+            body.appendChild(slot);
+        }
+
+        // ==============================================
+        // 【修正3】 クリック判定 (スマホ対応)
+        // ==============================================
+        body.onclick = (e) => {
+            // PCでの明らかなドラッグ操作後はキャンセル
+            if (!isTouch && hasDragged) return;
+            if (e.target.closest('.v-booking-bar')) return;
+
+            // スマホ、またはPCのクリックの場合
+            const rect = body.getBoundingClientRect();
+            const clickY = e.clientY - rect.top;
+            
+            let clickedHour = -1;
+            let clickedMin = 0;
+            for (let h = START_HOUR; h < END_HOUR; h++) {
+                const top = hourTops[h];
+                const bottom = hourTops[h + 1] !== undefined ? hourTops[h + 1] : (top + hourRowHeights[h]);
+                if (clickY >= top && clickY < bottom) {
+                    clickedHour = h;
+                    const height = bottom - top;
+                    const relativeY = clickY - top;
+                    if (relativeY >= height / 2) clickedMin = 30;
+                    break;
+                }
+            }
+            if (clickedHour !== -1) openModal(null, room.roomId, clickedHour, clickedMin);
+        };
+
+        const reservations = allRelevantReservations.filter(res => String(res._resourceId) === String(room.roomId));
+        reservations.forEach(res => {
+            const start = new Date(res._startTime);
+            const end = new Date(res._endTime);
+            let sHour = start.getHours();
+            let sMin = start.getMinutes();
+            let eHour = end.getHours();
+            let eMin = end.getMinutes();
+
+            if (sHour < START_HOUR) { sHour = START_HOUR; sMin = 0; }
+            if (eHour >= END_HOUR) { eHour = END_HOUR; eMin = 0; }
+
+            if (sHour < END_HOUR && (sHour > START_HOUR || (sHour === START_HOUR && sMin >= 0))) {
+                const topPx = hourTops[sHour] + (hourRowHeights[sHour] * (sMin / 60));
+                let bottomPx = 0;
+                if (eHour === END_HOUR) bottomPx = hourTops[END_HOUR];
+                else bottomPx = hourTops[eHour] + (hourRowHeights[eHour] * (eMin / 60));
+
+                let heightPx = bottomPx - topPx;
+                const minHeightPx = hourRowHeights[sHour] * (15 / 60);
+                if (heightPx < minHeightPx) heightPx = minHeightPx;
+
+                const bar = document.createElement('div');
+                bar.className = `v-booking-bar type-${room.type}`;
+                bar.style.top = (topPx + 1) + "px";
+                bar.style.height = (heightPx - 2) + "px";
+                bar.style.zIndex = "5";
+                bar.style.position = "absolute";
+                bar.style.left = "2px";
+                bar.style.width = "calc(100% - 4px)";
+
+                let displayTitle = getVal(res, ['title', 'subject', '件名', 'タイトル']) || '予約';
+                const startTimeStr = `${start.getHours()}:${pad(start.getMinutes())}`;
+                const endTimeStr = `${end.getHours()}:${pad(end.getMinutes())}`;
+                const timeRangeStr = `${startTimeStr}-${endTimeStr}`;
+
+                let participantsStr = "";
+                let pIdsRaw = getVal(res, ['participantIds', 'participant_ids', '参加者', 'メンバー']);
+                if (pIdsRaw) {
+                     const cleanIds = String(pIdsRaw).replace(/['"]/g, "").split(/[,、\s]+/);
+                     let names = [];
+                     cleanIds.forEach(id => {
+                         const trimId = id.trim();
+                         if(!trimId) return;
+                         const u = masterData.users.find(user => String(user.userId) === trimId);
+                         names.push(u ? u.userName : trimId);
+                     });
+                     if (names.length > 0) {
+                         if (names.length <= 4) {
+                             participantsStr = names.join(', ');
+                         } else {
+                             const showNames = names.slice(0, 4).join(', ');
+                             const restCount = names.length - 4;
+                             participantsStr = `${showNames} (+${restCount}名)`;
+                         }
+                     }
+                }
+
+                bar.innerHTML = `
+                      <div style="width:100%; font-weight:bold; font-size:0.85em; line-height:1.1; margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${timeRangeStr}</div>
+                      <div style="width:100%; font-weight:bold; font-size:0.9em; line-height:1.1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${displayTitle}</div>
+                      <div style="width:100%; font-weight:bold; font-size:0.9em; line-height:1.1; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${participantsStr}</div>
+                  `;
+
+                bar.onclick = (e) => {
+                    // PCでのドラッグ後はキャンセル
+                    if (!isTouch && hasDragged) return;
+                    e.stopPropagation();
+                    openDetailModal(res);
+                };
+                body.appendChild(bar);
+            }
+        });
+
+        col.appendChild(body);
+        container.appendChild(col);
+    });
+
+    if (container) {
+        if (mode === 'map' && mapWrapper) {
+             mapWrapper.scrollTop = savedScrollTop;
+        } else {
+             container.scrollTop = savedScrollTop;
+             container.scrollLeft = savedScrollLeft;
+        }
+        
+        const axisContainerEnd = document.getElementById(timeAxisId);
+        if (axisContainerEnd && mode === 'all') {
+            axisContainerEnd.scrollTop = savedScrollTop;
+        }
+    }
 }
-
 /* ==============================================
    6. 予約・詳細モーダル関連
    ============================================== */
