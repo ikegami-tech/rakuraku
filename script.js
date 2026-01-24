@@ -545,55 +545,38 @@ function renderVerticalTimeline(mode) {
 
   // ドラッグスクロール処理
   let isDown = false;
-  let startX, startY;
-  let startScrollLeft, startScrollTop;
-  let vScrollTarget; // 縦スクロールさせる対象
+  let startX, startY, scrollLeft, scrollTop;
+  let hasDragged = false; 
 
   if (container) {
-      // ★修正: 縦スクロール対象を明確に決定
-      // マップモードなら親の .map-wrapper を、それ以外なら自分自身(container)を対象にする
-      if (mode === 'map') {
-          vScrollTarget = container.closest('.map-wrapper') || container;
-      } else {
-          vScrollTarget = container;
-      }
-
       container.onmousedown = (e) => {
           isDown = true;
+          hasDragged = false;
           container.style.cursor = "grabbing";
-          
-          // ★修正: 要素の位置計算(offsetTop)はやめて、マウスの絶対座標を使う（これが一番確実です）
-          startX = e.pageX;
-          startY = e.pageY;
-          
-          // ★修正: クリックした瞬間のスクロール位置を記憶
-          startScrollLeft = container.scrollLeft;
-          startScrollTop = vScrollTarget.scrollTop;
+          startX = e.pageX - container.offsetLeft;
+          startY = e.pageY - container.offsetTop;
+          scrollLeft = container.scrollLeft;
+          scrollTop = container.scrollTop;
       };
-
-      container.onmouseleave = () => {
-          isDown = false;
-          container.style.cursor = "default";
-      };
-
+      container.onmouseleave = () => { isDown = false; container.style.cursor = "default"; };
       container.onmouseup = () => {
           isDown = false;
           container.style.cursor = "default";
+          setTimeout(() => { hasDragged = false; }, 50);
       };
-
       container.onmousemove = (e) => {
           if (!isDown) return;
-          e.preventDefault(); // 文字選択などを防ぐ
+          e.preventDefault();
+          const x = e.pageX - container.offsetLeft;
+          const y = e.pageY - container.offsetTop;
+          const walkX = (x - startX) * 1.5; 
+          const walkY = (y - startY) * 1.5; 
           
-          // ★修正: 「どれだけ動いたか」を計算 (現在の座標 - 開始時の座標)
-          const x = e.pageX;
-          const y = e.pageY;
-          const walkX = (x - startX) * 1.5; // 横移動量 (1.5倍速)
-          const walkY = (y - startY) * 1.5; // 縦移動量 (1.5倍速)
-          
-          // ★修正: 開始時のスクロール位置から、移動分を引き算して適用
-          container.scrollLeft = startScrollLeft - walkX;   // 横は常にコンテナ自身
-          vScrollTarget.scrollTop = startScrollTop - walkY; // 縦はターゲット(マップ時は全体)
+          if (Math.abs(walkX) > 5 || Math.abs(walkY) > 5) {
+              hasDragged = true;
+          }
+          container.scrollLeft = scrollLeft - walkX;
+          container.scrollTop = scrollTop - walkY;
       };
   }
 
