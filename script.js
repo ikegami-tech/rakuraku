@@ -545,41 +545,67 @@ function renderVerticalTimeline(mode) {
 
   // ドラッグスクロール処理
   let isDown = false;
-  let startX, startY, scrollLeft, scrollTop;
-  let hasDragged = false; 
+  let startX, startY;
+  let startScrollLeft, startScrollTop;
+  let vScrollTarget;
+
+  // ★追加: スマホのタッチ操作かどうかを判定するフラグ
+  let isTouchAction = false; 
 
   if (container) {
+      // ★追加: タッチ開始時にフラグを立てる (スマホではPC用のドラッグ処理を無効化するため)
+      container.ontouchstart = () => { isTouchAction = true; };
+
+      if (mode === 'map') {
+          vScrollTarget = container.closest('.map-wrapper') || container;
+      } else {
+          vScrollTarget = container;
+      }
+
       container.onmousedown = (e) => {
+          // ★追加: スマホ(タッチ操作)なら、このPC用ドラッグ処理は何もしない
+          if (isTouchAction) return;
+
           isDown = true;
-          hasDragged = false;
+          hasDragged = false; // ドラッグ状態をリセット
           container.style.cursor = "grabbing";
-          startX = e.pageX - container.offsetLeft;
-          startY = e.pageY - container.offsetTop;
-          scrollLeft = container.scrollLeft;
-          scrollTop = container.scrollTop;
+          
+          startX = e.pageX;
+          startY = e.pageY;
+          startScrollLeft = container.scrollLeft;
+          startScrollTop = vScrollTarget.scrollTop;
       };
-      container.onmouseleave = () => { isDown = false; container.style.cursor = "default"; };
+
+      container.onmouseleave = () => {
+          isDown = false;
+          container.style.cursor = "default";
+      };
+
       container.onmouseup = () => {
           isDown = false;
           container.style.cursor = "default";
+          // 少し遅らせてフラグを戻す（クリックイベントとの競合回避）
           setTimeout(() => { hasDragged = false; }, 50);
       };
+
       container.onmousemove = (e) => {
           if (!isDown) return;
           e.preventDefault();
-          const x = e.pageX - container.offsetLeft;
-          const y = e.pageY - container.offsetTop;
-          const walkX = (x - startX) * 1.5; 
-          const walkY = (y - startY) * 1.5; 
           
+          const x = e.pageX;
+          const y = e.pageY;
+          const walkX = (x - startX) * 1.5;
+          const walkY = (y - startY) * 1.5;
+          
+          // 5px以上動いたらドラッグとみなす
           if (Math.abs(walkX) > 5 || Math.abs(walkY) > 5) {
               hasDragged = true;
           }
-          container.scrollLeft = scrollLeft - walkX;
-          container.scrollTop = scrollTop - walkY;
+
+          container.scrollLeft = startScrollLeft - walkX;
+          vScrollTarget.scrollTop = startScrollTop - walkY;
       };
   }
-
   // 日付・予約データ抽出
   const rawDateVal = document.getElementById(dateInputId).value; 
   const targetDateNum = formatDateToNum(new Date(rawDateVal)); 
