@@ -486,8 +486,8 @@ function drawTimeAxis(containerId) {
   }
 }
 /* ==============================================
-   修正版: renderVerticalTimeline
-   (スマホタップ不具合 & マップ時スクロール不具合 対応版)
+   修正版v2: renderVerticalTimeline
+   (スマホタップ対応 & マップ時の滑らかスクロール対応)
    ============================================== */
 function renderVerticalTimeline(mode) {
     let container, dateInputId, targetRooms, timeAxisId;
@@ -542,7 +542,11 @@ function renderVerticalTimeline(mode) {
         container.style.maxWidth = "100vw";
         container.style.overflowX = "auto";
         container.style.minWidth = "0";
-        container.style.overscrollBehavior = "contain";
+        
+        // ★修正: マップモード時は親へのスクロール連動(bubbling)を許可する
+        // これにより、強制スクロールJSを使わずに滑らかなネイティブスクロールが可能になります
+        container.style.overscrollBehavior = (mode === 'map') ? "auto" : "contain";
+
         container.style.display = "flex";
         container.style.flexWrap = "nowrap";
         container.style.alignItems = "flex-start";
@@ -611,23 +615,12 @@ function renderVerticalTimeline(mode) {
             }
         };
 
-        // ==============================================
-        // 【修正2】 マップモード時のマウスホイール強制スクロール
-        // ==============================================
-        if (mode === 'map' && mapWrapper) {
-            container.addEventListener('wheel', (e) => {
-                // 予約枠の上でホイールを回した時、親のmapWrapperをスクロールさせる
-                // 拡大縮小(Ctrlキー)などは除外
-                if (!e.ctrlKey) {
-                    mapWrapper.scrollTop += e.deltaY;
-                    // 必要であれば preventDefault() を入れるが、
-                    // 最近のブラウザは passive: true がデフォルトなので注意
-                }
-            }, { passive: false });
-        }
+        // ★削除: 以前ここにあった「強制スクロール(wheelイベント)」は削除しました。
+        // container.style.overscrollBehavior = "auto" にしたことで不要になり、
+        // これを消すことでスクロールが滑らかになります。
     }
 
-    // --- 以下、データ描画処理 (変更なしだがコンテキスト維持のため記載) ---
+    // --- 以下、データ描画処理 (変更なし) ---
     
     const rawDateVal = document.getElementById(dateInputId).value;
     const targetDateNum = formatDateToNum(new Date(rawDateVal));
