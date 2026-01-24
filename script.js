@@ -548,6 +548,15 @@ function renderVerticalTimeline(mode) {
   let startX, startY, scrollLeft, scrollTop;
   let hasDragged = false; 
 
+  // ★追加修正: 縦スクロールさせる対象を決定する
+  // mapモードの時はコンテナ自体がoverflow:visibleで伸びきっているため、
+  // 親の .map-wrapper をスクロール対象にする必要があります。
+  let vScrollTarget = container;
+  if (container && mode === 'map') {
+      const wrapper = container.closest('.map-wrapper');
+      if (wrapper) vScrollTarget = wrapper;
+  }
+
   if (container) {
       container.onmousedown = (e) => {
           isDown = true;
@@ -556,7 +565,8 @@ function renderVerticalTimeline(mode) {
           startX = e.pageX - container.offsetLeft;
           startY = e.pageY - container.offsetTop;
           scrollLeft = container.scrollLeft;
-          scrollTop = container.scrollTop;
+          // ★修正: 適切な対象からscrollTopを取得
+          scrollTop = vScrollTarget.scrollTop; 
       };
       container.onmouseleave = () => { isDown = false; container.style.cursor = "default"; };
       container.onmouseup = () => {
@@ -576,7 +586,8 @@ function renderVerticalTimeline(mode) {
               hasDragged = true;
           }
           container.scrollLeft = scrollLeft - walkX;
-          container.scrollTop = scrollTop - walkY;
+          // ★修正: 適切な対象をスクロールさせる
+          vScrollTarget.scrollTop = scrollTop - walkY; 
       };
   }
 
