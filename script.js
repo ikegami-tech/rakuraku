@@ -720,27 +720,40 @@ let nowTopPx = -1;
         body.appendChild(slot);
     }
     
-    // グリッドクリック（空き枠クリック）
+   // グリッドクリック（空き枠クリック）
     body.onclick = (e) => {
+       // ドラッグ中なら反応させない
        if (hasDragged) return;
+
+       // 予約バー（既存予約）をクリックした場合は反応させない（バー側の処理に任せる）
        if (e.target.closest('.v-booking-bar')) return;
-       if(e.target.classList.contains('grid-slot') || e.target === body) {
-           const rect = body.getBoundingClientRect();
-           const clickY = e.clientY - rect.top; 
-           let clickedHour = -1;
-           let clickedMin = 0; 
-           for(let h=START_HOUR; h<END_HOUR; h++) {
-               const top = hourTops[h];
-               const bottom = hourTops[h+1] !== undefined ? hourTops[h+1] : (top + hourRowHeights[h]);
-               if (clickY >= top && clickY < bottom) {
-                   clickedHour = h;
-                   const height = bottom - top;
-                   const relativeY = clickY - top; 
-                   if (relativeY >= height / 2) clickedMin = 30;
-                   break;
-               }
+
+       // ★修正: クリック対象がなんであれ、body内であれば座標計算して処理する
+       // (以前の classList.contains('grid-slot') だけだと、枠線などをタップした時に反応しない場合があるため)
+       
+       const rect = body.getBoundingClientRect();
+       const clickY = e.clientY - rect.top; // 上からの位置
+       
+       let clickedHour = -1;
+       let clickedMin = 0; 
+       
+       // クリック位置がどの時間の枠にあるか計算
+       for(let h=START_HOUR; h<END_HOUR; h++) {
+           const top = hourTops[h];
+           const bottom = hourTops[h+1] !== undefined ? hourTops[h+1] : (top + hourRowHeights[h]);
+           
+           if (clickY >= top && clickY < bottom) {
+               clickedHour = h;
+               const height = bottom - top;
+               const relativeY = clickY - top; 
+               // 枠の下半分なら30分扱いにする
+               if (relativeY >= height / 2) clickedMin = 30;
+               break;
            }
-           if(clickedHour !== -1) openModal(null, room.roomId, clickedHour, clickedMin);
+       }
+       
+       if(clickedHour !== -1) {
+           openModal(null, room.roomId, clickedHour, clickedMin);
        }
     };
 
