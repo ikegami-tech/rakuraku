@@ -857,7 +857,11 @@ function renderVerticalTimeline(mode) {
         container.appendChild(col);
     });
 
+    // ==============================================
+    // 【修正箇所】スクロール復元 & ズレ補正
+    // ==============================================
     if (container) {
+        // 1. スクロール位置の復元
         if (mode === 'map' && mapWrapper) {
              mapWrapper.scrollTop = savedScrollTop;
         } else {
@@ -866,8 +870,22 @@ function renderVerticalTimeline(mode) {
         }
         
         const axisContainerEnd = document.getElementById(timeAxisId);
-        if (axisContainerEnd && mode === 'all') {
+        
+        // 2. ★追加：予約一覧モードの場合、横スクロールバーの分だけ時間軸の下に詰め物をする
+        if (mode === 'all' && axisContainerEnd) {
             axisContainerEnd.scrollTop = savedScrollTop;
+            
+            // コンテナ全体の高さ - 中身の表示高さ = 横スクロールバーの高さ
+            const scrollBarHeight = container.offsetHeight - container.clientHeight;
+            
+            // スクロールバーが出ている場合のみ実行
+            if (scrollBarHeight > 0) {
+                const spacer = document.createElement('div');
+                spacer.style.height = scrollBarHeight + 'px'; // ズレている分の高さを確保
+                spacer.style.width = '1px';
+                spacer.style.flexShrink = '0';
+                axisContainerEnd.appendChild(spacer);
+            }
         }
     }
 }
