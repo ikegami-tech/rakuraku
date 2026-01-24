@@ -2113,25 +2113,3 @@ async function sendContactFeedback() {
     alert("通信エラーが発生しました");
   }
 }
-/* ==============================================
-   マニュアルモーダル開閉 (シンプル版)
-   ============================================== */
-
-// モーダルを開く
-function openManualModal() {
-  // 設定メニューが出ていれば閉じる
-  const dropdown = document.getElementById("settings-dropdown");
-  if(dropdown) dropdown.classList.remove("show");
-
-  // モーダルを表示
-  document.getElementById('manualModal').style.display = 'flex';
-  
-  // スクロール位置を一番上に戻す
-  const body = document.querySelector('.manual-body');
-  if (body) body.scrollTop = 0;
-}
-
-// モーダルを閉じる
-function closeManualModal() {
-  document.getElementById('manualModal').style.display = 'none';
-}
