@@ -557,8 +557,8 @@ function renderVerticalTimeline(mode) {
         container.style.webkitUserSelect = "none";
     }
 
-   // ==============================================
-    // 【修正】 ドラッグスクロール処理 (PCのみ有効化 & マウスホイール対応)
+    // ==============================================
+    // 【修正1】 ドラッグスクロール処理 (PCのみ有効化)
     // ==============================================
     let isDown = false;
     let startX, startY;
@@ -567,76 +567,40 @@ function renderVerticalTimeline(mode) {
     let isTouch = false; // スマホ判定フラグ
 
     if (container) {
-        // タッチ開始を検知したらフラグを立てる（スマホでの誤作動防止）
+        // タッチ開始を検知したらフラグを立てる
         container.addEventListener('touchstart', () => { isTouch = true; }, { passive: true });
 
         // マップモード時のスクロール対象（親ラッパー または 自分自身）
-        // マップ画面では、タイムラインだけでなく画面全体(mapWrapper)を縦スクロールさせるため
-        const mapWrapper = document.querySelector('.map-wrapper');
-        
-        // ★修正ポイント: マップモードなら親ラッパー、それ以外ならコンテナ自身を縦スクロール対象にする
         const vScrollTarget = (mode === 'map') ? mapWrapper : container;
 
-        // 1. マウスホイール (Shift+ホイール または 横スクロール操作への対応)
-        // addEventListenerではなく onwheel プロパティを使うことでイベント重複を防ぐ
-        container.onwheel = (e) => {
-            if (e.ctrlKey) return; // ズーム操作は除外
-
-            // 横方向のスクロール量 (deltaX) がある、または Shiftキーが押されている場合
-            // PCのトラックパッドの横スクロールや、Shift+マウスホイールに対応
-            if (e.deltaX !== 0 || e.shiftKey) {
-                e.preventDefault();
-                // 縦回転(deltaY)を横移動に変換してスクロールさせる
-                container.scrollLeft += (e.deltaX || e.deltaY);
-            }
-            // 縦スクロールのみの場合は、標準の動作(縦移動)をさせるため preventDefaultしない
-        };
-
-        // 2. ドラッグ操作開始 (マウスダウン)
         container.onmousedown = (e) => {
-            // スマホならPC用ドラッグ処理を即座に中断（ネイティブスクロールに任せる）
+            // ★スマホならPC用ドラッグ処理を即座に中断（ネイティブスクロールに任せる）
             if (isTouch) return;
-
-            // 予約バーや入力要素の上ではドラッグを開始しない
-            if (e.target.closest('.v-booking-bar') || 
-                ['INPUT', 'SELECT', 'BUTTON', 'TEXTAREA'].includes(e.target.tagName)) {
-                return;
-            }
-
-            e.preventDefault(); // テキスト選択などを防止
 
             isDown = true;
             hasDragged = false;
-            container.style.cursor = "grabbing"; // 掴んでいるカーソルに変更
-            
+            container.style.cursor = "grabbing";
             startX = e.pageX;
             startY = e.pageY;
-            
-            // 現在のスクロール位置を保存
             startScrollLeft = container.scrollLeft;
-            // 縦スクロール位置の取得元を分岐 (vScrollTargetがあればそこから、なければ0)
+            // 縦スクロール位置の取得元を分岐
             startScrollTop = vScrollTarget ? vScrollTarget.scrollTop : 0;
         };
 
-        // ドラッグ終了 (マウスアップ、枠外れ)
-        const stopDragging = () => {
+        container.onmouseleave = () => { isDown = false; container.style.cursor = "default"; };
+        container.onmouseup = () => {
             isDown = false;
-            container.style.cursor = "default"; // 元のカーソルに戻す
+            container.style.cursor = "default";
             // クリック判定のために少し遅らせてフラグを下ろす
             setTimeout(() => { hasDragged = false; }, 50);
         };
-        
-        container.onmouseleave = stopDragging;
-        container.onmouseup = stopDragging;
 
-        // 3. ドラッグ中 (マウスムーブ)
         container.onmousemove = (e) => {
-            if (!isDown || isTouch) return; // ドラッグ中でない、またはスマホなら無視
+            if (!isDown || isTouch) return; // スマホなら無視
             e.preventDefault();
 
             const x = e.pageX;
             const y = e.pageY;
-            // 1.5倍速で移動
             const walkX = (x - startX) * 1.5;
             const walkY = (y - startY) * 1.5;
 
@@ -645,12 +609,15 @@ function renderVerticalTimeline(mode) {
                 hasDragged = true;
             }
 
-            // ★ここが重要: 横スクロールと縦スクロールを同時に適用
             container.scrollLeft = startScrollLeft - walkX;
             if (vScrollTarget) {
                 vScrollTarget.scrollTop = startScrollTop - walkY;
             }
         };
+
+        // ★削除: 以前ここにあった「強制スクロール(wheelイベント)」は削除しました。
+        // container.style.overscrollBehavior = "auto" にしたことで不要になり、
+        // これを消すことでスクロールが滑らかになります。
     }
 
     // --- 以下、データ描画処理 (変更なし) ---
